@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<plcProject caseSensitive="false" extcheck="true">
+	<image>BZ172Lab.imgx</image>
+	<commSettings>Modbus:1,1000#COM:1,38400,E,8,1</commSettings>
+	<sources>
+		<main>BZ172Lab.plc</main>
+		<target id="M172P_596p10">FreeAdvance_HMI_596p10.tgt</target>
+		<libraries>
+			<lib link="false">HMIInterface.pll</lib>
+			<lib link="false">basic.plclib</lib>
+			<lib link="false">Regul and Control.plclib</lib>
+			<lib link="false">Application.plclib</lib>
+			<lib link="false">Communication.pll</lib>
+			<lib link="false">Pumping.pll</lib>
+			<lib link="false">display.plclib</lib>
+		</libraries>
+		<aux/>
+	</sources>
+	<codegen listing="false" warningEnable="true" symMap="true" saveEXPFile="false" waitExtension="false" saveTargetFiles="false">
+		<disabledWarnings>
+			<warning>G0091</warning>
+			<warning>G0094</warning>
+			<warning>G0130</warning>
+			<warning>G0072</warning>
+		</disabledWarnings>
+	</codegen>
+	<debug watchRefresh="20" watchMaxArray="20"/>
+	<editor useOldGridSize="false"/>
+	<userDef>
+		<release/>
+		<author/>
+		<note/>
+		<version/>
+	</userDef>
+	<commands>
+		<postbuild/>
+		<postdown/>
+		<predown/>
+	</commands>
+</plcProject>

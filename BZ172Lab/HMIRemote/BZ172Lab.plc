@@ -1,0 +1,540 @@
+PROGRAM PageDraw WITH Draw;
+PROGRAM PageRefresh WITH Refresh;
+
+	(***************************)
+	(*                         *)
+	(*     GLOBAL VARIABLES    *)
+	(*                         *)
+	(***************************)
+
+VAR_GLOBAL
+
+	{G:"Call stack"}
+	giStackPtr : INT := -1;
+	guiCallStack : ARRAY[ 0..9 ] OF UINT;
+
+	{G:"Sets"}
+	$PagIndex : UINT;
+	$PagNumber : UINT;
+	$waitRefresh : BOOL;
+
+	{G:"page1_vars"}
+	fbpage1 : Drawpage1;
+	fbRefrpage1 : Refrpage1;
+
+END_VAR
+
+	(***************************)
+	(*                         *)
+	(*        CONSTANTS        *)
+	(*                         *)
+	(***************************)
+
+VAR_GLOBAL CONSTANT
+
+	{G:"Fonts"}
+	EWP2_6x8_len : USINT := 6;
+	EWP2_6x8_hei : USINT := 8;
+	EWP2_6x8_offs : USINT := 0;
+	EWP2_6x8 : ARRAY[ 0..1693 ] OF BYTE := 0,6,8,0,211,1,0,32,0,33,0,34,0,35,0,36,
+				0,37,0,38,0,39,0,40,0,41,0,42,0,43,0,44,
+				0,45,0,46,0,47,0,48,0,49,0,50,0,51,0,52,
+				0,53,0,54,0,55,0,56,0,57,0,58,0,59,0,60,
+				0,61,0,62,0,63,0,64,0,65,0,66,0,67,0,68,
+				0,69,0,70,0,71,0,72,0,73,0,74,0,75,0,76,
+				0,77,0,78,0,79,0,80,0,81,0,82,0,83,0,84,
+				0,85,0,86,0,87,0,88,0,89,0,90,0,91,0,92,
+				0,93,0,94,0,95,0,96,0,97,0,98,0,99,0,100,
+				0,101,0,102,0,103,0,104,0,105,0,106,0,107,0,108,
+				0,109,0,110,0,111,0,112,0,113,0,114,0,115,0,116,
+				0,117,0,118,0,119,0,120,0,121,0,122,0,123,0,124,
+				0,125,0,126,0,127,0,161,0,176,0,191,0,196,0,199,
+				0,214,0,220,0,223,0,224,0,225,0,228,0,231,0,232,
+				0,233,0,234,0,235,0,236,0,237,0,238,0,239,0,241,
+				0,242,0,243,0,244,0,246,0,249,0,250,0,251,0,252,
+				1,30,1,48,1,94,4,48,4,49,4,50,4,51,4,52,
+				4,53,4,54,4,55,4,56,4,57,4,58,4,59,4,60,
+				4,61,4,62,4,63,4,64,4,65,4,66,4,67,4,68,
+				4,69,4,70,4,71,4,72,4,73,4,74,4,75,4,76,
+				4,77,4,78,4,79,4,16,4,17,4,18,4,19,4,20,
+				4,21,4,22,4,23,4,24,4,25,4,26,4,27,4,28,
+				4,29,4,30,4,31,4,32,4,33,4,34,4,35,4,36,
+				4,37,4,38,4,39,4,40,4,41,4,42,4,43,4,44,
+				4,45,4,46,4,47,1,31,1,49,1,95,0,205,0,227,
+				0,226,0,195,0,194,0,193,0,192,0,201,0,200,0,211,
+				0,213,0,245,0,218,0,209,0,202,0,204,9(0),79,4(0),7,
+				0,7,0,0,20,127,20,127,20,0,36,42,127,42,18,35,
+				19,8,100,98,0,0,54,73,85,34,80,0,0,5,3,4(0),
+				28,34,65,3(0),65,34,28,0,0,20,8,62,8,20,0,8,
+				8,62,8,8,0,0,80,48,0,0,5(8),3(0),96,96,0,0,
+				32,16,8,4,2,0,62,81,73,69,62,0,0,66,127,64,
+				0,0,66,97,81,73,70,0,33,65,69,75,49,0,24,20,
+				18,127,16,0,39,3(69),57,0,60,74,73,73,49,0,1,113,
+				9,5,3,0,54,3(73),54,0,6,73,73,41,30,0,0,54,
+				54,4(0),86,54,3(0),8,20,34,65,0,0,5(20),0,0,65,34,
+				20,8,0,2,1,81,9,6,0,50,73,121,65,62,0,126,
+				3(17),126,0,127,3(73),54,0,62,3(65),34,0,127,65,65,34,28,
+				0,127,3(73),65,0,127,3(9),1,0,62,65,73,73,122,0,127,
+				3(8),127,0,0,65,127,65,0,0,32,64,65,63,1,0,127,
+				8,20,34,65,0,127,4(64),0,127,2,12,2,127,0,127,4,
+				8,16,127,0,62,3(65),62,0,127,3(9),6,0,62,65,81,33,
+				94,0,127,9,25,41,70,0,70,3(73),49,0,1,1,127,1,
+				1,0,63,3(64),63,0,31,32,64,32,31,0,63,64,56,64,
+				63,0,99,20,8,20,99,0,7,8,112,8,7,0,97,81,
+				73,69,67,0,0,127,65,65,0,0,2,4,8,16,32,0,
+				0,65,65,127,0,0,4,2,1,2,4,0,5(64),0,0,1,
+				2,4,0,0,32,3(84),120,0,127,72,68,68,56,0,56,3(68),
+				32,0,48,72,72,80,127,0,56,3(84),24,0,8,126,9,1,
+				2,0,12,3(82),62,0,127,8,4,4,120,0,0,68,125,64,
+				0,0,32,64,68,61,0,0,127,16,40,68,3(0),65,127,64,
+				0,0,124,4,24,4,120,0,124,8,4,4,120,0,56,3(68),
+				56,0,124,3(20),8,0,8,20,20,24,124,0,124,8,4,4,
+				8,0,72,3(84),32,0,4,63,68,64,32,0,60,64,64,32,
+				124,0,28,32,64,32,28,0,60,64,48,64,60,0,68,40,
+				16,40,68,0,12,3(80),60,0,68,100,84,76,68,0,0,8,
+				54,65,4(0),119,4(0),65,54,8,0,0,6,1,30,32,24,0,
+				0,9,5,251,40,3(0),244,3(0),6,9,9,6,3(0),96,144,138,
+				64,0,120,37,36,37,120,0,30,161,225,33,18,0,60,67,
+				66,67,60,0,60,65,64,65,60,0,126,33,69,74,48,0,
+				40,85,86,120,64,0,34,85,84,56,64,0,41,84,84,57,
+				64,0,24,164,228,36,0,0,56,85,86,88,0,0,56,84,
+				84,90,1,0,56,86,85,86,24,0,56,85,84,85,24,0,
+				0,73,122,64,4(0),122,1,3(0),2,121,2,3(0),1,124,1,0,
+				0,124,10,5,6,121,0,56,68,68,69,58,0,56,68,70,
+				69,56,0,48,74,73,74,48,0,48,74,72,74,48,0,0,
+				56,65,66,56,64,0,56,66,65,56,64,56,66,65,58,64,
+				0,56,66,64,58,64,0,56,69,70,85,52,3(0),125,3(0),34,
+				165,229,37,25,0,32,3(84),120,0,124,84,84,32,0,0,124,
+				84,84,40,0,0,124,4,4,12,0,0,96,56,36,60,96,
+				0,56,3(84),24,0,108,16,124,16,108,0,40,68,84,40,0,
+				0,124,32,16,8,124,0,124,33,18,9,124,0,124,16,24,
+				100,0,0,64,56,4,124,0,0,124,8,16,8,124,0,124,
+				16,16,124,0,0,56,68,68,56,0,0,124,4,4,124,0,
+				0,252,36,36,24,0,0,56,68,68,40,0,0,4,4,124,
+				4,4,0,76,80,48,12,0,0,24,36,124,36,24,0,68,
+				40,16,40,68,0,124,64,64,124,128,0,12,16,16,124,0,
+				0,124,64,120,64,124,0,124,64,120,64,252,0,4,124,80,
+				80,32,0,124,80,80,32,124,0,124,80,80,32,0,0,68,
+				84,84,56,0,0,124,16,56,68,56,0,64,40,20,20,124,
+				0,126,3(17),126,0,127,3(69),57,0,127,3(73),54,0,127,3(1),3,
+				0,96,62,33,63,96,0,127,3(73),65,0,119,8,127,8,119,
+				0,34,3(73),54,0,127,16,8,4,127,0,127,16,9,4,127,
+				0,127,8,22,33,65,0,64,62,1,1,127,0,127,2,12,
+				2,127,0,127,3(8),127,0,62,3(65),62,0,127,3(1),127,0,127,
+				3(9),6,0,62,3(65),34,0,1,1,127,1,1,0,71,3(72),63,
+				0,28,34,127,34,28,0,99,20,8,20,99,0,127,64,64,
+				127,192,0,7,3(8),127,0,127,64,127,64,127,0,127,64,127,
+				64,255,0,1,127,72,72,48,0,127,72,48,0,127,0,127,
+				3(72),48,0,34,3(73),62,0,127,8,62,65,62,0,70,41,25,
+				9,127,0,24,165,166,165,124,0,0,68,124,64,0,0,36,
+				170,234,42,16,0,0,68,126,69,0,0,34,85,86,57,64,
+				0,32,86,85,86,120,0,122,37,38,37,120,0,120,38,37,
+				38,120,0,120,36,38,37,120,0,120,37,38,36,120,0,124,
+				86,85,68,0,0,124,85,86,68,0,0,56,68,70,69,56,
+				0,58,69,70,69,56,0,52,74,76,74,48,0,60,64,66,
+				65,60,0,124,10,17,34,125,0,124,86,85,70,3(0),69,126,
+				68,0,0;
+
+	{G:"Keys"}
+	kKEY_Enter : USINT := 13;
+	kKEY_LongLeft : USINT := 15;
+	kKEY_Left : USINT := 8;
+	kKEY_Right : USINT := 12;
+	kKEY_Up : USINT := 11;
+	kKEY_Down : USINT := 10;
+	kKEY_LongUp : USINT := 17;
+	kKEY_LongDown : USINT := 18;
+	kKEY_LongEnter : USINT := 19;
+	kKEY_LongRight : USINT := 16;
+	kKEY_VK_F1 : USINT := 30;
+	kKEY_VK_F2 : USINT := 31;
+	kKEY_VK_F3 : USINT := 32;
+	kKEY_VK_F4 : USINT := 33;
+	kKEY_VK_F5 : USINT := 34;
+	kKEY_VK_F6 : USINT := 35;
+	kKEY_VK_F7 : USINT := 36;
+	kKEY_VK_F8 : USINT := 37;
+	kKEY_VK_F9 : USINT := 38;
+	kKEY_VK_F10 : USINT := 39;
+
+	{G:"Data types"}
+	tyUndefined : USINT := 19;
+	tyBool : USINT := 1;
+	tySInt : USINT := 2;
+	tyInt : USINT := 5;
+	tyDInt : USINT := 9;
+	tyLInt : USINT := 12;
+	tyUSInt : USINT := 3;
+	tyUInt : USINT := 6;
+	tyUDInt : USINT := 10;
+	tyULInt : USINT := 13;
+	tyReal : USINT := 15;
+	tyLReal : USINT := 16;
+	tyByte : USINT := 4;
+	tyWord : USINT := 7;
+	tyDWord : USINT := 11;
+	tyLWord : USINT := 14;
+	tyString : USINT := 17;
+
+	{G:"Messages"}
+	kWM_NULL : UINT := 0;
+	kWM_KEY : UINT := 1;
+	kWM_MSG : UINT := 2;
+	kWM_SELECT : UINT := 3;
+	kWM_PUSH : UINT := 4;
+	kEV_WM_TEXTSELECT : UINT := 5;
+	kEV_WM_OPENPAGE : UINT := 6;
+	kEV_WM_CLOSEPAGE : UINT := 7;
+	kEV_WM_CHANGESETPAGE : UINT := 8;
+
+	{G:"Access modes"}
+	kACS_IDLE : USINT := 0;
+	kACS_INIT : USINT := 1;
+	kACS_PRINT : USINT := 2;
+	kACS_SELECT : USINT := 3;
+	kACS_MODIFY : USINT := 4;
+	kACS_DELETE : USINT := 5;
+	kACS_QUERY : USINT := 6;
+	kACS_BCKQUERY : USINT := 7;
+	kACS_CLOSE : USINT := 8;
+	kACS_OPEN : USINT := 9;
+
+	{G:"Parameters and device"}
+	kCOMM_PROTO_ID_LOCAL : USINT := 1;
+	kCOMM_PROTO_ID_MODBUS_RTU : USINT := 2;
+	kCOMM_PROTO_ID_MODBUS_TCP : USINT := 3;
+	kCOMM_PROTO_ID_CANOPEN : USINT := 4;
+
+	{G:"Resources"}
+	kLangBaseLanguage : UDINT := 0;
+
+
+	(*** Enumeratives: ***)
+
+	{G:"Parameters"}
+	kPAR_MSG_NOTFOUND : UINT := 103;
+	kPAR_MSG_SYSERR : UINT := 106;
+	kPAR_ERR_OK : UINT := 0;
+	kPAR_ERR_NOTFOUND : UINT := 1;
+	kPAR_ERR_INVTYPE : UINT := 3;
+
+END_VAR
+
+	(***************************)
+	(*                         *)
+	(*        PROGRAMS         *)
+	(*                         *)
+	(***************************)
+
+PROGRAM PageDraw
+
+	VAR
+	res : USINT;
+	END_VAR
+
+	{CODE:ST}
+	(* Locking the video *)
+	res := Video_Lock( res );
+
+	(* INIT HMI ENVIRONMENT *)
+	res := Video_InitHMI( TRUE );
+
+	(* Switching on the LCD *)
+	res := Video_Switch( TRUE );
+
+	(* Initializing the length of the call stack *)
+	giStackPtr := 0;
+
+	(* Declaring the code of the keys for driving the editing mode *)
+	res := Video_SetEditKey( 0, kKEY_Enter );
+	res := Video_SetEditKey( 1, kKEY_LongLeft );
+	res := Video_SetEditKey( 3, kKEY_Left );
+	res := Video_SetEditKey( 4, kKEY_Right );
+	res := Video_SetEditKey( 5, kKEY_Up );
+	res := Video_SetEditKey( 6, kKEY_Down );
+	res := Video_SetEditKey( 12, kKEY_LongUp );
+	res := Video_SetEditKey( 13, kKEY_LongDown );
+
+	(* *** DECLARING THE RESOURCES *** *)
+	res := Video_LoadLanguage( 0, 0 );
+
+	(* Declaring the imported fonts *)
+	res := Video_AddFontUnicode( ?EWP2_6x8, EWP2_6x8_len, EWP2_6x8_hei );
+
+	(* Declaring the system attributes of windows *)
+	res := Video_SetWndSysProps( ?EWP2_6x8, 16777215, 0 );
+
+	(* *** INITIALIZING THE OBJECTS OF PAGE 'page1' *** *)
+
+	(* Init the set elements *)
+	guiCallStack[ giStackPtr ] := 0;
+	WHILE TRUE DO
+		CASE guiCallStack[ giStackPtr ] OF
+
+			0:
+				fbpage1();
+
+
+		END_CASE;
+
+
+	END_WHILE;
+
+
+END_PROGRAM
+
+PROGRAM PageRefresh
+
+VAR
+res : USINT;
+END_VAR
+
+	{CODE:ST}
+	(* Wait for the PageDraw to start *)
+	WHILE giStackPtr < 0 DO
+		res := Video_Sleep(50);
+	END_WHILE;
+
+	WHILE TRUE DO
+		CASE guiCallStack[ giStackPtr ] OF
+
+			0:
+				fbRefrpage1();
+
+
+		END_CASE;
+
+		res := Video_Sleep( 50 );
+
+	END_WHILE;
+
+
+END_PROGRAM
+
+	(***************************)
+	(*                         *)
+	(*  ALARM PAGE F. BLOCKS   *)
+	(*                         *)
+	(***************************)
+
+	(***********************************)
+	(*                                 *)
+	(* EXPRESSIONS RESOLVER F. BLOCKS  *)
+	(*                                 *)
+	(***********************************)
+
+	(***************************)
+	(*                         *)
+	(* PAGE-DRAWING F. BLOCKS  *)
+	(*                         *)
+	(***************************)
+
+FUNCTION_BLOCK Drawpage1
+
+	VAR_OUTPUT
+	uiOutVar : UINT;
+	END_VAR
+
+	VAR_EXTERNAL
+	guiCallStack : ARRAY[ 0..9 ] OF UINT;
+	giStackPtr : INT;
+	$waitRefresh : BOOL;
+	END_VAR
+
+	VAR
+	res : USINT;
+	bStatRedrw : BOOL;
+	bMapsReset : BOOL;
+	iNextSel : INT;
+	$Set_IndexVisEl : UINT;
+	$Set_CycleRefresh : UINT;
+	$Set_PtrBoolVis : @BOOL;
+	$Set_VisEl : BOOL;
+	$Set_IndexPageInSet : UINT;
+	$Set_ForcePageReload : BOOL;
+	$Set_NextPage : BOOL;
+	$Set_PrevPage : BOOL;
+	$Set_LocalSetPagNumber: UINT;
+	$Set_NumVisEl: UINT;
+	$Set_LastFirstEl: INT;
+	udiev : UDINT;
+	ev : UINT;
+	key : USINT;
+	x1 : UINT;
+	y1 : UINT;
+	x2 : UINT;
+	y2 : UINT;
+	wParam : UINT;
+	END_VAR
+
+	{CODE:ST}
+
+	(* Writing this page's ID to the top of the callstack *)
+	guiCallStack[ giStackPtr ] := 16#00;
+
+	(* Flag of waiting for refresh task *)
+	$waitRefresh := TRUE;
+
+	(* Resetting the object map *)
+	res := Video_ResetMaps( 16#00 );
+
+	(* Setting flags: this page is to be drawn *)
+	bStatRedrw := TRUE;
+	bMapsReset := TRUE;
+
+	(* The area to be cleared is the area of the entire page *)
+	x1:= 0;
+	y1:= 0;
+	x2:= 127;
+	y2:= 63;
+
+	(* Unlocking the video *)
+	res := Video_Unlock( res );
+
+	WHILE TRUE DO
+
+		(* Locking the video *)
+		res := Video_Lock( res );
+
+		(* Initializing the page *)
+		res := Video_InitPage( 0, 0, 127, 63, ?' ', 16#0003 );
+
+		(* Setting the page colors *)
+		res := Video_SetPageColors( 0, 16777215 );
+
+		IF bStatRedrw THEN
+
+			(* *** CLEARING PAGE AREA *** *)
+			res := Video_ClrRect( x1, y1, x2, y2 );
+
+		END_IF;
+
+		IF bMapsReset THEN
+
+			(* Resetting all maps *)
+			res := Video_ResetMaps( 16#01 );
+
+			(* *** DRAW PAGE CONTROLS *** *)
+
+			(* *** PAGE SECTION *** *)
+
+			(* *** DRAW CONTROLS *** *)
+
+			(* Select the first selectable control *)
+			iNextSel := Video_FirstLastEdit( TRUE, FALSE );
+			IF iNextSel > -1 THEN
+				res := Video_SendEvent( kWM_SELECT, TO_UINT(iNextSel) );
+			END_IF;
+
+
+		END_IF;
+
+		(* Unlocking the video *)
+		res := Video_Unlock( res );
+
+		(* Reset the flags for page redraw request *)
+		bStatRedrw := FALSE;
+		bMapsReset := FALSE;
+
+		(* *** EVENTS HANDLING *** *)
+		WHILE TRUE DO
+
+			(* the drawing task wait the refreshing task *)
+			IF $waitRefresh THEN
+				res := Video_Sleep( 50 );
+			ELSE
+
+				(* Retrieving events *)
+				udiev := Video_GetEvent( res );
+				(* Extracting the event code *)
+				ev := TO_UINT(udiev);
+
+				CASE ev OF
+
+				(* Key-related events handling: *)
+				kWM_KEY:
+
+					key := TO_USINT(SHR(udiev, 16));
+
+					CASE key OF
+
+					END_CASE;
+
+				END_CASE;
+			END_IF;
+
+		END_WHILE;
+
+	END_WHILE;
+
+END_FUNCTION_BLOCK
+
+	(***************************)
+	(*                         *)
+	(* REFRESHING FUN. BLOCKS  *)
+	(*                         *)
+	(***************************)
+
+FUNCTION_BLOCK Refrpage1
+
+	VAR_EXTERNAL
+	guiCallStack : ARRAY[ 0..9 ] OF UINT;
+	giStackPtr : INT;
+	$waitRefresh : BOOL;
+	END_VAR
+
+	VAR
+	res : USINT;
+	pagID : UINT;
+	n : USINT;
+	iSP : INT;
+	pDC : UDINT;
+	rx1 : UINT;
+	ry1 : UINT;
+	rx2 : UINT;
+	ry2 : UINT;
+	END_VAR
+
+	{CODE:ST}
+
+	REPEAT
+
+		(* Locking the video *)
+		res := Video_Lock( res );
+
+		(* Testing if page has changed *)
+		pagID := guiCallStack[ giStackPtr ];
+
+		IF pagID = 16#00 THEN
+
+			(* the refresh task is arrived *)
+			$waitRefresh := FALSE;
+
+			(* *** REFRESH PAGE CONTROLS *** *)
+
+			(* *** REFRESHING BACKGROUND ITEMS *** *)
+			(* Cursor across the call stack *)
+			iSP := giStackPtr;
+
+			(* *** REFRESHING PARENT BACKGROUND ITEMS *** *)
+
+			
+		END_IF;
+
+		(* Unlocking the video *)
+		res := Video_Unlock( res );
+
+		(* Suspending the task *)
+		res := Video_Sleep( 50 );
+
+	UNTIL pagID <> 16#00
+	END_REPEAT;
+
+END_FUNCTION_BLOCK
+
+	(***************************)
+	(*                         *)
+	(* PARAMETER  FUN. BLOCKS  *)
+	(*                         *)
+	(***************************)
+

@@ -1,0 +1,565 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<plcLibrary schemaVersion="2.4">
+	<lib version="1.0.3" name="BZ172Lab" fullXml="true">
+		<descr/>
+		<libWorkspace>
+			<folder id="15" name="BZ172Lab">
+				<folder name="Programs">
+					<Pou name="BZActuatorUTProg"/>
+				</folder>
+				<folder name="Interfaces">
+					<Pou name="BZActuatorBase_SetMode"/>
+					<Pou name="BZActuatorBase_GetStatus"/>
+					<Pou name="BZProportionalValve_Run"/>
+					<Pou name="BZECFan_Run"/>
+					<Pou name="BZElectricHeaterBar_Run"/>
+					<Pou name="BZProportionalValve_Command"/>
+					<Pou name="BZECFan_Command"/>
+					<Pou name="BZElectricHeaterBar_Command"/>
+				</folder>
+				<folder name="Components">
+					<Definition name="BZProportionalValve"/>
+					<Definition name="BZAnalogActuator"/>
+					<Definition name="BZActuatorBase"/>
+					<Definition name="BZECFan"/>
+					<Definition name="BZElectricHeaterBar"/>
+					<Definition name="BZBinaryOutput"/>
+				</folder>
+				<folder name="Types">
+					<Definition name="BZActuatorStatus"/>
+					<Definition name="BZActuatorMode"/>
+					<Definition name="BZRealRange"/>
+				</folder>
+				<folder name="Utilities">
+					<Pou name="BZComputeY"/>
+					<Pou name="BZBoundY"/>
+				</folder>
+			</folder>
+		</libWorkspace>
+		<globalVars/>
+		<retainVars/>
+		<constantVars/>
+		<functions>
+			<function name="BZBoundY" version="1.0.0" creationDate="1607935276" lastModifiedDate="1607935797">
+				<returnValue>REAL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="minY" type="REAL"/>
+						<var name="maxY" type="REAL"/>
+						<var name="Y" type="REAL"/>
+					</inputVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[if (minY > maxY) then
+	if (Y > minY) then
+		BZBoundY := minY;
+	elsif (Y < maxY) then
+		BZBoundY := maxY;
+	else
+		BZBoundY := Y;
+	end_if;
+else
+	if (Y > maxY) then
+		BZBoundY := maxY;
+	elsif (Y < minY) then
+		BZBoundY := minY;
+	else
+		BZBoundY := Y;
+	end_if;
+end_if; 
+]]>
+				</sourceCode>
+			</function>
+			<function name="BZComputeY" version="1.0.0" creationDate="1607928975" lastModifiedDate="1607930034">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="x1" type="REAL"/>
+						<var name="y1" type="REAL"/>
+						<var name="x2" type="REAL"/>
+						<var name="y2" type="REAL"/>
+						<var name="x" type="REAL"/>
+						<var name="y" type="@REAL"/>
+					</inputVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[/*
+** Computes the output Y for the input X.  x must be scaled the same as x1 and x2.
+** y1 and y2 must be scaled the same.
+** The output Y, will be scaled the same as y1 and y2.
+**
+** Care must be taken to choose scalings to avoid overflow.
+** The equation is implement this way:
+** y = (y2 - y1) * (x - x1) / (x2 - x1) + y1
+**
+** You are also responsible for bounding x1, and x2 to prevent overflow of the output.
+**
+** Returns the value FALSE if the value x2 - x1 = 0
+*/
+
+if (x2 = x1) then	// TODO : IS THAT A GOOD WAY TO DO THIS?
+	@y := 0.0;
+	
+	BZComputeY := FALSE;
+else
+	@y := (((y2 - y1) * (x - x1)) / (x2 - x1)) + y1;
+	
+	BZComputeY := TRUE;
+end_if;
+]]>
+				</sourceCode>
+			</function>
+			<function name="BZElectricHeaterBar_Command" version="1.0.0" creationDate="1607668556" lastModifiedDate="1607675868">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZElectricHeaterBar"/>
+						<var name="mode" type="BZActuatorMode"/>
+						<var name="is_on" type="BOOL"/>
+					</inputVars>
+					<localVars>
+						<var name="rtn" type="BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+rtn := BZActuatorBase_SetMode(?(@me.Parent.Parent), mode);
+
+@me.Parent.Command := is_on;
+
+BZElectricHeaterBar_Command := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="BZECFan_Command" version="1.0.0" creationDate="1607667134" lastModifiedDate="1607926693">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZECFan"/>
+						<var name="mode" type="BZActuatorMode"/>
+						<var name="speed_pct" type="REAL"/>
+					</inputVars>
+					<localVars>
+						<var name="rtn" type="BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+rtn := BZActuatorBase_SetMode(?(@me.Parent.Parent), mode);
+
+@me.Parent.CommandPct := speed_pct;
+
+BZECFan_Command := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="BZProportionalValve_Command" version="1.0.0" creationDate="1607664549" lastModifiedDate="1607926683">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZProportionalValve"/>
+						<var name="mode" type="BZActuatorMode"/>
+						<var name="position_pct" type="REAL"/>
+					</inputVars>
+					<localVars>
+						<var name="rtn" type="BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+rtn := BZActuatorBase_SetMode(?(@me.Parent.Parent), mode);
+
+@me.Parent.CommandPct := position_pct;
+
+BZProportionalValve_Command := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="BZElectricHeaterBar_Run" version="1.0.0" creationDate="1607668556" lastModifiedDate="1607676320">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZElectricHeaterBar"/>
+					</inputVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+case @me.Parent.Parent.Mode of
+	
+	STANDBY:
+		@me.Parent.Parent.Status := OFF;
+
+	AUTO:
+		@me.Parent.Parent.Status := RUNNING;
+	
+	MANUAL:
+		@me.Parent.Parent.Status := RUNNING;
+	
+	IO:
+		@me.Parent.Parent.Status := RUNNING;
+
+end_case;
+
+BZElectricHeaterBar_Run := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="BZECFan_Run" version="1.0.0" creationDate="1607667134" lastModifiedDate="1607670447">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZECFan"/>
+					</inputVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+case @me.Parent.Parent.Mode of
+	
+	STANDBY:
+		@me.Parent.Parent.Status := OFF;
+
+	AUTO:
+		@me.Parent.Parent.Status := RUNNING;
+	
+	MANUAL:
+		@me.Parent.Parent.Status := RUNNING;
+	
+	IO:
+		@me.Parent.Parent.Status := RUNNING;
+
+end_case;
+
+BZECFan_Run := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="BZProportionalValve_Run" version="1.0.0" creationDate="1607664549" lastModifiedDate="1607935816">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZProportionalValve"/>
+					</inputVars>
+					<localVars>
+						<var name="rtn" type="BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+case @me.Parent.Parent.Mode of
+	
+	STANDBY:
+		@me.Parent.Parent.Status := OFF;
+		@me.Parent.CommandPct := 0.0;
+
+	AUTO:
+		@me.Parent.Parent.Status := RUNNING;
+		
+		@me.Parent.CommandPct := BZBoundY(@me.Parent.LimitationPct.Min,
+										  @me.Parent.LimitationPct.Max,
+										  @me.Parent.CommandPct);		
+	
+	MANUAL:
+		@me.Parent.Parent.Status := RUNNING;
+		
+		@me.Parent.CommandPct := BZBoundY(@me.Parent.LimitationPct.Min,
+										  @me.Parent.LimitationPct.Max,
+										  @me.Parent.CommandPct);
+	
+	IO:
+		@me.Parent.Parent.Status := RUNNING;
+
+end_case;
+
+// Convert command into voltage according to the configurable range
+rtn := BZComputeY(@me.Parent.LimitationPct.Min, 
+				  @me.SignalVoltageRange.Min, 
+				  @me.Parent.LimitationPct.Max, 
+				  @me.SignalVoltageRange.Max,
+				  @me.Parent.CommandPct, 
+				  ?(@me.SignalVoltage));
+
+BZProportionalValve_Run := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="BZActuatorBase_GetStatus" version="1.0.0" creationDate="1607662241" lastModifiedDate="1607670404">
+				<returnValue>BZActuatorStatus</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZActuatorBase"/>
+					</inputVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+BZActuatorBase_GetStatus := @me.Status;
+]]>
+				</sourceCode>
+			</function>
+			<function name="BZActuatorBase_SetMode" version="1.0.0" creationDate="0" lastModifiedDate="1607670413">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZActuatorBase"/>
+						<var name="mode" type="BZActuatorMode"/>
+					</inputVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+@me.Mode := mode;
+
+BZActuatorBase_SetMode := TRUE;
+
+]]>
+				</sourceCode>
+			</function>
+		</functions>
+		<functionBlocks/>
+		<programs>
+			<program name="BZActuatorUTProg" version="1.0.0" creationDate="0" lastModifiedDate="1607933425">
+				<vars>
+					<localVars>
+						<var name="res" type="BOOL"/>
+						<var name="valve1" type="BZProportionalValve"/>
+						<var name="fan1" type="BZECFan"/>
+						<var name="heater1" type="BZElectricHeaterBar"/>
+						<var name="probes" type="INT" dim0="4">
+							<initValue>[0, 0, 0, 0]</initValue>
+						</var>
+						<var name="cnt" type="UINT">
+							<initValue>0</initValue>
+						</var>
+						<var name="actuators" type="@BZActuatorBase" dim0="10"/>
+						<var name="analog_actuators" type="@BZAnalogActuator" dim0="5"/>
+						<var name="i" type="INT"/>
+						<var name="binary_actuators" type="@BZBinaryOutput" dim0="3"/>
+						<var name="is_first_called" type="BOOL">
+							<initValue>TRUE</initValue>
+						</var>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+if (is_first_called) then
+	/*
+		initialize local variables
+	 */
+	i := 0;
+	
+	analog_actuators[0] := ?(valve1.Parent);
+	actuators[i] := ?(@analog_actuators[0].Parent); i := i + 1;
+	analog_actuators[1] := ?(fan1.Parent);
+	actuators[i] := ?(@analog_actuators[1].Parent); i := i + 1;
+	
+	binary_actuators[0] := ?(heater1.Parent);
+	actuators[i] := ?(@binary_actuators[0].Parent); i := i + 1;
+	
+	is_first_called := FALSE;
+else
+	/*
+		command actuators
+	 */
+	if MOD(cnt, 10) = 0 then
+		res := BZProportionalValve_Command(?valve1, AUTO, 40.5);
+	else
+		res := BZProportionalValve_Command(?valve1, STANDBY, 0);
+	end_if;
+	
+	
+	if MOD(cnt, 100) = 0 then
+		res := BZECFan_Command(?fan1, AUTO, 89.7);
+	else
+		res := BZECFan_Command(?fan1, STANDBY, 0);
+	end_if;
+	
+	
+	if MOD(cnt, 1000) = 0 then
+		res := BZElectricHeaterBar_Command(?heater1, AUTO, TRUE);
+	else
+		res := BZElectricHeaterBar_Command(?heater1, STANDBY, FALSE);
+	end_if;
+	
+	/*
+		run actuators
+	 */
+	res := BZProportionalValve_Run(?valve1);
+	res := BZECFan_Run(?fan1);
+	res := BZElectricHeaterBar_Run(?heater1);
+	
+	
+	/*
+		check actuators status
+	 */
+	for i := 0 to 2 do
+		if (BZActuatorBase_GetStatus(actuators[i]) = AUTO) then
+			probes[i] := probes[i] + 1;
+		end_if;
+	end_for;
+	
+end_if;
+
+/*
+	supporting 
+ */
+cnt := cnt + 1;
+]]>
+				</sourceCode>
+			</program>
+		</programs>
+		<macros/>
+		<structs>
+			<struct name="BZRealRange" version="1.0.0">
+				<descr>The minimal and maximum types are 'real'.</descr>
+				<vars>
+					<var name="Min" type="REAL">
+						<initValue>0.0</initValue>
+					</var>
+					<var name="Max" type="REAL">
+						<initValue>100.0</initValue>
+					</var>
+				</vars>
+			</struct>
+			<struct name="BZBinaryOutput" version="1.0.0">
+				<descr>A binary output has a configurable output according to the command.</descr>
+				<vars>
+					<var name="Parent" type="BZActuatorBase">
+						<initValue>(MODE:=STANDBY, STATUS:=OFF)</initValue>
+					</var>
+					<var name="Command" type="BOOL">
+						<initValue>FALSE</initValue>
+					</var>
+					<var name="Output" type="BOOL">
+						<initValue>FALSE</initValue>
+					</var>
+					<var name="IsReversed" type="BOOL">
+						<initValue>FALSE</initValue>
+					</var>
+				</vars>
+			</struct>
+			<struct name="BZElectricHeaterBar" version="1.0.0">
+				<descr>A heater bar is actually a resistor controlled by a relay to generate heat.</descr>
+				<vars>
+					<var name="Command" type="BOOL">
+						<initValue>FALSE</initValue>
+					</var>
+					<var name="Parent" type="BZBinaryOutput"/>
+				</vars>
+			</struct>
+			<struct name="BZECFan" version="1.0.0">
+				<descr>The EC type fan normally accepts a DC voltage as a command to regulate the speed and
+the feedback is converted to RPM from a plus feedback.</descr>
+				<vars>
+					<var name="Parent" type="BZAnalogActuator"/>
+					<var name="CommandVoltage" type="REAL">
+						<initValue>0.0</initValue>
+					</var>
+					<var name="FeedbackTacho" type="UINT">
+						<initValue>0</initValue>
+					</var>
+				</vars>
+			</struct>
+			<struct name="BZActuatorBase" version="1.0.0">
+				<vars>
+					<var name="Mode" type="BZActuatorMode"/>
+					<var name="Status" type="BZActuatorStatus"/>
+				</vars>
+			</struct>
+			<struct name="BZAnalogActuator" version="1.0.0">
+				<descr>The command to the actuator is an analog type input.</descr>
+				<vars>
+					<var name="Parent" type="BZActuatorBase">
+						<initValue>(MODE:=STANDBY, STATUS:=OFF)</initValue>
+					</var>
+					<var name="CommandPct" type="REAL">
+						<initValue>0.0</initValue>
+					</var>
+					<var name="FeedbackPct" type="REAL">
+						<initValue>0.0</initValue>
+					</var>
+					<var name="LimitationPct" type="BZRealRange">
+						<initValue>(Min:=0.0,Max:=100.0)</initValue>
+					</var>
+				</vars>
+			</struct>
+			<struct name="BZProportionalValve" version="1.0.0">
+				<descr>The proportional valve actuator is type of a motor that can be regulated by the given command of position.
+Normally it is presented by a DC voltage. An output DC type singal is sometimes provided as the position feedback
+of the actual position.</descr>
+				<vars>
+					<var name="Parent" type="BZAnalogActuator"/>
+					<var name="SignalVoltage" type="REAL">
+						<initValue>0.0</initValue>
+					</var>
+					<var name="FeedbackVoltage" type="REAL">
+						<initValue>0.0</initValue>
+					</var>
+					<var name="SignalVoltageRange" type="BZRealRange">
+						<initValue>(Min:=0.0,Max:=10.0)</initValue>
+					</var>
+					<var name="FeedbackVoltageRange" type="BZRealRange">
+						<initValue>(Min:=0.0,Max:=10.0)</initValue>
+					</var>
+				</vars>
+			</struct>
+		</structs>
+		<typedefs/>
+		<enums>
+			<enum name="BZActuatorMode" version="1.0.0">
+				<elements>
+					<element name="STANDBY">
+						<descr>All outputs are hold on</descr>
+						<value>0</value>
+					</element>
+					<element name="AUTO">
+						<descr>Outputs are regulated by control logic</descr>
+						<value>1</value>
+					</element>
+					<element name="MANUAL">
+						<descr>Outputs are set manually with protection</descr>
+						<value>2</value>
+					</element>
+					<element name="IO">
+						<descr>Outputs are set manually without limitation</descr>
+						<value>3</value>
+					</element>
+				</elements>
+			</enum>
+			<enum name="BZActuatorStatus" version="1.0.0">
+				<elements>
+					<element name="OFF">
+						<descr>No output</descr>
+						<value>0</value>
+					</element>
+					<element name="RUNNING">
+						<descr>Output is as expected</descr>
+						<value>1</value>
+					</element>
+					<element name="IDLE">
+						<descr>Output is locked down due to fault</descr>
+						<value>2</value>
+					</element>
+					<element name="STARTING">
+						<descr>OFF to RUN</descr>
+						<value>3</value>
+					</element>
+					<element name="STOPPING">
+						<descr>RUNNING to OFF or IDLE</descr>
+						<value>4</value>
+					</element>
+				</elements>
+			</enum>
+		</enums>
+		<subranges/>
+		<interfaces/>
+	</lib>
+</plcLibrary>

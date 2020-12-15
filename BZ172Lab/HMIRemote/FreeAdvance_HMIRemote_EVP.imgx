@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<targetImage fileVersion="1.0">
+	<info targetID="0x8000012B" memoryID="0x8EB5" fullMemoryID="0xDD25">
+		<features deviceFeatures="0x8000012B" extendedDeviceFeatures="0x8B"/>
+		<codeArea address="0xA1A80000" size="0x180000" addrArea1="0xA1A80000" addrArea2="0x0"/>
+		<dataArea address="0xA1C00000" size="0x80000"/>
+		<bitDataArea address="0x0" size="0x0"/>
+		<retainDataArea address="0x0" size="0x0"/>
+		<debug address="0x0" size="0x0" traceAreaAddress="0x0" traceAreaSize="0x0"/>
+		<stack limit="0x0"/>
+		<sourceCode supported="0" address="0x0" size="0x0"/>
+	</info>
+	<tasks controlBitsAddress="0x40009D40">
+		<task index="0" name="Draw" flags="0x0" period="1000"/>
+		<task index="1" name="Refresh" flags="0x0" period="1000"/>
+	</tasks>
+	<dataBlocks address="0x6E2E0" size="23">
+		<dataBlock index="0" type="memory" address="0x40000008" image="0" size="1" elementSize="4" access="read"/>
+		<dataBlock index="1" type="input" address="0x40005608" image="1" size="10" elementSize="2" access="read"/>
+		<dataBlock index="1" type="memory" address="0x40005656" image="0" size="1" elementSize="9" access="read"/>
+		<dataBlock index="2" type="input" address="0x4000561C" image="1" size="10" elementSize="2" access="read"/>
+		<dataBlock index="3" type="input" address="0x40005630" image="1" size="4" elementSize="1" access="read"/>
+		<dataBlock index="2" type="output" address="0x40000014" image="0" size="3" elementSize="1" access="readWrite"/>
+		<dataBlock index="2" type="memory" address="0x4000001C" image="0" size="1" elementSize="1" access="read"/>
+		<dataBlock index="3" type="output" address="0x40000017" image="0" size="1" elementSize="1" access="readWrite"/>
+		<dataBlock index="3" type="memory" address="0x40000074" image="0" size="1" elementSize="4" access="read"/>
+		<dataBlock index="4" type="memory" address="0x4000006C" image="0" size="1" elementSize="4" access="read"/>
+		<dataBlock index="32" type="memory" address="0x40000030" image="0" size="1" elementSize="2" access="read"/>
+		<dataBlock index="33" type="memory" address="0x40000032" image="0" size="1" elementSize="2" access="read"/>
+		<dataBlock index="34" type="memory" address="0x40000068" image="0" size="1" elementSize="2" access="readWrite" flags="0x00"/>
+		<dataBlock index="35" type="memory" address="0x4000006A" image="0" size="1" elementSize="2" access="readWrite" flags="0x00"/>
+		<dataBlock index="99" type="memory" address="0x40008D56" image="0" size="2" elementSize="2" access="readWrite"/>
+		<dataBlock index="100" type="memory" address="0x40008BC0" image="0" size="245" elementSize="2" access="read"/>
+		<dataBlock index="3005" type="memory" address="0xA000008E" image="0" size="1" elementSize="2" access="read"/>
+		<dataBlock index="3006" type="memory" address="0xA000008E" image="0" size="1" elementSize="2" access="read" flags="0x00"/>
+		<dataBlock index="3007" type="memory" address="0xA00001EE" image="0" size="1" elementSize="2" access="read" flags="0x00"/>
+		<dataBlock index="3008" type="memory" address="0x40000258" image="0" size="5" elementSize="1" access="read" flags="0x00"/>
+		<dataBlock index="3009" type="memory" address="0xA0000204" image="0" size="10" elementSize="2" access="read" flags="0x00"/>
+		<dataBlock index="3104" type="memory" address="0xA0000004" image="0" size="1" elementSize="4" access="readWrite" flags="0x00"/>
+		<dataBlock index="3105" type="memory" address="0xA000015E" image="0" size="1" elementSize="2" access="read" flags="0x00"/>
+	</dataBlocks>
+	<functions address="0x6E510" size="96">
+		<function name="strncpy" address="0x60690"/>
+		<function name="strncmp" address="0x60279"/>
+		<function name="strncat" address="0x60147"/>
+		<function name="_do_int_div" address="0x1F238"/>
+		<function name="_do_mod" address="0x1F258"/>
+		<function name="_i_to_float" address="0x1F27C"/>
+		<function name="_ui_to_float" address="0x1F294"/>
+		<function name="_float_to_int" address="0x1F2AC"/>
+		<function name="_fadd" address="0x1F2C4"/>
+		<function name="_fsub" address="0x1F2E4"/>
+		<function name="_fmul" address="0x1F304"/>
+		<function name="_do_float_div" address="0x1F324"/>
+		<function name="_do_float_lt" address="0x1F344"/>
+		<function name="_do_float_le" address="0x1F378"/>
+		<function name="_do_float_eq" address="0x1F3AC"/>
+		<function name="_do_float_ne" address="0x1F3E0"/>
+		<function name="_do_float_gt" address="0x1F414"/>
+		<function name="_do_float_ge" address="0x1F448"/>
+		<function name="_do_float_abs" address="0x1F47C"/>
+		<function name="_do_sqrt" address="0x1F4AC"/>
+		<function name="_do_sin" address="0x1F4DC"/>
+		<function name="_do_cos" address="0x1F50C"/>
+		<function name="_do_tan" address="0x1F53C"/>
+		<function name="_do_asin" address="0x1F56C"/>
+		<function name="_do_acos" address="0x1F59C"/>
+		<function name="_do_sinh" address="0x1F5CC"/>
+		<function name="_do_cosh" address="0x1F5FC"/>
+		<function name="_do_tanh" address="0x1F62C"/>
+		<function name="_do_atan" address="0x1F65C"/>
+		<function name="_do_atan2" address="0x1F68C"/>
+		<function name="_do_log" address="0x1F6DC"/>
+		<function name="_do_ln" address="0x1F70C"/>
+		<function name="_do_exp" address="0x1F73C"/>
+		<function name="_do_pow" address="0x1F76C"/>
+		<function name="_do_ceil" address="0x1F7BC"/>
+		<function name="_do_floor" address="0x1F7EC"/>
+		<function name="_ret_max_val" address="0x1F81C"/>
+		<function name="_ret_min_val" address="0x1F84C"/>
+		<function name="_ret_min_limit" address="0x1F8AC"/>
+		<function name="_ret_max_limit" address="0x1F87C"/>
+		<function name="sysClockWrite" address="0x8C78"/>
+		<function name="Video_Lock" address="0x211F0"/>
+		<function name="Video_Unlock" address="0x21210"/>
+		<function name="Video_SendEvent" address="0x21248"/>
+		<function name="Video_GetEvent" address="0x21338"/>
+		<function name="Video_Sleep" address="0x2122C"/>
+		<function name="Video_PrintStr" address="0x2157C"/>
+		<function name="Video_PrintNChar" address="0x21364"/>
+		<function name="Video_InitPage" address="0x25D3C"/>
+		<function name="Video_ClrRect" address="0x235DC"/>
+		<function name="Video_SaveRect" address="0x23928"/>
+		<function name="Video_Switch" address="0x231C0"/>
+		<function name="Video_InitHMI" address="0x231CC"/>
+		<function name="Video_DrawFrames" address="0x23B90"/>
+		<function name="Video_WriteFromBuff" address="0x26444"/>
+		<function name="Video_ResetMaps" address="0x25770"/>
+		<function name="Video_SetWndSysProps" address="0x238E8"/>
+		<function name="Video_SetPageColors" address="0x2347C"/>
+		<function name="Video_SetEditKey" address="0x238BC"/>
+		<function name="Video_AddFont" address="0x22E00"/>
+		<function name="Video_AddFontUnicode" address="0x22F6C"/>
+		<function name="Video_SetColors" address="0x23494"/>
+		<function name="Video_SetFont" address="0x234CC"/>
+		<function name="Video_LoadLanguage" address="0x28E88"/>
+		<function name="Video_PrintResStr" address="0x22DBC"/>
+		<function name="Video_EnterEdit" address="0x2804C"/>
+		<function name="Video_EnterEditSel" address="0x27C44"/>
+		<function name="Video_NextEdit" address="0x28414"/>
+		<function name="Video_FirstLastEdit" address="0x28238"/>
+		<function name="Video_PrevEdit" address="0x2874C"/>
+		<function name="Video_PushButton" address="0x28068"/>
+		<function name="Video_Line" address="0x239A8"/>
+		<function name="Video_Rectangle" address="0x23A00"/>
+		<function name="Video_DrawBorder" address="0x257E8"/>
+		<function name="Video_PrintBitmap" address="0x28CC0"/>
+		<function name="Video_DelBitmap" address="0x28CEC"/>
+		<function name="Video_InitBmpTreeRefresh" address="0x292C8"/>
+		<function name="Video_EndBmpTreeRefresh" address="0x292FC"/>
+		<function name="Video_EvNotify" address="0x29334"/>
+		<function name="Video_GetParam" address="0x29A10"/>
+		<function name="Video_SetParam" address="0x29C80"/>
+		<function name="Image" address="0x2ACB0"/>
+		<function name="Animation" address="0x2B31C"/>
+		<function name="EditBox01" address="0x2B738"/>
+		<function name="Progress" address="0x2D314"/>
+		<function name="Button02" address="0x29F9C"/>
+		<function name="Static01" address="0x2A6C0"/>
+		<function name="sysSwap_DiaToHmi" address="0x18A74"/>		
+		<function name="sysUpload_HmiFromDevice" address="0x1962C"/>
+		<function name="sysHmi_Message" address="0x1FED4"/>
+		<function name="sysDBase_AddDevice" address="0x19684"/>
+		<function name="sysINT_TO_STRING" address="0x3883C"/>
+		<function name="sysSTRCAT" address="0x3892C"/>
+		<function name="sysSTREQU" address="0x38980"/>
+		<function name="sysSTREXT" address="0x3E71C"/>
+		<function name="sysSTRINGtoINT" address="0x3E6FC"/>
+	</functions>
+</targetImage>

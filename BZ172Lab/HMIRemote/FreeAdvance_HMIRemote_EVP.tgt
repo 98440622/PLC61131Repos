@@ -1,0 +1,924 @@
+(************************************************************************)
+(*                                                                      *)
+(*	Description: Definition of target variables and functions       *)
+(*                                                                      *)
+(************************************************************************)
+
+RESOURCE EWP2gi_HMI ON ARM9
+
+	TASK Draw    ( INTERVAL := t#20ms, PRIORITY := 0 );
+	TASK Refresh ( INTERVAL := t#20ms, PRIORITY := 1 );
+
+END_RESOURCE
+
+TYPE
+    TypeDataTime : STRUCT
+	seconds : USINT;  {DE: "seconds          " }
+	minutes : USINT;  {DE: "minutes          " }
+	hours   : USINT;  {DE: "hours            " }
+	dayweek : USINT;  {DE: "day of week      " }
+	daymonth: USINT;  {DE: "day of month     " }
+	month   : USINT;  {DE: "month            " }
+	year    : USINT;  {DE: "year             " }
+    END_STRUCT;
+END_TYPE
+
+TYPE
+    MBMNODESTATUS : STRUCT 
+	com_hdlr : BYTE; { DE:"Communication handler" }
+	addr_1 : USINT; { DE:"Network address part 1" }
+	addr_2 : USINT; { DE:"Network address part 2" }
+	addr_3 : USINT; { DE:"Network address part 3" }
+	addr_4 : USINT; { DE:"Network address part 4" }
+	cfg : BOOL := FALSE; { DE:"Configurated" }
+	pres : BOOL := FALSE; { DE:"Present" }
+	miss : BOOL := FALSE; { DE:"Slave failure" }
+	missCnt : UINT; { DE:"Number of Task Timed cycles with Slave failure" }
+	state : UINT; { DE:"Slave failure error code" }
+    END_STRUCT;
+END_TYPE
+
+(************************************************************************)
+(*                         									                            *)
+(*   GLOBAL VARIABLES                                                   *)
+(*                                                                      *)
+(************************************************************************)
+
+VAR_GLOBAL 
+	sysLangID		AT %MW99.0	: WORD;				{ DE:"HMI active Language ID" }
+	
+	{G:"Led & Backlight Status"}                                                				
+	sysLocalLeds    	AT %QB2.0	: ARRAY[ 0..2 ] OF USINT;	
+	{ IO:"Local Leds Status.
+	sysLocalLeds[0] = Green led
+	sysLocalLeds[1] = Red led
+	sysLocalLeds[2] = Yellow led	
+		
+	0 = Led Off.
+	1 = Led On.
+	2 = Led Blink.
+" }
+	
+	sysBacklight    	AT %QB3.0	: USINT;			
+	{ IO:"Backlight Status.
+	0 = Off.
+	1 = On.
+	2 = Blink.
+	3 = Timed.
+	4 = Timed running.	
+ " }	
+ 
+ 	{G:"System Timers"}                                                 				
+	sysTimer 		AT %MD0.0 	: UDINT;			{ DE:"System timer [ms]"}
+	
+	{G:"System BIOS version"}                                                                                    
+	sysMSK         AT %MW32.0 : UINT;                           { DE:"Mask number"}
+	sysVER         AT %MW33.0 : UINT;                           { DE:"Version number"}
+	
+	{G:"Keyboard"}                                                				
+	sysKeyPressed    				AT %MB3104.0	: DWORD;	
+	{ DE:"Last key pressed code.
+	KEY_NULL				= 0x00000000
+	KEY_UP					= 0x00100001
+	KEY_OK					= 0x00200001
+	KEY_RIGHT  			= 0x00800001
+	KEY_DOWN				= 0x01000001
+	KEY_LEFT				= 0x02000001
+	KEY_UP_LONG			= 0x80100001
+	KEY_OK_LONG			= 0x80200001
+	KEY_RIGHT_LONG	= 0x80800001
+	KEY_DOWN_LONG		= 0x81000001
+	KEY_LEFT_LONG		= 0x82000001
+" }	
+
+	sysCurrentSelectedPosition	AT %MB3105.0	: UINT;	{ DE:"Current selected position into current page order." }	
+		
+END_VAR
+
+                                                                      				
+
+(************************************************************************)    
+	(*                         *)
+	(*   EMBEDDED FUNCTIONS    *)
+	(*                         *)
+(************************************************************************)   
+FUNCTION Video_InitHMI : BOOL
+	
+	VAR_INPUT
+	dmy : BOOL;
+	END_VAR
+	
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+	
+	
+FUNCTION Video_Switch : USINT
+	
+	VAR_INPUT
+	on : USINT;
+	END_VAR
+	
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+	
+FUNCTION Video_DrawFrames : USINT
+	
+	VAR_INPUT
+	left : UINT;
+	top : UINT;
+	right : UINT;
+	bottom : UINT;
+	colBack : UDINT;
+	fBar : USINT;
+	pTitle : UDINT;
+	fResStr : BOOL;
+	fSysBtn : USINT;
+	style : USINT;
+	END_VAR
+		   
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+
+FUNCTION Video_InitPage : USINT
+	
+	VAR_INPUT
+	x1 : UINT;
+	y1 : UINT;
+	x2 : UINT;
+	y2 : UINT;
+	pTitle : UDINT;
+	wData : UINT;
+	END_VAR
+		   
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+
+FUNCTION Video_ClrRect : USINT
+	
+	VAR_INPUT
+	x1 : UINT;
+	y1 : UINT;
+	x2 : UINT;
+	y2 : UINT;
+	END_VAR
+		   
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+
+FUNCTION Video_SaveRect : USINT
+	
+	VAR_INPUT
+	x1 : UINT;
+	y1 : UINT;
+	x2 : UINT;
+	y2 : UINT;
+	END_VAR
+		   
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+
+FUNCTION Video_WriteFromBuff : USINT
+	
+	VAR_INPUT
+	x1 : UINT;
+	y1 : UINT;
+	x2 : UINT;
+	y2 : UINT;
+	END_VAR
+		   
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+
+FUNCTION Video_SetPageColors : USINT
+	
+	VAR_INPUT
+	colFore : UDINT;
+	colBack : UDINT;
+	END_VAR
+	
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+
+FUNCTION Video_SetWndSysProps : USINT
+	
+	VAR_INPUT
+	pFont	: UDINT;
+	colFore : UDINT;
+	colBack : UDINT;
+	END_VAR
+	
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+
+FUNCTION Video_SetEditKey : USINT
+	
+	VAR_INPUT
+	id : USINT;
+	code : USINT;
+	END_VAR
+	
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+
+FUNCTION Video_AddFont : USINT
+	
+	VAR_INPUT
+	pFont : UDINT;
+	charLen : USINT;
+	charHei : USINT;
+	offs : USINT;
+	END_VAR
+	
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+
+FUNCTION Video_AddFontUnicode : USINT
+	
+	VAR_INPUT
+	pFont : UDINT;
+	charLen : UINT;
+	charHei : USINT;
+	END_VAR
+	
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+
+FUNCTION Video_SetFont : USINT
+	
+	VAR_INPUT
+	fontPtr : UDINT;
+	END_VAR
+	
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+
+FUNCTION Video_SetColors : USINT
+	
+	VAR_INPUT
+	colForeTxt : UDINT;
+	colBackTxt : UDINT;
+	colForeSel : UDINT;
+	colBackSel : UDINT;
+	END_VAR
+	
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+
+FUNCTION Video_Line : USINT
+	
+	VAR_INPUT
+	x1 : UINT;
+	y1 : UINT;
+	x2 : UINT;
+	y2 : UINT;
+	pts : USINT;
+	color : UDINT;
+	END_VAR
+	
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+
+FUNCTION Video_Rectangle : USINT
+	
+	VAR_INPUT
+	x1 : UINT;
+	y1 : UINT;
+	x2 : UINT;
+	y2 : UINT;
+	pts : USINT;
+	transp : USINT;
+	bordCol : UDINT;
+	fillCol : UDINT;
+	END_VAR
+	
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+
+FUNCTION Video_PrintStr : USINT
+	
+	VAR_INPUT
+	str : STRING;
+	x : UINT;
+	y : UINT;
+	END_VAR
+	
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+	
+FUNCTION Video_PrintResStr : USINT
+	
+	VAR_INPUT
+	idRes : UINT;
+	x : UINT;
+	y : UINT;
+	END_VAR
+	
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+	
+FUNCTION Video_PrintNChar : USINT
+	
+	VAR_INPUT
+	str : STRING;
+	accMode : USINT;
+	x : UINT;
+	y : UINT;
+	nChar : USINT;
+	format : UDINT;
+	END_VAR
+	
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+
+FUNCTION Video_PrintBitmap : USINT
+
+	VAR_INPUT
+		ptrBmp : UDINT;
+		x : UINT;
+		y : UINT;
+	END_VAR
+	
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+
+FUNCTION Video_DelBitmap : USINT
+
+	VAR_INPUT
+		ptrBmp : UDINT;
+		x : UINT;
+		y : UINT;
+	END_VAR
+	
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+
+FUNCTION Video_DrawBorder : USINT
+
+	VAR_INPUT
+		style : USINT;
+		x1 : UINT;
+		y1 : UINT;
+		x2 : UINT;
+		y2 : UINT;
+		pts : USINT;
+		color : UDINT;
+	END_VAR
+	
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+
+FUNCTION Video_DelBorder : USINT
+
+	VAR_INPUT
+		style : USINT;
+		x1 : UINT;
+		y1 : UINT;
+		x2 : UINT;
+		y2 : UINT;
+		pts : USINT;
+	END_VAR
+	
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+
+FUNCTION Video_SendEvent : USINT
+	
+	VAR_INPUT
+	msgID : UINT;
+	wParam : UINT;
+	END_VAR
+	
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+
+FUNCTION Video_GetEvent : UDINT
+	
+	VAR_INPUT
+	dmy : USINT;
+	END_VAR
+	
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+
+FUNCTION Video_EnterEdit : USINT
+	
+	VAR_INPUT
+	wHnd : UINT;
+	END_VAR
+	
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+
+FUNCTION Video_EnterEditSel : USINT
+	
+	VAR_INPUT
+	wHnd : UINT;
+	onlySelect : BOOL;
+	END_VAR
+	
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+
+FUNCTION Video_NextEdit : UINT
+	
+	VAR_INPUT
+	fRWOnly : USINT;
+	END_VAR
+	
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+
+FUNCTION Video_FirstLastEdit : INT
+	
+	VAR_INPUT
+	fRWOnly : BOOL;
+	last : BOOL;
+	END_VAR
+	
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+
+
+
+FUNCTION Video_PrevEdit : UINT
+	
+	VAR_INPUT
+	fRWOnly : USINT;
+	END_VAR
+	
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+
+FUNCTION Video_PushButton : USINT
+	
+	VAR_INPUT
+	wHnd : UINT;
+	END_VAR
+	
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+
+FUNCTION Video_Lock : USINT
+	
+	VAR_INPUT
+	res : USINT;
+	END_VAR
+	
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+
+FUNCTION Video_Unlock : USINT
+	
+	VAR_INPUT
+	res : USINT;
+	END_VAR
+	
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+
+FUNCTION Video_Sleep : USINT
+	
+	VAR_INPUT
+	msec : UINT;
+	END_VAR
+	
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+
+FUNCTION Video_ResetMaps : USINT
+	
+	VAR_INPUT
+	res : USINT;
+	END_VAR
+	
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+
+	
+FUNCTION Video_LoadLanguage : USINT
+	
+	VAR_INPUT
+	pResStrings : UDINT;	{DE:"Pointer to resource strings of active language"}
+	pEnums : UDINT;			{DE:"Pointer to enumerated types of active language"}
+	END_VAR
+	
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+
+
+FUNCTION Video_InitBmpTreeRefresh : UDINT
+	
+	VAR_INPUT
+	x1 : UINT; {DE:"X-coordinate of the upper-left corner"}
+	y1 : UINT; {DE:"Y-coordinate of the upper-left corner"}
+	x2 : UINT; {DE:"X-coordinate of the lower-right corner"}
+	y2 : UINT; {DE:"Y-coordinate of the lower-right corner"}
+	END_VAR
+	
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+
+
+FUNCTION Video_EndBmpTreeRefresh : USINT
+	
+	VAR_INPUT
+	pDC : UDINT; {DE:"Pointer to the device context"}
+	x1  : UINT;  {DE:"X-coordinate of the upper-left corner"}
+	y1  : UINT;  {DE:"Y-coordinate of the upper-left corner"}
+	x2  : UINT;  {DE:"X-coordinate of the lower-right corner"}
+	y2  : UINT;  {DE:"Y-coordinate of the lower-right corner"}
+	END_VAR
+	
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+
+
+FUNCTION sysClockWrite: USINT
+	{ DE:"Write system clock" }
+	VAR_INPUT
+	    seconds	:	USINT; { DE:"seconds " }
+	    minutes	:	USINT; { DE:"minutes " }
+	    hours	:	USINT; { DE:"hours " }
+	    dayweek	:	USINT; { DE:"day of week " }
+	    daymonth	:	USINT; { DE:"day of month " }
+	    month	:	USINT; { DE:"month " } 
+	    year	:	USINT; { DE:"year " }
+	END_VAR
+	{ CODE:EMBEDDED }
+END_FUNCTION
+
+
+FUNCTION sysHmi_Message : BOOL
+	{ DE:"Open a Message window on display" }
+	VAR_INPUT
+	    id	:  USINT; { DE:"User Message window ID [1..99]" }
+	END_VAR
+	{CODE:EMBEDDED}
+END_FUNCTION
+
+
+FUNCTION sysINT_TO_STRING : BOOL
+{ DE:"Convert a INT number to a STRING" }
+
+	VAR_INPUT
+		msg   : STRING; { DE:"Decimal number in STRING format" }
+		len   : USINT;  { DE:"SIZEOF(String to fill)" }		
+		value : INT;    { DE:"Int to convert" }		
+	END_VAR
+
+    {CODE:EMBEDDED}
+END_FUNCTION
+
+
+FUNCTION sysSTRCAT : BOOL
+{ DE:"Append two STRINGs" }
+
+	VAR_INPUT
+		msg_des : STRING; { DE:"Destination string" }
+		len   	: USINT;  { DE:"SIZEOF(Destination string)" }		
+		msg_app : STRING; { DE:"String to append" }
+	END_VAR
+
+    {CODE:EMBEDDED}
+END_FUNCTION
+
+FUNCTION sysSTREQU : BOOL
+{ DE:"Test if two STRINGSs are equal" }
+
+	VAR_INPUT
+		msg1 : STRING; { DE:"first string" }
+		msg2 : STRING; { DE:"second string" }
+	END_VAR
+
+    {CODE:EMBEDDED}
+END_FUNCTION
+
+
+	(***************************)
+	(*                         *)
+	(*  EMBEDDED FUN. BLOCKS   *)
+	(*                         *)
+	(***************************)
+
+
+FUNCTION_BLOCK Video_GetPageColors
+
+	VAR_OUTPUT
+	color : UDINT;	{DE:"Actual page foreground color"}
+	back : UDINT;	{DE:"Actual page background color"}
+	END_VAR
+
+	{CODE:EMBEDDED}
+
+END_FUNCTION_BLOCK
+
+	
+	
+	(***************************)
+	(*                         *)
+	(*         OBJECTS         *)
+	(*                         *)
+	(***************************)
+
+FUNCTION_BLOCK Static01
+
+	VAR_INPUT
+	wHnd : UINT; {DE:"Object handle"}
+	x : UINT; {DE:"X-coordinate of the upper-left corner"}
+	y : UINT; {DE:"Y-coordinate of the upper-left corner"}
+	accMode : USINT; {DE:"Access mode"}
+	fResStr : BOOL; {DE:"Flag for resource strings"}
+	pString : UDINT; {DE:"Address of the string"}
+	pFont : UDINT; {DE:"Address of the font"}
+	foreCol : UDINT; {DE:"Foreground color"}
+	bckCol : UDINT; {DE:"Background color"}
+	pVisVar : UDINT; {DE:"Address of the visibility flag"}
+	format : UINT; {DE:"Alignment of static"}
+	style : USINT; {DE:"Appearence"}
+	bordPts : USINT; {DE:"Border thickness"}
+	bordCol : UDINT; {DE:"Border color"}
+        selBackCol : UDINT; {DE:"Selction background"}
+        selForeCol : UDINT; {DE:"Selection foreground"}
+	pRefrVar: UDINT; {DE:"Address of the refresh variable"}
+	pSelVar : UDINT; {DE:"Address of the selection variable"}
+        numChars : UINT; {DE:"Number of printable chars"}
+	END_VAR
+
+	VAR
+	memVis : BOOL; {DE:"Visibility status"}
+	END_VAR
+
+	{CODE:EMBEDDED}
+
+END_FUNCTION_BLOCK
+
+FUNCTION_BLOCK Image
+
+	VAR_INPUT
+	wHnd : UINT; {DE:"Object handle"}
+	x1 : UINT; {DE:"X-coordinate of the upper-left corner"}
+	y1 : UINT; {DE:"Y-coordinate of the upper-left corner"}
+	px1 	 : UDINT; {DE:"Address of the variable X-coordinate of the upper-left corner"}
+	py1 	 : UDINT; {DE:"Address of the variable Y-coordinate of the upper-left corner"}
+	type_x 	 : USINT; {DE:"Data type of the X-coordinate variable"}
+	type_y 	 : USINT; {DE:"Data type of the Y-coordinate variable"}
+	dx : UINT; {DE:"X-coordinate of the lower-right corner"}
+	dy : UINT; {DE:"Y-coordinate of the lower-right corner"}
+	style : USINT; {DE:"Appearence"}
+	floating : BOOL; {DE:"Floating style enabled"}
+	bordPts : USINT; {DE:"Border thickness"}
+	bordCol : UDINT; {DE:"Border color"}
+	bordSelCol : UDINT; {DE:"Border selection color"}
+	accMode : USINT; {DE:"Access mode"}
+	pBmp : UDINT; {DE:"Address of the main bitmap"}
+	pSelBmp : UDINT; {DE:"Address of the selection bitmap"}
+	pSelVar : UDINT; {DE:"Address of the selection variable"}
+	pVisVar : UDINT; {DE:"Address of the visibility variable"}
+	END_VAR
+
+	VAR_OUTPUT
+	reqRefr : BOOL; {DE:"Request of refresh"}
+	abs_x1 : UINT; {DE:"Absolute X-coordinate"}
+	abs_y1 : UINT; {DE:"Absolute Y-coordinate"}
+	mem_x1 : UINT; {DE:"Past absolute X-coordinate"}
+	mem_y1 : UINT; {DE:"Past absolute Y-coordinate"}
+	END_VAR
+
+	VAR
+	memVis : BOOL; {DE:"Visibility status"}
+	memSel : BOOL; {DE:"Visibility status"}
+	END_VAR
+
+	{CODE:EMBEDDED}
+
+END_FUNCTION_BLOCK
+
+FUNCTION_BLOCK Animation
+
+	VAR_INPUT
+	wHnd : UINT; {DE:"Object handle"}
+	x1 : UINT; {DE:"X-coordinate of the upper-left corner"}
+	y1 : UINT; {DE:"Y-coordinate of the upper-left corner"}
+	x2 : UINT; {DE:"X-coordinate of the lower-right corner"}
+	y2 : UINT; {DE:"Y-coordinate of the lower-right corner"}
+	style : USINT; {DE:"Appearence"}
+	bordPts  : USINT; {DE:"Border thickness"}
+	bordCol  : UDINT; {DE:"Border color"}
+	accMode  : USINT; {DE:"Access mode"}
+	pBmpArr  : UDINT; {DE:"Address of the first element of the bitmap array"}
+	pCaseArr : UDINT; {DE:"Address of the first element of the selection array"}
+	nArrEl   : USINT; {DE:"Number of elements of the image list"}
+	pBmpDef  : UDINT; {DE:"Address of the default bitmap"}
+	pSelVar  : UDINT; {DE:"Address of the selection variable"}
+	type 	 : USINT; {DE:"Data type of the selection variable"}
+	pVisVar  : UDINT; {DE:"Address of the visibility variable"}
+	END_VAR
+
+	VAR
+	mempBmp : UDINT; {DE:"Pointer to the bitmap drawn at the prev. iteration"}	
+	END_VAR
+
+	{CODE:EMBEDDED}
+
+END_FUNCTION_BLOCK
+
+FUNCTION_BLOCK Button02
+
+	VAR_INPUT
+	wHnd : UINT; {DE:"Object handle"}
+	x1 : UINT; {DE:"X-coordinate of the upper-left corner"}
+	y1 : UINT; {DE:"Y-coordinate of the upper-left corner"}
+	x2 : UINT; {DE:"X-coordinate of the lower-right corner"}
+	y2 : UINT; {DE:"Y-coordinate of the lower-right corner"}
+	fResStr : BOOL; {DE:"Flag for resource strings"}
+	pText : UDINT; {DE:"Address of the foreground string / picture"}
+	pFont : UDINT; {DE:"Address of the font"}
+	style : USINT; {DE:"Appearence"}
+	bordPts : USINT; {DE:"Border thickness"}
+	bordCol : UDINT; {DE:"Border color"}
+	fillCol : UDINT; {DE:"Fill color"}
+	bordSelCol : UDINT; {DE:"Border selection color"}
+	fillSelCol : UDINT; {DE:"Fill selection color"}
+	accMode : USINT; {DE:"Access mode"}
+	pVisVar : UDINT; {DE:"Address of the visibility variable"}
+	pTransp : UDINT; {DE:"Address of the transparency variable"}
+	pPressVar : UDINT; {DE:"Address of the pressure variable"}
+	pSelVar : UDINT; {DE:"Address of the selection variable"}
+	pSelText : UDINT; {DE:"Address of the selection string / picture"}
+	format : UINT; {DE:"Control word"}
+	order : UINT; {DE:"Selection Order"}
+	END_VAR
+
+	VAR
+	memVis : BOOL; {DE:"Visibility status"}
+	memTransp : BOOL; {DE:"Transparency status"}
+	memSel : BOOL; {DE:"Transparency status"}
+	END_VAR
+
+	{CODE:EMBEDDED}
+
+END_FUNCTION_BLOCK
+
+FUNCTION_BLOCK EditBox01
+
+	VAR_INPUT
+	wHnd : UINT; {DE:"Object handle"}
+	x1 : UINT; {DE:"X-coordinate of the upper-left corner"}
+	y1 : UINT; {DE:"Y-coordinate of the upper-left corner"}
+	x2 : UINT; {DE:"X-coordinate of the lower-right corner"}
+	y2 : UINT; {DE:"Y-coordinate of the lower-right corner"}
+	pFont : UDINT; {DE:"Address of the font"}
+	style : USINT; {DE:"Appearence"}
+	foreCol : UDINT; {DE:"Foreground color"}
+	bckCol : UDINT; {DE:"Background color"}
+	foreSelCol : UDINT; {DE:"Foreground selection color"}
+	bckSelCol : UDINT; {DE:"Background selection color"}
+	bordPts : USINT; {DE:"Border thickness"}
+	bordCol : UDINT; {DE:"Border color"}
+	rw : BOOL; {DE:"Flag of write-mode enabled"}
+	refr : BOOL; {DE:"Flag of refresh required"}
+	pVar : UDINT; {DE:"Address of the associated variable"}
+	type : USINT; {DE:"Data type of the associated variable"}
+	pVarMin : UDINT; {DE:"Address of the lower limit variable"}
+	pVarMax : UDINT; {DE:"Address of the higher limit variable"}
+	enumId : INT; {DE:"Identifier of the associated enumerated data type"}
+	format : UDINT; {DE:"Format code"}
+	pVisVar : UDINT; {DE:"Address of the visibility variable"}
+	pCanSel : UDINT; {DE:"Address of the selectability variable"}
+	order : USINT; {DE:"Selection order"}
+	accMode : USINT; {DE:"Access mode"}
+	END_VAR
+
+	VAR_OUTPUT
+	outKey : SINT; {DE:"Key pressed to exit the edit mode"}
+	END_VAR
+
+	VAR
+	memVis : BOOL; {DE:"Visibility status"}
+	END_VAR
+
+	{CODE:EMBEDDED}
+
+END_FUNCTION_BLOCK
+
+FUNCTION_BLOCK Progress
+
+	VAR_INPUT
+	wHnd : UINT; {DE:"Object handle"}
+	x1 : UINT; {DE:"X-coordinate of the upper-left corner"}
+	y1 : UINT; {DE:"Y-coordinate of the upper-left corner"}
+	x2 : UINT; {DE:"X-coordinate of the lower-right corner"}
+	y2 : UINT; {DE:"Y-coordinate of the lower-right corner"}
+	style : USINT; {DE:"Appearence"}
+	barCol : UDINT; {DE:"Bar color"}
+	bckCol : UDINT; {DE:"Background color"}
+	bordPts : USINT; {DE:"Border thickness"}
+	bordCol : UDINT; {DE:"Border color"}
+	pVar : UDINT; {DE:"Address of the associated variable"}
+	type : USINT; {DE:"Data type of the associated variable"}
+	pMin : UDINT; {DE:"Address of the lower bound"}
+	pMax : UDINT; {DE:"Address of the higher bound"}
+	format : UDINT; {DE:"Format code"}
+	pVisVar : UDINT; {DE:"Address of the visibility variable"}
+	accMode : USINT; {DE:"Access mode"}
+	END_VAR
+
+	VAR
+	memVal : UDINT; {DE:"Progress status"}
+	memVis : BOOL; {DE:"Visibility status"}
+	END_VAR
+
+	{CODE:EMBEDDED}
+
+END_FUNCTION_BLOCK
+
+FUNCTION sysSwap_DiaToHmi : BOOL
+	{ DE:"Switch from Diagnostics pages to HMI pages, if present" }
+	VAR_INPUT
+	    id	:  USINT; { DE:"User HMI Page ID [0..11]" }
+	END_VAR
+	{CODE:EMBEDDED}
+END_FUNCTION
+
+FUNCTION Video_GetParam : UINT
+	
+	VAR_INPUT
+	idxDevice 	: USINT;	{DE:"index of device"}
+	idxParam 	: UINT; 	{DE:"index of param"}
+	subIdxParam : USINT; 	{DE:"sub index of param"}
+	
+	pVal : UDINT;			{DE:"Pointer to value of parameter"}
+	type : USINT; 			{DE:"Data type of the associated variable"}
+	END_VAR
+	
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+
+FUNCTION Video_SetParam : UINT
+	
+	VAR_INPUT
+	idxDevice 	: USINT;	{DE:"index of device"}
+	idxParam 	: UINT; 	{DE:"index of param"}
+	subIdxParam : USINT; 	{DE:"sub index of param"}
+	
+	pVal : UDINT;			{DE:"Pointer to value of parameter"}
+	type : USINT; 			{DE:"Data type of the associated variable"}
+	END_VAR
+	
+	{CODE:EMBEDDED}
+
+END_FUNCTION
+
+FUNCTION Video_SetDeviceCfg : BOOL
+	{ HIDDEN:ON }
+    
+	VAR_INPUT
+		idxDevice	: USINT;    {DE:"index of device"}
+		res         : USINT;    {DE:"0 - local device, 1 - Modbus RTU, 2 - Modbus TCP, 3 - CANopen"}
+		address     : UDINT;    {DE:"Modbus RTU/CANopen node address"}
+    END_VAR
+	
+	{ CODE:ST }
+	(* This function in automatically generated by PageLab to configure remote slaves. However this is not present on remote keyboards, and implemented here as a dummy function *)
+	Video_SetDeviceCfg := TRUE;
+
+END_FUNCTION 

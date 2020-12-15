@@ -1,0 +1,105 @@
+;
+;	Target properties
+;
+SCREEN	128	64
+SAVESCREEN 1
+REFRESH 50
+FONT_FORMAT	"VH"
+JOYPAD 1
+INIT   1
+BMPFULL 1
+UNICODE 1
+DEFAULT_TITLE_FORECOLOR 1
+DEFAULT_TITLE_BACKCOLOR 0
+DEFAULT_TITLE_FONTNAME "EWP2_6x8"
+FONTPLK_CODE 0
+FONTS_ON_TARGET 1
+EDITABLE_CHARSET  " !#$%&\003B'()*+,-./0123456789:\\<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz|~{}\0022"
+
+;
+;	Versions of controls
+;
+CTRL	"Static"		1
+CTRL	"EditBox"		1
+CTRL	"TextBox"		-1
+CTRL	"Button"		2
+CTRL	"Progress"		0
+CTRL	"Animation"		0
+CTRL	"Image"			0
+CTRL	"CustomCtrl"	-1
+CTRL	"Chart"			-1
+CTRL	"Trend"			-1
+
+
+; se attivato GlobalTimer viene eseguito nel refresh invece che nel draw
+;CTRL	"GlobalTimer"   1 
+;
+;	Enumeratives
+;
+; ENUM 100: key codes
+;
+ENUM	100	13	"Enter"
+ENUM	100	8	"Left"
+ENUM	100	12	"Right"
+ENUM	100	11	"Up"
+ENUM	100	10	"Down"
+ENUM	100	19	"LongEnter"
+ENUM	100	15	"LongLeft"
+ENUM	100	16	"LongRight"
+ENUM	100	17	"LongUp"
+ENUM	100	18	"LongDown"
+ENUM	100	30	"VK_F1"
+ENUM	100	31	"VK_F2"
+ENUM	100	32	"VK_F3"
+ENUM	100	33	"VK_F4"
+ENUM	100	34	"VK_F5"
+ENUM	100	35	"VK_F6"
+ENUM	100	36	"VK_F7"
+ENUM	100	37	"VK_F8"
+ENUM	100	38	"VK_F9"
+ENUM	100	39	"VK_F10"
+;
+; ENUM 101: key-related actions
+;
+ENUM	101	0	"Call"
+ENUM	101	1	"OpenPage"
+ENUM	101	2	"Close"
+ENUM	101	3	"NextField"
+ENUM	101	4	"PrevField"
+ENUM	101	9	"Edit"
+;
+; ENUM 102: editing-mode keys
+;
+ENUM	102	0	"Enter"
+ENUM	102	1	"LongLeft"
+ENUM	102	3	"Left"
+ENUM	102	4	"Right"
+ENUM	102	5	"Up"
+ENUM	102	6	"Down"
+ENUM	102	12	"LongUp"
+ENUM	102	13	"LongDown"
+;
+; ENUM 103: color codes
+;                    BBGGRR
+ENUM	103	0	"0x00000000"  ; Nero
+ENUM	103	1	"0x00FFFFFF"  ; Bianco
+;
+; ENUM 103: controls appearance
+;
+ENUM	104	0	"Flat"
+ENUM	104	1	"Raised"
+ENUM	104	2	"Sunken"
+
+;ENUM 106: supported network protocols
+;
+ENUM	106	0	""
+ENUM	106	1	"Local device"
+ENUM	106	2	"Remote Modbus RTU node"
+ENUM	106	3	"Remote Modbus TCP node"
+ENUM	106	4	"Remote CANopen slave"
+
+;
+;	Custom formats
+;
+CUSTOMFORMAT 0 "HH:MM" "00:00"
+

@@ -1,0 +1,3090 @@
+﻿<lib version="1.0.0" name="c:\program files (x86)\schneider electric\ecostruxuremachineexperthvac\catalog\freeadvance\..\..\Application\Libraries\basic.plclib" fullXml="true" link="true">
+	<descr/>
+	<libWorkspace>
+		<folder id="7" name="basic">
+			<folder name="Conversion">
+				<Pou name="BitToWord"/>
+				<Pou name="BitToByte"/>
+				<Pou name="ByteToWord"/>
+				<Pou name="ByteToBit"/>
+				<Pou name="WordToBit"/>
+				<Pou name="WordToByte"/>
+			</folder>
+			<folder name="Timers">
+				<Pou name="Pulse"/>
+				<Pou name="TOF"/>
+				<Pou name="TON"/>
+				<Pou name="TP"/>
+			</folder>
+			<folder name="Bistable">
+				<Pou name="FF_D"/>
+				<Pou name="SR"/>
+				<Pou name="RS"/>
+			</folder>
+			<folder name="Counters">
+				<Pou name="CTD"/>
+				<Pou name="CTD_DINT"/>
+				<Pou name="CTD_UDINT"/>
+				<Pou name="CTU"/>
+				<Pou name="CTU_DINT"/>
+				<Pou name="CTU_UDINT"/>
+				<Pou name="CTUD"/>
+				<Pou name="CTUD_DINT"/>
+				<Pou name="CTUD_UDINT"/>
+			</folder>
+			<folder name="Edge detection">
+				<Pou name="F_TRIG"/>
+				<Pou name="R_TRIG"/>
+			</folder>
+		</folder>
+	</libWorkspace>
+	<globalVars/>
+	<retainVars/>
+	<constantVars/>
+	<functions>
+		<function name="ByteToWord" version="1.0.0" creationDate="0" lastModifiedDate="0">
+			<descr>Compose a word from 2 bytes</descr>
+			<returnValue>UINT</returnValue>
+			<vars>
+				<inputVars>
+					<var name="byte0" type="BYTE">
+						<descr>Low byte</descr>
+					</var>
+					<var name="byte1" type="BYTE">
+						<descr>High byte</descr>
+					</var>
+				</inputVars>
+			</vars>
+			<iecDeclaration active="FALSE"/>
+			<sourceCode type="IL">
+				<![CDATA[
+	(*---------- WORD in memoria IEEE --------*)
+	(*										  *)
+	(*	WORD -> | H byte1 | L byte0 |		  *)
+	(*										  *)
+	(*----------------------------------------*)
+
+	(*	Low byte *)
+
+	LD		byte0
+	TO_UINT
+	ST		ByteToWord
+
+	(*	High byte *)
+
+	LD		byte1
+	TO_UINT
+	SHL		8
+	ADD		ByteToWord
+	ST		ByteToWord
+
+]]>
+			</sourceCode>
+		</function>
+		<function name="BitToByte" version="1.0.0" creationDate="0" lastModifiedDate="0">
+			<descr>Compose a byte from 8 bits</descr>
+			<returnValue>USINT</returnValue>
+			<vars>
+				<inputVars>
+					<var name="b0" type="BOOL">
+						<descr>Bit 0</descr>
+					</var>
+					<var name="b1" type="BOOL">
+						<descr>Bit 1</descr>
+					</var>
+					<var name="b2" type="BOOL">
+						<descr>Bit 2</descr>
+					</var>
+					<var name="b3" type="BOOL">
+						<descr>Bit 3</descr>
+					</var>
+					<var name="b4" type="BOOL">
+						<descr>Bit 4</descr>
+					</var>
+					<var name="b5" type="BOOL">
+						<descr>Bit 5</descr>
+					</var>
+					<var name="b6" type="BOOL">
+						<descr>Bit 6</descr>
+					</var>
+					<var name="b7" type="BOOL">
+						<descr>Bit 7</descr>
+					</var>
+				</inputVars>
+			</vars>
+			<iecDeclaration active="FALSE"/>
+			<sourceCode type="IL">
+				<![CDATA[
+	LD		b7
+	TO_USINT
+	SHL		7
+	ST		BitToByte
+
+	LD		b6
+	TO_USINT
+	SHL		6
+	ADD		BitToByte
+	ST		BitToByte
+
+	LD		b5
+	TO_USINT
+	SHL		5
+	ADD		BitToByte
+	ST		BitToByte
+
+	LD		b4
+	TO_USINT
+	SHL		4
+	ADD		BitToByte
+	ST		BitToByte
+
+	LD		b3
+	TO_USINT
+	SHL		3
+	ADD		BitToByte
+	ST		BitToByte
+
+	LD		b2
+	TO_USINT
+	SHL		2
+	ADD		BitToByte
+	ST		BitToByte
+
+	LD		b1
+	TO_USINT
+	SHL		1
+	ADD		BitToByte
+	ST		BitToByte
+
+	LD		b0
+	TO_USINT
+	ADD		BitToByte
+	ST		BitToByte
+
+]]>
+			</sourceCode>
+		</function>
+		<function name="BitToWord" version="1.0.0" creationDate="0" lastModifiedDate="0">
+			<descr>Compose a word from 16 bits</descr>
+			<returnValue>WORD</returnValue>
+			<vars>
+				<inputVars>
+					<var name="b0" type="BOOL">
+						<descr>Bit 0</descr>
+					</var>
+					<var name="b1" type="BOOL">
+						<descr>Bit 1</descr>
+					</var>
+					<var name="b2" type="BOOL">
+						<descr>Bit 2</descr>
+					</var>
+					<var name="b3" type="BOOL">
+						<descr>Bit 3</descr>
+					</var>
+					<var name="b4" type="BOOL">
+						<descr>Bit 4</descr>
+					</var>
+					<var name="b5" type="BOOL">
+						<descr>Bit 5</descr>
+					</var>
+					<var name="b6" type="BOOL">
+						<descr>Bit 6</descr>
+					</var>
+					<var name="b7" type="BOOL">
+						<descr>Bit 7</descr>
+					</var>
+					<var name="b8" type="BOOL">
+						<descr>Bit 8</descr>
+					</var>
+					<var name="b9" type="BOOL">
+						<descr>Bit 9</descr>
+					</var>
+					<var name="b10" type="BOOL">
+						<descr>Bit 10</descr>
+					</var>
+					<var name="b11" type="BOOL">
+						<descr>Bit 11</descr>
+					</var>
+					<var name="b12" type="BOOL">
+						<descr>Bit 12</descr>
+					</var>
+					<var name="b13" type="BOOL">
+						<descr>Bit 13</descr>
+					</var>
+					<var name="b14" type="BOOL">
+						<descr>Bit 14</descr>
+					</var>
+					<var name="b15" type="BOOL">
+						<descr>Bit 15</descr>
+					</var>
+				</inputVars>
+			</vars>
+			<iecDeclaration active="FALSE"/>
+			<sourceCode type="IL">
+				<![CDATA[
+	LD		b15
+	TO_UINT
+	SHL		15
+	ST		BitToWord
+
+	LD		b14
+	TO_UINT
+	SHL		14
+	ADD		BitToWord
+	ST		BitToWord
+
+	LD		b13
+	TO_UINT
+	SHL		13
+	ADD		BitToWord
+	ST		BitToWord
+
+	LD		b12
+	TO_UINT
+	SHL		12
+	ADD		BitToWord
+	ST		BitToWord
+
+	LD		b11
+	TO_UINT
+	SHL		11
+	ADD		BitToWord
+	ST		BitToWord
+
+	LD		b10
+	TO_UINT
+	SHL		10
+	ADD		BitToWord
+	ST		BitToWord
+
+	LD		b9
+	TO_UINT
+	SHL		9
+	ADD		BitToWord
+	ST		BitToWord
+
+	LD		b8
+	TO_UINT
+	SHL		8
+	ADD		BitToWord
+	ST		BitToWord
+
+	LD		b7
+	TO_UINT
+	SHL		7
+	ADD		BitToWord
+	ST		BitToWord
+
+	LD		b6
+	TO_UINT
+	SHL		6
+	ADD		BitToWord
+	ST		BitToWord
+
+	LD		b5
+	TO_UINT
+	SHL		5
+	ADD		BitToWord
+	ST		BitToWord
+
+	LD		b4
+	TO_UINT
+	SHL		4
+	ADD		BitToWord
+	ST		BitToWord
+
+	LD		b3
+	TO_UINT
+	SHL		3
+	ADD		BitToWord
+	ST		BitToWord
+
+	LD		b2
+	TO_UINT
+	SHL		2
+	ADD		BitToWord
+	ST		BitToWord
+
+	LD		b1
+	TO_UINT
+	SHL		1
+	ADD		BitToWord
+	ST		BitToWord
+
+	LD		b0
+	TO_UINT
+	ADD		BitToWord
+	ST		BitToWord
+
+]]>
+			</sourceCode>
+		</function>
+	</functions>
+	<functionBlocks>
+		<functionBlock name="R_TRIG" version="1.0.0" creationDate="0" lastModifiedDate="0">
+			<title>Rising edge detector</title>
+			<descr>&lt;HTML&gt;The output Q will remain FALSE as long as the input variable CLK is FALSE.&lt;br&gt;
+As soon as CLK returns TRUE, Q will first return TRUE.&lt;br&gt;&lt;br&gt;
+This means each time the function is called up, Q will return FALSE until CLK has falling edge followed by an rising edge.&lt;br&gt;&lt;br&gt;
+&lt;img src= r_trig.png&gt;</descr>
+			<vars>
+				<inputVars>
+					<var name="clk" type="BOOL">
+						<descr>Input for edge detection</descr>
+					</var>
+				</inputVars>
+				<outputVars>
+					<var name="q" type="BOOL">
+						<descr>Raising edge output</descr>
+					</var>
+				</outputVars>
+				<localVars>
+					<var name="m" type="BOOL">
+						<initValue>TRUE</initValue>
+					</var>
+				</localVars>
+			</vars>
+			<iecDeclaration active="FALSE"/>
+			<interfaces/>
+			<methods/>
+			<sourceCode type="IL">
+				<![CDATA[
+	LD		clk
+	ANDN	m
+	ST		q
+
+	LD		clk
+	ST		m
+]]>
+			</sourceCode>
+			<images>
+				<image name="r_trig.png" width="218" height="117">
+					<![CDATA[iVBORw0KGgoAAAANSUhEUgAAANoAAAB1CAYAAAAoV//gAAAAAXNSR0IArs4c6QAAAARnQU1B
+AACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAHBhaW50Lm5l
+dCA0LjAuMjHxIGmVAAAD2ElEQVR4Xu3awXHTTBiA4bRAAVxogSNXWmDogAZoghtnWmBohRL4
+S6CAn4OZj2iJIinSOrY/fxbPM7NJbCnJMrvvSHa4OwAXJzRIIDRIIDRIIDRIIDRIIDRIIDRI
+IDRIIDRIIDRIIDRIIDRIUD60u7u7PwNumdAgQekd3CITG7dOaJCg7O6dRtYG3CKhQYLyO1dg
+7IHQIIHQIIHQIIHQIIHQIIHQIIHQIIHQIIHQIIHQThDTqjaoqfzSCO24QU3ll+YWQqug0lyY
+K780QutTaS7MlV8aofWpNBfmyi+N0PpUmgtz5ZdGaH0qzYW58ksjtD6V5sLcUUvz/fvDgsZ4
+82Y4MIjnPn8eHky8fHk4fPw4PBh8+3b/Pe/fD08sEFqfSnNhrntpWhTjkCK0cWzT42PT0Fq0
+0/imhNan0lyY616apStSiyUiDPF1b2hx7lZkQWh9Ks2Fua6lmQb1lDinJ7T4eu12cUxofSrN
+hbmupWm3jRHcmjhnK7Tp7eYWofWpNBfmupbmXKG1zTC9jVwjtD6V5sJc19Kc69axbYTenxeE
+1qfSXJjrXpq43Vt6XRWL2+Iafz01vYrFeXH+9lVSaD0qzYW57qVpt4/jkCK+CKiZHh9bul2c
+fv8SofWpNBfmjlqaFlsb0zc1xsfaaFfBpdBCnLMWWwut/byKo4KleRmPxzVd+ddvE1qfpXkZ
+j8c1XfnXb2uhwS0TGiQQGiQQGiQQGiQQGiQQGiQQGiQQGiQQGiQQGiQQGiQQGiQQGiQQGiQQ
+GiQQGiQQ2iliXkbtUUSdmTxBaMZJo4g6M3nCTYQGG4R2CqHRSWinEBqd8nbJz5+Hw4cPD5sz
+Rjz+8WM4YZnQ2IOcXRIxvXp1OLx9+xBWfI7HL16sxiY09iBnl7x7dx9aXNWm4vnXr4cHj/wX
+H4TGHlx+l8TVKjZj3CYu+fTp/vjDVe3/4fOv+CA09uDyu+Tr1/vN+OXL8MTExnGhsQeX3yXt
+ihVBLWmhxXkLhMYeXH6XCA3cOp4k5lV1bpRy+V1y/JshjwiNPcjZJc97e/8PobEHObskrlbT
+P1hHdP5gzT8ib5cs/ResGBHbCqGxB9fdJe31Wdw6br1Gqzxgw/V3SbzrOL6lnBAae1B+l/wN
+DW6Y0CCB0CCB0CCB0CCB0CCB0CCB0CCB0CCB0GDFufaf0GBF23+n7sOL7eDpBA1jT+NYQjOM
+Z4xjXSy0c3nuPwzOYRzXKftQaLDiXPtPaJBAaJBAaJBAaJBAaJBAaJBAaJDADoYEQoMEQoME
+QoMEQoMEQoMEQoMEQoMEQoMEQoMEQoOLOxx+A+X2Hit+emmnAAAAAElFTkSuQmCC]]>
+				</image>
+				<image icon="true" name="rtrig34.png" width="34" height="34">
+					<![CDATA[iVBORw0KGgoAAAANSUhEUgAAACIAAAAiCAYAAAA6RwvCAAAApklEQVRYhe2VUQrEIAxEZ0pP
+Vw/V9VA9X/qzLYvUNrGWTSEPBJEYhzFGIAiC4B4UEUUUa0GEZr+CoUuWDliF8Dv+LuQx7EI6
+1UTJix15CDdCxp8eQQBH8zMEND+iw3PcOFJtmVVE0ODCJY4cUfQFptyjeVCWGUwZssxbXmxr
+bhwZjfEtxaFy87WO7PerhSmr4tw4EkJKiOlj+WvYUCNlHt9/TRBcsQJT/izAApTRbQAAAABJ
+RU5ErkJggg==]]>
+				</image>
+			</images>
+		</functionBlock>
+		<functionBlock name="F_TRIG" version="1.0.0" creationDate="0" lastModifiedDate="0">
+			<title>Falling edge detector</title>
+			<descr>&lt;HTML&gt;The output Q remain FALSE as long as the input variable CLK returns TRUE.&lt;br&gt;
+As soon as CLK returns FALSE, Q will first return TRUE.&lt;br&gt;&lt;br&gt;
+This means each time the function is called up, Q will return FALSE until CLK has a rising followed by a falling edge.&lt;br&gt;&lt;br&gt;
+&lt;img src= f_trig.png &gt;</descr>
+			<vars>
+				<inputVars>
+					<var name="clk" type="BOOL">
+						<descr>Input for edge detection</descr>
+					</var>
+				</inputVars>
+				<outputVars>
+					<var name="q" type="BOOL">
+						<descr>Falling edge output</descr>
+					</var>
+				</outputVars>
+				<localVars>
+					<var name="m" type="BOOL">
+						<initValue>FALSE</initValue>
+					</var>
+				</localVars>
+			</vars>
+			<iecDeclaration active="FALSE"/>
+			<interfaces/>
+			<methods/>
+			<sourceCode type="IL">
+				<![CDATA[
+	LDN		clk
+	AND		m
+	ST		q
+
+	LD		clk
+	ST		m
+]]>
+			</sourceCode>
+			<images>
+				<image name="f_trig.png" width="218" height="117">
+					<![CDATA[iVBORw0KGgoAAAANSUhEUgAAANoAAAB1CAYAAAAoV//gAAAAAXNSR0IArs4c6QAAAARnQU1B
+AACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAHBhaW50Lm5l
+dCA0LjAuMjHxIGmVAAAEDUlEQVR4Xu3awXHUShCAYadAAFxIgSNXUqDIgARIghtnUqBIhRAg
+BAJ477BUYw2WJbEa2atW79b3VY3t9S72oNZfkg13J2B3QoMEQoMEQoMEQoMEQoMEQoMEQoME
+QoMEQoMEQoMEQoMEQoME5UO7u7v7s+CaCQ0SlD6DW2Ri49oJDRKUPXunkbUF10hokKD8mSsw
+boHQIIHQIIHQIIHQIIHQIIHQIIHQIIHQIIHQIIHQniG2VW1RU/nRCG3boqbyo7mG0CqotBfm
+yo9GaH0q7YW58qMRWp9Ke2Gu/GiE1qfSXpgrPxqh9am0F+bKj0ZofSrthblNo/n+/WGgsd68
+GZ4YxOc+fx4eTLx8eTp9/Dg8GHz7dv9n3r8fPrFAaH0q7YW57tG0KMYhRWjj2KbPj01Da9FO
+45sSWp9Ke2GuezRLV6QWS0QY4uPe0OK1a5EFofWptBfmukYzDepf4jU9ocXH524Xx4TWp9Je
+mOsaTbttjODOideshTa93VwjtD6V9sJc12guFVo7Gaa3kecIrU+lvTDXNZpL3Tq2E6H36wWh
+9am0F+a6RxO3e0s/V8VwW1zjj6emV7F4Xbx+/SoptB6V9sJc92ja7eM4pIgvAmqmz48t3S5O
+//wSofWptBfmNo2mxdbW9Jca4+faalfBpdBCvOZcbC209vUqrgqW9mU9Xkc6+NuvE1qfpX1Z
+j9eRDv7261pocM2EBgmEBgmEBgmEBgmEBgmEBgmEBgmEBgmEBgmEBgmEBgmEBgmEBgmEBgmE
+BgmEBgmEdkviOFn/Xgc69rt3ENoG45PKmq8DHfvdOwhtgwInFMuEdkuEVpbQbonQysqbyq9f
+p9OHDw8nQ6x4/OPH8IJlQtugHVfKyZlKxPTq1en09u1DWPE+Hr94cTY2oW0gtLJypvLu3X1o
+cVWbis+/fj08eORnvBHaBkIra/+pxNUqhh+3iUs+fbp//uGq9t/w/v94I7QN4jg5ViXtP5Wv
+X++H/+XL8ImJleeFtkEcJ8eqpP2n0q5YEdSSFlq8boHQNojj5FiVtP9UhJYnjpNjVdL+U1m5
+NVx7XmgbxHFyrErafyrbfxnyiNA2iOPkWJWUM5Wn/Xr/D6FtILSycqYSV6vpP1hHdP7B+rKE
+VlbeVJb+C1asiO0MoW3QjinlHDuV9vNZ3Dqu/Yxm9S/KOX4q8VvH8S3lhNCesCin/FT+hgZX
+TGiQQGiQQGiQQGiQQGiQQGiQQGiQQGiQQGhwxqXOP6HBGe38e+55uNsZPN2gZd3S2kpolvWE
+tdVuoV3KU/9icAnjuJ5zHgoNzrjU+Sc0SCA0SCA0SCA0SCA0SCA0SCA0SOAMhgRCgwRCgwRC
+gwRCgwRCgwRCgwRCgwRCgwRCgwRCg92dTr8BUO8SN3cafNMAAAAASUVORK5CYII=]]>
+				</image>
+				<image icon="true" name="ftrig34.png" width="34" height="34">
+					<![CDATA[iVBORw0KGgoAAAANSUhEUgAAACIAAAAiCAYAAAA6RwvCAAAAqElEQVRYhe2VYQqAIAyF34tO
+V4eqDtX51o9aRJQ5S1iwDwQR3R5vToEgCIJ3UEQqROVdUELzkcAhd/O9ijJsQsh1GE5s42Mh
+FbELsd6pzP0/dqQSboRQAC0icT0vR2TtmNS7suVx5YgL3DjS5vQ5+6nUOMo8gP0EmQeNBV0D
+sM8dOWIj96MxO/hbR/Zap9D6W3DjSAg5Q3Sj5a9h5h1Jdc1lHjeOBMETC4IUMr87wVtwAAAA
+AElFTkSuQmCC]]>
+				</image>
+			</images>
+		</functionBlock>
+		<functionBlock name="CTUD_UDINT" version="1.0.0" creationDate="0" lastModifiedDate="0">
+			<title>Up-Down counter (UDINT data type)</title>
+			<descr>&lt;HTML&gt;(Same as CTUD_UDINT but with PV and CV of &lt;b&gt;DINT&lt;/b&gt; data type)&lt;br/&gt;&lt;br/&gt;
+The CTUD_UDINT block &lt;b&gt;counts up&lt;/b&gt; for each FALSE-to-TRUE transition of the input CU and &lt;b&gt;count down&lt;/b&gt; for each  FALSE-to-TRUE transition of the input CD.&lt;br/&gt;
+Sets the QU output when the accumulated value (CV) reaches the preset value (PV) value and sets the QD output when the accumulated value (CV) becomes 0.&lt;br/&gt;
+&lt;img src= ctudscheme.png&gt;
+&lt;ul&gt;
+&lt;li&gt;rising edge of R reset CV to 0&lt;/li&gt;
+&lt;li&gt;rising edge of LD set CV to PV&lt;/li&gt;
+&lt;li&gt;rising edge of CU increments CV by 1&lt;/li&gt;
+&lt;li&gt;rising edge of CD decrements CV by 1&lt;/li&gt;
+&lt;li&gt;when CV reaches PV the output QU is set&lt;/li&gt;
+&lt;li&gt;when CV becomes 0 the output QD is set&lt;/li&gt;
+&lt;/ul&gt;</descr>
+			<vars>
+				<inputVars>
+					<var name="CU" type="BOOL">
+						<descr>Count-up input</descr>
+					</var>
+					<var name="CD" type="BOOL">
+						<descr>Count-down input</descr>
+					</var>
+					<var name="R" type="BOOL">
+						<descr>Reset counter input</descr>
+					</var>
+					<var name="LD" type="BOOL">
+						<descr>Preset counter input</descr>
+					</var>
+					<var name="PV" type="UDINT">
+						<descr>Preset value</descr>
+					</var>
+				</inputVars>
+				<outputVars>
+					<var name="QU" type="BOOL">
+						<descr>Count-up output</descr>
+					</var>
+					<var name="QD" type="BOOL">
+						<descr>Count-down output</descr>
+					</var>
+					<var name="CV" type="UDINT">
+						<descr>Counter current value</descr>
+					</var>
+				</outputVars>
+				<localVars>
+					<var name="MEMCU" type="BOOL">
+						<descr>Previous value of CU</descr>
+					</var>
+					<var name="MEMCD" type="BOOL">
+						<descr>Previous value of CD</descr>
+					</var>
+					<var name="CUEDGE" type="BOOL">
+						<descr>True whenever a posedge on CU is detected</descr>
+					</var>
+					<var name="CDEDGE" type="BOOL">
+						<descr>True whenever a posedge on CD is detected</descr>
+					</var>
+				</localVars>
+			</vars>
+			<iecDeclaration active="FALSE"/>
+			<interfaces/>
+			<methods/>
+			<sourceCode type="IL">
+				<![CDATA[
+	(* Check for reset input *)
+	LD		R
+	JMPCN	l0
+	
+	LD		0
+	ST		CV
+	JMP		l10
+
+l0:
+	(* Check for preset input *)
+	LD		LD
+	JMPCN	l1
+	
+	LD		PV
+	ST		CV
+	JMP		l10
+
+l1:
+	(* Check for posedge on CU *)
+	LD		CU
+	ANDN 	MEMCU
+	ST 		CUEDGE
+	(* Store CU value for next cycle *)	
+	LD 		CU
+	ST 		MEMCU
+
+	(* Check for posedge on CD *)
+	LD		CD
+	ANDN 	MEMCD
+	ST 		CDEDGE
+	(* Store CD value for next cycle *)	
+	LD 		CD
+	ST 		MEMCD
+
+	(* Check for simultaneous posedges on *)
+	LD		CUEDGE
+	AND		CDEDGE
+	JMPC	l10
+	
+	(* ASSERT(!CUEDGE || !CDEDGE) *)
+
+	(* Check if posedge on CU and we are in bounds *)
+	LD		CUEDGE
+	AND(	16#FFFFFFFF
+	GT		CV
+	)
+	JMPCN	l2
+	
+	(* ASSERT(CUEDGE) *)
+	(* Increment *)
+	LD		CV
+	ADD		1
+	ST		CV
+
+l2:
+    (* Check if posedge on CD and we are in bounds *)
+	LD		CDEDGE
+	AND(	CV
+	GT		0
+	)
+	JMPCN	l10
+	
+	(* ASSERT(CDEDGE) *)
+	(* Decrement *)
+	LD		CV
+	SUB		1
+	ST		CV
+	
+	(* ASSERT(!CUEDGE && !CDEDGE) *)
+	
+l10:
+	(* Up counter output *)
+	LD		CV
+	GE		PV
+	ST		QU
+
+	(* Down counter output *)
+	LD		CV
+	LE		0
+	ST		QD
+]]>
+			</sourceCode>
+			<images>
+				<image name="ctudscheme.png" width="376" height="244">
+					<![CDATA[iVBORw0KGgoAAAANSUhEUgAAAXgAAAD0CAYAAACRmD2xAAAWEklEQVR4nO3dPXbbSLrG8afu
+mTM3mpmW7w7USxB3YHoJctALkHM5kCPzcCI5MHNpAR2ISxC9A3IJ5g6u1NOTzQ3qBgVQAAgQ
+QBEfBeD/O4ftpvBVJMEXLwv1IQEAAAAAAAAAAAAAAAAAAAAAMBymbAVrbRflkCQZkypOfODD
+H7ssCwCEJhMjS/1XS+UAAPQs1ABvC/4fAFBRqAEeAHCmEAN8XsZOFg8ANYUY4AEADQgtwJ/K
+1MniAaCG0AI8AKAhf+m7ABnJRp5H7eABANWRwQPASBHgAWCkQquiycUQBQBQHxk8AIwUAR4A
+Rso/wBtzJ2NeZIyNHs8y5jpnveQ6p9fNQfXMyByfC9090L0+P2/f86Pu84D5BXhjniXdSPok
+a42sNZJeJT3JmJucLXaH9dy6+2jdO9+CAwBOqz8evAvK95I+yNpNZtmTpLmkX2Xta/S3F0l7
+WTsr2M9M1u7cn47Hg7fugoCxiDOfLj/XPo4Jh/e+UV2MB38jF7A3OcseJV1IqlL98iiX9edl
+/ACAM9UL8MZcSLqUlBfcJWkX/XtVui+X4e/lMn4AQMPqZvCX0b+vJetd1NhnnXUBABXRTBIA
+RqpuT9Z99G9Z1l2W4eeum7yhW/dmAgAgrV4GX15vHte97wqWvymvzwcAnMGniuZR0qWMyQvy
+N3IZ+brCfu7kfgk8epQBAFCi/mBj1n6LgvuDjPkia10wN+Zernnkp0Mb+Dwuc3+I1v0St4E/
+sf6/JP29djmBrIH0PgSa4jeapLUfoo5KD1HnpthO+VUuV5kv11qJDk4AgObV78lauCdzLZeZ
+Sy6Lr1JNc2J35mhGJ8alATBlXfRkzecC+kwui6/TigYA0ILmMviGkcEDQFp/GTwAICgEeAAY
+qaDmZKX3KgA0hwweAEYqqAy+SJ83V/lVAR+DaA5grWRMeUuLERt7w43gM3hLL1YA8BJ8gAcm
+x1r3AM4UfIA30p99lwEAhij4AD821trOH+iXWbreelUfqW0bfmBa/AO8MXcy5kXG2OjxHI1H
+k1znKlp2n7P9RbTs6WhZX95ey+Fh334wV3kQbBGEonNUyYfrLV73HPd7cP73wi/AG/MsN/b7
+J1lrZK2RG3/mScbcNFg+nIlWQMB01W8m6YYJnkv6IGvfhga29mOUjd/LmPXJMeFDlA6EdaNi
+cq7BE2uRwaBzfV/h3UlPotELnwz+RtI+FdzfPMrN0nSdswzGdP9A/xZ9FwBTVS+Df5tHtWia
+vXgCj6uC5eGKOn2knqtaFUcyLyekojHZc9JTcg+p35AddHTiu9GvulU0l9G/ZdUvFx5lSd2E
+SQbWruqRUydjdMy6lSpUwqBJ3jcmE9+Z1D6S3yXPc9xXV8cxOr6wFD33jS1DuWE8iKEKgCkY
+StDAcNQN8Pvo37IMfVg3WE+ocn3nZyia0OQv1bxfo33o67uR15/g1POxqneT1bWM2cu1oskT
+173HdfGjCfQAMDQ+rWgeJV3KmLwgfyMX1N2E29buVXxByF4MAABdyu2RKT1b6aeVrhN/u496
+rd1k1r2J/v6Q+NuVlbZW2p7o8Rn3svtXJz3tCnqkVnqPui8fDx5VH70K4PWf/7BWR8+Tfyt6
+3sKjLr+erNZ+kMvkHw7d+qU7uWx8k1n3UdJHuaw/XncraSNrZ17H7xDDDAAYqtJ7DZUDmxuH
+5iF69knWrv2LJRl3IZAk00lwNeYt36l7U6rqdj1cJKY2VAGX4WOhtIPvQ9lrG1riVvf73Fwz
+SWvXMmYnF+S5uZpnYsEWQL+ay+Ab1nkGnz74Iduu1JM1kcETwiHprOaBRR3+mtB1Bh+6sWfw
+IX+2hwDf2QFzAnWlj9+3ageTcE6Ab9wEztFaPVk9j9Fj4ltrfXqyAoEYWjaJ8BHgS9CTFV2Z
+2g3xNtGT1Qlyyj4yGQA4X5ABHgBwvuCqaLLZu5X+Lmv/7KsctX42u95sCMHEW4cAUoABPjRt
+NlkDgDYFFeAL6t7/HETTriGUEcCkBBXgg5KcUarHYgCAr6ACfF4VSF/BtVZdOhcDAAEKKsCH
+pE6gJqgDCFHIsckl0bebktUAoEGruYuLtxtb5bn9/r6zOFq3oQft4AFgpMLP4HsqI71pgfGK
+M2Gv/i5isLHBo807EJYmgmr2ez3277lfgL/dvEi6yFmykfSo1Xyt282V3NR8a63mHwv28zPa
+z69azZkkBAAa5Hf5cgF+r9V8lvjbhaQnSXNJH7Sab3S7eZZ0pbwAfruZS3qWuyB8yjmKu4Fh
+7bgvscCIFVWFlD3P00YG72soVTTN3WRdzV+1mn+Qm67vLvrrWi5Dv87ZYp5YBwDQsDbq4Pdy
+Wbu0mj/qdnMvF+AfM+tdy/0KONkOcux1ZMAUlNV98z1vRxvNJC8l7RLP15Lmut1cHv7iqmcu
+dRz0AQANaTbAuzr3C6WrXeL/T1bTXGeWAQAads5N1tOtaNLr/5T0ergp67bfRXX2RXptB49p
+8G0Hje5xk7XbdvC7VCua09aS7qJqmisdZ/kYqeA7jBlzmKiFEI+x6WqogmQ1zbVcNk/9OwC0
+qJsAv5rv5G68Xss1jyR7nxpj6j/O2bbqvoER63KwsbWongFQgbU29YCfLseieZTrAPVa1vYd
+42SWkhbV109+rZvOuQkZgSoaHrypYcOT+1nNj5+PjF+AX83feWzzKqn+dgAmx3z+0XcRRoHx
+4AFgpIIfLni73aZ+Tc9mM8Py4Szf7XY2WlFbSbOFx/bRtq2Ub7u12u3eyhfY+zf25WhX8AH+
+SFldHMtHs9x8/qHtb7+0sv+4CqCt/bO8eLn9/j5dBZOsCz9VD/69gTsn2f2PsN49KeSrKT1Z
+R+DQAsKY+jdZk9u2WC5Z28ox4OHEBcJ+f3/27gsvLPHziqbQk7UT2Tcy+wJZHvbyxIqut+jC
+Y/to21bKFy+PyxfY+zf25WhX8AH+SAA/MVnezXLz+cdx1tZwFU1b+2d58XKqaLoT8uXURv/p
+pYwhvzHAFDHY2AiraAi0AOAn+AAPYPgYbqAfBHgAozblG7sE+KTbzXlpxmo+3TMJYTn3XG4e
+340eEODT/t13AYAR4nvVEwJ82t+if02dThXm8w+XLUVNwHwlf0put1tdXV1576ts/5iMvj90
+q7fvFTpGgM/3N0azAzB0/gH+dnOjtxmaJGkvN+H2t2j5naR7SV8Of0tvfynpp+rN7dqVf5/K
+xE8Ff58sOa+FwWzW/FtSpSVD9ldEVrJc2eXZMrN9ve2b2r+1NnWONtHF31cIiVL8PjX5+Rpj
+zv78umhZ5DdcsAveD3LB2UQ3F7/JTaz9IElRUH+Vuwjkif/O3KwA0IL66ebt5krSVtI3reZf
+Msvu5WZt+qDVfBMF+xtJv2o132fW3Uq6PDF5SPeDjb21PPhv+/39f6pudqiDD1etewpHG1N3
+X014LVckyfTaHT96T+z3972dRKGevz4ZfN3X4pPB30T/5mXe8UAU8d3BeO7VdBbvLhJXYm7W
+wcvOnVn1AUydMebw2O12qUdy2TkXKJ86+Eu5eVX3R0vcXKsm9fx2s5e7KCTr4eOUIswAv5r/
+p+rARubzj78q/ZqrH6epeSaL/Z+iz/jcewNNB+UxBvlEfXOYKSMmxyfAX9Rc/1HSvW43V1rN
+d9HfbiTtmXy7dX+RoptsZ4zEZ60tvECMMVADXWujUYXUTTPJOIhfS9rpdjOX+xXwpXiTN10G
+EK87/qt55br6nG0P/xu/ztwhck8oWt8Ykxoa99x9EshPS77fkkY/DC2GwacO/rXW2i5r3+mt
+Hj7s6pkKmqgbw7hkL4C+9yaafmDafDL4vaS5bjeXOS1j5pKeddz2fS1XTTOXC/Sb3Dr8HL20
+o22/bjwlVdfdUJvlTFtoW/d97OB9P6tlT60Dhd/KCWiFT4B/lKtDv9FxNUucnWcj5KNc88k7
+ueqZ445PQ9bxBQHh49ddWlk14dH7VeU7VbMarO1fNPFrOFS3VnzepvoBfjXf6XYTd2p6TfRc
+jYP+Y+JmarzNq243G7ns/VWrefXOTV3WZfYYqCtnzNH7EZ8kJVlwiFEmbhfdx7FDfD+A1vjd
+ZF3NvxyaP7rOTZKruvmWOyyBs5YL8IOtez8gY+9U2UTOGIEOv1NtZ87Z/Zc9b5N/KxqXhdfJ
+xNcaSAbVdXZ5Tn13YSuaOvvM/Cqo0+qm9snq2bKniWMmj0cVSrf6HA8nZFWrc3wxmiTOUzXz
+OqeqrY3sjl9hw+f7GYby2XdQ/RxyGnMYY73zAyfGzdjtdv+bXDabzf4n+Xy73bK8+nI7+/2P
+1PIubX/7RbPZzEhvmdFut0ulSPHywzbbLcvrLP/9j8Ny+/398FswxbO0xeMMlT1PxNTsr5aj
+X9U1ArzvjVky+HLpwdCOLzgsr7O8b4kqIskF/bzlZduzHEMwhAy+lzL6jgffutXcu16uqXLH
+700IY33XkaqDH1jZ0a3QzvFDecjgmxHKB3skoAyq7RtnTX8G8f7yyl32c5rl5y3vUxPn6VDf
+v/ADfFft4LPjiAQUSFNW87MGDhuSOr+i6n6B0C0+n34EX0VjrU2VcbfbpUZey1ZXlLWZrrx9
+qAFe/l+GkLIqoHdnJI999cWgimYCCNQAqgg+wJddsdpeDgBD5TfpNgAgeAR4ANMzkQlZgq+i
+AYYopFYh3LOZLjJ4ABgpAjwAjBQBvshE6ugAjJdfHfxSL5L2Wmh2Yp0nvU20HdtJWmtRfcq+
+ZIeC1usS/zHP9F7wCPKLoDuPTUfAHdU6N4RkJfN5ZQeBm/3+R6PLp6KLDP6dFjJR4FtLuouC
+PwCgRX7ZZr0M/p0Wek38fS7pWdKXkkz+aHzl1i2jY/pk4edsi9EJaVpBOvM1byhDFXRfB7/Q
+Rq6q5qbzYwPAhPR1k3Uj6VJLXfZ0fAAYvb5b0Vz0fHwAGK2+AzwAoCV9B/jX8lUAAD76CvBz
+uVY4+56ODwCj132AX+pa0pWkx86PDQAT0u1okkvdSbpXnd6sS4XToLiKoZUXrTD/DKjt+bLv
+AgxQ3J8l279l2UP/nDOcE+CvCoLZNy30JfH8JXGCbSR90oLsHQDaFvJVyF08bjedlTEew9t8
+/tHLeN4+PQ5D6jHZlKCy3zPZr5lJ3Vt8bdlj5ZnaORa/3vg1FD2vi56sAIBeMaNTgaGM3zGU
+ck6VWXT3+bR1rDGcY9nXMIbXVAUZPACMFBl8CJpq5bBoaD8YH86xSSKDB4CRCj+DX82ZnQe1
+DLnVx7mmUrdc9hlP5X0oE3wGb63tvMliH00kAaBp4WfwEfv9fftzsoaiTj0nvRThg3NsEgYT
+4NtwKlPv9Wf+1/JV+AkKoEzwVTQAAD/BZ/CtZqrfp3szDsD4BR/ggbqovioxgrbsfMbVNPcu
+LfUk6TpnyVpuhMldzT1aSbLWHsrY9E3WIbeW4QQv0XPT2pDOrU7Plez7/o/5+T+TF8dxarvd
+pp7Pfv8jvfy3X04u12p+VpGmPNjYOy1kog/lV7mJtZ+11GULxwIAFGgjg3+nRWKu1aWuJG0l
+PWqhTzX22PrA+kPuEEMGH7aQzq1ez5XshBldbduyKWfwWfG8qxcdHAsAEOkiwMdVM0ywDQAd
+ajfAu3r3B7ngXm0OVgBAI9poJvmS6dq8kfQhVS8PYFJ86qzHNHVjX9puRbOXdEFwB4DutV0H
+/yjpSkvdtHwcAEBGuwF+oW9yWfxdq8cBABzpYqiCR0n3WuouCvj1LNVag9NB1/ExhGvQgjq3
+hn6utBgDCsVt77Nt8Zft989pUvvNJF1Q30m605K28ADQlZCvQt1eKdvIcgId1Clu0eDTw/Gc
+bZsU6mvoqlyhvv6yY9YRly+Ucy6JnqwAABSwUrd1b9Zad2Ueep1licPr7HjbJoX6GroqV6iv
+v+yYdR59lreMz+tp4lEXGTwAjBQTfgABK8vazslsQ8uKs7LlC728ISLAF+BkOm0M70+oryHU
+cmF4BlFFE2IdHACEjgy+QEhNskIyhvcl1NeQVy4SG5wj+ACfvZsOAKgm+ACPFjTVDLTPjlyh
+voZQy4VJCj7AG2NG3y4dANoQfIDvHJkTgJHwv9vkBg67U3oo4LWkL1ok5l9d6knSdWbrnaR1
+yeiSwxm1rYnR7tqYOT7EcnVUpibu1yRvelbZX5tj2wBSV2PRuOC+lTSXNIu+cO+k6O/Lw0Tb
+ScmZntZyo0s+eR0fAFDKt4rmQS6Yzw7T8S30qqU+SvoZLf9QuPVC37TUTtKz9zjxIfLJdrsY
+6zrEcnVUpnNGW6y6H7JshKp+Bu+y82u5Kpb0XKvu+U7SVel+FtpE6zKdHwC0wKeKJq5+2ecu
+XeiDFnpXcV8bSZcFVToAgDP4BPg2ZmVipicAaNggxqIBANTnE+Bfy1cJYp8AMGk+AT6ue8+v
+N1/qWUu9VNzXXNI+1W4eANCI+gHeBeO1pOuoPfwb9/xK7ubpaUtdR+s+1i4DAKCUX9c71+rl
+WS6b/6SF9lFwf5IL2rNDVv7Wk/XdoVnlUneS7uWaWn4sOIqN1h2OENubS7JfbWG5Ctt3j6Qd
+POAtPkfj8y7z/NT3qi3d9GR1wXsmF+B/Ri/4Ra4ufVZQ5fKipWy07lzuwlAU3AEAZwp5nJc4
+g2+2jAwmhgGhlyySusngAQDBCz+DD7uMQKvI4JFEBg8ACJ6Vxt1qwlp79qPvVkahvoauyhXq
+6x9LeUPVxPvo9d7XRAYPACPFlH0BMP/0GLP8a1g/bkJ9DV2VK9TXX2Ro5YUfMngAQOdGVQff
+V53dkB9NvN9aqnadcZ265q6O05ShlTdUQ/lOkMEDwEgR4AFgpAjwADBS/r1E3eiRd9Ejtpb0
+JTXYmBsbfq+FZjn72Eq6LJjDdVQ9Wc+tU56iur32CjUxCmWV0S+7Ok4VIZVlhPr6PnfTk9UF
+963cqJCz6ER4J0V/ZxJtAOidbzv4B7lgPjuM8b7Qq5b6KOlntPxDIyUEmtLVGPQhjXUfUlnQ
+ufoZvMvOr+Um60jPpeqe7+Qm/QAA9Mgng4+rX/LnUV2QuQNACHzq4C/KVwEA9I1mkgAwUj4B
+/rV8FQBA33wCfFz3nt8UcqnnqO17jAsCAPSgfoB3nZjWkq6j9vBv3PMrSZvEX3eSLo/WdS4z
+6wIAGuLbDv6LpGdJT1rqkxbaRwH8KbE8ue42Wvdj1F6+aN1jI2mT6zP+9uSFNGphV+dhw8dJ
+9ris3TN4JN+9RsT9CaL3xMRvZvTcfrUn39x49fjzyD5vi99NVpfFz+Sqa35GL/JFrjpmlhqq
+4G3dV0kvJ9cFADQm5LRyVGPR5AopQw3BouJ60ftWNsNQY2PZABnjHosG6FmV6eMY4A1TF3KK
+M/4MHt7qBG8yeTRtKBl8yGc+AR5nyd7QAgYgFffOukku/1Y0QPAI7BiwRhLckL8BZPAApqao
+7scrDlbZiDtVABCGWoGeVjQAMFIhV39QRQNgahqtouEmKwCE66wElwAPAOFppOaCAA8ANbXY
+0anSoGVVcZMVAEaKAA8AI0WAB4CRIsADwEgR4AFgpAjwADBSBHgAGCkCPACMFAEeAEaKAA8A
+AAAAAAAAAAAAAAAAAEbq/wGQpWZSHyQgQgAAAABJRU5ErkJggg==]]>
+				</image>
+				<image icon="true" name="ctud48.png" width="48" height="48">
+					<![CDATA[iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAC5UlEQVRoge1YoZLbMBB92yns
+gRRcZ2xWHtSZfEGKDxXHKCHH8wvHW3KHHFzSooLeF1yn6Ep7zAIBNcgHbEEkZ61IthS7OWea
+N6ORJa1Xb61drSXgjDP+b5Cnn11jzPxv2USAaEvvhWOMrXrQsA2wSQ/eiJdW27iN04WGCJcL
+nRTOBjw3WrfRJMlvAczF2F1RzBb2C2m6WgK4cegqAbwH8FO35wBufXJKZUYOzAwiQpLkDICU
+yvZesoPYhXvxPPdKbQneOfrnuiwi5QDAkAcATpJ8z4ioRKaV3SmVLWRSG0/W+FN886gCa8J7
+q+aSUyqr5AT5GueimDUmslbYGfnx4fIQNY3wkAcATtNV1QhxoVCMACx1HYIbIWvqEmgkb1B5
+yMEGpOlqVBSzcjxZm66lLjZK7Pv8CFt/t401ARycRLtso7/TdCV3HUOGrPJaEDModb+UAYCp
+rjmgHG6ADqARgNHjw2UfMVCaB2aGUlnbClTjnRPZeLKGcKPOMLtLgxFUFLOq0RoDSZJ/wG5p
+AWCqk5sPrrHP2OWTd2jOJxWKYkZpupIBTUplIMqqjpAgnloTvhXtp18/3gAAkiQ34y5yT2g3
+wBXsUCqjpkzsw9HOAU2nPGauFfGR2vWGKOyrtBkXS77RgKHh5H+nzwY8N6ptVPq3SSZ9+jwf
+srMxE4jMj1utNlku6jzQBdyzTqOo8+/0QV+2R+xcSHQSolntviyzWGAHYtySyC+v5whZgThb
+msiHjAfIb66vqudQFxr+LR3rxdI+zVwvQSeMYxW8+l7xrlZgc32125k+fWXRDsLFxy+gi/t2
+QQu8mdbek217zPRB9FUk5c+SUhknSS4veiVsw9pixKfHp68V8lolNgZiSXQ13j2ZCGxpgMx0
+TcpjJw25IvFhLwNvaybzLcQXqWUCLeTS1TRXCDdqGQ9Fh5u544OiLR3ayaV2FyTR13oeE2Su
+3ZswNGO8K3AiMQAgMl8MbQXOGCz+ArhmepcGiq6VAAAAAElFTkSuQmCC]]>
+				</image>
+			</images>
+		</functionBlock>
+		<functionBlock name="CTUD_DINT" version="1.0.0" creationDate="0" lastModifiedDate="0">
+			<title>Up-Down counter (DINT data type)</title>
+			<descr>&lt;HTML&gt;(Same as CTUD but with PV and CV of &lt;b&gt;DINT&lt;/b&gt; data type)&lt;br/&gt;&lt;br/&gt;
+The CTUD_DINT block &lt;b&gt;counts up&lt;/b&gt; for each FALSE-to-TRUE transition of the input CU and &lt;b&gt;count down&lt;/b&gt; for each  FALSE-to-TRUE transition of the input CD.&lt;br/&gt;
+Sets the QU output when the accumulated value (CV) reaches the preset value (PV) value and sets the QD output when the accumulated value (CV) becomes 0.&lt;br/&gt;
+&lt;img src= ctudscheme.png&gt;
+&lt;ul&gt;
+&lt;li&gt;rising edge of R reset CV to 0&lt;/li&gt;
+&lt;li&gt;rising edge of LD set CV to PV&lt;/li&gt;
+&lt;li&gt;rising edge of CU increments CV by 1&lt;/li&gt;
+&lt;li&gt;rising edge of CD decrements CV by 1&lt;/li&gt;
+&lt;li&gt;when CV reaches PV the output QU is set&lt;/li&gt;
+&lt;li&gt;when CV becomes 0 the output QD is set&lt;/li&gt;
+&lt;/ul&gt;</descr>
+			<vars>
+				<inputVars>
+					<var name="CU" type="BOOL">
+						<descr>Count-up input</descr>
+					</var>
+					<var name="CD" type="BOOL">
+						<descr>Count-down input</descr>
+					</var>
+					<var name="R" type="BOOL">
+						<descr>Reset counter input</descr>
+					</var>
+					<var name="LD" type="BOOL">
+						<descr>Preset counter input</descr>
+					</var>
+					<var name="PV" type="DINT">
+						<descr>Preset value</descr>
+					</var>
+				</inputVars>
+				<outputVars>
+					<var name="QU" type="BOOL">
+						<descr>Count-up output</descr>
+					</var>
+					<var name="QD" type="BOOL">
+						<descr>Count-down output</descr>
+					</var>
+					<var name="CV" type="DINT">
+						<descr>Counter current value</descr>
+					</var>
+				</outputVars>
+				<localVars>
+					<var name="MEMCU" type="BOOL">
+						<descr>Previous value of CU</descr>
+					</var>
+					<var name="MEMCD" type="BOOL">
+						<descr>Previous value of CD</descr>
+					</var>
+					<var name="CUEDGE" type="BOOL">
+						<descr>True whenever a posedge on CU is detected</descr>
+					</var>
+					<var name="CDEDGE" type="BOOL">
+						<descr>True whenever a posedge on CD is detected</descr>
+					</var>
+				</localVars>
+			</vars>
+			<iecDeclaration active="FALSE"/>
+			<interfaces/>
+			<methods/>
+			<sourceCode type="IL">
+				<![CDATA[
+	(* Check for reset input *)
+	LD		R
+	JMPCN	l0
+	
+	LD		0
+	ST		CV
+	JMP		l10
+
+l0:
+	(* Check for preset input *)
+	LD		LD
+	JMPCN	l1
+	
+	LD		PV
+	ST		CV
+	JMP		l10
+
+l1:
+	(* Check for posedge on CU *)
+	LD		CU
+	ANDN 	MEMCU
+	ST 		CUEDGE
+	(* Store CU value for next cycle *)	
+	LD 		CU
+	ST 		MEMCU
+
+	(* Check for posedge on CD *)
+	LD		CD
+	ANDN 	MEMCD
+	ST 		CDEDGE
+	(* Store CD value for next cycle *)	
+	LD 		CD
+	ST 		MEMCD
+
+	(* Check for simultaneous posedges on *)
+	LD		CUEDGE
+	AND		CDEDGE
+	JMPC	l10
+	
+	(* ASSERT(!CUEDGE || !CDEDGE) *)
+
+	(* Check if posedge on CU and we are in bounds *)
+	LD		CUEDGE
+	AND(	CV
+	LT		16#7FFFFFFF
+	)
+	JMPCN	l2
+	
+	(* ASSERT(CUEDGE) *)
+	(* Increment *)
+	LD		CV
+	ADD		1
+	ST		CV
+
+l2:
+    (* Check if posedge on CD and we are in bounds *)
+	LD		CDEDGE
+	AND(	CV
+	GT		-2147483648
+	)
+	JMPCN	l10
+	
+	(* ASSERT(CDEDGE) *)
+	(* Decrement *)
+	LD		CV
+	SUB		1
+	ST		CV
+	
+	(* ASSERT(!CUEDGE && !CDEDGE) *)
+	
+l10:
+	(* Up counter output *)
+	LD		CV
+	GE		PV
+	ST		QU
+
+	(* Down counter output *)
+	LD		CV
+	LE		0
+	ST		QD
+]]>
+			</sourceCode>
+			<images>
+				<image name="ctudscheme.png" width="376" height="244">
+					<![CDATA[iVBORw0KGgoAAAANSUhEUgAAAXgAAAD0CAYAAACRmD2xAAAWEklEQVR4nO3dPXbbSLrG8afu
+mTM3mpmW7w7USxB3YHoJctALkHM5kCPzcCI5MHNpAR2ISxC9A3IJ5g6u1NOTzQ3qBgVQAAgQ
+QBEfBeD/O4ftpvBVJMEXLwv1IQEAAAAAAAAAAAAAAAAAAAAAMBymbAVrbRflkCQZkypOfODD
+H7ssCwCEJhMjS/1XS+UAAPQs1ABvC/4fAFBRqAEeAHCmEAN8XsZOFg8ANYUY4AEADQgtwJ/K
+1MniAaCG0AI8AKAhf+m7ABnJRp5H7eABANWRwQPASBHgAWCkQquiycUQBQBQHxk8AIwUAR4A
+Rso/wBtzJ2NeZIyNHs8y5jpnveQ6p9fNQfXMyByfC9090L0+P2/f86Pu84D5BXhjniXdSPok
+a42sNZJeJT3JmJucLXaH9dy6+2jdO9+CAwBOqz8evAvK95I+yNpNZtmTpLmkX2Xta/S3F0l7
+WTsr2M9M1u7cn47Hg7fugoCxiDOfLj/XPo4Jh/e+UV2MB38jF7A3OcseJV1IqlL98iiX9edl
+/ACAM9UL8MZcSLqUlBfcJWkX/XtVui+X4e/lMn4AQMPqZvCX0b+vJetd1NhnnXUBABXRTBIA
+RqpuT9Z99G9Z1l2W4eeum7yhW/dmAgAgrV4GX15vHte97wqWvymvzwcAnMGniuZR0qWMyQvy
+N3IZ+brCfu7kfgk8epQBAFCi/mBj1n6LgvuDjPkia10wN+Zernnkp0Mb+Dwuc3+I1v0St4E/
+sf6/JP29djmBrIH0PgSa4jeapLUfoo5KD1HnpthO+VUuV5kv11qJDk4AgObV78lauCdzLZeZ
+Sy6Lr1JNc2J35mhGJ8alATBlXfRkzecC+kwui6/TigYA0ILmMviGkcEDQFp/GTwAICgEeAAY
+qaDmZKX3KgA0hwweAEYqqAy+SJ83V/lVAR+DaA5grWRMeUuLERt7w43gM3hLL1YA8BJ8gAcm
+x1r3AM4UfIA30p99lwEAhij4AD821trOH+iXWbreelUfqW0bfmBa/AO8MXcy5kXG2OjxHI1H
+k1znKlp2n7P9RbTs6WhZX95ey+Fh334wV3kQbBGEonNUyYfrLV73HPd7cP73wi/AG/MsN/b7
+J1lrZK2RG3/mScbcNFg+nIlWQMB01W8m6YYJnkv6IGvfhga29mOUjd/LmPXJMeFDlA6EdaNi
+cq7BE2uRwaBzfV/h3UlPotELnwz+RtI+FdzfPMrN0nSdswzGdP9A/xZ9FwBTVS+Df5tHtWia
+vXgCj6uC5eGKOn2knqtaFUcyLyekojHZc9JTcg+p35AddHTiu9GvulU0l9G/ZdUvFx5lSd2E
+SQbWruqRUydjdMy6lSpUwqBJ3jcmE9+Z1D6S3yXPc9xXV8cxOr6wFD33jS1DuWE8iKEKgCkY
+StDAcNQN8Pvo37IMfVg3WE+ocn3nZyia0OQv1bxfo33o67uR15/g1POxqneT1bWM2cu1oskT
+173HdfGjCfQAMDQ+rWgeJV3KmLwgfyMX1N2E29buVXxByF4MAABdyu2RKT1b6aeVrhN/u496
+rd1k1r2J/v6Q+NuVlbZW2p7o8Rn3svtXJz3tCnqkVnqPui8fDx5VH70K4PWf/7BWR8+Tfyt6
+3sKjLr+erNZ+kMvkHw7d+qU7uWx8k1n3UdJHuaw/XncraSNrZ17H7xDDDAAYqtJ7DZUDmxuH
+5iF69knWrv2LJRl3IZAk00lwNeYt36l7U6rqdj1cJKY2VAGX4WOhtIPvQ9lrG1riVvf73Fwz
+SWvXMmYnF+S5uZpnYsEWQL+ay+Ab1nkGnz74Iduu1JM1kcETwiHprOaBRR3+mtB1Bh+6sWfw
+IX+2hwDf2QFzAnWlj9+3ageTcE6Ab9wEztFaPVk9j9Fj4ltrfXqyAoEYWjaJ8BHgS9CTFV2Z
+2g3xNtGT1Qlyyj4yGQA4X5ABHgBwvuCqaLLZu5X+Lmv/7KsctX42u95sCMHEW4cAUoABPjRt
+NlkDgDYFFeAL6t7/HETTriGUEcCkBBXgg5KcUarHYgCAr6ACfF4VSF/BtVZdOhcDAAEKKsCH
+pE6gJqgDCFHIsckl0bebktUAoEGruYuLtxtb5bn9/r6zOFq3oQft4AFgpMLP4HsqI71pgfGK
+M2Gv/i5isLHBo807EJYmgmr2ez3277lfgL/dvEi6yFmykfSo1Xyt282V3NR8a63mHwv28zPa
+z69azZkkBAAa5Hf5cgF+r9V8lvjbhaQnSXNJH7Sab3S7eZZ0pbwAfruZS3qWuyB8yjmKu4Fh
+7bgvscCIFVWFlD3P00YG72soVTTN3WRdzV+1mn+Qm67vLvrrWi5Dv87ZYp5YBwDQsDbq4Pdy
+Wbu0mj/qdnMvF+AfM+tdy/0KONkOcux1ZMAUlNV98z1vRxvNJC8l7RLP15Lmut1cHv7iqmcu
+dRz0AQANaTbAuzr3C6WrXeL/T1bTXGeWAQAads5N1tOtaNLr/5T0ergp67bfRXX2RXptB49p
+8G0Hje5xk7XbdvC7VCua09aS7qJqmisdZ/kYqeA7jBlzmKiFEI+x6WqogmQ1zbVcNk/9OwC0
+qJsAv5rv5G68Xss1jyR7nxpj6j/O2bbqvoER63KwsbWongFQgbU29YCfLseieZTrAPVa1vYd
+42SWkhbV109+rZvOuQkZgSoaHrypYcOT+1nNj5+PjF+AX83feWzzKqn+dgAmx3z+0XcRRoHx
+4AFgpIIfLni73aZ+Tc9mM8Py4Szf7XY2WlFbSbOFx/bRtq2Ub7u12u3eyhfY+zf25WhX8AH+
+SFldHMtHs9x8/qHtb7+0sv+4CqCt/bO8eLn9/j5dBZOsCz9VD/69gTsn2f2PsN49KeSrKT1Z
+R+DQAsKY+jdZk9u2WC5Z28ox4OHEBcJ+f3/27gsvLPHziqbQk7UT2Tcy+wJZHvbyxIqut+jC
+Y/to21bKFy+PyxfY+zf25WhX8AH+SAA/MVnezXLz+cdx1tZwFU1b+2d58XKqaLoT8uXURv/p
+pYwhvzHAFDHY2AiraAi0AOAn+AAPYPgYbqAfBHgAozblG7sE+KTbzXlpxmo+3TMJYTn3XG4e
+340eEODT/t13AYAR4nvVEwJ82t+if02dThXm8w+XLUVNwHwlf0put1tdXV1576ts/5iMvj90
+q7fvFTpGgM/3N0azAzB0/gH+dnOjtxmaJGkvN+H2t2j5naR7SV8Of0tvfynpp+rN7dqVf5/K
+xE8Ff58sOa+FwWzW/FtSpSVD9ldEVrJc2eXZMrN9ve2b2r+1NnWONtHF31cIiVL8PjX5+Rpj
+zv78umhZ5DdcsAveD3LB2UQ3F7/JTaz9IElRUH+Vuwjkif/O3KwA0IL66ebt5krSVtI3reZf
+Msvu5WZt+qDVfBMF+xtJv2o132fW3Uq6PDF5SPeDjb21PPhv+/39f6pudqiDD1etewpHG1N3
+X014LVckyfTaHT96T+z3972dRKGevz4ZfN3X4pPB30T/5mXe8UAU8d3BeO7VdBbvLhJXYm7W
+wcvOnVn1AUydMebw2O12qUdy2TkXKJ86+Eu5eVX3R0vcXKsm9fx2s5e7KCTr4eOUIswAv5r/
+p+rARubzj78q/ZqrH6epeSaL/Z+iz/jcewNNB+UxBvlEfXOYKSMmxyfAX9Rc/1HSvW43V1rN
+d9HfbiTtmXy7dX+RoptsZ4zEZ60tvECMMVADXWujUYXUTTPJOIhfS9rpdjOX+xXwpXiTN10G
+EK87/qt55br6nG0P/xu/ztwhck8oWt8Ykxoa99x9EshPS77fkkY/DC2GwacO/rXW2i5r3+mt
+Hj7s6pkKmqgbw7hkL4C+9yaafmDafDL4vaS5bjeXOS1j5pKeddz2fS1XTTOXC/Sb3Dr8HL20
+o22/bjwlVdfdUJvlTFtoW/d97OB9P6tlT60Dhd/KCWiFT4B/lKtDv9FxNUucnWcj5KNc88k7
+ueqZ445PQ9bxBQHh49ddWlk14dH7VeU7VbMarO1fNPFrOFS3VnzepvoBfjXf6XYTd2p6TfRc
+jYP+Y+JmarzNq243G7ns/VWrefXOTV3WZfYYqCtnzNH7EZ8kJVlwiFEmbhfdx7FDfD+A1vjd
+ZF3NvxyaP7rOTZKruvmWOyyBs5YL8IOtez8gY+9U2UTOGIEOv1NtZ87Z/Zc9b5N/KxqXhdfJ
+xNcaSAbVdXZ5Tn13YSuaOvvM/Cqo0+qm9snq2bKniWMmj0cVSrf6HA8nZFWrc3wxmiTOUzXz
+OqeqrY3sjl9hw+f7GYby2XdQ/RxyGnMYY73zAyfGzdjtdv+bXDabzf4n+Xy73bK8+nI7+/2P
+1PIubX/7RbPZzEhvmdFut0ulSPHywzbbLcvrLP/9j8Ny+/398FswxbO0xeMMlT1PxNTsr5aj
+X9U1ArzvjVky+HLpwdCOLzgsr7O8b4kqIskF/bzlZduzHEMwhAy+lzL6jgffutXcu16uqXLH
+700IY33XkaqDH1jZ0a3QzvFDecjgmxHKB3skoAyq7RtnTX8G8f7yyl32c5rl5y3vUxPn6VDf
+v/ADfFft4LPjiAQUSFNW87MGDhuSOr+i6n6B0C0+n34EX0VjrU2VcbfbpUZey1ZXlLWZrrx9
+qAFe/l+GkLIqoHdnJI999cWgimYCCNQAqgg+wJddsdpeDgBD5TfpNgAgeAR4ANMzkQlZgq+i
+AYYopFYh3LOZLjJ4ABgpAjwAjBQBvshE6ugAjJdfHfxSL5L2Wmh2Yp0nvU20HdtJWmtRfcq+
+ZIeC1usS/zHP9F7wCPKLoDuPTUfAHdU6N4RkJfN5ZQeBm/3+R6PLp6KLDP6dFjJR4FtLuouC
+PwCgRX7ZZr0M/p0Wek38fS7pWdKXkkz+aHzl1i2jY/pk4edsi9EJaVpBOvM1byhDFXRfB7/Q
+Rq6q5qbzYwPAhPR1k3Uj6VJLXfZ0fAAYvb5b0Vz0fHwAGK2+AzwAoCV9B/jX8lUAAD76CvBz
+uVY4+56ODwCj132AX+pa0pWkx86PDQAT0u1okkvdSbpXnd6sS4XToLiKoZUXrTD/DKjt+bLv
+AgxQ3J8l279l2UP/nDOcE+CvCoLZNy30JfH8JXGCbSR90oLsHQDaFvJVyF08bjedlTEew9t8
+/tHLeN4+PQ5D6jHZlKCy3zPZr5lJ3Vt8bdlj5ZnaORa/3vg1FD2vi56sAIBeMaNTgaGM3zGU
+ck6VWXT3+bR1rDGcY9nXMIbXVAUZPACMFBl8CJpq5bBoaD8YH86xSSKDB4CRCj+DX82ZnQe1
+DLnVx7mmUrdc9hlP5X0oE3wGb63tvMliH00kAaBp4WfwEfv9fftzsoaiTj0nvRThg3NsEgYT
+4NtwKlPv9Wf+1/JV+AkKoEzwVTQAAD/BZ/CtZqrfp3szDsD4BR/ggbqovioxgrbsfMbVNPcu
+LfUk6TpnyVpuhMldzT1aSbLWHsrY9E3WIbeW4QQv0XPT2pDOrU7Plez7/o/5+T+TF8dxarvd
+pp7Pfv8jvfy3X04u12p+VpGmPNjYOy1kog/lV7mJtZ+11GULxwIAFGgjg3+nRWKu1aWuJG0l
+PWqhTzX22PrA+kPuEEMGH7aQzq1ez5XshBldbduyKWfwWfG8qxcdHAsAEOkiwMdVM0ywDQAd
+ajfAu3r3B7ngXm0OVgBAI9poJvmS6dq8kfQhVS8PYFJ86qzHNHVjX9puRbOXdEFwB4DutV0H
+/yjpSkvdtHwcAEBGuwF+oW9yWfxdq8cBABzpYqiCR0n3WuouCvj1LNVag9NB1/ExhGvQgjq3
+hn6utBgDCsVt77Nt8Zft989pUvvNJF1Q30m605K28ADQlZCvQt1eKdvIcgId1Clu0eDTw/Gc
+bZsU6mvoqlyhvv6yY9YRly+Ucy6JnqwAABSwUrd1b9Zad2Ueep1licPr7HjbJoX6GroqV6iv
+v+yYdR59lreMz+tp4lEXGTwAjBQTfgABK8vazslsQ8uKs7LlC728ISLAF+BkOm0M70+oryHU
+cmF4BlFFE2IdHACEjgy+QEhNskIyhvcl1NeQVy4SG5wj+ACfvZsOAKgm+ACPFjTVDLTPjlyh
+voZQy4VJCj7AG2NG3y4dANoQfIDvHJkTgJHwv9vkBg67U3oo4LWkL1ok5l9d6knSdWbrnaR1
+yeiSwxm1rYnR7tqYOT7EcnVUpibu1yRvelbZX5tj2wBSV2PRuOC+lTSXNIu+cO+k6O/Lw0Tb
+ScmZntZyo0s+eR0fAFDKt4rmQS6Yzw7T8S30qqU+SvoZLf9QuPVC37TUTtKz9zjxIfLJdrsY
+6zrEcnVUpnNGW6y6H7JshKp+Bu+y82u5Kpb0XKvu+U7SVel+FtpE6zKdHwC0wKeKJq5+2ecu
+XeiDFnpXcV8bSZcFVToAgDP4BPg2ZmVipicAaNggxqIBANTnE+Bfy1cJYp8AMGk+AT6ue8+v
+N1/qWUu9VNzXXNI+1W4eANCI+gHeBeO1pOuoPfwb9/xK7ubpaUtdR+s+1i4DAKCUX9c71+rl
+WS6b/6SF9lFwf5IL2rNDVv7Wk/XdoVnlUneS7uWaWn4sOIqN1h2OENubS7JfbWG5Ctt3j6Qd
+POAtPkfj8y7z/NT3qi3d9GR1wXsmF+B/Ri/4Ra4ufVZQ5fKipWy07lzuwlAU3AEAZwp5nJc4
+g2+2jAwmhgGhlyySusngAQDBCz+DD7uMQKvI4JFEBg8ACJ6Vxt1qwlp79qPvVkahvoauyhXq
+6x9LeUPVxPvo9d7XRAYPACPFlH0BMP/0GLP8a1g/bkJ9DV2VK9TXX2Ro5YUfMngAQOdGVQff
+V53dkB9NvN9aqnadcZ265q6O05ShlTdUQ/lOkMEDwEgR4AFgpAjwADBS/r1E3eiRd9Ejtpb0
+JTXYmBsbfq+FZjn72Eq6LJjDdVQ9Wc+tU56iur32CjUxCmWV0S+7Ok4VIZVlhPr6PnfTk9UF
+963cqJCz6ER4J0V/ZxJtAOidbzv4B7lgPjuM8b7Qq5b6KOlntPxDIyUEmtLVGPQhjXUfUlnQ
+ufoZvMvOr+Um60jPpeqe7+Qm/QAA9Mgng4+rX/LnUV2QuQNACHzq4C/KVwEA9I1mkgAwUj4B
+/rV8FQBA33wCfFz3nt8UcqnnqO17jAsCAPSgfoB3nZjWkq6j9vBv3PMrSZvEX3eSLo/WdS4z
+6wIAGuLbDv6LpGdJT1rqkxbaRwH8KbE8ue42Wvdj1F6+aN1jI2mT6zP+9uSFNGphV+dhw8dJ
+9ris3TN4JN+9RsT9CaL3xMRvZvTcfrUn39x49fjzyD5vi99NVpfFz+Sqa35GL/JFrjpmlhqq
+4G3dV0kvJ9cFADQm5LRyVGPR5AopQw3BouJ60ftWNsNQY2PZABnjHosG6FmV6eMY4A1TF3KK
+M/4MHt7qBG8yeTRtKBl8yGc+AR5nyd7QAgYgFffOukku/1Y0QPAI7BiwRhLckL8BZPAApqao
+7scrDlbZiDtVABCGWoGeVjQAMFIhV39QRQNgahqtouEmKwCE66wElwAPAOFppOaCAA8ANbXY
+0anSoGVVcZMVAEaKAA8AI0WAB4CRIsADwEgR4AFgpAjwADBSBHgAGCkCPACMFAEeAEaKAA8A
+AAAAAAAAAAAAAAAAAEbq/wGQpWZSHyQgQgAAAABJRU5ErkJggg==]]>
+				</image>
+				<image icon="true" name="ctud48.png" width="48" height="48">
+					<![CDATA[iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAC5UlEQVRoge1YoZLbMBB92yns
+gRRcZ2xWHtSZfEGKDxXHKCHH8wvHW3KHHFzSooLeF1yn6Ep7zAIBNcgHbEEkZ61IthS7OWea
+N6ORJa1Xb61drSXgjDP+b5Cnn11jzPxv2USAaEvvhWOMrXrQsA2wSQ/eiJdW27iN04WGCJcL
+nRTOBjw3WrfRJMlvAczF2F1RzBb2C2m6WgK4cegqAbwH8FO35wBufXJKZUYOzAwiQpLkDICU
+yvZesoPYhXvxPPdKbQneOfrnuiwi5QDAkAcATpJ8z4ioRKaV3SmVLWRSG0/W+FN886gCa8J7
+q+aSUyqr5AT5GueimDUmslbYGfnx4fIQNY3wkAcATtNV1QhxoVCMACx1HYIbIWvqEmgkb1B5
+yMEGpOlqVBSzcjxZm66lLjZK7Pv8CFt/t401ARycRLtso7/TdCV3HUOGrPJaEDModb+UAYCp
+rjmgHG6ADqARgNHjw2UfMVCaB2aGUlnbClTjnRPZeLKGcKPOMLtLgxFUFLOq0RoDSZJ/wG5p
+AWCqk5sPrrHP2OWTd2jOJxWKYkZpupIBTUplIMqqjpAgnloTvhXtp18/3gAAkiQ34y5yT2g3
+wBXsUCqjpkzsw9HOAU2nPGauFfGR2vWGKOyrtBkXS77RgKHh5H+nzwY8N6ptVPq3SSZ9+jwf
+srMxE4jMj1utNlku6jzQBdyzTqOo8+/0QV+2R+xcSHQSolntviyzWGAHYtySyC+v5whZgThb
+msiHjAfIb66vqudQFxr+LR3rxdI+zVwvQSeMYxW8+l7xrlZgc32125k+fWXRDsLFxy+gi/t2
+QQu8mdbek217zPRB9FUk5c+SUhknSS4veiVsw9pixKfHp68V8lolNgZiSXQ13j2ZCGxpgMx0
+TcpjJw25IvFhLwNvaybzLcQXqWUCLeTS1TRXCDdqGQ9Fh5u544OiLR3ayaV2FyTR13oeE2Su
+3ZswNGO8K3AiMQAgMl8MbQXOGCz+ArhmepcGiq6VAAAAAElFTkSuQmCC]]>
+				</image>
+			</images>
+		</functionBlock>
+		<functionBlock name="CTUD" version="1.0.0" creationDate="0" lastModifiedDate="0">
+			<title>Up-Down counter</title>
+			<descr>&lt;HTML&gt;The CTUD block &lt;b&gt;counts up&lt;/b&gt; for each FALSE-to-TRUE transition of the input CU and &lt;b&gt;count down&lt;/b&gt; for each  FALSE-to-TRUE transition of the input CD.&lt;br/&gt;
+Sets the QU output when the accumulated value (CV) reaches the preset value (PV) value and sets the QD output when the accumulated value (CV) becomes 0.&lt;br/&gt;
+&lt;img src= ctudscheme.png&gt;
+&lt;ul&gt;
+&lt;li&gt;rising edge of R reset CV to 0&lt;/li&gt;
+&lt;li&gt;rising edge of LD set CV to PV&lt;/li&gt;
+&lt;li&gt;rising edge of CU increments CV by 1&lt;/li&gt;
+&lt;li&gt;rising edge of CD decrements CV by 1&lt;/li&gt;
+&lt;li&gt;when CV reaches PV the output QU is set&lt;/li&gt;
+&lt;li&gt;when CV becomes 0 the output QD is set&lt;/li&gt;
+&lt;/ul&gt;</descr>
+			<vars>
+				<inputVars>
+					<var name="CU" type="BOOL">
+						<descr>Count-up input</descr>
+					</var>
+					<var name="CD" type="BOOL">
+						<descr>Count-down input</descr>
+					</var>
+					<var name="R" type="BOOL">
+						<descr>Reset counter input</descr>
+					</var>
+					<var name="LD" type="BOOL">
+						<descr>Preset counter input</descr>
+					</var>
+					<var name="PV" type="INT">
+						<descr>Preset value</descr>
+					</var>
+				</inputVars>
+				<outputVars>
+					<var name="QU" type="BOOL">
+						<descr>Count-up output</descr>
+					</var>
+					<var name="QD" type="BOOL">
+						<descr>Count-down output</descr>
+					</var>
+					<var name="CV" type="INT">
+						<descr>Counter current value</descr>
+					</var>
+				</outputVars>
+				<localVars>
+					<var name="MEMCU" type="BOOL">
+						<descr>Previous value of CU</descr>
+					</var>
+					<var name="MEMCD" type="BOOL">
+						<descr>Previous value of CD</descr>
+					</var>
+					<var name="CUEDGE" type="BOOL">
+						<descr>True whenever a posedge on CU is detected</descr>
+					</var>
+					<var name="CDEDGE" type="BOOL">
+						<descr>True whenever a posedge on CD is detected</descr>
+					</var>
+				</localVars>
+			</vars>
+			<iecDeclaration active="FALSE"/>
+			<interfaces/>
+			<methods/>
+			<sourceCode type="IL">
+				<![CDATA[
+	(* Check for reset input *)
+	LD		R
+	JMPCN	l0
+	
+	LD		0
+	ST		CV
+	JMP		l10
+
+l0:
+	(* Check for preset input *)
+	LD		LD
+	JMPCN	l1
+	
+	LD		PV
+	ST		CV
+	JMP		l10
+	
+l1:
+	(* Check for posedge on CU *)
+	LD		CU
+	ANDN 	MEMCU
+	ST 		CUEDGE
+	(* Store CU value for next cycle *)	
+	LD 		CU
+	ST 		MEMCU
+	
+	(* Check for posedge on CD *)
+	LD		CD
+	ANDN 	MEMCD
+	ST 		CDEDGE
+	(* Store CD value for next cycle *)	
+	LD 		CD
+	ST 		MEMCD
+
+	(* Check for simultaneous posedges on *)
+	LD		CUEDGE
+	AND		CDEDGE
+	JMPC	l10
+	
+	(* ASSERT(!CUEDGE || !CDEDGE) *)
+
+	(* Check if posedge on CU and we are in bounds *)
+	LD		CUEDGE
+	AND(	CV
+	LT		16#7FFF
+	)
+	JMPCN	l2
+	
+	(* ASSERT(CUEDGE) *)
+	(* Increment *)
+	LD		CV
+	ADD		1
+	ST		CV
+	
+l2: 
+    (* Check if posedge on CD and we are in bounds *)
+	LD		CDEDGE
+	AND(	CV
+	GT		-32768
+	)
+	JMPCN	l10
+	
+	(* ASSERT(CDEDGE) *)
+	(* Decrement *)
+	LD		CV
+	SUB		1
+	ST		CV
+	
+	(* ASSERT(!CUEDGE && !CDEDGE) *)
+	
+l10:
+	(* Up counter output *)
+	LD		CV
+	GE		PV
+	ST		QU
+
+	(* Down counter output *)
+	LD		CV
+	LE		0
+	ST		QD
+]]>
+			</sourceCode>
+			<images>
+				<image name="ctudscheme.png" width="376" height="244">
+					<![CDATA[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]]>
+				</image>
+				<image icon="true" name="ctud48.png" width="48" height="48">
+					<![CDATA[iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAC5UlEQVRoge1YoZLbMBB92yns
+gRRcZ2xWHtSZfEGKDxXHKCHH8wvHW3KHHFzSooLeF1yn6Ep7zAIBNcgHbEEkZ61IthS7OWea
+N6ORJa1Xb61drSXgjDP+b5Cnn11jzPxv2USAaEvvhWOMrXrQsA2wSQ/eiJdW27iN04WGCJcL
+nRTOBjw3WrfRJMlvAczF2F1RzBb2C2m6WgK4cegqAbwH8FO35wBufXJKZUYOzAwiQpLkDICU
+yvZesoPYhXvxPPdKbQneOfrnuiwi5QDAkAcATpJ8z4ioRKaV3SmVLWRSG0/W+FN886gCa8J7
+q+aSUyqr5AT5GueimDUmslbYGfnx4fIQNY3wkAcATtNV1QhxoVCMACx1HYIbIWvqEmgkb1B5
+yMEGpOlqVBSzcjxZm66lLjZK7Pv8CFt/t401ARycRLtso7/TdCV3HUOGrPJaEDModb+UAYCp
+rjmgHG6ADqARgNHjw2UfMVCaB2aGUlnbClTjnRPZeLKGcKPOMLtLgxFUFLOq0RoDSZJ/wG5p
+AWCqk5sPrrHP2OWTd2jOJxWKYkZpupIBTUplIMqqjpAgnloTvhXtp18/3gAAkiQ34y5yT2g3
+wBXsUCqjpkzsw9HOAU2nPGauFfGR2vWGKOyrtBkXS77RgKHh5H+nzwY8N6ptVPq3SSZ9+jwf
+srMxE4jMj1utNlku6jzQBdyzTqOo8+/0QV+2R+xcSHQSolntviyzWGAHYtySyC+v5whZgThb
+msiHjAfIb66vqudQFxr+LR3rxdI+zVwvQSeMYxW8+l7xrlZgc32125k+fWXRDsLFxy+gi/t2
+QQu8mdbek217zPRB9FUk5c+SUhknSS4veiVsw9pixKfHp68V8lolNgZiSXQ13j2ZCGxpgMx0
+TcpjJw25IvFhLwNvaybzLcQXqWUCLeTS1TRXCDdqGQ9Fh5u544OiLR3ayaV2FyTR13oeE2Su
+3ZswNGO8K3AiMQAgMl8MbQXOGCz+ArhmepcGiq6VAAAAAElFTkSuQmCC]]>
+				</image>
+			</images>
+		</functionBlock>
+		<functionBlock name="CTU_UDINT" version="1.0.0" creationDate="0" lastModifiedDate="0">
+			<title>Up counter (UDINT data type)</title>
+			<descr>&lt;HTML&gt;(Same as CTU but with PV and CV of &lt;b&gt;UDINT&lt;/b&gt; data type)&lt;br/&gt;&lt;br/&gt;
+The CTU_UDINT block &lt;b&gt;counts up&lt;/b&gt; for each FALSE-to-TRUE transition of the input CU and sets the output Q when the accumulated value (CV) reaches the preset value (PV) value.&lt;br/&gt;
+&lt;img src= ctuscheme.png&gt;
+&lt;ul&gt;
+&lt;li&gt;rising edge of R reset CV to 0&lt;/li&gt;
+&lt;li&gt;rising edge of CU increments CV by 1&lt;/li&gt;
+&lt;li&gt;when CV reaches PV the output Q is set&lt;/li&gt;
+&lt;li&gt;once CV is equal to PV its value remains until a rising edge of R&lt;/li&gt;
+&lt;/ul&gt;</descr>
+			<vars>
+				<inputVars>
+					<var name="CU" type="BOOL">
+						<descr>Count-up on input rising edge</descr>
+					</var>
+					<var name="R" type="BOOL">
+						<descr>Reset counter input</descr>
+					</var>
+					<var name="PV" type="UDINT">
+						<descr>Preset value</descr>
+					</var>
+				</inputVars>
+				<outputVars>
+					<var name="Q" type="BOOL">
+						<descr>Count-up output</descr>
+					</var>
+					<var name="CV" type="UDINT">
+						<descr>Counter current value</descr>
+					</var>
+				</outputVars>
+				<localVars>
+					<var name="CUEDGE" type="BOOL"/>
+					<var name="MEMCU" type="BOOL"/>
+				</localVars>
+			</vars>
+			<iecDeclaration active="FALSE"/>
+			<interfaces/>
+			<methods/>
+			<sourceCode type="IL">
+				<![CDATA[
+	(*	Check for reset input *)
+	LD		R
+	JMPCN	l0
+	
+	LD		0
+	ST		CV
+	JMP		l1
+
+	(*	Check for increment enable *)
+l0:
+	LD		CU
+	ANDN 	MEMCU
+	ST 		CUEDGE
+	
+	LD 		CU
+	ST 		MEMCU
+	
+	LD 		CUEDGE
+	AND(	CV
+	LT		16#FFFFFFFF
+	)
+	JMPCN	l1
+	
+	LD		CV
+	ADD		1
+	ST		CV
+	
+l1:
+
+	(*	Counter output	*)
+	LD		CV
+	GE		PV
+	ST		Q
+	
+
+]]>
+			</sourceCode>
+			<images>
+				<image icon="true" name="ctu48.png" width="48" height="48">
+					<![CDATA[iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAACtUlEQVRoge2YoXLcMBCGf3UK
+G3AF7YzFyoM6kye44KDiO3RHwu8VwluSQz5c0qKA5gnaKWppw2wQUIN7gC2w1ifLki3ZzkU3
+9TfjsSWt17vWrtYyMDHxfyMc/WQbI6KntSYAIUrzXljGyDhHjemAaXT0Trw02hw21hCKEVsI
+nRSTA89N5zKaJOktgJU2ts2yxdq8QcrdBsCNRVcB4BLAT9VeAbh1yeX5kuVARBBCIElSAiDy
+fNm4yUxiG/fa9copVRq4tfSv1LEOlAMANh4AKEnShhNBhUwp2+b5cq0XtfOLR/zN7hyqQMrg
+xqzZ5PJ8WclpxtdszrJFayHrxKzIv76/6aOmFYfxAEBS7qqGTwj5MgOwUWcfbjRZPhdAq/FM
+FSG9HZByN8uyRXF+8chdG3WYFGjG/AxlvJvOcgJ7F9Ehy+gfKXf6qsPGCON4rRnGFKpflwGA
+eagRvWZALW0zADOOfyn7aKoo+MLML05WF4NzQAuhUegy2KTTgSRJP6A+tXNV3FzYxj7jUE/e
+o72eBOEzA3Pjge+09sPvH28BAEmS8rjNuAd0O2BL9t4cbR8wdJcXlAMxbSmZ4CQOTbKn5uQ/
+pycHnpsqB/QE5TgfM2mpz8pGJCAEf7jVzpyJQfuBIdDIOlnR4E+JXm92RA4hpHUKBFt1eLNE
+2gRbCAlLIdzy6hk+MxDmS1edCK0jFvn99VV17RtCcVUvG6QmS8U0Uf1ATAdefavsrmZgf311
+WJk+fSWt7cXZxy8QZ/fdgga0n9fu09vmGPdB69OMrKUxASQsA8Y91nETlx6Xvk7KdcI/iYcY
+MdR5+8O0xNYd0Ctdm/LQh/r8InHRqMDlmQS/C58QMnS1PcvHNtEx7suAP3PHRwR7GtvWq1pB
+Tcaaz2Mi+Ld7G7E545yBE8kBAIH1IrYZmIiWf2FOAyn58r38AAAAAElFTkSuQmCC]]>
+				</image>
+			</images>
+		</functionBlock>
+		<functionBlock name="CTU_DINT" version="1.0.0" creationDate="0" lastModifiedDate="0">
+			<title>Up counter (DINT data type)</title>
+			<descr>&lt;HTML&gt;(Same as CTU but with PV and CV of &lt;b&gt;DINT&lt;/b&gt; data type)&lt;br/&gt;&lt;br/&gt;
+The CTU_DINT block &lt;b&gt;counts up&lt;/b&gt; for each FALSE-to-TRUE transition of the input CU and sets the output Q when the accumulated value (CV) reaches the preset value (PV) value.&lt;br/&gt;
+&lt;img src= ctuscheme.png&gt;
+&lt;ul&gt;
+&lt;li&gt;rising edge of R reset CV to 0&lt;/li&gt;
+&lt;li&gt;rising edge of CU increments CV by 1&lt;/li&gt;
+&lt;li&gt;when CV reaches PV the output Q is set&lt;/li&gt;
+&lt;li&gt;once CV is equal to PV its value remains until a rising edge of R&lt;/li&gt;
+&lt;/ul&gt;</descr>
+			<vars>
+				<inputVars>
+					<var name="CU" type="BOOL">
+						<descr>Count-up on input rising edge</descr>
+					</var>
+					<var name="R" type="BOOL">
+						<descr>Reset counter input</descr>
+					</var>
+					<var name="PV" type="DINT">
+						<descr>Preset value</descr>
+					</var>
+				</inputVars>
+				<outputVars>
+					<var name="Q" type="BOOL">
+						<descr>Count-up output</descr>
+					</var>
+					<var name="CV" type="DINT">
+						<descr>Counter current value</descr>
+					</var>
+				</outputVars>
+				<localVars>
+					<var name="CUEDGE" type="BOOL"/>
+					<var name="MEMCU" type="BOOL"/>
+				</localVars>
+			</vars>
+			<iecDeclaration active="FALSE"/>
+			<interfaces/>
+			<methods/>
+			<sourceCode type="IL">
+				<![CDATA[
+	(*	Check for reset input *)
+	LD		R
+	JMPCN	l0
+	
+	LD		0
+	ST		CV
+	JMP		l1
+
+	(*	Check for increment enable *)
+l0:
+	LD		CU
+	ANDN 	MEMCU
+	ST 		CUEDGE
+	
+	LD 		CU
+	ST 		MEMCU
+	
+	LD 		CUEDGE
+	AND(	CV
+	LT		16#7FFFFFFF
+	)
+	JMPCN	l1
+	
+	LD		CV
+	ADD		1
+	ST		CV
+	
+l1:
+
+	(*	Counter output	*)
+	LD		CV
+	GE		PV
+	ST		Q
+	
+
+]]>
+			</sourceCode>
+			<images>
+				<image name="ctuscheme.png" width="336" height="200">
+					<![CDATA[iVBORw0KGgoAAAANSUhEUgAAAVAAAADICAYAAAC+qrlDAAAKYUlEQVR4nO3dTXLbyqEG0I+p
+t4DnuwRlCdIOQm8gKd9BFqA7Vwa6M5be6HoQza0FZGBVZQNmdiAtwVqClR3gDQCalExaQhOU
+0NA5VSgZBAg2ZOhjd+OnEwAAAAAAAAAAAAAAAAAAAKCvppsARuVPr10AgFrNXrsAT3hc8xx7
+eYE3RA0UoNCYa3S7+j3HXGbgDVEDBSg01trcU2fdx1pu4A1RAwWYMNeBAqOkBgpQSIACFBKg
+AIUEKEAhAQpQSIACFBKgAIUEKEAhAQpQSIACFBo0QJvkvEm+NUnTTV+a5MOQnwFT0jRNmsad
+ym9eF5ZfNwOzST53QXq636bdC0+ZjS/zsU5tiL72L4rX09U8myaZb1n2uauVvivfvOOLMiMI
+SAHKz3U1z687ls33rIUKUIo9CKq+U9e8Lnrv05MAnYC9+0C7muVRkuWOVW67n8f7fhbAmAxx
+Eumo+3n/xHqlTXgYxOyiHcrgudOD9w48MQ0uYwIoNESA3nU/n6phPlVDBajK3gE6a4PxLlvO
+wHdWfZ+3O5YDvF0uY2KsNs92937vxln4oTkLzwPN9gvp/9jzEqZuM44vygwSoAe4U0iATsOg
+JwSb5DzttFnbvE3y62zdV1qwWQnK3mZ9D/aD3mI5m039kJ7N0n5R9JmvzUHL3NVGP3Wzv82S
+67LNCFD29uw/0Be5N12ATiJA/+eQG58l101bA/2U/c/C1/j7pXaH+7PuteFDleIlvip6zlel
+hsKvaqA1lJUR692EP0gpytQYoLNH23/OPMNzEgkYJXciARQSoACFBChAIQEKUEiAAhQSoACF
+BChAIQEKUEiAAhQSoACFBChAIQEKUKiGB6C0DxI52zXsPDB2zT//MkuS2T/+8/35n80///Jg
+Ppfz5Gz5cH7k+j0P9Gz5LdvHNlomucrl/Dpny+MkN0muczn/dcd2vnbb+XMu50brBKpU8kDl
+21zOT77PnS3fJfmc5HPOlu9zOV/mbLlMMs/Z8t0PAXm2nCc5Shu4fcKzhtoysMXsH//5/s/H
+i56YH7X9+0Av5/e5nL9P+8T58+7V67Q1zA9b3jHfWAd4ozZCtVpDDulxl9UY8Jfzq5wt/0gb
+oFeP1vuQ5C6X836dmhX0hwB7quzvfMiz8Edpxz9auU7bjD/6/spm8x2gcsME6NnyS9om+2az
+fPXvzWb8h0fLAKrVr8P2OWfhH67/Ncn995NO7ftvuz7T51pf1gAwIvufhf+56yTnXTP+OD/W
+UgGqdeg7kTab8R/S1kb1fwKTcNgAvZzfpj2x9CHt5Utqn8BkvMS98NfRfAcm6CUC9CrtRfb9
+r/0EGLEazmw3SXJzc/P49dnJyfpc1s3NTbO58OTk5MG+PV7u/eN+/9jL5/3Dvr9WHmcHMGFN
+1teCAoyGGihAIQEKUEiAAhQSoACFBChAIQEKUEiAAhQSoACFBChAIQEKUGjIUTkP68yDnGCy
+KhuNc6WeAH2d++En8cSYN27sz1FwjFVMEx6g0PNroOsm9GnWQ3QkyV3ahyZ/7ObPk/yR5PeN
+19ZV9HaAua/pNzhd8rLf1GOvtdDf2Gp6jrEJ6FsDPU/yKe04R7Nu+rjxerr5+zwcD37T6nWD
+ywFV6xOgx2lrlh/T1i5XrrrpNOta6WocpKMt2zE65zQ1I53gYPoE6Gn3c1vwrdr3x93PzeGM
+186Wx906BpcD1iq9yqbPWfijrAaH+9EyD/uYlt16p9nsB31YQ2WaxtbXCAfTpwb6rue2r9KG
+7vHGa6cxOicwEYe8jGkVkm0z/mw5Txuo+j6BSegToPc9t33bTat+UM333V77RIuTNW/PSx0P
+z5uv9E6kPgF6l7YZv+3M+jztL+L80evX3frztEG6zOV8Wx8qQHX6BOiq6X26Zdnq6+Nx3+ZV
+2prredogVfv8udkEJupy6OOg73xV+gTobdYXzW/WNE+76apbZ9N92lCdx7WfwMT0PYn0e5Lf
+0jbHV30Z52mD9bcd77l+9LPEv/d4L8BBPP860HUn7+rOo+e6Tr1V9Bc9OXLz9//9/nkn//rv
+bNcyy59enmR2crJ+1MLNzc3D95+cPHz/o+UHf/+//rv65yhOwL32/1+tPI0JoFAN3wJNkn/n
+bPm3V/n0Si+voFPDLYKOsWrVUgP962sXAKBGLtQGRqmWGijA6AhQgEICFKCQAAUoJEABCglQ
+gEICFKCQAAUoJEABCglQgEICFKBQn3Hhd7vI56wHj9t0neRjFj88qX7cLga5936WxQBbYZoc
+Y5MwdA30lywyyyKzJH9OOwjdl1xsHYgOoGqHa8Ivcpd2CJB3+XG0zloYVG0ATdO82ekZJnGM
+DfB7qNKh+0BXQxi/O/DnALy4YfpAd1s13eseC75PP9PFwUrBlDnGqnS4Gmjb7/kpbXh+PNjn
+ALySoWug3x59Oy6TvM8i9wN/DsCrO+RZ+Lsk74QnMFWHPIl0leQ4FzkdaoOvckbPdXZ7m81m
+b3Z6lgkcY4P8Hip0yMuYPqathdZ6CRPATx36LPxVkj9ykfMuUMtdpJn932z17xo0lZSTetV4
+jLV3T63vxNo+X4nDXgfahuZtkvNcuBYUmJZhaqCL/PqTZScDfcaskm/b6Xb4sL8haleLAY+x
+zb+pkrKV/00+3ocq/24O3YSvV9+DqY5w57VU1Cx9lj7H+6Ln+gyq6SaAUfE8UIBCAhSgkAAF
+KCRAAQoJUIBCAhSgkAAFKCRAAQoJUIBCAhSgkAAFKCRAAQoJUIBCAhSgkAAFKFT2QOV2eI7z
+PBww7jrJ71nkbmO9b0nutj6V/iI3SY6yyC9FZZiSi0Ged/q6Y8mMdR9eqlxj3f9daivvSPWv
+gbbheZNknuSkG17gl6R7/SJHg5YQYKRKmvCf0obl+yxymyRZ5D75Pi7Sp2GK9ibNCqaxGes+
+vFS5xrr/u9RW3lHpF6Bt7fJDkusuNNfa+dskx0MVDmDM+vaBrprnd1uXLvJ+r9LQ6tOvNNbB
+usa6Dy9VrrHu/y61lXck+jbhje0O0HEZE0ChvgF6//QqAG9D3wBd9X1uv1TpIl+6az9XBG5f
+U7iubqz78FLlGuv+71JbeUekX4C2F8lfJ/nQXQ+61s4fJ1luvHqb5OiHdVtHj9YFqErJnUi/
+J/mS5HMu8lsWuesC8vPG8s11b7p1f80i9z9Z9+eGuXNiypoJnB0d6z68VLnGuv+79CvvoruG
+dP233N7J9NT8iPU/idTWQk/SNue/djv7LW1z/eTBrZzrde+TfPvpugCVqeGugvbb6KKKsvZ3
+iG/Y16rFDLkvQ+/DyGsyWz3nd1D7fi2eMT9iLmMCmLAm0f8JjI8aKEAhAQpQSIACFBKgAIUE
+KEAhAQpQSIACFBKgAIUEKDB1B7sZp2xceID6NEnSNN+zdDab7feIDQEKvCn7huaDbfVY1/3o
+wBQVJ6o+UIBCNTxjc/10aoD+drWe984UfaDAWzNYZUyAAm/F4K1YAQpM3cG6/5xEAigkQAEK
+CVCAQgIUoJAABSgkQAEKCVCAQgIUoJAABSgkQAEAAAAAAAAAAAAAAAAAAABgIv4fFmQme206
+Si8AAAAASUVORK5CYII=]]>
+				</image>
+				<image icon="true" name="ctu48.png" width="48" height="48">
+					<![CDATA[iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAACtUlEQVRoge2YoXLcMBCGf3UK
+G3AF7YzFyoM6kye44KDiO3RHwu8VwluSQz5c0qKA5gnaKWppw2wQUIN7gC2w1ifLki3ZzkU3
+9TfjsSWt17vWrtYyMDHxfyMc/WQbI6KntSYAIUrzXljGyDhHjemAaXT0Trw02hw21hCKEVsI
+nRSTA89N5zKaJOktgJU2ts2yxdq8QcrdBsCNRVcB4BLAT9VeAbh1yeX5kuVARBBCIElSAiDy
+fNm4yUxiG/fa9copVRq4tfSv1LEOlAMANh4AKEnShhNBhUwp2+b5cq0XtfOLR/zN7hyqQMrg
+xqzZ5PJ8WclpxtdszrJFayHrxKzIv76/6aOmFYfxAEBS7qqGTwj5MgOwUWcfbjRZPhdAq/FM
+FSG9HZByN8uyRXF+8chdG3WYFGjG/AxlvJvOcgJ7F9Ehy+gfKXf6qsPGCON4rRnGFKpflwGA
+eagRvWZALW0zADOOfyn7aKoo+MLML05WF4NzQAuhUegy2KTTgSRJP6A+tXNV3FzYxj7jUE/e
+o72eBOEzA3Pjge+09sPvH28BAEmS8rjNuAd0O2BL9t4cbR8wdJcXlAMxbSmZ4CQOTbKn5uQ/
+pycHnpsqB/QE5TgfM2mpz8pGJCAEf7jVzpyJQfuBIdDIOlnR4E+JXm92RA4hpHUKBFt1eLNE
+2gRbCAlLIdzy6hk+MxDmS1edCK0jFvn99VV17RtCcVUvG6QmS8U0Uf1ATAdefavsrmZgf311
+WJk+fSWt7cXZxy8QZ/fdgga0n9fu09vmGPdB69OMrKUxASQsA8Y91nETlx6Xvk7KdcI/iYcY
+MdR5+8O0xNYd0Ctdm/LQh/r8InHRqMDlmQS/C58QMnS1PcvHNtEx7suAP3PHRwR7GtvWq1pB
+Tcaaz2Mi+Ld7G7E545yBE8kBAIH1IrYZmIiWf2FOAyn58r38AAAAAElFTkSuQmCC]]>
+				</image>
+			</images>
+		</functionBlock>
+		<functionBlock name="CTU" version="1.0.0" creationDate="0" lastModifiedDate="0">
+			<title>Up counter</title>
+			<descr>&lt;HTML&gt;The CTU block &lt;b&gt;counts up&lt;/b&gt; for each FALSE-to-TRUE transition of the input CU and sets the output Q when the accumulated value (CV) reaches the preset value (PV) value.&lt;br/&gt;
+&lt;img src= ctuscheme.png&gt;
+&lt;ul&gt;
+&lt;li&gt;rising edge of R reset CV to 0&lt;/li&gt;
+&lt;li&gt;rising edge of CU increments CV by 1&lt;/li&gt;
+&lt;li&gt;when CV reaches PV the output Q is set&lt;/li&gt;
+&lt;li&gt;once CV is equal to PV its value remains until a rising edge of R&lt;/li&gt;
+&lt;/ul&gt;</descr>
+			<vars>
+				<inputVars>
+					<var name="CU" type="BOOL">
+						<descr>Count-up on input rising edge</descr>
+					</var>
+					<var name="R" type="BOOL">
+						<descr>Reset counter input</descr>
+					</var>
+					<var name="PV" type="INT">
+						<descr>Preset value</descr>
+					</var>
+				</inputVars>
+				<outputVars>
+					<var name="Q" type="BOOL">
+						<descr>Count-up output</descr>
+					</var>
+					<var name="CV" type="INT">
+						<descr>Counter current value</descr>
+					</var>
+				</outputVars>
+				<localVars>
+					<var name="CUEDGE" type="BOOL"/>
+					<var name="MEMCU" type="BOOL"/>
+				</localVars>
+			</vars>
+			<iecDeclaration active="FALSE"/>
+			<interfaces/>
+			<methods/>
+			<sourceCode type="IL">
+				<![CDATA[
+	(*	Check for reset input *)
+	LD		R
+	JMPCN	l0
+	
+	LD		0
+	ST		CV
+	JMP		l1
+
+	(*	Check for increment enable *)
+l0:
+	LD		CU
+	ANDN 	MEMCU
+	ST 		CUEDGE
+	
+	LD 		CU
+	ST 		MEMCU
+	
+	LD 		CUEDGE
+	AND(	CV
+	LT		16#7FFF
+	)
+	JMPCN	l1
+	
+	LD		CV
+	ADD		1
+	ST		CV
+	
+l1:
+
+	(*	Counter output	*)
+	LD		CV
+	GE		PV
+	ST		Q
+	
+
+]]>
+			</sourceCode>
+			<images>
+				<image name="ctuscheme.png" width="336" height="200">
+					<![CDATA[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
+Si8AAAAASUVORK5CYII=]]>
+				</image>
+				<image icon="true" name="ctu48.png" width="48" height="48">
+					<![CDATA[iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAACtUlEQVRoge2YoXLcMBCGf3UK
+G3AF7YzFyoM6kye44KDiO3RHwu8VwluSQz5c0qKA5gnaKWppw2wQUIN7gC2w1ifLki3ZzkU3
+9TfjsSWt17vWrtYyMDHxfyMc/WQbI6KntSYAIUrzXljGyDhHjemAaXT0Trw02hw21hCKEVsI
+nRSTA89N5zKaJOktgJU2ts2yxdq8QcrdBsCNRVcB4BLAT9VeAbh1yeX5kuVARBBCIElSAiDy
+fNm4yUxiG/fa9copVRq4tfSv1LEOlAMANh4AKEnShhNBhUwp2+b5cq0XtfOLR/zN7hyqQMrg
+xqzZ5PJ8WclpxtdszrJFayHrxKzIv76/6aOmFYfxAEBS7qqGTwj5MgOwUWcfbjRZPhdAq/FM
+FSG9HZByN8uyRXF+8chdG3WYFGjG/AxlvJvOcgJ7F9Ehy+gfKXf6qsPGCON4rRnGFKpflwGA
+eagRvWZALW0zADOOfyn7aKoo+MLML05WF4NzQAuhUegy2KTTgSRJP6A+tXNV3FzYxj7jUE/e
+o72eBOEzA3Pjge+09sPvH28BAEmS8rjNuAd0O2BL9t4cbR8wdJcXlAMxbSmZ4CQOTbKn5uQ/
+pycHnpsqB/QE5TgfM2mpz8pGJCAEf7jVzpyJQfuBIdDIOlnR4E+JXm92RA4hpHUKBFt1eLNE
+2gRbCAlLIdzy6hk+MxDmS1edCK0jFvn99VV17RtCcVUvG6QmS8U0Uf1ATAdefavsrmZgf311
+WJk+fSWt7cXZxy8QZ/fdgga0n9fu09vmGPdB69OMrKUxASQsA8Y91nETlx6Xvk7KdcI/iYcY
+MdR5+8O0xNYd0Ctdm/LQh/r8InHRqMDlmQS/C58QMnS1PcvHNtEx7suAP3PHRwR7GtvWq1pB
+Tcaaz2Mi+Ld7G7E545yBE8kBAIH1IrYZmIiWf2FOAyn58r38AAAAAElFTkSuQmCC]]>
+				</image>
+			</images>
+		</functionBlock>
+		<functionBlock name="CTD_UDINT" version="1.0.0" creationDate="0" lastModifiedDate="0">
+			<title>Down counter (UDINT data type)</title>
+			<descr>&lt;HTML&gt;(Same as CTD but with PV and CV of &lt;b&gt;UDINT&lt;/b&gt; data type)&lt;br/&gt;&lt;br/&gt;
+The CTD_UDINT block &lt;b&gt;counts down&lt;/b&gt; for each FALSE-to-TRUE transition of the input CD and sets the output Q when the accumulated value (CV) reaches the 0 value.&lt;br/&gt;
+&lt;img src= ctdscheme.png&gt;
+&lt;ul&gt;
+&lt;li&gt;rising edge of LD set CV to the value of PV&lt;/li&gt;
+&lt;li&gt;rising edge of CD decrements CV by 1&lt;/li&gt;
+&lt;li&gt;when CV reaches 0 the output Q is set&lt;/li&gt;
+&lt;li&gt;once CV is 0 its value remains 0 until a rising edge of LD&lt;/li&gt;
+&lt;/ul&gt;</descr>
+			<vars>
+				<inputVars>
+					<var name="CD" type="BOOL">
+						<descr>Count-down on input rising edge</descr>
+					</var>
+					<var name="LD" type="BOOL">
+						<descr>Preset counter input</descr>
+					</var>
+					<var name="PV" type="UDINT">
+						<descr>Preset value</descr>
+					</var>
+				</inputVars>
+				<outputVars>
+					<var name="Q" type="BOOL">
+						<descr>Count-down output</descr>
+					</var>
+					<var name="CV" type="UDINT">
+						<descr>Counter current value</descr>
+					</var>
+				</outputVars>
+				<localVars>
+					<var name="CDEDGE" type="BOOL"/>
+					<var name="MEMCD" type="BOOL"/>
+				</localVars>
+			</vars>
+			<iecDeclaration active="FALSE"/>
+			<interfaces/>
+			<methods/>
+			<sourceCode type="IL">
+				<![CDATA[
+	(*	Check for reset input *)
+	LD		LD
+	JMPCN	l0
+	
+	LD		PV
+	ST		CV
+	JMP		l1
+
+	(*	Check for increment enable *)
+l0:
+	LD 	CD
+	ANDN 	MEMCD
+	ST 		CDEDGE
+	
+	LD 		CD
+	ST 		MEMCD
+	
+	LD 		CDEDGE
+	AND(	CV
+	GT		0
+	)
+	JMPCN	l1
+	
+	LD		CV
+	SUB		1
+	ST		CV
+	
+l1:
+
+	(*	Counter output	*)
+	LD		CV
+	LE		0
+	ST		Q
+	
+
+]]>
+			</sourceCode>
+			<images>
+				<image name="ctdscheme.png" width="336" height="200">
+					<![CDATA[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]]>
+				</image>
+				<image icon="true" name="ctd48.png" width="48" height="48">
+					<![CDATA[iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAADBElEQVRoge1YvW7bMBD+WHRs
+AthDA1Bbpg7NVDRP4Ayd2jeQJmdpZ79C9naJJ3nu0k4Zmido4KlZm40EmiEGnO7XQaJ8okiL
+st2Yaf0BhCTyJN7H++GJwA47/N8Qnn5yjRHR39WmA4Qo1HviGCPrGjVsArbS0ZN4aj0bt3G6
+UIxwudCjwo7AttGaRqXMhwDOHTIzACdKpVMASJLJCMCZTw7AtHweAPhm66F11lSCCEIIEBGS
+ZAKXjB3ELkwBjB39w7KddpS7YXIDAIfLJjd7j1IpkgQNEp02Mg4pcwIwVio9PTq+xZ268OpQ
+KnzqGDtHQc5rARtJMoFS6dKNzIuXr3+BiBof/vH9eZfPBMG36xeWmFTPIS4EAJAyP7tTF70k
+AQD0yu4ZE+kBGLGxldFWshQWyAAEEpAy76Ewta3c9Oj41tyPymZjBndsNObQOpsBqK1wG4Jc
+SOtspnXW7ydvhFKpANAvhwZMzJATVutjkYGW4aeUucliFNDCCRhcXx1ACAGzUkDh/xuKgR6A
+Xuk+SxOI1lk1HhwDPjAX2ghY3hdwFJNceSCAgJT5KxT+HwrXpvcZwGV5f4hFrBgXrL1jUqSU
+eY2EUqkwwWsQYgEfgRmA8fXVgZnM9LtkbywCtsyQyVXQOqtIFCufBqhb4MH+A9b9y+sUAzH9
+Uhp0DmLjn7Hg3ymnqd5JFPEvJVeMW8A+jWjsejGCExCOa5RW4CsaGsRtVtga0RACbcpt1cXW
+roVKhJLYjKWIgDKdewk4Kym/aNC0gXKtuP/wrrrflAVC0ZWEWUfX1foyUZEzi3KBqj7TH1HD
+s8WpTMVk/v5t1bn/6SsBELyvDXsfv0DsXbYLWqD7Qe09/myP1fp+n9QJsHIYWmcEED/o5bDN
+F5pifXLeGKJ5fSh5UejIj1VCY2BVJdYl756MFZTsg8SCpJGDtkKA5kKIfa4Xv4oGAT4PdyE2
+97L5XBxc8qJlPBQrnMxtD6Iz09gqUG9VvCl7PiSEOXZfhtjIeC3wSGIAQMdCMDYL7BAt/gCj
+bz7ec2bPQgAAAABJRU5ErkJggg==]]>
+				</image>
+			</images>
+		</functionBlock>
+		<functionBlock name="CTD_DINT" version="1.0.0" creationDate="0" lastModifiedDate="0">
+			<title>Down counter (DINT data type)</title>
+			<descr>&lt;HTML&gt;(Same as CTD but with PV and CV of &lt;b&gt;DINT&lt;/b&gt; data type)&lt;br/&gt;&lt;br/&gt;
+The CTD_DINT block &lt;b&gt;counts down&lt;/b&gt; for each FALSE-to-TRUE transition of the input CD and sets the output Q when the accumulated value (CV) reaches the 0 value.&lt;br/&gt;
+&lt;img src= ctdscheme.png&gt;
+&lt;ul&gt;
+&lt;li&gt;rising edge of LD set CV to the value of PV&lt;/li&gt;
+&lt;li&gt;rising edge of CD decrements CV by 1&lt;/li&gt;
+&lt;li&gt;when CV reaches 0 the output Q is set&lt;/li&gt;
+&lt;li&gt;once CV is 0 its value remains 0 until a rising edge of LD&lt;/li&gt;
+&lt;/ul&gt;</descr>
+			<vars>
+				<inputVars>
+					<var name="CD" type="BOOL">
+						<descr>Count-down on input rising edge</descr>
+					</var>
+					<var name="LD" type="BOOL">
+						<descr>Preset counter input</descr>
+					</var>
+					<var name="PV" type="DINT">
+						<descr>Preset value</descr>
+					</var>
+				</inputVars>
+				<outputVars>
+					<var name="Q" type="BOOL">
+						<descr>Count-down output</descr>
+					</var>
+					<var name="CV" type="DINT">
+						<descr>Counter current value</descr>
+					</var>
+				</outputVars>
+				<localVars>
+					<var name="CDEDGE" type="BOOL"/>
+					<var name="MEMCD" type="BOOL"/>
+				</localVars>
+			</vars>
+			<iecDeclaration active="FALSE"/>
+			<interfaces/>
+			<methods/>
+			<sourceCode type="IL">
+				<![CDATA[
+	(*	Check for reset input *)
+	LD		LD
+	JMPCN	l0
+	
+	LD		PV
+	ST		CV
+	JMP		l1
+
+	(*	Check for increment enable *)
+l0:
+	LD 	CD
+	ANDN 	MEMCD
+	ST 		CDEDGE
+	
+	LD 		CD
+	ST 		MEMCD
+	
+	LD 		CDEDGE
+	AND(	CV
+	GT		-2147483648
+	)
+	JMPCN	l1
+	
+	LD		CV
+	SUB		1
+	ST		CV
+	
+l1:
+
+	(*	Counter output	*)
+	LD		CV
+	LE		0
+	ST		Q
+	
+
+]]>
+			</sourceCode>
+			<images>
+				<image name="ctdscheme.png" width="336" height="200">
+					<![CDATA[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]]>
+				</image>
+				<image icon="true" name="ctd48.png" width="48" height="48">
+					<![CDATA[iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAADBElEQVRoge1YvW7bMBD+WHRs
+AthDA1Bbpg7NVDRP4Ayd2jeQJmdpZ79C9naJJ3nu0k4Zmido4KlZm40EmiEGnO7XQaJ8okiL
+st2Yaf0BhCTyJN7H++GJwA47/N8Qnn5yjRHR39WmA4Qo1HviGCPrGjVsArbS0ZN4aj0bt3G6
+UIxwudCjwo7AttGaRqXMhwDOHTIzACdKpVMASJLJCMCZTw7AtHweAPhm66F11lSCCEIIEBGS
+ZAKXjB3ELkwBjB39w7KddpS7YXIDAIfLJjd7j1IpkgQNEp02Mg4pcwIwVio9PTq+xZ268OpQ
+KnzqGDtHQc5rARtJMoFS6dKNzIuXr3+BiBof/vH9eZfPBMG36xeWmFTPIS4EAJAyP7tTF70k
+AQD0yu4ZE+kBGLGxldFWshQWyAAEEpAy76Ewta3c9Oj41tyPymZjBndsNObQOpsBqK1wG4Jc
+SOtspnXW7ydvhFKpANAvhwZMzJATVutjkYGW4aeUucliFNDCCRhcXx1ACAGzUkDh/xuKgR6A
+Xuk+SxOI1lk1HhwDPjAX2ghY3hdwFJNceSCAgJT5KxT+HwrXpvcZwGV5f4hFrBgXrL1jUqSU
+eY2EUqkwwWsQYgEfgRmA8fXVgZnM9LtkbywCtsyQyVXQOqtIFCufBqhb4MH+A9b9y+sUAzH9
+Uhp0DmLjn7Hg3ymnqd5JFPEvJVeMW8A+jWjsejGCExCOa5RW4CsaGsRtVtga0RACbcpt1cXW
+roVKhJLYjKWIgDKdewk4Kym/aNC0gXKtuP/wrrrflAVC0ZWEWUfX1foyUZEzi3KBqj7TH1HD
+s8WpTMVk/v5t1bn/6SsBELyvDXsfv0DsXbYLWqD7Qe09/myP1fp+n9QJsHIYWmcEED/o5bDN
+F5pifXLeGKJ5fSh5UejIj1VCY2BVJdYl756MFZTsg8SCpJGDtkKA5kKIfa4Xv4oGAT4PdyE2
+97L5XBxc8qJlPBQrnMxtD6Iz09gqUG9VvCl7PiSEOXZfhtjIeC3wSGIAQMdCMDYL7BAt/gCj
+bz7ec2bPQgAAAABJRU5ErkJggg==]]>
+				</image>
+			</images>
+		</functionBlock>
+		<functionBlock name="CTD" version="1.0.0" creationDate="0" lastModifiedDate="0">
+			<title>Down counter</title>
+			<descr>&lt;HTML&gt;The CTD block &lt;b&gt;counts down&lt;/b&gt; for each FALSE-to-TRUE transition of the input CD and sets the output Q when the accumulated value (CV) reaches the 0 value.&lt;br/&gt;
+&lt;img src= ctdscheme.png&gt;
+&lt;ul&gt;
+&lt;li&gt;rising edge of LD set CV to the value of PV&lt;/li&gt;
+&lt;li&gt;rising edge of CD decrements CV by 1&lt;/li&gt;
+&lt;li&gt;when CV reaches 0 the output Q is set&lt;/li&gt;
+&lt;li&gt;once CV is 0 its value remains 0 until a rising edge of LD&lt;/li&gt;
+&lt;/ul&gt;</descr>
+			<vars>
+				<inputVars>
+					<var name="CD" type="BOOL">
+						<descr>Count-down on input rising edge</descr>
+					</var>
+					<var name="LD" type="BOOL">
+						<descr>Preset counter input</descr>
+					</var>
+					<var name="PV" type="INT">
+						<descr>Preset value</descr>
+					</var>
+				</inputVars>
+				<outputVars>
+					<var name="Q" type="BOOL">
+						<descr>Count-down output</descr>
+					</var>
+					<var name="CV" type="INT">
+						<descr>Counter current value</descr>
+					</var>
+				</outputVars>
+				<localVars>
+					<var name="CDEDGE" type="BOOL"/>
+					<var name="MEMCD" type="BOOL"/>
+				</localVars>
+			</vars>
+			<iecDeclaration active="FALSE"/>
+			<interfaces/>
+			<methods/>
+			<sourceCode type="IL">
+				<![CDATA[
+	(*	Check for reset input *)
+	LD		LD
+	JMPCN	l0
+	
+	LD		PV
+	ST		CV
+	JMP		l1
+
+	(*	Check for increment enable *)
+l0:
+	LD 		CD
+	ANDN 	MEMCD
+	ST 		CDEDGE
+	
+	LD 		CD
+	ST 		MEMCD
+	
+	LD 		CDEDGE
+	AND(	CV
+	GT		-32768
+	)
+	JMPCN	l1
+	
+	LD		CV
+	SUB		1
+	ST		CV
+	
+l1:
+
+	(*	Counter output	*)
+	LD		CV
+	LE		0
+	ST		Q
+	
+
+]]>
+			</sourceCode>
+			<images>
+				<image name="ctdscheme.png" width="336" height="200">
+					<![CDATA[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]]>
+				</image>
+				<image icon="true" name="ctd48.png" width="48" height="48">
+					<![CDATA[iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAADBElEQVRoge1YvW7bMBD+WHRs
+AthDA1Bbpg7NVDRP4Ayd2jeQJmdpZ79C9naJJ3nu0k4Zmido4KlZm40EmiEGnO7XQaJ8okiL
+st2Yaf0BhCTyJN7H++GJwA47/N8Qnn5yjRHR39WmA4Qo1HviGCPrGjVsArbS0ZN4aj0bt3G6
+UIxwudCjwo7AttGaRqXMhwDOHTIzACdKpVMASJLJCMCZTw7AtHweAPhm66F11lSCCEIIEBGS
+ZAKXjB3ELkwBjB39w7KddpS7YXIDAIfLJjd7j1IpkgQNEp02Mg4pcwIwVio9PTq+xZ268OpQ
+KnzqGDtHQc5rARtJMoFS6dKNzIuXr3+BiBof/vH9eZfPBMG36xeWmFTPIS4EAJAyP7tTF70k
+AQD0yu4ZE+kBGLGxldFWshQWyAAEEpAy76Ewta3c9Oj41tyPymZjBndsNObQOpsBqK1wG4Jc
+SOtspnXW7ydvhFKpANAvhwZMzJATVutjkYGW4aeUucliFNDCCRhcXx1ACAGzUkDh/xuKgR6A
+Xuk+SxOI1lk1HhwDPjAX2ghY3hdwFJNceSCAgJT5KxT+HwrXpvcZwGV5f4hFrBgXrL1jUqSU
+eY2EUqkwwWsQYgEfgRmA8fXVgZnM9LtkbywCtsyQyVXQOqtIFCufBqhb4MH+A9b9y+sUAzH9
+Uhp0DmLjn7Hg3ymnqd5JFPEvJVeMW8A+jWjsejGCExCOa5RW4CsaGsRtVtga0RACbcpt1cXW
+roVKhJLYjKWIgDKdewk4Kym/aNC0gXKtuP/wrrrflAVC0ZWEWUfX1foyUZEzi3KBqj7TH1HD
+s8WpTMVk/v5t1bn/6SsBELyvDXsfv0DsXbYLWqD7Qe09/myP1fp+n9QJsHIYWmcEED/o5bDN
+F5pifXLeGKJ5fSh5UejIj1VCY2BVJdYl756MFZTsg8SCpJGDtkKA5kKIfa4Xv4oGAT4PdyE2
+97L5XBxc8qJlPBQrnMxtD6Iz09gqUG9VvCl7PiSEOXZfhtjIeC3wSGIAQMdCMDYL7BAt/gCj
+bz7ec2bPQgAAAABJRU5ErkJggg==]]>
+				</image>
+			</images>
+		</functionBlock>
+		<functionBlock name="RS" version="1.0.0" creationDate="0" lastModifiedDate="0">
+			<title>Bistable, reset dominant</title>
+			<descr>&lt;HTML&gt;Bistable, reset dominant&lt;/br&gt;&lt;/br&gt;
+&lt;img src= rsscheme.png &gt;</descr>
+			<vars>
+				<inputVars>
+					<var name="s" type="BOOL">
+						<descr>Logic input</descr>
+					</var>
+					<var name="r1" type="BOOL">
+						<descr>Reset input</descr>
+					</var>
+				</inputVars>
+				<outputVars>
+					<var name="q1" type="BOOL">
+						<descr>Bistable output</descr>
+					</var>
+				</outputVars>
+			</vars>
+			<iecDeclaration active="FALSE"/>
+			<interfaces/>
+			<methods/>
+			<sourceCode type="IL">
+				<![CDATA[
+	LD		s
+	OR		q1
+	ANDN	r1
+	ST		q1
+]]>
+			</sourceCode>
+			<images>
+				<image name="rsscheme.png" width="290" height="146">
+					<![CDATA[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]]>
+				</image>
+			</images>
+		</functionBlock>
+		<functionBlock name="SR" version="1.0.0" creationDate="0" lastModifiedDate="0">
+			<title>Bistable, set dominant</title>
+			<descr>&lt;HTML&gt;Bistable, set dominant&lt;/br&gt;&lt;/br&gt;
+&lt;img src= srscheme.png &gt;</descr>
+			<vars>
+				<inputVars>
+					<var name="s1" type="BOOL">
+						<descr>Logic input</descr>
+					</var>
+					<var name="r" type="BOOL">
+						<descr>Reset input</descr>
+					</var>
+				</inputVars>
+				<outputVars>
+					<var name="q1" type="BOOL">
+						<descr>Bistable output</descr>
+					</var>
+				</outputVars>
+			</vars>
+			<iecDeclaration active="FALSE"/>
+			<interfaces/>
+			<methods/>
+			<sourceCode type="IL">
+				<![CDATA[	
+	LDN		r
+	AND		q1
+	OR		s1
+	ST		q1
+]]>
+			</sourceCode>
+			<images>
+				<image name="srscheme.png" width="290" height="146">
+					<![CDATA[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]]>
+				</image>
+			</images>
+		</functionBlock>
+		<functionBlock name="FF_D" version="1.0.0" creationDate="0" lastModifiedDate="0">
+			<descr>D-type flip-flop</descr>
+			<vars>
+				<inputVars>
+					<var name="d" type="BOOL">
+						<descr>Input</descr>
+					</var>
+					<var name="clk" type="BOOL">
+						<descr>Clock</descr>
+					</var>
+				</inputVars>
+				<outputVars>
+					<var name="q" type="BOOL">
+						<descr>Out</descr>
+					</var>
+				</outputVars>
+				<localVars>
+					<var name="m" type="BOOL">
+						<initValue>TRUE</initValue>
+					</var>
+					<var name="ok" type="BOOL"/>
+				</localVars>
+			</vars>
+			<iecDeclaration active="FALSE"/>
+			<interfaces/>
+			<methods/>
+			<sourceCode type="IL">
+				<![CDATA[	
+	LD		clk
+	ANDN	m
+	ST		ok
+	
+	LD		clk
+	ST		m
+
+	LD		ok
+	RETCN	
+
+	LD		d
+	ST		q
+
+]]>
+			</sourceCode>
+		</functionBlock>
+		<functionBlock name="TP" version="1.0.0" creationDate="0" lastModifiedDate="0">
+			<title>Pulse generator</title>
+			<descr>&lt;HTML&gt;Pulse generator&lt;/br&gt;&lt;/br&gt;
+&lt;img src= ptscheme.png &gt;</descr>
+			<vars>
+				<inputVars>
+					<var name="IN" type="BOOL">
+						<descr>Timer input source</descr>
+					</var>
+					<var name="PT" type="UDINT">
+						<descr>Preset time value</descr>
+					</var>
+				</inputVars>
+				<outputVars>
+					<var name="Q" type="BOOL">
+						<descr>Pulse output</descr>
+					</var>
+					<var name="ET" type="UDINT">
+						<descr>Actual timer value</descr>
+					</var>
+				</outputVars>
+				<externalVars>
+					<var name="sysTimer" type="UDINT">
+						<descr>1 ms system timer</descr>
+					</var>
+				</externalVars>
+				<localVars>
+					<var name="timStart" type="UDINT">
+						<descr>Time value at start of counting</descr>
+					</var>
+				</localVars>
+			</vars>
+			<iecDeclaration active="FALSE"/>
+			<interfaces/>
+			<methods/>
+			<sourceCode type="IL">
+				<![CDATA[
+	(*	Check if in counting	*)
+
+	LD		Q
+	JMPCN	l10
+	
+	(*	Update actual time *)
+	LD		sysTimer
+	SUB		timStart
+	ST		ET	
+	
+	(*	Update output *)
+	LD		ET
+	LT		PT
+	ST		Q
+	RET
+	
+l10:
+
+	(*	Check for input status *)
+
+	LD		IN
+	JMPCN	l11
+	
+	LD		ET
+	GE		PT
+	RETC
+
+	LD		sysTimer
+	ST		timStart
+	
+	LD		TRUE
+	ST		Q
+	
+l11:
+	
+	(*	No input and no counting active *)
+	LD		0
+	ST		ET
+	
+
+]]>
+			</sourceCode>
+			<images>
+				<image name="ptscheme.png" width="265" height="146">
+					<![CDATA[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]]>
+				</image>
+				<image icon="true" name="tp34.png" width="34" height="34">
+					<![CDATA[iVBORw0KGgoAAAANSUhEUgAAACIAAAAiCAYAAAA6RwvCAAAAxklEQVRYhe2Waw6EIAyEp8bT
+6aFwD8X5un/MRqBkYB+mm/RLjLFaKENbBIIgCD5DVNWwimE0UJWv+AFYhhxvYCXvm8hP2Mqn
+/f5GEcDOIT7ypJ8bRSKQmvVS+4I6q619vtLrG+N+rzndKDLYCn+PG0UWqOKOS7ajuNc2s6HJ
+/mh2THOiXczyAyCaE1WEd1Z7wuJZc2pss7AcMVUYWOHAGVDyliJAGwxThQXvqGqc4CYQwXZ0
+zxrNSTolycflf3HFd24UCQLGE7KZdlKKljJmAAAAAElFTkSuQmCC]]>
+				</image>
+			</images>
+		</functionBlock>
+		<functionBlock name="TON" version="1.0.0" creationDate="0" lastModifiedDate="0">
+			<title>On-delay timer</title>
+			<descr>&lt;HTML&gt;The TON block produces a delayed output Q of the input IN. The delay time is expressed in milliseconds on the PT input.&lt;/br&gt;&lt;/br&gt;
+&lt;img src= tonscheme.png&gt;
+&lt;ul&gt;
+&lt;li&gt;if IN is FALSE Q is false&lt;/li&gt;
+&lt;li&gt;Q becomes TRUE as IN remains TRUE for PT milliseconds&lt;/li&gt;
+&lt;li&gt;Q remains TRUE until IN remains TRUE&lt;/li&gt;
+&lt;/ul&gt;</descr>
+			<vars>
+				<inputVars>
+					<var name="IN" type="BOOL">
+						<descr>Timer input source</descr>
+					</var>
+					<var name="PT" type="UDINT">
+						<descr>Preset time value (ms)</descr>
+					</var>
+				</inputVars>
+				<outputVars>
+					<var name="Q" type="BOOL">
+						<descr>Timer output</descr>
+					</var>
+					<var name="ET" type="UDINT">
+						<descr>Timer current value (ms)</descr>
+					</var>
+				</outputVars>
+				<externalVars>
+					<var name="sysTimer" type="UDINT">
+						<descr>1 ms system timer</descr>
+					</var>
+				</externalVars>
+				<localVars>
+					<var name="timStart" type="UDINT">
+						<descr>Time value at start of counting</descr>
+					</var>
+				</localVars>
+			</vars>
+			<iecDeclaration active="FALSE"/>
+			<interfaces/>
+			<methods/>
+			<sourceCode type="IL">
+				<![CDATA[
+	(*	Check if in counting	*)
+
+	LD		IN
+	JMPCN	lReset
+
+	(*	Check if Q is TRUE *)
+	LD		Q
+	RETC
+	
+	(*	Check if already in counting *)
+	LD		timStart
+	EQ		0
+	JMPCN	lUpdate
+
+	(*	Start of counting *)
+	LD		sysTimer
+	ST		timStart
+	
+lUpdate:
+
+	(*	Update timer and check if time elapsed *)
+	LD		sysTimer
+	SUB		timStart
+	ST		ET
+	GE		PT
+	ST		Q
+	RETCN
+
+	(*	Limit actual time value *)
+	LD		PT
+	ST		ET
+	RET
+
+lReset:
+
+	(*	Reset status *)
+	LD		0
+	ST		ET
+	ST		timStart
+	LD		FALSE
+	ST		Q
+
+]]>
+			</sourceCode>
+			<images>
+				<image name="tonscheme.png" width="230" height="146">
+					<![CDATA[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
+AAAAAElFTkSuQmCC]]>
+				</image>
+				<image icon="true" name="ton1.png" width="48" height="58">
+					<![CDATA[iVBORw0KGgoAAAANSUhEUgAAADAAAAA6CAYAAAD2mdrhAAAD4klEQVRoge3YT4hVdRQH8M91
+akhpIVOjmxYR1K4CIUTQyQYai3YWFVFtRPtjjNbCTUQgropqksqRqU1CloS0CjSw0EBECsqN
+IESLNs0kTYvSjPG1+J3nez7nvfe7902TyvvC45537znfc869vz/nd+ijjz766KOPPvqojKLt
+k2dvXwj+WgWbosmuIX/887yxLqkU1lWEGxbJT/sv3V2/o+01/wX6Cfzf6DQHrlwJLpevClzz
+X6DtDK/V4kUXBfPJpbxUtLuMYv5Q2ydQ1kOPAXZDuwSu7yF02/DmxYzlCvwyM3VJbvcFFmon
+vhEb8CDuwx1YGc9+xU84ia9wCP8skN+eE1iO7XgRw210VsZvDcbxG97HBGZ79N/THHgSp/G6
+FPypkEcVxReXtJI8Gs9O4daQTwdHT6iSwAA+wH7pzR7DCO7BTnyNc0365+LeztAZwdGw3R9c
+A9XCL5/AAA7gBZzH87g/kmigVntKWiCKkJtxDOvD9nxwHVAxibIJTGCjNHZHsVe10qIWtqP4
+PTjfrcBTKoEn8JI0JB7C8SoOW3AcD+MvbA0fpZCbwHLsDvkVnCjrqAmbpLdfX9hP4OWQd4ev
+bOQmsB0rpPG7t4yDFmzCFLZgsun+lDSxV4SvbOQkMCit8/Cq6uV0Pfh6SX6y6VktuIWvwVzS
+nATGpHX+R62rTT5ag9+CD1t0vsUP4Wsslzg3ATiYS9qCnODrqPvYkEueU0qsiuvRTM5BvImn
+cROWxf0aNuOjDrZ1H6s66FyGnATuAkUxjkcUS3a4OHexg/4bUs3Tis7BF8Un+CPOFXdmxJXM
+2j1oKqdbJ223Hs9ZDLXc+xM3d7G7wk9OOb1YB5q//yvinARmkKrKongrQ3/fPPfaTdoGimK/
+oqjvDTMZfpA3B85gWK22W6oqu2GHNMyeif/78FpXq1T0rZeKvDMZfpD3Bb6L67pMzgvYJs2D
+oZAvZNqOxPX7TP2sBA7H9dFc0h6wscVnV+QmcFY6jKytEFQu1uJeafwfyjXKSeAC3gt5l/Kt
+8hwUwU06oeUOuexldALT0unruVKh5WFTcM+Er2zkJjCrsbu+jdVlnHTBao3T2LiSnYoyG9ln
+UjtkKb6U2iS9Yk1wLQvuT8sSlN2Jt0kV4xCOSMOpypwowvZIcB0M7tIom8AcHsceqdKcxDda
+94hUmNVQC7kZ66QNcTI49gTnXMlYUK0zNyedmo5KY7fe5zmFz6VDz9Im/aV4IAJ/DHfH/Wnp
+rZceNs3otbm7XDqQb8UtmT7PSuP9HV0m7GI0d2elNuEu6RQ1ptHcXRE60xrN3cPxy17n++ij
+j+sc/wLOpNwgfFLcXQAAAABJRU5ErkJggg==]]>
+				</image>
+			</images>
+		</functionBlock>
+		<functionBlock name="TOF" version="1.0.0" creationDate="0" lastModifiedDate="0">
+			<title>Off-delay timer</title>
+			<descr>&lt;HTML&gt;The TOF block produces a delayed de-activation of the output Q with respect of the input IN. The delay time is expressed in milliseconds on the PT input.&lt;/br&gt;&lt;/br&gt;
+&lt;img src= tofscheme.png&gt;
+&lt;ul&gt;
+&lt;li&gt;if IN is TRUE then Q is TRUE&lt;/li&gt;
+&lt;li&gt;Q becomes FALSE after PT milliseconds from IN becomes FALSE&lt;/li&gt;
+&lt;li&gt;Q remains FALSE until IN remains FALSE&lt;/li&gt;
+&lt;/ul&gt;</descr>
+			<vars>
+				<inputVars>
+					<var name="IN" type="BOOL">
+						<descr>Timer input source</descr>
+					</var>
+					<var name="PT" type="UDINT">
+						<descr>Preset time value (ms)</descr>
+					</var>
+				</inputVars>
+				<outputVars>
+					<var name="Q" type="BOOL">
+						<descr>Timer output</descr>
+					</var>
+					<var name="ET" type="UDINT">
+						<descr>Timer current value (ms)</descr>
+					</var>
+				</outputVars>
+				<externalVars>
+					<var name="sysTimer" type="UDINT">
+						<descr>1 ms system timer</descr>
+					</var>
+				</externalVars>
+				<localVars>
+					<var name="timStart" type="UDINT">
+						<descr>Time value at start of counting</descr>
+					</var>
+				</localVars>
+			</vars>
+			<iecDeclaration active="FALSE"/>
+			<interfaces/>
+			<methods/>
+			<sourceCode type="IL">
+				<![CDATA[
+	(*	Check if in counting	*)
+
+	LD		IN
+	JMPC	lReset
+
+	(*	Check if falling edge of IN	*)
+	LD		Q
+	RETCN
+
+	(*	Check if already in counting *)
+	LD		timStart
+	EQ		0
+	JMPCN	lUpdate
+	
+	(*	Start of counting *)
+	LD		sysTimer
+	ST		timStart
+
+lUpdate:
+	
+	(*	Update timer and check if time elapsed *)
+	LD		sysTimer
+	SUB		timStart
+	ST		ET
+	GE		PT
+	STN		Q
+	RETCN
+	
+	(*	Limit actual time value *)
+	LD		PT
+	ST		ET
+	RET
+
+lReset:
+
+	(*	Reset status *)
+	LD		0
+	ST		ET
+	ST		timStart
+	LD		TRUE
+	ST		Q
+
+]]>
+			</sourceCode>
+			<images>
+				<image name="tofscheme.png" width="243" height="146">
+					<![CDATA[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]]>
+				</image>
+				<image icon="true" name="tof1.png" width="48" height="58">
+					<![CDATA[iVBORw0KGgoAAAANSUhEUgAAADAAAAA6CAYAAAD2mdrhAAAD50lEQVRoge3ZT4jVVRQH8M9P
+a2ikxTDluHEV1a4CIURQs4HGop1FRdRq0P4Yai3cRATiqqgmqRyZWglNSUirQAOLMRCRgpqN
+YLRy00xTtijNGF+Le57zfL437/5+b1KU94XH78y9537POb/fPfeee4ceeuihhx566KGHyija
+dfy++u5ag04reUns5GLw7M8t25d1S3y9ccsifUWG3AlVvlYp3PBfoBfA9cZiObCUKJML7Va9
+lrl3w3+BtitKrRaBFwWt5FJWKo67gqK1q+0DKGuhSwc7oV0AN/cUWr1y67X05SqcnZ24LLf7
+Aku1Ct2KzXgED+IurIq+X/ELTuFrHMG/S2S36wAGsAsvY2UbnVXxW4cd+A0fYgznurTfVQ48
+g9N4U3J+OuRhRfHlZa0kD0ffNO4M+XRwdIUqASzHR5iU3uxxbMT92INvcL5B/3y07QmdjZiK
+sZPBtbya++UDWI5DeAkX8CIeiiAWUKs9Ky0QRciNOI5NMfZCcB1SMYiyAYxhizR3h3FAtZK5
+FmOH8Udwvl+Bp1QAT+MVaUo8ihNVDDbhBB7D39geNkohN4AB7Av5NZwsa6gBo9Lbry/sJ/Fq
+yPvCVjZyA9iFIWn+HihjoAmjmMA2jDe0T0iJPRS2spETQJ+0zsPrqh8T687XS+RTDX214Ba2
++nJJcwIYkdb5nzSvNvlodn4bPm7S+Q4/hq2RXOLcAOBwLmkTcpyvo25jcy55TimxJp5TmZx9
+eBvP4TasiPYatuKTRcbWbaxZROcK5ARwLyiKHXhcsWy3S/OXFtF/S6p5mrG480XxKf6Mc8U9
+GX6lYe06Gsrp5qTtdC80h8Gmtr9we4dxV9nJKaev1YHmn/+LOCeAWaSqsijeydA/2KKtXdIu
+oCgmFUV9b5jNsIO8HDiDlWq1fVJV2Qm7pWn2fPx9EG90HJWKvk1SkXcmww7yvsD38dyQyXkR
+O6U8GAz5YubYjfH8IVM/K4Cj8Xwil7QLbGmy2RG5AcxJh5H1FZzKxXo8IM3/I7mDcgK4iA9C
+3msJ/lnRAkVwk05ouVMuexkdw4x0+nqhlGt5GA3u2bCVjdwAzlnYXd/F2jJGOmCthdPYDiVv
+KspsZJ9L1yH9+Eq6JukW64JrRXB/Vpag7E68U6oYB3FMmk5VcqKIsceC63Bwl0bZAObxFPZL
+leY4vtW8R6TCrIZayI3YIG2I48GxPzjnS/qCajdz89KpaUqau/V7nml8IR16+hv0+/FwOP4k
+7ov2Gemtl542jej2cndAOpBvxx2ZNuek+f6eDgl7LS53z0nXhHulU9SIhcvdodCZsXC5ezR+
+2et8Dz30cJPjP37X3iBpuO6PAAAAAElFTkSuQmCC]]>
+				</image>
+			</images>
+		</functionBlock>
+		<functionBlock name="Pulse" version="1.0.0" creationDate="0" lastModifiedDate="0">
+			<descr>Pulse generator</descr>
+			<vars>
+				<inputVars>
+					<var name="enable" type="BOOL">
+						<descr>Enable Input</descr>
+					</var>
+					<var name="period" type="UINT">
+						<descr>Period [number of function block call]</descr>
+					</var>
+				</inputVars>
+				<outputVars>
+					<var name="out" type="BOOL">
+						<descr>Pulse Signal</descr>
+					</var>
+				</outputVars>
+				<localVars>
+					<var name="cnt" type="UINT"/>
+				</localVars>
+			</vars>
+			<iecDeclaration active="FALSE"/>
+			<interfaces/>
+			<methods/>
+			<sourceCode type="IL">
+				<![CDATA[
+
+		LD		enable
+		JMPC	l0
+
+		LD		0
+		ST		cnt
+		LD		FALSE
+		ST		out
+		RET
+
+l0:
+
+		LD		cnt
+		ADD		1
+		ST		cnt
+
+		LD		cnt
+		GE		period
+		ST		out
+		RETCN
+
+l1:
+
+		LD		0
+		ST		cnt
+
+]]>
+			</sourceCode>
+		</functionBlock>
+		<functionBlock name="WordToByte" version="1.0.0" creationDate="0" lastModifiedDate="0">
+			<descr>Split a word into two bytes</descr>
+			<vars>
+				<inputVars>
+					<var name="w" type="UINT">
+						<descr>Word Input</descr>
+					</var>
+				</inputVars>
+				<outputVars>
+					<var name="byte0" type="USINT">
+						<descr>Low byte</descr>
+					</var>
+					<var name="byte1" type="USINT">
+						<descr>High byte</descr>
+					</var>
+				</outputVars>
+			</vars>
+			<iecDeclaration active="FALSE"/>
+			<interfaces/>
+			<methods/>
+			<sourceCode type="IL">
+				<![CDATA[
+	(*---------- WORD in memoria IEEE --------*)
+	(*										  *)
+	(*	WORD -> | H byte1 | L byte0 |		  *)
+	(*										  *)
+	(*----------------------------------------*)
+
+	(*	Low byte *)
+
+	LD		w
+	TO_USINT
+	ST		byte0
+
+	(*	High byte *)
+
+	LD		w
+	SHR		8
+	TO_USINT
+	ST		byte1
+
+]]>
+			</sourceCode>
+		</functionBlock>
+		<functionBlock name="WordToBit" version="1.0.0" creationDate="0" lastModifiedDate="0">
+			<descr>Split a word into bits</descr>
+			<vars>
+				<inputVars>
+					<var name="word" type="WORD">
+						<descr>Word Input</descr>
+					</var>
+				</inputVars>
+				<outputVars>
+					<var name="b0" type="BOOL">
+						<descr>Bit 0</descr>
+					</var>
+					<var name="b1" type="BOOL">
+						<descr>Bit 1</descr>
+					</var>
+					<var name="b2" type="BOOL">
+						<descr>Bit 2</descr>
+					</var>
+					<var name="b3" type="BOOL">
+						<descr>Bit 3</descr>
+					</var>
+					<var name="b4" type="BOOL">
+						<descr>Bit 4</descr>
+					</var>
+					<var name="b5" type="BOOL">
+						<descr>Bit 5</descr>
+					</var>
+					<var name="b6" type="BOOL">
+						<descr>Bit 6</descr>
+					</var>
+					<var name="b7" type="BOOL">
+						<descr>Bit 7</descr>
+					</var>
+					<var name="b8" type="BOOL">
+						<descr>Bit 8</descr>
+					</var>
+					<var name="b9" type="BOOL">
+						<descr>Bit 9</descr>
+					</var>
+					<var name="b10" type="BOOL">
+						<descr>Bit 10</descr>
+					</var>
+					<var name="b11" type="BOOL">
+						<descr>Bit 11</descr>
+					</var>
+					<var name="b12" type="BOOL">
+						<descr>Bit 12</descr>
+					</var>
+					<var name="b13" type="BOOL">
+						<descr>Bit 13</descr>
+					</var>
+					<var name="b14" type="BOOL">
+						<descr>Bit 14</descr>
+					</var>
+					<var name="b15" type="BOOL">
+						<descr>Bit 15</descr>
+					</var>
+				</outputVars>
+			</vars>
+			<iecDeclaration active="FALSE"/>
+			<interfaces/>
+			<methods/>
+			<sourceCode type="IL">
+				<![CDATA[
+			LD		word
+			AND		16#0001
+			NE		0
+			ST		b0
+
+			LD		word
+			AND		16#0002
+			NE		0
+			ST		b1
+
+			LD		word
+			AND		16#0004
+			NE		0
+			ST		b2
+
+			LD		word
+			AND		16#0008
+			NE		0
+			ST		b3
+
+			LD		word
+			AND		16#0010
+			NE		0
+			ST		b4
+
+			LD		word
+			AND		16#0020
+			NE		0
+			ST		b5
+
+			LD		word
+			AND		16#0040
+			NE		0
+			ST		b6
+
+			LD		word
+			AND		16#0080
+			NE		0
+			ST		b7
+
+			LD		word
+			AND		16#0100
+			NE		0
+			ST		b8
+
+			LD		word
+			AND		16#0200
+			NE		0
+			ST		b9
+
+			LD		word
+			AND		16#0400
+			NE		0
+			ST		b10
+
+			LD		word
+			AND		16#0800
+			NE		0
+			ST		b11
+
+			LD		word
+			AND		16#1000
+			NE		0
+			ST		b12
+
+			LD		word
+			AND		16#2000
+			NE		0
+			ST		b13
+
+			LD		word
+			AND		16#4000
+			NE		0
+			ST		b14
+
+			LD		word
+			AND		16#8000
+			NE		0
+			ST		b15
+
+]]>
+			</sourceCode>
+		</functionBlock>
+		<functionBlock name="ByteToBit" version="1.0.0" creationDate="0" lastModifiedDate="0">
+			<descr>Split a byte into bits</descr>
+			<vars>
+				<inputVars>
+					<var name="byte" type="BYTE">
+						<descr>Byte Input</descr>
+					</var>
+				</inputVars>
+				<outputVars>
+					<var name="b0" type="BOOL">
+						<descr>Bit 0</descr>
+					</var>
+					<var name="b1" type="BOOL">
+						<descr>Bit 1</descr>
+					</var>
+					<var name="b2" type="BOOL">
+						<descr>Bit 2</descr>
+					</var>
+					<var name="b3" type="BOOL">
+						<descr>Bit 3</descr>
+					</var>
+					<var name="b4" type="BOOL">
+						<descr>Bit 4</descr>
+					</var>
+					<var name="b5" type="BOOL">
+						<descr>Bit 5</descr>
+					</var>
+					<var name="b6" type="BOOL">
+						<descr>Bit 6</descr>
+					</var>
+					<var name="b7" type="BOOL">
+						<descr>Bit 7</descr>
+					</var>
+				</outputVars>
+			</vars>
+			<iecDeclaration active="FALSE"/>
+			<interfaces/>
+			<methods/>
+			<sourceCode type="IL">
+				<![CDATA[
+			LD		byte
+			AND		16#0001
+			NE		0
+			ST		b0
+
+			LD		byte
+			AND		16#0002
+			NE		0
+			ST		b1
+
+			LD		byte
+			AND		16#0004
+			NE		0
+			ST		b2
+
+			LD		byte
+			AND		16#0008
+			NE		0
+			ST		b3
+
+			LD		byte
+			AND		16#0010
+			NE		0
+			ST		b4
+
+			LD		byte
+			AND		16#0020
+			NE		0
+			ST		b5
+
+			LD		byte
+			AND		16#0040
+			NE		0
+			ST		b6
+
+			LD		byte
+			AND		16#0080
+			NE		0
+			ST		b7
+
+]]>
+			</sourceCode>
+		</functionBlock>
+	</functionBlocks>
+	<programs/>
+	<macros/>
+	<structs/>
+	<typedefs/>
+	<enums/>
+	<subranges/>
+	<interfaces/>
+</lib>
