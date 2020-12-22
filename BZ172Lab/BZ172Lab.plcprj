@@ -315,11 +315,65 @@ BZActuatorBase_SetMode := TRUE;
 			</functions>
 			<functionBlocks/>
 			<programs>
-				<program name="main" version="1.0.0" creationDate="0" lastModifiedDate="0">
-					<vars/>
+				<program name="main" version="1.0.0" creationDate="0" lastModifiedDate="1608618160">
+					<vars>
+						<localVars>
+							<var name="dummyB" type="BOOL">
+								<initValue>FALSE</initValue>
+							</var>
+							<var name="CANchannel" type="UDINT">
+								<initValue>0</initValue>
+							</var>
+							<var name="sdoRes" type="UDINT">
+								<initValue>0</initValue>
+							</var>
+							<var name="obj_addr" type="UINT">
+								<initValue>8960</initValue>
+							</var>
+							<var name="obj_offset" type="UINT">
+								<initValue>0</initValue>
+							</var>
+							<var name="node_addr" type="USINT">
+								<initValue>1</initValue>
+							</var>
+							<var name="temp" type="INT" dim0="3">
+								<initValue>[0, 0, 0]</initValue>
+							</var>
+						</localVars>
+					</vars>
 					<iecDeclaration active="FALSE"/>
 					<sourceCode type="ST">
-						<![CDATA[
+						<![CDATA[temp[0] := LOCAL_RAT;
+temp[1] := LOCAL_SAT;
+temp[2] := LOCAL_KAT;
+
+if Addr_CAN_OB = 1 then
+	node_addr := 2;
+elsif Addr_CAN_OB = 2 then
+	node_addr := 1;
+else 
+	;
+end_if;
+
+if (mod(cnt, 100) = 0) then
+	CANchannel := sysCOPM_Sdo_OpenChn(dummyB);
+	sdoRes := sysCOPM_Sdo_DownloadRequest(CANchannel,
+										  node_addr,
+										  obj_addr + obj_offset,
+										  0,
+										  2,
+										  TO_DINT(temp[obj_offset]),
+										  200);
+	dummyB := sysCOPM_Sdo_CloseChn(CANchannel);
+end_if;
+
+if obj_offset < 2 then
+	obj_offset := obj_offset + 1;
+else
+	obj_offset := 0;
+end_if;
+
+
 cnt := cnt + 1;
 ]]>
 					</sourceCode>
@@ -53250,14 +53304,255 @@ HAOgUMvO52nzV8Kpw2xPH31hkpuiTcI+bixx9BFzpJnUBKBQ+85XbztQ+ql7bH8f/WfqmbpN
 				<subranges/>
 				<interfaces/>
 			</lib>
+			<lib name="Imports\CanOpen_IEC .pll" fullXml="false" link="true">
+				<![CDATA[        (*********************)
+        (*                   *)
+        (*     FUNCTIONS     *)
+        (*                   *)
+        (*********************)
+
+FUNCTION sysCOPM_Sdo_OpenChn : UDINT
+	{ DE:"COPM Open SDO channel.
+	
+This function has to be invoked in the Background task.
+It can be used only if Evolution is configured as CanOpen Master.
+
+It returns a SDO Handle to be used as hdlr input of function 
+sysCOPM_Sdo_DownloadRequest()." }
+	VAR_INPUT
+		dummy  : BOOL;  { DE:"Dummy arg" }
+	END_VAR
+	{ CODE:EMBEDDED }
+END_FUNCTION
+
+FUNCTION sysCOPM_Sdo_CloseChn : BOOL
+         { DE:"COPM Close SDO channel.
+
+This function has to be invoked in the Background task.
+It can be used only if Evolution is configured as CanOpen Master.
+
+It closes the SDO Handle previously opened by function sysCOPM_Sdo_OpenChn().
+Returns TRUE if closed correctly.
+" }
+         VAR_INPUT
+                   hdlr  : UDINT;  { DE:"SDO Handle" }
+         END_VAR
+         { CODE:EMBEDDED }
+END_FUNCTION
+
+FUNCTION sysCOPM_Sdo_DownloadRequest : UDINT
+	{ DE:"Send a SDO write object to a remote CanOpen node.
+
+This function has to be invoked in the Background task.
+It can be used only if Evolution is configured as CanOpen Master.
+
+Note: hdlr input is the output of the function sysCOPM_Sdo_DownloadRequest().
+
+It returns 0 if SDO has been sent correctly, the error codes are:
+
+SDO_E_TGBIT      0x05030000 Toggle bit not alternated
+SDO_E_TMO        0x05040000 SDO protocol timed out
+SDO_E_CSC        0x05040001 Client/server command specifier not valid or unknown
+SDO_E_BCKS       0x05040002 Invalid block size (block mode only)
+SDO_E_SEQN       0x05040003 Invalid sequence number (block mode only)
+SDO_E_CRC        0x05040004 CRC error (block mode only)
+SDO_E_OUTM       0x05040005 Out of memory
+SDO_E_UNACC      0x06010000 Unsupported access to an object
+SDO_E_WRONLY     0x06010001 Attempt to read a write only object
+SDO_E_RDONLY     0x06010002 Attempt to write a read only object
+SDO_E_NOOBJ      0x06020000 Object does not exist in the object dictionary
+SDO_E_MAPOBJ     0x06040041 Object cannot be mapped to the PDO
+SDO_E_EXCPDO     0x06040042 The number and length of the objects to be mapped would exceed PDO length
+SDO_E_PARINC     0x06040043 General parameter incompatibility reason
+SDO_E_GENINC     0x06040047 General internal incompatibility in the device
+SDO_E_HWERR      0x06060000 Access failed due to an hardware error
+SDO_E_OBJLEN     0x06070010 Data type does not match, length of service parameter does not match
+SDO_E_TOOHG      0x06070012 Data type does not match, length of service parameter too high
+SDO_E_TOOLW      0x06070013 Data type does not match, length of service parameter too low
+SDO_E_NOSI       0x06090011 Sub-index does not exist
+SDO_E_RANGE      0x06090030 Value range of parameter exceeded
+SDO_E_LIMHG      0x06090031 Value of parameter written too high
+SDO_E_LIMLW      0x06090032 Value of parameter written too low
+SDO_E_HGLW       0x06090036 Maximum value is less than minimum value
+SDO_E_GENERIC    0x08000000 General error
+SDO_E_TRANSF     0x08000020 Data cannot be transferred or stored to the application
+SDO_E_TRANSFLOC  0x08000021 Data cannot be transferred or stored to the application  because of local control
+SDO_E_TRANSFSTAT 0x08000022 Data cannot be transferred or stored to the application because of the present device state
+SDO_E_OBJDICT    0x08000023 Object dictionary dynamic generation fails or no object
+" }
+	VAR_INPUT
+		hdlr  : UDINT;  { DE:"SDO Handle" }
+		node : USINT; { DE:"CanOpen Address Node"}
+		index : UINT; { DE:"Object index"}
+		sindex : USINT; { DE:"Object sub-index"}
+		len : UINT; { DE:"Object data len 1...4 [byte]"}
+		nValue : DINT; { DE:"Value"}
+		to : UDINT; { DE:"Time out [ms]"}
+	END_VAR
+	{ CODE:EMBEDDED }
+END_FUNCTION
+
+FUNCTION_BLOCK sysDBase_DevRead
+{ HIDDEN:ON }
+
+	VAR_INPUT
+	dev : USINT; 
+	index : UINT; 
+	subIndex : USINT;
+	type : USINT; 
+	timeOut : UINT; 
+	END_VAR
+
+	VAR_OUTPUT
+	status : USINT; 
+	value : UDINT; 
+	size : UDINT; 
+	END_VAR
+
+	{ CODE:EMBEDDED }
+
+END_FUNCTION_BLOCK
+
+FUNCTION_BLOCK sysDBase_DevWrite
+{ HIDDEN:ON }
+
+	VAR_INPUT
+	dev : USINT; 
+	index : UINT; 
+	subIndex : USINT; 
+	type : USINT; 
+	value : UDINT; 
+	timeOut : UINT; 
+	END_VAR
+
+	VAR_OUTPUT
+	status : USINT; 
+	END_VAR
+
+	{ CODE:EMBEDDED }
+
+END_FUNCTION_BLOCK
+
+FUNCTION_BLOCK sysDBase_LocalRead
+{ DE:"Read data from the local database of the device, value returned as UDINT can be 
+later converted into the preferred type.
+
+Fieldbus address is the one defined in the address column of the Bios Parameters,
+EEPROM Parameters or Status Variables.
+
+This function has to be invoked in the Background task." }
+
+	VAR_IN_OUT
+	size : UDINT; { DE:"Returned object size in bytes" }
+	END_VAR
+
+	VAR_INPUT
+	address : UINT; { DE:"Fieldbus address" }
+	END_VAR
+
+	VAR_OUTPUT
+	status : USINT; { DE:"Operation result: 0=OK otherwise ERROR" }
+	value : UDINT; { DE:"Returned object value" }
+	END_VAR
+
+	VAR
+	sysDBaseDevRead : sysDBase_DevRead; 
+	END_VAR
+
+	{ CODE:ENCODEST }FhaJ9IFwDJ30AvhR289XbOtXUqvzbLcY3WCynzpNAg/WFwn1QW4MmvQK+Fnbz1ds61cSoPNr
+9xwdbDKdekjCO9YeSfFBdcybNDy4b5vF12MrYVKis1Q3HV16spi6QEIzlikJ9UF1TJY0A/hU
+m8PXaetWEqizXTcdXWVynHpGQjxWKYnwgXHMlDQJeGZbxZdWa1LSsnNudxEdaDKc+kwCOlYh
+ifABccySNAO4URvPl18rUtKyM223GF1ecpZ6Q8IMFiPJz8FwjIS0BnhZm8fXaGtS0qkzYrcY
+HWVykHpJAjtWKcnGgXCMmDQFuFDqYU4bAOhbwNdtK1LSlrNgtxJdVPKrun/CDBYjic8BSgya
+NBg4VRvHl2DrVlKs82t3EV1hcpk6RAI6lilJ8QFDjJh0BXhR284XbStlkqLzYXcqXWDynLpI
+Qj+WKAn1wXAMlHQ8OFXb1VdsK16SoPNqNx1dYfKUeklCPtYlifBBdEye9DO4Z1vFl1ZrUhKs
+82p3HV1lspi6e0IxliJJwsFwjIS0BnhZm8fXaGtS0qkzYrcYHWVykHpJAjtWKcnGwXBMmjQC
+eFXbyldsa1ySlrNvtxmdZjKZeknCCFYayftBf0yttAa4S1vLF2CrXtKoc263GJ1oMp06TUI3
+liiJ8YF0zKl0B7hRG8nXbetXUqKzVDcdXWZyhnpJwghWGknCAX6MlfQxOFXb1VdsK16SoPNq
+Nx1dYfKUeklCPtYlifBBdEyedDU4VdvJl3LrV1Kis1R3Ig==
+
+
+END_FUNCTION_BLOCK
+
+FUNCTION_BLOCK sysDBase_LocalWrite
+{ DE:"Write data to the local database of the device, value must be input as UDINT, 
+so it should be eventually converted in advance from its original type.
+
+Fieldbus address is the one defined in the address column of the Bios Parameters,
+EEPROM Parameters or Status Variables.
+
+This function has to be invoked in the Background task." }
+
+	VAR_INPUT
+	address : UINT; { DE:"Fieldbus address" }
+	value : UDINT; { DE:"Value to be assigned to object" }
+	END_VAR
+
+	VAR_OUTPUT
+	status : USINT; { DE:"Operation result: 0=OK otherwise ERROR" } 
+	END_VAR
+
+	VAR
+	sysDBaseDevWrite : sysDBase_DevWrite; 
+	END_VAR
+
+	{ CODE:ENCODEST }FhaJ9IFwDJ30AvhR289XbOtXUqvzbLcY3WCynzpNAg/WFwn1QW4MmvQK+Fnbz1ds61cSoPNr
+9xzdbXKYek7CP5YoycaBdIyfdAe4bxv8l2LrXRKfc2D3J91kMob6TMIz1iGJ8cFwjJ/0CrhQ
+m8pXZatS0q4zbrcYHVeymHpNQjuWJ8n2gXSMn/QH+FvbxBdfa1ySlnNutwPdZPKUOkACOxYt
+ifCBfIyfdAc4XJvL124rUtKps113HV168pt6SQIFVhrJ+0F/TKm0CPhvW8vXcmtSEqCzYrcZ
+3WTqYU4bAOgynbpAAjrWLAn8AXCMmPQGuFCb+Bds61DSr/NrNxZdZfKYuntCMZYiicWBQ0yp
+9DU4W9vxl1ZrUtKyc253ER1oMpz6TAI6ViGJ8AFxDJN0BrhXG8vXaath0q6zbXcZXWHymbp7
+wghWGsn7QX9MrTQCeFEbz5ds61dSrHNuNxMdXrKYelKCP1YhyflBdAyaNAN4WdvOl21rW5Ks
+82x3HV1hcqs6TQI7Vi+J9EF1TK30MXhim8XXYytlkq3zancfXWUynfpCQgUWLYnrwXBMlnQK
+uFFby9dpK17SqbNvNxQdZDKaukwCOlYYicfBfsygtAZ4VdvPF2zrU1KsM1n3E11r8q/6TAIh
+Fi1J+QF8jJ60BrhQG8fXaatTUqWzbrcfnWQynTp/gj9WLYnxgXCMm7QGOFub8RdT
+
+END_FUNCTION_BLOCK]]>
+			</lib>
 		</libraries>
 		<aux>
 			<src fullXml="false" name="Global shared.plc" order="0" hidden="false">
 				<![CDATA[(* Automatically generated, do not edit! *)
+	VAR_GLOBAL
+		{G:"Status_variables"}
+	REMOTE_RAT AT %MW110.0 : INT := 0;
+		{G:"Status_variables"}
+	REMOTE_SAT AT %MW110.1 : INT := 0;
+		{G:"Status_variables"}
+	REMOTE_KAT AT %MW110.2 : INT := 0;
+		{G:"IO_Mapping"}
+	LOCAL_RAT AT %IW1.0 : INT;  {DE:"AIL1 analogue input"}
+		{G:"IO_Mapping"}
+	LOCAL_SAT AT %IW1.1 : INT;  {DE:"AIL2 analogue input"}
+		{G:"IO_Mapping"}
+	LOCAL_KAT AT %IW1.2 : INT;  {DE:"AIL3 analogue input"}
+	END_VAR
 ]]>
 			</src>
 			<src fullXml="false" name="ParDB.plc" order="0" hidden="false">
 				<![CDATA[(* Automatically generated, do not edit! *)
+
+VAR_GLOBAL CONSTANT
+$$ParDB : ARRAY[ 0..107 ] OF USINT; { HIDDEN:ON } { INIT:"BZ172Lab.PLK+0" }
+$$ParDBLength  : DWORD := 3; { HIDDEN:ON }
+END_VAR
+
+PROGRAM InitParDB WITH Serv;
+
+PROGRAM InitParDB
+	{ HIDDEN:ON }
+	{ CODE:ST }
+	VAR
+		warningsKiller: USINT;
+		dummyCrc32: UDINT;
+	END_VAR
+
+	dummyCrc32 := 330868194;
+
+	warningsKiller := sysDBase_SetExtTable( ADR( $$ParDB ), $$ParDBLength );
+
+
+END_PROGRAM
 
 ]]>
 			</src>
@@ -53280,7 +53575,7 @@ END_PROGRAM
 			</src>
 		</aux>
 		<workspace>
-			<root name="BZ172Lab" nextID="78">
+			<root name="BZ172Lab" nextID="240">
 				<GlobalVars name="Global_vars" id="11"/>
 				<Pou name="main" id="2"/>
 				<folder id="16" name="BZ172Lab">
@@ -53347,9 +53642,91 @@ END_PROGRAM
 					<datacomment/>
 				</project_config>
 				<M172P_596p10 template="FreeAdvance\M172P_596p10.pct" version="13" uniqueID="0" name="M172 28-42 I/Os" caption="M172 28-42 I/Os">
-					<devConfig HMIProject="" HMIRemoteProject="HMIRemote\BZ172Lab.pajx">
+					<devConfig HMIProject="" HMIRemoteProject="HMIRemote\BZ172Lab.pajx" resetBindingCfg="0">
 						<params/>
-						<paramsRO/>
+						<paramsRO>
+							<param>
+								<ipa>5000</ipa>
+								<address>8960</address>
+								<name>REMOTE_RAT</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value>0</value>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description/>
+								<note/>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.0</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>5001</ipa>
+								<address>8961</address>
+								<name>REMOTE_SAT</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value>0</value>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description/>
+								<note/>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.1</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>5002</ipa>
+								<address>8962</address>
+								<name>REMOTE_KAT</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value>0</value>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description/>
+								<note/>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.2</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+						</paramsRO>
 						<enums nextID="0"/>
 						<menus/>
 						<ioMappings>
@@ -53357,19 +53734,19 @@ END_PROGRAM
 								<ioMapping inout="in" idx="0">
 									<name>AIL1</name>
 									<description>AIL1 analogue input</description>
-									<variable/>
+									<variable>LOCAL_RAT</variable>
 									<type>INT</type>
 								</ioMapping>
 								<ioMapping inout="in" idx="1">
 									<name>AIL2</name>
 									<description>AIL2 analogue input</description>
-									<variable/>
+									<variable>LOCAL_SAT</variable>
 									<type>INT</type>
 								</ioMapping>
 								<ioMapping inout="in" idx="2">
 									<name>AIL3</name>
 									<description>AIL3 analogue input</description>
-									<variable/>
+									<variable>LOCAL_KAT</variable>
 									<type>INT</type>
 								</ioMapping>
 								<ioMapping inout="in" idx="3">
@@ -53684,7 +54061,7 @@ END_PROGRAM
 							<commstring>Modbus:1,1000#COM:1,38400,E,8,1</commstring>
 							<values stopNodeParsing="true">
 								<value ipa="10000" subidx="0">0</value>
-								<value ipa="10001" subidx="0">1031</value>
+								<value ipa="10001" subidx="0">2055</value>
 								<value ipa="10002" subidx="0">0</value>
 								<value ipa="10003" subidx="0">0</value>
 								<value ipa="10004" subidx="0">2</value>
@@ -53709,7 +54086,7 @@ END_PROGRAM
 								<value ipa="10022" subidx="0">1</value>
 								<value ipa="10023" subidx="0">2</value>
 								<value ipa="10024" subidx="0">2</value>
-								<value ipa="10025" subidx="0">1</value>
+								<value ipa="10025" subidx="0">2</value>
 								<value ipa="10026" subidx="0">2</value>
 								<value ipa="10027" subidx="0">1</value>
 								<value ipa="10028" subidx="0">3</value>
@@ -54139,6 +54516,9 @@ END_PROGRAM
 								<value ipa="50002" subidx="0">***************</value>
 								<value ipa="50003" subidx="0">0</value>
 								<value ipa="50004" subidx="0">0</value>
+								<value ipa="5000" subidx="0">0</value>
+								<value ipa="5001" subidx="0">0</value>
+								<value ipa="5002" subidx="0">0</value>
 							</values>
 							<commDisabled>0</commDisabled>
 							<downloadVolume>0</downloadVolume>

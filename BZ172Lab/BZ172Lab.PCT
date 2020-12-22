@@ -69,7 +69,7 @@
 				</xs:element>
 			</xs:schema>
 		</datadef>
-		<parameters/>
+		<parameters><par ipa="5000" name="REMOTE_RAT" descr="" typetarg="short" typepar="short" scale="1" form="" offs="0" um="" readonly="false" defval="0" accesslevel="3"><protocol name="Modbus" commaddr="8960" commsubindex="0"/><option dataBlock="MW110.0" typeIEC="INT" parType="status"/><option name="dbScale">1</option><option name="dbOffset">0</option><protocol name="CanOpen" commaddr="8960" commsubindex="0"/></par><par ipa="5001" name="REMOTE_SAT" descr="" typetarg="short" typepar="short" scale="1" form="" offs="0" um="" readonly="false" defval="0" accesslevel="3"><protocol name="Modbus" commaddr="8961" commsubindex="0"/><option dataBlock="MW110.1" typeIEC="INT" parType="status"/><option name="dbScale">1</option><option name="dbOffset">0</option><protocol name="CanOpen" commaddr="8961" commsubindex="0"/></par><par ipa="5002" name="REMOTE_KAT" descr="" typetarg="short" typepar="short" scale="1" form="" offs="0" um="" readonly="false" defval="0" accesslevel="3"><protocol name="Modbus" commaddr="8962" commsubindex="0"/><option dataBlock="MW110.2" typeIEC="INT" parType="status"/><option name="dbScale">1</option><option name="dbOffset">0</option><protocol name="CanOpen" commaddr="8962" commsubindex="0"/></par></parameters>
 		<enums/>
 		<redefPars/>
 		<fieldVars/>

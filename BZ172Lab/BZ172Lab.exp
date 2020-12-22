@@ -4,3 +4,14 @@
 	(*                            *)
 	(******************************)
 
+        VAR_GLOBAL
+	{G:"Status_variables"}
+REMOTE_RAT AT %MW110.0 : INT := 0;
+REMOTE_SAT AT %MW110.1 : INT := 0;
+REMOTE_KAT AT %MW110.2 : INT := 0;
+	{G:"IO_Mapping"}
+LOCAL_RAT AT %IW1.0 : INT;	{ DE:"AIL1 analogue input" }
+LOCAL_SAT AT %IW1.1 : INT;	{ DE:"AIL2 analogue input" }
+LOCAL_KAT AT %IW1.2 : INT;	{ DE:"AIL3 analogue input" }
+	END_VAR
+

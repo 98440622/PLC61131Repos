@@ -1,4 +1,4 @@
-﻿<lib version="1.1.2" name="c:\program files (x86)\schneider electric\ecostruxuremachineexperthvac\catalog\freeadvance\PLC\Regul and Control.plclib" fullXml="true" link="true">
+﻿<lib version="1.1.2" name="Regul and Control" fullXml="true">
 	<descr>AFBs for general purpose regulation and control</descr>
 	<libWorkspace>
 		<folder name="Regul and Control">

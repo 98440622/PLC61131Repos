@@ -21,6 +21,12 @@ VAR_GLOBAL
 	{G:"page1_vars"}
 	fbpage1 : Drawpage1;
 	fbRefrpage1 : Refrpage1;
+	fbpage1Edit_7 : EditBox01 := (x1:=18, y1:=8, x2:=47, y2:=15, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, pVar:=16#00209000, order:=1, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#0000000C, pCanSel:=1);
+	fbpage1Edit_8 : EditBox01 := (wHnd:=1, x1:=18, y1:=24, x2:=47, y2:=31, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, pVar:=16#00209100, order:=2, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#0000000C, pCanSel:=1);
+	fbpage1Edit_9 : EditBox01 := (wHnd:=2, x1:=18, y1:=40, x2:=47, y2:=47, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, pVar:=16#00209200, order:=3, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#0000000C, pCanSel:=1);
+	fbpage1Edit_10 : EditBox01 := (wHnd:=3, x1:=84, y1:=24, x2:=113, y2:=31, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, pVar:=16#00230100, order:=4, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#0000000C, pCanSel:=1);
+	fbpage1Edit_11 : EditBox01 := (wHnd:=4, x1:=84, y1:=8, x2:=113, y2:=15, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, pVar:=16#00230000, order:=5, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#0000000C, pCanSel:=1);
+	fbpage1Edit_12 : EditBox01 := (wHnd:=5, x1:=84, y1:=40, x2:=113, y2:=47, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, pVar:=16#00230200, order:=6, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#0000000C, pCanSel:=1);
 
 END_VAR
 
@@ -239,6 +245,11 @@ PROGRAM PageDraw
 	(* INIT HMI ENVIRONMENT *)
 	res := Video_InitHMI( TRUE );
 
+	(* Network devices configuration *)
+
+	(* LocalParameters configuration (id: 0)*)
+	res := Video_SetDeviceCfg( 0, kCOMM_PROTO_ID_LOCAL, 16#00000000 );
+
 	(* Switching on the LCD *)
 	res := Video_Switch( TRUE );
 
@@ -338,6 +349,12 @@ FUNCTION_BLOCK Drawpage1
 	VAR_EXTERNAL
 	guiCallStack : ARRAY[ 0..9 ] OF UINT;
 	giStackPtr : INT;
+	fbpage1Edit_7 : EditBox01;
+	fbpage1Edit_8 : EditBox01;
+	fbpage1Edit_9 : EditBox01;
+	fbpage1Edit_10 : EditBox01;
+	fbpage1Edit_11 : EditBox01;
+	fbpage1Edit_12 : EditBox01;
 	$waitRefresh : BOOL;
 	END_VAR
 
@@ -419,6 +436,24 @@ FUNCTION_BLOCK Drawpage1
 			(* *** PAGE SECTION *** *)
 
 			(* *** DRAW CONTROLS *** *)
+			fbpage1Edit_7.accMode := kACS_INIT;
+			fbpage1Edit_7();
+			fbpage1Edit_7.accMode := kACS_PRINT;
+			fbpage1Edit_8.accMode := kACS_INIT;
+			fbpage1Edit_8();
+			fbpage1Edit_8.accMode := kACS_PRINT;
+			fbpage1Edit_9.accMode := kACS_INIT;
+			fbpage1Edit_9();
+			fbpage1Edit_9.accMode := kACS_PRINT;
+			fbpage1Edit_10.accMode := kACS_INIT;
+			fbpage1Edit_10();
+			fbpage1Edit_10.accMode := kACS_PRINT;
+			fbpage1Edit_11.accMode := kACS_INIT;
+			fbpage1Edit_11();
+			fbpage1Edit_11.accMode := kACS_PRINT;
+			fbpage1Edit_12.accMode := kACS_INIT;
+			fbpage1Edit_12();
+			fbpage1Edit_12.accMode := kACS_PRINT;
 
 			(* Select the first selectable control *)
 			iNextSel := Video_FirstLastEdit( TRUE, FALSE );
@@ -458,16 +493,63 @@ FUNCTION_BLOCK Drawpage1
 
 					CASE key OF
 
+					13:	(* Key: Enter - Action: Edit *)
+
+						CASE iNextSel OF
+
+							0,1,2,3,4,5:
+								(* Entering the edit mode *)
+								res := Video_EnterEdit( TO_UINT( iNextSel ) );
+
+								IF res = kKEY_Up THEN
+
+									iNextSel := TO_INT( Video_NextEdit( TRUE ) );
+									IF iNextSel > -1 THEN
+										res := Video_SendEvent( kWM_SELECT, TO_UINT(iNextSel) );
+									END_IF;
+
+								ELSIF res = kKEY_Down THEN
+
+									iNextSel := TO_INT( Video_PrevEdit( TRUE ) );
+									IF iNextSel > -1 THEN
+										res := Video_SendEvent( kWM_SELECT, TO_UINT(iNextSel) );
+									END_IF;
+
+								END_IF;
+
+						END_CASE;
+
+					11:	(* Key: Up - Action: PrevField *)
+						iNextSel := TO_INT( Video_PrevEdit( TRUE ) );
+						IF iNextSel > -1 THEN
+							res := Video_SendEvent( kWM_SELECT, TO_UINT(iNextSel) );
+						END_IF;
+
+					10:	(* Key: Down - Action: NextField *)
+						iNextSel := TO_INT( Video_NextEdit( TRUE ) );
+						IF iNextSel > -1 THEN
+							res := Video_SendEvent( kWM_SELECT, TO_UINT(iNextSel) );
+						END_IF;
+
 					END_CASE;
 
-				END_CASE;
-			END_IF;
+				(* Selecting a control: *)
+				kWM_SELECT:
+
+					(* Extracting the index of the edit box clicked *)
+					iNextSel := TO_INT(SHR(udiev, 16));
+
+					(* Only select the object *)
+					res := Video_EnterEditSel( TO_UINT( iNextSel ), TRUE );
+
+					END_CASE;
+				END_IF;
+
+			END_WHILE;
 
 		END_WHILE;
 
-	END_WHILE;
-
-END_FUNCTION_BLOCK
+	END_FUNCTION_BLOCK
 
 	(***************************)
 	(*                         *)
@@ -480,6 +562,12 @@ FUNCTION_BLOCK Refrpage1
 	VAR_EXTERNAL
 	guiCallStack : ARRAY[ 0..9 ] OF UINT;
 	giStackPtr : INT;
+	fbpage1Edit_7 : EditBox01;
+	fbpage1Edit_8 : EditBox01;
+	fbpage1Edit_9 : EditBox01;
+	fbpage1Edit_10 : EditBox01;
+	fbpage1Edit_11 : EditBox01;
+	fbpage1Edit_12 : EditBox01;
 	$waitRefresh : BOOL;
 	END_VAR
 
@@ -511,6 +599,12 @@ FUNCTION_BLOCK Refrpage1
 			$waitRefresh := FALSE;
 
 			(* *** REFRESH PAGE CONTROLS *** *)
+			fbpage1Edit_7();
+			fbpage1Edit_8();
+			fbpage1Edit_9();
+			fbpage1Edit_10();
+			fbpage1Edit_11();
+			fbpage1Edit_12();
 
 			(* *** REFRESHING BACKGROUND ITEMS *** *)
 			(* Cursor across the call stack *)

@@ -13,6 +13,7 @@
 			<lib link="false">Communication.pll</lib>
 			<lib link="false">Pumping.pll</lib>
 			<lib link="false">display.plclib</lib>
+			<lib link="false">CanOpen_IEC .pll</lib>
 		</libraries>
 		<aux/>
 	</sources>
