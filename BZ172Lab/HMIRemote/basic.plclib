@@ -1,4 +1,4 @@
-﻿<lib version="1.0.0" name="basic" fullXml="true">
+﻿<lib version="1.0.0" name="c:\program files (x86)\schneider electric\ecostruxuremachineexperthvac\catalog\freeadvance\..\..\Application\Libraries\basic.plclib" fullXml="true" link="true">
 	<descr/>
 	<libWorkspace>
 		<folder id="7" name="basic">
