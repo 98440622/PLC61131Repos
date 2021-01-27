@@ -1,0 +1,13 @@
+
+
+@startuml Solenoid Valve Control SM
+
+[*] --> OFF
+
+OFF : Valve is closed.
+OFF --> ON : Compressor status is 'PRESTART' or\n'STARTED'
+
+ON : Valve is opened.
+ON --> OFF : Compressor status is 'PUMPDOWN' or\n'STOPPED'
+
+@enduml

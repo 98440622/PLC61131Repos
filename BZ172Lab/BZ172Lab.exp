@@ -6,12 +6,22 @@
 
         VAR_GLOBAL
 	{G:"Status_variables"}
-REMOTE_RAT AT %MW110.0 : INT := 0;
-REMOTE_SAT AT %MW110.1 : INT := 0;
-REMOTE_KAT AT %MW110.2 : INT := 0;
+BZCANMailbox1 AT %MW110.0 : INT;
+BZCANMailbox2 AT %MW110.1 : INT;
+BZCANMailbox3 AT %MW110.2 : INT;
+BZIsRealMode AT %MW110.3 : BOOL := 1;	{ DE:"Controller is working on real mode." }
 	{G:"IO_Mapping"}
-LOCAL_RAT AT %IW1.0 : INT;	{ DE:"AIL1 analogue input" }
-LOCAL_SAT AT %IW1.1 : INT;	{ DE:"AIL2 analogue input" }
-LOCAL_KAT AT %IW1.2 : INT;	{ DE:"AIL3 analogue input" }
+HW_AI_01 AT %IW1.0 : INT;	{ DE:"AIL1 analogue input" }
+HW_AI_02 AT %IW1.1 : INT;	{ DE:"AIL2 analogue input" }
+HW_AI_03 AT %IW1.2 : INT;	{ DE:"AIL3 analogue input" }
+HW_AI_04 AT %IW1.3 : INT;	{ DE:"AIL4 analogue input" }
+HW_AI_05 AT %IW1.4 : INT;	{ DE:"AIL5 analogue input" }
+HW_AI_06 AT %IW1.5 : INT;	{ DE:"AIL6 analogue input" }
+HW_AI_07 AT %IW1.6 : INT;	{ DE:"AIL7 analogue input" }
+HW_AI_08 AT %IW1.7 : INT;	{ DE:"AIL8 analogue input" }
+HW_AI_09 AT %IW1.8 : INT;	{ DE:"AI9 analogue input" }
+HW_AI_10 AT %IW1.9 : INT;	{ DE:"AIL10 analogue input" }
+HW_AI_11 AT %IW1.10 : INT;	{ DE:"AIL11 analogue input" }
+HW_AI_12 AT %IW1.11 : INT;	{ DE:"AIL12 analogue input" }
 	END_VAR
 

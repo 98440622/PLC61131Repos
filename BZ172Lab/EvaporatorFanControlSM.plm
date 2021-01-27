@@ -1,0 +1,43 @@
+
+
+@startuml Evaporator Fan Control SM
+
+[*] --> OFF
+
+OFF : Fan is fully stopped.
+OFF --> ON : Unit status is 'ON'
+
+
+state ON {
+    [*] --> STANDBY_SPEED
+
+    STANDBY_SPEED: Minimal speed without compressor running
+    STANDBY_SPEED --> VARIABLE_SPEED_RACK : evCompressorRunning
+    STANDBY_SPEED --> VARIABLE_SPEED_RAT : evCompressorRunning
+    STANDBY_SPEED --> FIX_SPEED : evCompressorRunning
+
+    VARIABLE_SPEED_RACK: PID(cool setpoint, Tmax_rack)
+    VARIABLE_SPEED_RACK --> VARIABLE_SPEED_RAT : evIndoorFanStrategyUpdate
+    VARIABLE_SPEED_RACK --> FIX_SPEED : evIndoorFanStrategyUpdate
+    VARIABLE_SPEED_RACK --> EXCEPTION_SPEED : evBadRackAirMax
+    VARIABLE_SPEED_RACK --> STANDBY_SPEED : evCompressorStopped
+
+    VARIABLE_SPEED_RAT: PID(Trat_sp, Trat_avg)
+    VARIABLE_SPEED_RAT --> VARIABLE_SPEED_RACK : evIndoorFanStrategyUpdate
+    VARIABLE_SPEED_RAT --> FIX_SPEED : evIndoorFanStrategyUpdate
+    VARIABLE_SPEED_RAT --> EXCEPTION_SPEED : evBadReturnAirAvg
+    VARIABLE_SPEED_RAT --> STANDBY_SPEED : evCompressorStopped
+
+    FIX_SPEED: Given constant speed
+    FIX_SPEED --> VARIABLE_SPEED_RACK : evIndoorFanStrategyUpdate
+    FIX_SPEED --> VARIABLE_SPEED_RAT : evIndoorFanStrategyUpdate
+    FIX_SPEED --> STANDBY_SPEED : evCompressorStopped
+
+    EXCEPTION_SPEED: Min or max speed by strategy
+    EXCEPTION_SPEED --> VARIABLE_SPEED_RACK : evGoodRackAirMax
+    EXCEPTION_SPEED --> VARIABLE_SPEED_RAT : evGoodReturnAirAvg
+    EXCEPTION_SPEED --> STANDBY_SPEED : evCompressorStopped
+}
+ON --> OFF : Unit status is 'OFF'
+
+@enduml

@@ -1,0 +1,21 @@
+
+
+@startuml Unit Status SM
+
+[*] --> OFF
+
+OFF : All actuators are fully stopped.
+OFF --> STARTUP_DELAY : evTurnUnitOn
+OFF --> MAINTENANCE : evTurnMaintenanceOn
+
+STARTUP_DELAY : No actions.
+STARTUP_DELAY --> ON : evStartupDelayTimeout
+STARTUP_DELAY --> OFF: evTurnUnitOff
+
+ON : The actuators is regulated\nby control logic.
+ON --> OFF : evTurnUnitOff\nOR\nevRemoteShutdown
+
+MAINTENANCE : Outputs of the actuators follow\n the instructions from operators.
+MAINTENANCE --> OFF : evMaintenanceTimeout
+
+@enduml

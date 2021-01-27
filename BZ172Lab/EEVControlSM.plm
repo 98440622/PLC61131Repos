@@ -1,0 +1,30 @@
+
+
+@startuml EEV Control SM Control SM
+
+[*] --> INIT
+
+INIT : Fully closed the valve and then\nmove to the pre-position
+INIT --> OFF : EVD is good
+
+OFF : Set to a configurable idle position.
+OFF --> ON : Unit status is 'ON'
+OFF --> INIT : EVD fault occurred
+
+state ON {
+    [*] --> PRE_OPEN
+
+    PRE_OPEN : Set to a configurable pre position
+    PRE_OPEN --> AUTO : Compressor is about to run
+
+    AUTO : PID control based on evaproator superheat
+    AUTO --> PUMPDOWN : Compressor status is 'PUMPDOWN'
+    AUTO --> PRE_OPEN : Compressor status is 'STOPPED'
+
+    PUMPDOWN : Gradually move to full closed position
+    PUMPDOWN --> PRE_OPEN : Compressor status is 'STOPPED'
+}
+ON --> OFF : Unit status is 'OFF'
+ON --> INIT : EVD fault occurred
+
+@enduml

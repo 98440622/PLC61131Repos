@@ -2,13 +2,18 @@
 <PRJ_RESOURCES version="20181002">
 	<LANGUAGES>
 		<LANG id="0" descr="BaseLanguage">
-			<ENUMS/>
+			<ENUMS>
+				<ENUM id="1" name="emControllerMode" descr="emControllerMode">
+					<VAL id="0">SIMULATION</VAL>
+					<VAL id="1">R E A L</VAL>
+				</ENUM>
+			</ENUMS>
 			<STRINGTABLE/>
 		</LANG>
 	</LANGUAGES>
 	<PAGES_INFO>
 		<MODEL>hierachical</MODEL>
-		<FIRST_PAGE>page1</FIRST_PAGE>
+		<FIRST_PAGE>ModeSelection</FIRST_PAGE>
 		<CURR_LANG>0</CURR_LANG>
 		<TITLEBAR_FONT>EWP2_6x8</TITLEBAR_FONT>
 		<TITLEBAR_COLOR type="RGBColor">16777215</TITLEBAR_COLOR>
@@ -22,7 +27,7 @@
 		<FONTS useOnTarget="false" downloadUsedChars="false"/>
 	</RESOURCES>
 	<PAGES>
-		<PAGE name="page1">
+		<PAGE name="TempSyncByCAN">
 			<ATTRIBUTES>
 				<MSGID>0</MSGID>
 				<WNDMODE>0</WNDMODE>
@@ -184,7 +189,7 @@
 						<ACCESS>RO</ACCESS>
 						<DESC/>
 						<ZORDER>10</ZORDER>
-						<VAR type="INT">@LocalParameters.REMOTE_SAT</VAR>
+						<VAR type="INT">@LocalParameters.BZCANMailbox2</VAR>
 						<TYPE>INT</TYPE>
 						<REFRESH>TRUE</REFRESH>
 						<VISIBLE>TRUE</VISIBLE>
@@ -222,7 +227,7 @@
 						<ACCESS>RO</ACCESS>
 						<DESC/>
 						<ZORDER>11</ZORDER>
-						<VAR type="INT">@LocalParameters.REMOTE_RAT</VAR>
+						<VAR type="INT">@LocalParameters.BZCANMailbox1</VAR>
 						<TYPE>INT</TYPE>
 						<REFRESH>TRUE</REFRESH>
 						<VISIBLE>TRUE</VISIBLE>
@@ -260,7 +265,7 @@
 						<ACCESS>RO</ACCESS>
 						<DESC/>
 						<ZORDER>12</ZORDER>
-						<VAR type="INT">@LocalParameters.REMOTE_KAT</VAR>
+						<VAR type="INT">@LocalParameters.BZCANMailbox3</VAR>
 						<TYPE>INT</TYPE>
 						<REFRESH>TRUE</REFRESH>
 						<VISIBLE>TRUE</VISIBLE>
@@ -296,9 +301,120 @@
 				<EVENT name="OnTimer"/>
 				<EVENT name="OnAfterDraw"/>
 			</EVENTS>
-			<ACTIONS/>
+			<ACTIONS>
+				<ACTION id="2" key="8"/>
+			</ACTIONS>
 			<SCRIPT>
 				<![CDATA[]]>
+			</SCRIPT>
+		</PAGE>
+		<PAGE name="ModeSelection">
+			<ATTRIBUTES>
+				<MSGID>0</MSGID>
+				<WNDMODE>0</WNDMODE>
+				<MODAL>No</MODAL>
+				<FONT>EWP2_6x8</FONT>
+				<COLOR type="RGBColor">0</COLOR>
+				<BCKCOLOR type="RGBColor">16777215</BCKCOLOR>
+				<STYLE>Flat</STYLE>
+				<XDIM>128</XDIM>
+				<YDIM>64</YDIM>
+				<XPOS>0</XPOS>
+				<YPOS>0</YPOS>
+				<CHARGRIDDIMX>6</CHARGRIDDIMX>
+				<CHARGRIDDIMY>8</CHARGRIDDIMY>
+				<CAPTION/>
+				<TITLEBAR>No</TITLEBAR>
+				<SYSMENU>No</SYSMENU>
+				<BORDER>No</BORDER>
+				<DESC/>
+			</ATTRIBUTES>
+			<OBJECTS>
+				<STRINGS/>
+				<IMGS/>
+				<LINES/>
+				<RECTS/>
+				<ANIMS/>
+				<EDITS>
+					<EDIT name="Edit_1">
+						<FONT>EWP2_8x16</FONT>
+						<COLOR type="RGBColor">0</COLOR>
+						<BCKCOLOR type="RGBColor">16777215</BCKCOLOR>
+						<SELBCK type="RGBColor">0</SELBCK>
+						<SELCOL type="RGBColor">16777215</SELCOL>
+						<STYLE>Flat</STYLE>
+						<BORDCOL type="RGBColor">0</BORDCOL>
+						<BORDPTS>0</BORDPTS>
+						<XPOS>0</XPOS>
+						<YPOS>8</YPOS>
+						<XDIM>128</XDIM>
+						<YDIM>16</YDIM>
+						<NUMCHAR>16</NUMCHAR>
+						<ORDER>2</ORDER>
+						<FORMAT>emControllerMode</FORMAT>
+						<ALIGN>Center</ALIGN>
+						<ACCESS>RW</ACCESS>
+						<DESC/>
+						<ZORDER>3</ZORDER>
+						<VAR type="BOOL">@LocalParameters.BZIsRealMode</VAR>
+						<TYPE>BOOL</TYPE>
+						<REFRESH>TRUE</REFRESH>
+						<VISIBLE>TRUE</VISIBLE>
+						<SELECT>FALSE</SELECT>
+						<LABEL/>
+						<VARMIN>*</VARMIN>
+						<VARMAX>*</VARMAX>
+						<EVENTS>
+							<EVENT name="BeforeUpdate"/>
+							<EVENT name="AfterUpdate"/>
+							<EVENT name="OnGotFocus"/>
+							<EVENT name="OnLostFocus"/>
+							<EVENT name="OnClick"/>
+							<EVENT name="OnEnter"/>
+							<EVENT name="OnChange"/>
+						</EVENTS>
+					</EDIT>
+				</EDITS>
+				<TEXTBOXES/>
+				<COMBOBOXES/>
+				<BUTTONS/>
+				<CHECKBOXES/>
+				<PROGRESSES/>
+				<CHARTS/>
+				<CUSTOMS/>
+			</OBJECTS>
+			<EVENTS>
+				<EVENT name="OnLoad"/>
+				<EVENT name="OnUnload"/>
+				<EVENT name="OnActivate"/>
+				<EVENT name="OnDeactivate"/>
+				<EVENT name="OnDraw"/>
+				<EVENT name="OnTimer"/>
+				<EVENT name="OnAfterDraw"/>
+			</EVENTS>
+			<ACTIONS>
+				<ACTION id="0" key="19">ToggleModeProc</ACTION>
+				<ACTION id="1" key="12">TempSyncByCAN</ACTION>
+			</ACTIONS>
+			<SCRIPT>
+				<![CDATA[        VAR_GLOBAL
+	{G:"Ungrouped_vars"}
+tmpBOOL : BOOL;
+	END_VAR
+
+PROGRAM ToggleModeProc
+
+	{ CODE:ST }Video_GetParam( 0, IsRealMode_MB_ADDR, 0, ?tmpBOOL, tyUInt );
+
+tmpBOOL := not tmpBOOL;
+
+Video_SetParam( 0, IsRealMode_MB_ADDR, 0, ?tmpBOOL, tyBool );
+
+
+
+END_PROGRAM
+
+]]>
 			</SCRIPT>
 		</PAGE>
 	</PAGES>
@@ -310,7 +426,12 @@
 	<FONTSTYLES/>
 	<EXPRESSIONS/>
 	<SCRIPT>
-		<![CDATA[]]>
+		<![CDATA[        VAR_GLOBAL CONSTANT
+	{G:"Ungrouped_vars"}
+IsRealMode_MB_ADDR : UINT := 13959;	{ DE:"PLC variable 'IsRealMode' modbuss address" }
+	END_VAR
+
+]]>
 	</SCRIPT>
 	<TEMPLATES/>
 </PRJ_RESOURCES>

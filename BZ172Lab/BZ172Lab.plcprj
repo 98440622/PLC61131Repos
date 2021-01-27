@@ -8,6 +8,7 @@
 			<tasks>
 				<task name="Background">
 					<program>main</program>
+					<program>BZCANUTProg</program>
 				</task>
 				<task name="Timed">
 					<program>BZActuatorUTProg</program>
@@ -315,66 +316,11 @@ BZActuatorBase_SetMode := TRUE;
 			</functions>
 			<functionBlocks/>
 			<programs>
-				<program name="main" version="1.0.0" creationDate="0" lastModifiedDate="1608618160">
-					<vars>
-						<localVars>
-							<var name="dummyB" type="BOOL">
-								<initValue>FALSE</initValue>
-							</var>
-							<var name="CANchannel" type="UDINT">
-								<initValue>0</initValue>
-							</var>
-							<var name="sdoRes" type="UDINT">
-								<initValue>0</initValue>
-							</var>
-							<var name="obj_addr" type="UINT">
-								<initValue>8960</initValue>
-							</var>
-							<var name="obj_offset" type="UINT">
-								<initValue>0</initValue>
-							</var>
-							<var name="node_addr" type="USINT">
-								<initValue>1</initValue>
-							</var>
-							<var name="temp" type="INT" dim0="3">
-								<initValue>[0, 0, 0]</initValue>
-							</var>
-						</localVars>
-					</vars>
+				<program name="main" version="1.0.0" creationDate="0" lastModifiedDate="1611717879">
+					<vars/>
 					<iecDeclaration active="FALSE"/>
 					<sourceCode type="ST">
-						<![CDATA[temp[0] := LOCAL_RAT;
-temp[1] := LOCAL_SAT;
-temp[2] := LOCAL_KAT;
-
-if Addr_CAN_OB = 1 then
-	node_addr := 2;
-elsif Addr_CAN_OB = 2 then
-	node_addr := 1;
-else 
-	;
-end_if;
-
-if (mod(cnt, 100) = 0) then
-	CANchannel := sysCOPM_Sdo_OpenChn(dummyB);
-	sdoRes := sysCOPM_Sdo_DownloadRequest(CANchannel,
-										  node_addr,
-										  obj_addr + obj_offset,
-										  0,
-										  2,
-										  TO_DINT(temp[obj_offset]),
-										  200);
-	dummyB := sysCOPM_Sdo_CloseChn(CANchannel);
-end_if;
-
-if obj_offset < 2 then
-	obj_offset := obj_offset + 1;
-else
-	obj_offset := 0;
-end_if;
-
-
-cnt := cnt + 1;
+						<![CDATA[cnt := cnt + 1;
 ]]>
 					</sourceCode>
 				</program>
@@ -465,6 +411,83 @@ end_if;
 	supporting 
  */
 cnt := cnt + 1;
+]]>
+					</sourceCode>
+				</program>
+				<program name="BZCANUTProg" version="1.0.0" creationDate="1611717758" lastModifiedDate="1611732627">
+					<vars>
+						<localVars>
+							<var name="dummyB" type="BOOL">
+								<initValue>FALSE</initValue>
+							</var>
+							<var name="CANchannel" type="UDINT">
+								<initValue>0</initValue>
+							</var>
+							<var name="sdoRes" type="UDINT">
+								<initValue>0</initValue>
+							</var>
+							<var name="obj_addr" type="UINT">
+								<initValue>0</initValue>
+							</var>
+							<var name="obj_offset" type="UINT">
+								<initValue>0</initValue>
+							</var>
+							<var name="node_addr" type="USINT">
+								<initValue>1</initValue>
+							</var>
+							<var name="temp" type="INT" dim0="3">
+								<initValue>[0, 0, 0]</initValue>
+							</var>
+							<var name="is_first_called" type="BOOL">
+								<initValue>TRUE</initValue>
+							</var>
+						</localVars>
+						<localConsts>
+							<const name="CAN_MAILBOX_FIRST_ADDRESS" type="UINT">
+								<initValue>10960</initValue>
+							</const>
+						</localConsts>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<sourceCode type="ST">
+						<![CDATA[if (is_first_called) then
+	obj_addr := CAN_MAILBOX_FIRST_ADDRESS;
+	
+	is_first_called := FALSE;
+else
+	;
+end_if;
+
+temp[0] := HW_AI_01;
+temp[1] := HW_AI_02;
+temp[2] := HW_AI_03;
+
+if Addr_CAN_OB = 1 then
+	node_addr := 2;
+elsif Addr_CAN_OB = 2 then
+	node_addr := 1;
+else 
+	;
+end_if;
+
+if (mod(cnt, 100) = 0) then
+	CANchannel := sysCOPM_Sdo_OpenChn(dummyB);
+	sdoRes := sysCOPM_Sdo_DownloadRequest(CANchannel,
+										  node_addr,
+										  obj_addr + obj_offset,
+										  0,
+										  2,
+										  TO_DINT(temp[obj_offset]),
+										  200);							  
+	dummyB := sysCOPM_Sdo_CloseChn(CANchannel);
+end_if;
+
+if obj_offset < 2 then
+	obj_offset := obj_offset + 1;
+else
+	obj_offset := 0;
+end_if;
+
 ]]>
 					</sourceCode>
 				</program>
@@ -53509,23 +53532,118 @@ Fi1J+QF8jJ60BrhQG8fXaatTUqWzbrcfnWQynTp/gj9WLYnxgXCMm7QGOFub8RdT
 
 END_FUNCTION_BLOCK]]>
 			</lib>
+			<lib version="1.0.0" name="Imports\Redmond2017.plclib" fullXml="true" link="true">
+				<descr/>
+				<globalVars/>
+				<retainVars/>
+				<constantVars/>
+				<functions/>
+				<functionBlocks>
+					<functionBlock name="rand" version="1.0.0" creationDate="0" lastModifiedDate="0">
+						<vars>
+							<inoutVars>
+								<var name="ui16_random" type="UINT"/>
+							</inoutVars>
+							<localVars>
+								<var name="ui16_random_tmp" type="UINT"/>
+								<var name="ui16_random_copy" type="UINT"/>
+							</localVars>
+						</vars>
+						<iecDeclaration active="FALSE"/>
+						<interfaces/>
+						<methods/>
+						<sourceCode type="ST">
+							<![CDATA[
+
+
+ui16_random_copy := ui16_random;
+
+
+  // update random sequence
+  // polinomial alghoritm:
+  // +> b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 b10 b11 b12 b13 b14 b15
+  // |     |  |     |                                     |
+  // ------+--+-----+-------------------------------------+
+  // carry = b1^b2^b4^b15
+  // Pn+1=(Pn<<1)|carry
+
+
+if (ui16_random_copy = 0) then
+	ui16_random_copy := ui16_random_copy + 1;
+end_if;
+ui16_random_tmp := 0;
+  
+if ( ui16_random_copy and 16#0002)>0 then
+	ui16_random_tmp := 1;
+end_if;
+if ( ui16_random_copy and 16#0004)>0 then
+ 	ui16_random_tmp := ui16_random_tmp xor 1;
+end_if;
+if ( ui16_random_copy and 16#0010)>0 then
+  	ui16_random_tmp := ui16_random_tmp xor 1;
+end_if;
+  
+if ( ui16_random_copy and 16#8000)>0 then
+	ui16_random_tmp := ui16_random_tmp xor 1;
+end_if;
+    
+ui16_random_copy := TO_UINT(SHL(ui16_random_copy, 1));
+  
+ui16_random := TO_UINT(ui16_random_copy or (ui16_random_tmp and 16#00FF));
+
+
+
+
+
+]]>
+						</sourceCode>
+					</functionBlock>
+				</functionBlocks>
+				<programs/>
+				<macros/>
+				<structs/>
+				<typedefs/>
+				<enums/>
+				<subranges/>
+				<interfaces/>
+			</lib>
 		</libraries>
 		<aux>
 			<src fullXml="false" name="Global shared.plc" order="0" hidden="false">
 				<![CDATA[(* Automatically generated, do not edit! *)
 	VAR_GLOBAL
 		{G:"Status_variables"}
-	REMOTE_RAT AT %MW110.0 : INT := 0;
+	BZCANMailbox1 AT %MW110.0 : INT;
 		{G:"Status_variables"}
-	REMOTE_SAT AT %MW110.1 : INT := 0;
+	BZCANMailbox2 AT %MW110.1 : INT;
 		{G:"Status_variables"}
-	REMOTE_KAT AT %MW110.2 : INT := 0;
+	BZCANMailbox3 AT %MW110.2 : INT;
+		{G:"Status_variables"}
+	BZIsRealMode AT %MW110.3 : BOOL := 1;  {DE:"Controller is working on real mode."}
 		{G:"IO_Mapping"}
-	LOCAL_RAT AT %IW1.0 : INT;  {DE:"AIL1 analogue input"}
+	HW_AI_01 AT %IW1.0 : INT;  {DE:"AIL1 analogue input"}
 		{G:"IO_Mapping"}
-	LOCAL_SAT AT %IW1.1 : INT;  {DE:"AIL2 analogue input"}
+	HW_AI_02 AT %IW1.1 : INT;  {DE:"AIL2 analogue input"}
 		{G:"IO_Mapping"}
-	LOCAL_KAT AT %IW1.2 : INT;  {DE:"AIL3 analogue input"}
+	HW_AI_03 AT %IW1.2 : INT;  {DE:"AIL3 analogue input"}
+		{G:"IO_Mapping"}
+	HW_AI_04 AT %IW1.3 : INT;  {DE:"AIL4 analogue input"}
+		{G:"IO_Mapping"}
+	HW_AI_05 AT %IW1.4 : INT;  {DE:"AIL5 analogue input"}
+		{G:"IO_Mapping"}
+	HW_AI_06 AT %IW1.5 : INT;  {DE:"AIL6 analogue input"}
+		{G:"IO_Mapping"}
+	HW_AI_07 AT %IW1.6 : INT;  {DE:"AIL7 analogue input"}
+		{G:"IO_Mapping"}
+	HW_AI_08 AT %IW1.7 : INT;  {DE:"AIL8 analogue input"}
+		{G:"IO_Mapping"}
+	HW_AI_09 AT %IW1.8 : INT;  {DE:"AI9 analogue input"}
+		{G:"IO_Mapping"}
+	HW_AI_10 AT %IW1.9 : INT;  {DE:"AIL10 analogue input"}
+		{G:"IO_Mapping"}
+	HW_AI_11 AT %IW1.10 : INT;  {DE:"AIL11 analogue input"}
+		{G:"IO_Mapping"}
+	HW_AI_12 AT %IW1.11 : INT;  {DE:"AIL12 analogue input"}
 	END_VAR
 ]]>
 			</src>
@@ -53533,8 +53651,8 @@ END_FUNCTION_BLOCK]]>
 				<![CDATA[(* Automatically generated, do not edit! *)
 
 VAR_GLOBAL CONSTANT
-$$ParDB : ARRAY[ 0..107 ] OF USINT; { HIDDEN:ON } { INIT:"BZ172Lab.PLK+0" }
-$$ParDBLength  : DWORD := 3; { HIDDEN:ON }
+$$ParDB : ARRAY[ 0..143 ] OF USINT; { HIDDEN:ON } { INIT:"BZ172Lab.PLK+0" }
+$$ParDBLength  : DWORD := 4; { HIDDEN:ON }
 END_VAR
 
 PROGRAM InitParDB WITH Serv;
@@ -53547,7 +53665,7 @@ PROGRAM InitParDB
 		dummyCrc32: UDINT;
 	END_VAR
 
-	dummyCrc32 := 330868194;
+	dummyCrc32 := 10040002;
 
 	warningsKiller := sysDBase_SetExtTable( ADR( $$ParDB ), $$ParDBLength );
 
@@ -53575,12 +53693,13 @@ END_PROGRAM
 			</src>
 		</aux>
 		<workspace>
-			<root name="BZ172Lab" nextID="240">
+			<root name="BZ172Lab" nextID="557">
 				<GlobalVars name="Global_vars" id="11"/>
 				<Pou name="main" id="2"/>
 				<folder id="16" name="BZ172Lab">
 					<folder name="Programs" id="19">
 						<Pou name="BZActuatorUTProg" id="20"/>
+						<Pou name="BZCANUTProg" id="483"/>
 					</folder>
 					<folder name="Interfaces" id="21">
 						<Pou name="BZActuatorBase_SetMode" id="22"/>
@@ -53647,11 +53766,11 @@ END_PROGRAM
 						<paramsRO>
 							<param>
 								<ipa>5000</ipa>
-								<address>8960</address>
-								<name>REMOTE_RAT</name>
+								<address>10960</address>
+								<name>BZCANMailbox1</name>
 								<typepar>0</typepar>
 								<typetarg>INT</typetarg>
-								<value>0</value>
+								<value/>
 								<min/>
 								<max/>
 								<ipamin/>
@@ -53674,11 +53793,11 @@ END_PROGRAM
 							</param>
 							<param>
 								<ipa>5001</ipa>
-								<address>8961</address>
-								<name>REMOTE_SAT</name>
+								<address>10961</address>
+								<name>BZCANMailbox2</name>
 								<typepar>0</typepar>
 								<typetarg>INT</typetarg>
-								<value>0</value>
+								<value/>
 								<min/>
 								<max/>
 								<ipamin/>
@@ -53701,11 +53820,11 @@ END_PROGRAM
 							</param>
 							<param>
 								<ipa>5002</ipa>
-								<address>8962</address>
-								<name>REMOTE_KAT</name>
+								<address>10962</address>
+								<name>BZCANMailbox3</name>
 								<typepar>0</typepar>
 								<typetarg>INT</typetarg>
-								<value>0</value>
+								<value/>
 								<min/>
 								<max/>
 								<ipamin/>
@@ -53726,6 +53845,33 @@ END_PROGRAM
 								<visibility>0</visibility>
 								<clientType>0</clientType>
 							</param>
+							<param>
+								<ipa>5006</ipa>
+								<address>13959</address>
+								<name>BZIsRealMode</name>
+								<typepar>5</typepar>
+								<typetarg>BOOL</typetarg>
+								<value>1</value>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description>Controller is working on real mode.</description>
+								<note/>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.3</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
 						</paramsRO>
 						<enums nextID="0"/>
 						<menus/>
@@ -53734,73 +53880,73 @@ END_PROGRAM
 								<ioMapping inout="in" idx="0">
 									<name>AIL1</name>
 									<description>AIL1 analogue input</description>
-									<variable>LOCAL_RAT</variable>
+									<variable>HW_AI_01</variable>
 									<type>INT</type>
 								</ioMapping>
 								<ioMapping inout="in" idx="1">
 									<name>AIL2</name>
 									<description>AIL2 analogue input</description>
-									<variable>LOCAL_SAT</variable>
+									<variable>HW_AI_02</variable>
 									<type>INT</type>
 								</ioMapping>
 								<ioMapping inout="in" idx="2">
 									<name>AIL3</name>
 									<description>AIL3 analogue input</description>
-									<variable>LOCAL_KAT</variable>
+									<variable>HW_AI_03</variable>
 									<type>INT</type>
 								</ioMapping>
 								<ioMapping inout="in" idx="3">
 									<name>AIL4</name>
 									<description>AIL4 analogue input</description>
-									<variable/>
+									<variable>HW_AI_04</variable>
 									<type>INT</type>
 								</ioMapping>
 								<ioMapping inout="in" idx="4">
 									<name>AIL5</name>
 									<description>AIL5 analogue input</description>
-									<variable/>
+									<variable>HW_AI_05</variable>
 									<type>INT</type>
 								</ioMapping>
 								<ioMapping inout="in" idx="5">
 									<name>AIL6</name>
 									<description>AIL6 analogue input</description>
-									<variable/>
+									<variable>HW_AI_06</variable>
 									<type>INT</type>
 								</ioMapping>
 								<ioMapping inout="in" idx="6">
 									<name>AIL7</name>
 									<description>AIL7 analogue input</description>
-									<variable/>
+									<variable>HW_AI_07</variable>
 									<type>INT</type>
 								</ioMapping>
 								<ioMapping inout="in" idx="7">
 									<name>AIL8</name>
 									<description>AIL8 analogue input</description>
-									<variable/>
+									<variable>HW_AI_08</variable>
 									<type>INT</type>
 								</ioMapping>
 								<ioMapping inout="in" idx="8">
 									<name>AIL9</name>
 									<description>AI9 analogue input</description>
-									<variable/>
+									<variable>HW_AI_09</variable>
 									<type>INT</type>
 								</ioMapping>
 								<ioMapping inout="in" idx="9">
 									<name>AIL10</name>
 									<description>AIL10 analogue input</description>
-									<variable/>
+									<variable>HW_AI_10</variable>
 									<type>INT</type>
 								</ioMapping>
 								<ioMapping inout="in" idx="10">
 									<name>AIL11</name>
 									<description>AIL11 analogue input</description>
-									<variable/>
+									<variable>HW_AI_11</variable>
 									<type>INT</type>
 								</ioMapping>
 								<ioMapping inout="in" idx="11">
 									<name>AIL12</name>
 									<description>AIL12 analogue input</description>
-									<variable/>
+									<variable>HW_AI_12</variable>
 									<type>INT</type>
 								</ioMapping>
 								<ioMapping inout="in" idx="0">
@@ -54035,7 +54181,116 @@ END_PROGRAM
 							<fieldVars/>
 						</ioMappings>
 						<alarms/>
-						<biosParams/>
+						<biosParams>
+							<biosParam>
+								<ipa>10378</ipa>
+								<defval>7</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10379</ipa>
+								<defval>3</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10380</ipa>
+								<defval>8</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10381</ipa>
+								<defval>1</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10382</ipa>
+								<defval>2</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10383</ipa>
+								<defval>1</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10020</ipa>
+								<defval>3</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10019</ipa>
+								<defval>1</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10021</ipa>
+								<defval>8</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10022</ipa>
+								<defval>1</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10023</ipa>
+								<defval>2</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10024</ipa>
+								<defval>1</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10004</ipa>
+								<defval>2</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10005</ipa>
+								<defval>2</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10006</ipa>
+								<defval>2</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10007</ipa>
+								<defval>2</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10008</ipa>
+								<defval>2</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10009</ipa>
+								<defval>2</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10354</ipa>
+								<defval>2</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10355</ipa>
+								<defval>2</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10356</ipa>
+								<defval>3</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10357</ipa>
+								<defval>3</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10358</ipa>
+								<defval>4</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10359</ipa>
+								<defval>4</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10044</ipa>
+								<defval/>
+							</biosParam>
+							<biosParam>
+								<ipa>10045</ipa>
+								<defval/>
+							</biosParam>
+							<biosParam>
+								<ipa>10046</ipa>
+								<defval/>
+							</biosParam>
+						</biosParams>
 						<executionTime custom="0">20</executionTime>
 						<webmenus/>
 						<BACnetObjects>
@@ -54053,7 +54308,7 @@ END_PROGRAM
 						</LON>
 					</devConfig>
 					<CANopen_OnBoard protocol="" mode="0" nodeID="127" baudRate="2" hbTime="0" syncCOBID="128" syncCycle="0"/>
-					<RS485_OnBoard protocol="" mode="0" baudRate="38400" serialMode="27"/>
+					<RS485_OnBoard protocol="FreeAdvance_ModbusRTU_master" mode="1" baudRate="19200" serialMode="27"/>
 					<Ethernet_OnBoard protocol="" enableMaster="0" additionalSockets="0"/>
 					<Plugins/>
 					<cfgConfig>
@@ -54085,8 +54340,8 @@ END_PROGRAM
 								<value ipa="10021" subidx="0">8</value>
 								<value ipa="10022" subidx="0">1</value>
 								<value ipa="10023" subidx="0">2</value>
-								<value ipa="10024" subidx="0">2</value>
-								<value ipa="10025" subidx="0">2</value>
+								<value ipa="10024" subidx="0">1</value>
+								<value ipa="10025" subidx="0">1</value>
 								<value ipa="10026" subidx="0">2</value>
 								<value ipa="10027" subidx="0">1</value>
 								<value ipa="10028" subidx="0">3</value>
@@ -54133,16 +54388,16 @@ END_PROGRAM
 								<value ipa="10069" subidx="0">0</value>
 								<value ipa="10070" subidx="0">30</value>
 								<value ipa="10071" subidx="0">10</value>
-								<value ipa="10072" subidx="0">-32768</value>
-								<value ipa="10073" subidx="0">-32768</value>
-								<value ipa="10074" subidx="0">-32768</value>
-								<value ipa="10075" subidx="0">-32768</value>
-								<value ipa="10076" subidx="0">-32768</value>
-								<value ipa="10077" subidx="0">-32768</value>
-								<value ipa="10078" subidx="0">-32768</value>
-								<value ipa="10079" subidx="0">-32768</value>
-								<value ipa="10080" subidx="0">-32768</value>
-								<value ipa="10081" subidx="0">-32768</value>
+								<value ipa="10072" subidx="0">307</value>
+								<value ipa="10073" subidx="0">184</value>
+								<value ipa="10074" subidx="0">177</value>
+								<value ipa="10075" subidx="0">234</value>
+								<value ipa="10076" subidx="0">252</value>
+								<value ipa="10077" subidx="0">205</value>
+								<value ipa="10078" subidx="0">259</value>
+								<value ipa="10079" subidx="0">236</value>
+								<value ipa="10080" subidx="0">0</value>
+								<value ipa="10081" subidx="0">0</value>
 								<value ipa="10082" subidx="0">-32768</value>
 								<value ipa="10083" subidx="0">-32768</value>
 								<value ipa="10084" subidx="0">0</value>
@@ -54153,8 +54408,8 @@ END_PROGRAM
 								<value ipa="10089" subidx="0">0</value>
 								<value ipa="10090" subidx="0">0</value>
 								<value ipa="10091" subidx="0">0</value>
-								<value ipa="10092" subidx="0">0</value>
-								<value ipa="10093" subidx="0">0</value>
+								<value ipa="10092" subidx="0">1</value>
+								<value ipa="10093" subidx="0">1</value>
 								<value ipa="10094" subidx="0">0</value>
 								<value ipa="10095" subidx="0">0</value>
 								<value ipa="10096" subidx="0">0</value>
@@ -54204,202 +54459,202 @@ END_PROGRAM
 								<value ipa="10144" subidx="0">0</value>
 								<value ipa="10145" subidx="0">0</value>
 								<value ipa="10146" subidx="0">4294967295</value>
-								<value ipa="10147" subidx="0">32768</value>
-								<value ipa="10148" subidx="0">32768</value>
-								<value ipa="10149" subidx="0">32768</value>
-								<value ipa="10150" subidx="0">32768</value>
-								<value ipa="10151" subidx="0">32768</value>
-								<value ipa="10152" subidx="0">32768</value>
-								<value ipa="10153" subidx="0">32768</value>
-								<value ipa="10154" subidx="0">32768</value>
-								<value ipa="10155" subidx="0">32768</value>
-								<value ipa="10156" subidx="0">32768</value>
-								<value ipa="10157" subidx="0">32768</value>
-								<value ipa="10158" subidx="0">32768</value>
-								<value ipa="10159" subidx="0">32768</value>
-								<value ipa="10160" subidx="0">32768</value>
-								<value ipa="10161" subidx="0">32768</value>
-								<value ipa="10162" subidx="0">32768</value>
-								<value ipa="10163" subidx="0">32768</value>
-								<value ipa="10164" subidx="0">32768</value>
-								<value ipa="10165" subidx="0">32768</value>
-								<value ipa="10166" subidx="0">32768</value>
-								<value ipa="10167" subidx="0">32768</value>
-								<value ipa="10168" subidx="0">32768</value>
-								<value ipa="10169" subidx="0">32768</value>
-								<value ipa="10170" subidx="0">32768</value>
-								<value ipa="10171" subidx="0">32768</value>
-								<value ipa="10172" subidx="0">32768</value>
-								<value ipa="10173" subidx="0">32768</value>
-								<value ipa="10174" subidx="0">32768</value>
-								<value ipa="10175" subidx="0">32768</value>
-								<value ipa="10176" subidx="0">32768</value>
-								<value ipa="10177" subidx="0">32768</value>
-								<value ipa="10178" subidx="0">32768</value>
-								<value ipa="10179" subidx="0">32768</value>
-								<value ipa="10180" subidx="0">32768</value>
-								<value ipa="10181" subidx="0">32768</value>
-								<value ipa="10182" subidx="0">32768</value>
-								<value ipa="10183" subidx="0">32768</value>
-								<value ipa="10184" subidx="0">32768</value>
-								<value ipa="10185" subidx="0">32768</value>
-								<value ipa="10186" subidx="0">32768</value>
-								<value ipa="10187" subidx="0">32768</value>
-								<value ipa="10188" subidx="0">32768</value>
-								<value ipa="10189" subidx="0">32768</value>
-								<value ipa="10190" subidx="0">32768</value>
-								<value ipa="10191" subidx="0">32768</value>
-								<value ipa="10192" subidx="0">32768</value>
-								<value ipa="10193" subidx="0">32768</value>
-								<value ipa="10194" subidx="0">32768</value>
-								<value ipa="10195" subidx="0">32768</value>
-								<value ipa="10196" subidx="0">32768</value>
-								<value ipa="10197" subidx="0">32768</value>
-								<value ipa="10198" subidx="0">32768</value>
-								<value ipa="10199" subidx="0">32768</value>
-								<value ipa="10200" subidx="0">32768</value>
+								<value ipa="10147" subidx="0">32439</value>
+								<value ipa="10148" subidx="0">32321</value>
+								<value ipa="10149" subidx="0">32363</value>
+								<value ipa="10150" subidx="0">32333</value>
+								<value ipa="10151" subidx="0">32218</value>
+								<value ipa="10152" subidx="0">32243</value>
+								<value ipa="10153" subidx="0">32295</value>
+								<value ipa="10154" subidx="0">32260</value>
+								<value ipa="10155" subidx="0">32436</value>
+								<value ipa="10156" subidx="0">32273</value>
+								<value ipa="10157" subidx="0">32453</value>
+								<value ipa="10158" subidx="0">32379</value>
+								<value ipa="10159" subidx="0">29484</value>
+								<value ipa="10160" subidx="0">29419</value>
+								<value ipa="10161" subidx="0">24605</value>
+								<value ipa="10162" subidx="0">24596</value>
+								<value ipa="10163" subidx="0">29412</value>
+								<value ipa="10164" subidx="0">29493</value>
+								<value ipa="10165" subidx="0">32079</value>
+								<value ipa="10166" subidx="0">32398</value>
+								<value ipa="10167" subidx="0">32065</value>
+								<value ipa="10168" subidx="0">32379</value>
+								<value ipa="10169" subidx="0">32056</value>
+								<value ipa="10170" subidx="0">32374</value>
+								<value ipa="10171" subidx="0">32059</value>
+								<value ipa="10172" subidx="0">32372</value>
+								<value ipa="10173" subidx="0">32047</value>
+								<value ipa="10174" subidx="0">32367</value>
+								<value ipa="10175" subidx="0">31984</value>
+								<value ipa="10176" subidx="0">32309</value>
+								<value ipa="10177" subidx="0">32018</value>
+								<value ipa="10178" subidx="0">32342</value>
+								<value ipa="10179" subidx="0">32041</value>
+								<value ipa="10180" subidx="0">32357</value>
+								<value ipa="10181" subidx="0">32070</value>
+								<value ipa="10182" subidx="0">32395</value>
+								<value ipa="10183" subidx="0">32042</value>
+								<value ipa="10184" subidx="0">32365</value>
+								<value ipa="10185" subidx="0">32081</value>
+								<value ipa="10186" subidx="0">32403</value>
+								<value ipa="10187" subidx="0">32079</value>
+								<value ipa="10188" subidx="0">32396</value>
+								<value ipa="10189" subidx="0">31505</value>
+								<value ipa="10190" subidx="0">31619</value>
+								<value ipa="10191" subidx="0">31612</value>
+								<value ipa="10192" subidx="0">31602</value>
+								<value ipa="10193" subidx="0">31593</value>
+								<value ipa="10194" subidx="0">31566</value>
+								<value ipa="10195" subidx="0">31567</value>
+								<value ipa="10196" subidx="0">31495</value>
+								<value ipa="10197" subidx="0">31598</value>
+								<value ipa="10198" subidx="0">31518</value>
+								<value ipa="10199" subidx="0">31576</value>
+								<value ipa="10200" subidx="0">31547</value>
 								<value ipa="10201" subidx="0">32768</value>
 								<value ipa="10202" subidx="0">32768</value>
-								<value ipa="10203" subidx="0">32768</value>
-								<value ipa="10204" subidx="0">32768</value>
+								<value ipa="10203" subidx="0">27284</value>
+								<value ipa="10204" subidx="0">27271</value>
 								<value ipa="10205" subidx="0">32768</value>
 								<value ipa="10206" subidx="0">32768</value>
-								<value ipa="10207" subidx="0">32768</value>
-								<value ipa="10208" subidx="0">32768</value>
-								<value ipa="10209" subidx="0">32768</value>
-								<value ipa="10210" subidx="0">32768</value>
-								<value ipa="10211" subidx="0">32768</value>
-								<value ipa="10212" subidx="0">32768</value>
-								<value ipa="10213" subidx="0">32768</value>
-								<value ipa="10214" subidx="0">32768</value>
-								<value ipa="10215" subidx="0">32768</value>
-								<value ipa="10216" subidx="0">32768</value>
-								<value ipa="10217" subidx="0">32768</value>
-								<value ipa="10218" subidx="0">32768</value>
-								<value ipa="10219" subidx="0">32768</value>
-								<value ipa="10220" subidx="0">32768</value>
-								<value ipa="10221" subidx="0">32768</value>
-								<value ipa="10222" subidx="0">32768</value>
-								<value ipa="10223" subidx="0">32768</value>
-								<value ipa="10224" subidx="0">32768</value>
-								<value ipa="10225" subidx="0">32768</value>
-								<value ipa="10226" subidx="0">32768</value>
-								<value ipa="10227" subidx="0">32768</value>
-								<value ipa="10228" subidx="0">32768</value>
-								<value ipa="10229" subidx="0">32768</value>
-								<value ipa="10230" subidx="0">32768</value>
-								<value ipa="10231" subidx="0">32768</value>
-								<value ipa="10232" subidx="0">32768</value>
-								<value ipa="10233" subidx="0">32768</value>
-								<value ipa="10234" subidx="0">32768</value>
-								<value ipa="10235" subidx="0">32768</value>
-								<value ipa="10236" subidx="0">32768</value>
-								<value ipa="10237" subidx="0">32768</value>
-								<value ipa="10238" subidx="0">32768</value>
-								<value ipa="10239" subidx="0">32768</value>
-								<value ipa="10240" subidx="0">32768</value>
-								<value ipa="10241" subidx="0">32768</value>
-								<value ipa="10242" subidx="0">32768</value>
-								<value ipa="10243" subidx="0">0</value>
-								<value ipa="10244" subidx="0">0</value>
-								<value ipa="10245" subidx="0">0</value>
+								<value ipa="10207" subidx="0">32846</value>
+								<value ipa="10208" subidx="0">32891</value>
+								<value ipa="10209" subidx="0">32896</value>
+								<value ipa="10210" subidx="0">32893</value>
+								<value ipa="10211" subidx="0">32840</value>
+								<value ipa="10212" subidx="0">32835</value>
+								<value ipa="10213" subidx="0">32853</value>
+								<value ipa="10214" subidx="0">32831</value>
+								<value ipa="10215" subidx="0">32837</value>
+								<value ipa="10216" subidx="0">32841</value>
+								<value ipa="10217" subidx="0">32853</value>
+								<value ipa="10218" subidx="0">32897</value>
+								<value ipa="10219" subidx="0">33070</value>
+								<value ipa="10220" subidx="0">33048</value>
+								<value ipa="10221" subidx="0">33109</value>
+								<value ipa="10222" subidx="0">33116</value>
+								<value ipa="10223" subidx="0">33055</value>
+								<value ipa="10224" subidx="0">33055</value>
+								<value ipa="10225" subidx="0">33070</value>
+								<value ipa="10226" subidx="0">33048</value>
+								<value ipa="10227" subidx="0">33055</value>
+								<value ipa="10228" subidx="0">33086</value>
+								<value ipa="10229" subidx="0">33070</value>
+								<value ipa="10230" subidx="0">33086</value>
+								<value ipa="10231" subidx="0">33112</value>
+								<value ipa="10232" subidx="0">33068</value>
+								<value ipa="10233" subidx="0">33112</value>
+								<value ipa="10234" subidx="0">33135</value>
+								<value ipa="10235" subidx="0">33073</value>
+								<value ipa="10236" subidx="0">33096</value>
+								<value ipa="10237" subidx="0">33107</value>
+								<value ipa="10238" subidx="0">33068</value>
+								<value ipa="10239" subidx="0">33073</value>
+								<value ipa="10240" subidx="0">33062</value>
+								<value ipa="10241" subidx="0">33107</value>
+								<value ipa="10242" subidx="0">33123</value>
+								<value ipa="10243" subidx="0">-9</value>
+								<value ipa="10244" subidx="0">34</value>
+								<value ipa="10245" subidx="0">-31</value>
 								<value ipa="10246" subidx="0">0</value>
-								<value ipa="10247" subidx="0">0</value>
+								<value ipa="10247" subidx="0">389</value>
 								<value ipa="10248" subidx="0">0</value>
-								<value ipa="10249" subidx="0">0</value>
-								<value ipa="10250" subidx="0">0</value>
-								<value ipa="10251" subidx="0">0</value>
-								<value ipa="10252" subidx="0">0</value>
+								<value ipa="10249" subidx="0">-1</value>
+								<value ipa="10250" subidx="0">1</value>
+								<value ipa="10251" subidx="0">10</value>
+								<value ipa="10252" subidx="0">-28</value>
 								<value ipa="10253" subidx="0">0</value>
-								<value ipa="10254" subidx="0">0</value>
+								<value ipa="10254" subidx="0">394</value>
 								<value ipa="10255" subidx="0">0</value>
-								<value ipa="10256" subidx="0">0</value>
-								<value ipa="10257" subidx="0">0</value>
-								<value ipa="10258" subidx="0">0</value>
-								<value ipa="10259" subidx="0">0</value>
-								<value ipa="10260" subidx="0">0</value>
-								<value ipa="10261" subidx="0">0</value>
-								<value ipa="10262" subidx="0">0</value>
-								<value ipa="10263" subidx="0">0</value>
-								<value ipa="10264" subidx="0">0</value>
-								<value ipa="10265" subidx="0">0</value>
-								<value ipa="10266" subidx="0">0</value>
-								<value ipa="10267" subidx="0">0</value>
-								<value ipa="10268" subidx="0">0</value>
-								<value ipa="10269" subidx="0">0</value>
-								<value ipa="10270" subidx="0">0</value>
-								<value ipa="10271" subidx="0">0</value>
-								<value ipa="10272" subidx="0">0</value>
-								<value ipa="10273" subidx="0">0</value>
+								<value ipa="10256" subidx="0">-11</value>
+								<value ipa="10257" subidx="0">8</value>
+								<value ipa="10258" subidx="0">16</value>
+								<value ipa="10259" subidx="0">-30</value>
+								<value ipa="10260" subidx="0">-4</value>
+								<value ipa="10261" subidx="0">385</value>
+								<value ipa="10262" subidx="0">-1</value>
+								<value ipa="10263" subidx="0">-17</value>
+								<value ipa="10264" subidx="0">-3</value>
+								<value ipa="10265" subidx="0">21</value>
+								<value ipa="10266" subidx="0">-30</value>
+								<value ipa="10267" subidx="0">-6</value>
+								<value ipa="10268" subidx="0">383</value>
+								<value ipa="10269" subidx="0">-7</value>
+								<value ipa="10270" subidx="0">-19</value>
+								<value ipa="10271" subidx="0">10</value>
+								<value ipa="10272" subidx="0">13</value>
+								<value ipa="10273" subidx="0">-33</value>
 								<value ipa="10274" subidx="0">0</value>
-								<value ipa="10275" subidx="0">0</value>
+								<value ipa="10275" subidx="0">387</value>
 								<value ipa="10276" subidx="0">0</value>
-								<value ipa="10277" subidx="0">0</value>
-								<value ipa="10278" subidx="0">0</value>
-								<value ipa="10279" subidx="0">0</value>
-								<value ipa="10280" subidx="0">0</value>
+								<value ipa="10277" subidx="0">-9</value>
+								<value ipa="10278" subidx="0">-7</value>
+								<value ipa="10279" subidx="0">32</value>
+								<value ipa="10280" subidx="0">-31</value>
 								<value ipa="10281" subidx="0">0</value>
-								<value ipa="10282" subidx="0">0</value>
+								<value ipa="10282" subidx="0">396</value>
 								<value ipa="10283" subidx="0">0</value>
-								<value ipa="10284" subidx="0">0</value>
-								<value ipa="10285" subidx="0">0</value>
-								<value ipa="10286" subidx="0">0</value>
-								<value ipa="10287" subidx="0">0</value>
-								<value ipa="10288" subidx="0">0</value>
-								<value ipa="10289" subidx="0">0</value>
-								<value ipa="10290" subidx="0">0</value>
-								<value ipa="10291" subidx="0">0</value>
-								<value ipa="10292" subidx="0">0</value>
-								<value ipa="10293" subidx="0">0</value>
-								<value ipa="10294" subidx="0">0</value>
-								<value ipa="10295" subidx="0">0</value>
-								<value ipa="10296" subidx="0">0</value>
-								<value ipa="10297" subidx="0">0</value>
-								<value ipa="10298" subidx="0">0</value>
-								<value ipa="10299" subidx="0">0</value>
-								<value ipa="10300" subidx="0">0</value>
-								<value ipa="10301" subidx="0">0</value>
-								<value ipa="10302" subidx="0">0</value>
-								<value ipa="10303" subidx="0">0</value>
-								<value ipa="10304" subidx="0">0</value>
-								<value ipa="10305" subidx="0">0</value>
-								<value ipa="10306" subidx="0">0</value>
-								<value ipa="10307" subidx="0">0</value>
-								<value ipa="10308" subidx="0">0</value>
-								<value ipa="10309" subidx="0">0</value>
-								<value ipa="10310" subidx="0">0</value>
-								<value ipa="10311" subidx="0">0</value>
-								<value ipa="10312" subidx="0">0</value>
-								<value ipa="10313" subidx="0">0</value>
-								<value ipa="10314" subidx="0">0</value>
-								<value ipa="10315" subidx="0">0</value>
-								<value ipa="10316" subidx="0">0</value>
-								<value ipa="10317" subidx="0">0</value>
-								<value ipa="10318" subidx="0">0</value>
-								<value ipa="10319" subidx="0">0</value>
-								<value ipa="10320" subidx="0">0</value>
-								<value ipa="10321" subidx="0">0</value>
-								<value ipa="10322" subidx="0">0</value>
-								<value ipa="10323" subidx="0">0</value>
-								<value ipa="10324" subidx="0">0</value>
-								<value ipa="10325" subidx="0">0</value>
+								<value ipa="10284" subidx="0">4</value>
+								<value ipa="10285" subidx="0">-8</value>
+								<value ipa="10286" subidx="0">-17</value>
+								<value ipa="10287" subidx="0">-33</value>
+								<value ipa="10288" subidx="0">-7</value>
+								<value ipa="10289" subidx="0">379</value>
+								<value ipa="10290" subidx="0">-3</value>
+								<value ipa="10291" subidx="0">-11</value>
+								<value ipa="10292" subidx="0">-24</value>
+								<value ipa="10293" subidx="0">17</value>
+								<value ipa="10294" subidx="0">-36</value>
+								<value ipa="10295" subidx="0">-7</value>
+								<value ipa="10296" subidx="0">361</value>
+								<value ipa="10297" subidx="0">-4</value>
+								<value ipa="10298" subidx="0">-15</value>
+								<value ipa="10299" subidx="0">-40</value>
+								<value ipa="10300" subidx="0">-4</value>
+								<value ipa="10301" subidx="0">-52</value>
+								<value ipa="10302" subidx="0">-6</value>
+								<value ipa="10303" subidx="0">343</value>
+								<value ipa="10304" subidx="0">-10</value>
+								<value ipa="10305" subidx="0">-39</value>
+								<value ipa="10306" subidx="0">-39</value>
+								<value ipa="10307" subidx="0">-16</value>
+								<value ipa="10308" subidx="0">-49</value>
+								<value ipa="10309" subidx="0">-8</value>
+								<value ipa="10310" subidx="0">351</value>
+								<value ipa="10311" subidx="0">-8</value>
+								<value ipa="10312" subidx="0">-41</value>
+								<value ipa="10313" subidx="0">-49</value>
+								<value ipa="10314" subidx="0">27</value>
+								<value ipa="10315" subidx="0">-50</value>
+								<value ipa="10316" subidx="0">-9</value>
+								<value ipa="10317" subidx="0">346</value>
+								<value ipa="10318" subidx="0">-13</value>
+								<value ipa="10319" subidx="0">8</value>
+								<value ipa="10320" subidx="0">-44</value>
+								<value ipa="10321" subidx="0">23</value>
+								<value ipa="10322" subidx="0">-51</value>
+								<value ipa="10323" subidx="0">-7</value>
+								<value ipa="10324" subidx="0">334</value>
+								<value ipa="10325" subidx="0">-10</value>
 								<value ipa="10326" subidx="0">0</value>
-								<value ipa="10327" subidx="0">0</value>
+								<value ipa="10327" subidx="0">-56</value>
 								<value ipa="10328" subidx="0">0</value>
-								<value ipa="10329" subidx="0">0</value>
+								<value ipa="10329" subidx="0">-78</value>
 								<value ipa="10330" subidx="0">0</value>
-								<value ipa="10331" subidx="0">0</value>
-								<value ipa="10332" subidx="0">0</value>
-								<value ipa="10333" subidx="0">0</value>
-								<value ipa="10334" subidx="0">0</value>
-								<value ipa="10335" subidx="0">0</value>
+								<value ipa="10331" subidx="0">6801</value>
+								<value ipa="10332" subidx="0">2878</value>
+								<value ipa="10333" subidx="0">6797</value>
+								<value ipa="10334" subidx="0">2978</value>
+								<value ipa="10335" subidx="0">-86</value>
 								<value ipa="10336" subidx="0">0</value>
-								<value ipa="10337" subidx="0">0</value>
+								<value ipa="10337" subidx="0">-37</value>
 								<value ipa="10338" subidx="0">0</value>
 								<value ipa="10339" subidx="0">0</value>
 								<value ipa="10397" subidx="0">1000</value>
 								<value ipa="10340" subidx="0">0</value>
-								<value ipa="10341" subidx="0">1000</value>
+								<value ipa="10341" subidx="0">3000</value>
 								<value ipa="10342" subidx="0">0</value>
 								<value ipa="10343" subidx="0">1000</value>
 								<value ipa="10344" subidx="0">0</value>
@@ -54412,14 +54667,14 @@ END_PROGRAM
 								<value ipa="10361" subidx="0">1000</value>
 								<value ipa="10362" subidx="0">0</value>
 								<value ipa="10363" subidx="0">1000</value>
-								<value ipa="10350" subidx="0">0</value>
-								<value ipa="10351" subidx="0">0</value>
+								<value ipa="10350" subidx="0">3</value>
+								<value ipa="10351" subidx="0">2</value>
 								<value ipa="10352" subidx="0">1000</value>
 								<value ipa="10353" subidx="0">1</value>
-								<value ipa="10356" subidx="0">2</value>
-								<value ipa="10357" subidx="0">2</value>
-								<value ipa="10358" subidx="0">2</value>
-								<value ipa="10359" subidx="0">2</value>
+								<value ipa="10356" subidx="0">3</value>
+								<value ipa="10357" subidx="0">3</value>
+								<value ipa="10358" subidx="0">4</value>
+								<value ipa="10359" subidx="0">4</value>
 								<value ipa="10364" subidx="0">0</value>
 								<value ipa="10365" subidx="0">1000</value>
 								<value ipa="10366" subidx="0">0</value>
@@ -54432,12 +54687,12 @@ END_PROGRAM
 								<value ipa="10375" subidx="0">0</value>
 								<value ipa="10376" subidx="0">0</value>
 								<value ipa="10377" subidx="0">0</value>
-								<value ipa="10378" subidx="0">1</value>
+								<value ipa="10378" subidx="0">7</value>
 								<value ipa="10379" subidx="0">3</value>
 								<value ipa="10380" subidx="0">8</value>
 								<value ipa="10381" subidx="0">1</value>
 								<value ipa="10382" subidx="0">2</value>
-								<value ipa="10383" subidx="0">2</value>
+								<value ipa="10383" subidx="0">1</value>
 								<value ipa="10384" subidx="0">0</value>
 								<value ipa="10385" subidx="0">24</value>
 								<value ipa="10386" subidx="0">187</value>
@@ -54519,6 +54774,7 @@ END_PROGRAM
 								<value ipa="5000" subidx="0">0</value>
 								<value ipa="5001" subidx="0">0</value>
 								<value ipa="5002" subidx="0">0</value>
+								<value ipa="5006" subidx="0">1</value>
 							</values>
 							<commDisabled>0</commDisabled>
 							<downloadVolume>0</downloadVolume>

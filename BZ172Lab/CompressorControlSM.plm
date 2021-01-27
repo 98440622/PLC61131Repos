@@ -1,0 +1,26 @@
+
+
+@startuml Compressor Control SM Control SM
+
+[*] --> OFF
+
+OFF : Compressor is stopped.
+OFF --> ON : Unit status is 'ON' and\nTsat is greater than setpoint and\nNo compressor fault
+
+state ON {
+    [*] --> PRE_START
+
+    PRE_START : Waiting for EEV at pre-opened position
+    PRE_START --> AUTO : EEV is 'PRE_OPEN'
+    PRE_START --> OFF : Any compressor fault is detected 
+
+    AUTO : PID control based on supply air temperature
+    AUTO --> PUMPDOWN : Compressor status is 'PUMPDOWN'
+    AUTO --> OFF : Any compressor fault is detected
+
+    PUMPDOWN : Set compressor speed a configurable constant
+    PUMPDOWN --> OFF : Low pressure is below threshold or\npump down timeout is expired
+}
+ON --> OFF : Unit status is 'OFF' or\nTsat is much lower than threshold or\nany compressor fault is detected
+
+@enduml

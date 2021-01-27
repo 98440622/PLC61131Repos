@@ -14,6 +14,7 @@
 			<lib link="false">Pumping.pll</lib>
 			<lib link="false">display.plclib</lib>
 			<lib link="false">CanOpen_IEC .pll</lib>
+			<lib link="false">Redmond2017.plclib</lib>
 		</libraries>
 		<aux/>
 	</sources>

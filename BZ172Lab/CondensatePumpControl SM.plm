@@ -1,0 +1,17 @@
+
+
+@startuml Condensate Pump Control SM
+
+[*] --> OFF
+
+OFF : Pump is stopped.
+OFF --> ON : evLowWaterFlowSwitchOn
+
+ON : Pump is running.
+ON --> ON_DELAY : evLowWaterFlowSwitchOff
+
+ON_DELAY : Pump is running for a while
+ON_DELAY --> OFF : evPumpOnDelayTimeout
+ON_DELAY --> ON : evLowWaterFlowSwitchOn
+
+@enduml
