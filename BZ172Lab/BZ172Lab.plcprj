@@ -13,10 +13,15 @@
 				<task name="Timed">
 					<program>BZActuatorUTProg</program>
 				</task>
+				<task name="Init">
+					<program>init</program>
+				</task>
 			</tasks>
 			<globalVars>
 				<group name="Global_vars">
 					<var name="cnt" type="INT"/>
+					<var name="SATu" type="BZTemperatureSensor"/>
+					<var name="g_saaral_unit" type="bzSaaralUnit"/>
 				</group>
 			</globalVars>
 			<retainVars>
@@ -313,14 +318,252 @@ BZActuatorBase_SetMode := TRUE;
 ]]>
 					</sourceCode>
 				</function>
+				<function name="BZTemperatureSensor_new" version="1.0.0" creationDate="1611807303" lastModifiedDate="1611809290">
+					<returnValue>BOOL</returnValue>
+					<vars>
+						<inputVars>
+							<var name="me" type="@BZTemperatureSensor"/>
+							<var name="type" type="BZTemperatureUnitE"/>
+							<var name="ptrHWVal" type="@INT"/>
+						</inputVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<sourceCode type="ST">
+						<![CDATA[
+@me.bIsAvailable := TRUE;
+@me.m_enUnit := type;
+@me.m_fValue := 0.0;
+@me.m_i16Range.Min := TO_INT(-500);
+@me.m_i16Range.Max := TO_INT(1500);
+@me.m_ptrHWValue := ptrHWVal;
+
+BZTemperatureSensor_new := TRUE;
+]]>
+					</sourceCode>
+				</function>
+				<function name="BZTemperatureSensor_update" version="1.0.0" creationDate="1611807333" lastModifiedDate="1611811108">
+					<returnValue>BOOL</returnValue>
+					<vars>
+						<inputVars>
+							<var name="me" type="@BZTemperatureSensor"/>
+						</inputVars>
+						<localVars>
+							<var name="ptrHW" type="@INT"/>
+						</localVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<sourceCode type="ST">
+						<![CDATA[
+ptrHW := @me.m_ptrHWValue; // have to make a copy because the syntax of @(@()) can not be recognized
+
+if (@ptrHW > @me.m_i16Range.Min) and (@ptrHW < @me.m_i16Range.Max) then
+	@me.bIsAvailable := TRUE;
+	@me.m_fValue := (TO_REAL(@ptrHW)) / 10.0;
+else
+	@me.bIsAvailable := FALSE;
+	@me.m_fValue := -3276.8;
+end_if;
+
+
+BZTemperatureSensor_update := TRUE;
+]]>
+					</sourceCode>
+				</function>
+				<function name="BZTemperatureSensor_read" version="1.0.0" creationDate="1611807409" lastModifiedDate="1611809583">
+					<returnValue>REAL</returnValue>
+					<vars>
+						<inputVars>
+							<var name="me" type="@BZTemperatureSensor"/>
+							<var name="as_type" type="BZTemperatureUnitE"/>
+						</inputVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<sourceCode type="ST">
+						<![CDATA[
+
+if (as_type = @me.m_enUnit) then
+	BZTemperatureSensor_read := @me.m_fValue;
+else
+	if (as_type = enCelcius) then
+		BZTemperatureSensor_read := (@me.m_fValue - 32.0) * 5 / 9;
+	else
+		BZTemperatureSensor_read := @me.m_fValue * 9 / 5 + 32.0;
+	end_if;
+end_if;
+]]>
+					</sourceCode>
+				</function>
+				<function name="bzSaaralUnit_init" version="1.0.0" creationDate="1611812428" lastModifiedDate="1611824332">
+					<returnValue>BOOL</returnValue>
+					<vars>
+						<inputVars>
+							<var name="me" type="@bzSaaralUnit"/>
+						</inputVars>
+						<localVars>
+							<var name="res" type="BOOL"/>
+						</localVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<sourceCode type="ST">
+						<![CDATA[
+@me.TemperatureSensors[0] := ?(@me.RATu);
+@me.TemperatureSensors[1] := ?(@me.RATl);
+@me.TemperatureSensors[2] := ?(@me.SATu);
+@me.TemperatureSensors[3] := ?(@me.SATl);
+@me.TemperatureSensors[4] := ?(@me.RCT1);
+@me.TemperatureSensors[5] := ?(@me.RCT2);
+@me.TemperatureSensors[6] := ?(@me.Tcoil_inlet);
+
+bzSaaralUnit_init := TRUE;
+]]>
+					</sourceCode>
+				</function>
+				<function name="bzSaaralUnit_run" version="1.0.0" creationDate="1611816161" lastModifiedDate="1611824046">
+					<returnValue>BOOL</returnValue>
+					<vars>
+						<inputVars>
+							<var name="me" type="@bzSaaralUnit"/>
+						</inputVars>
+						<localVars>
+							<var name="res" type="BOOL"/>
+							<var name="i" type="INT"/>
+							<var name="fHighT" type="REAL"/>
+							<var name="fAvgT" type="REAL"/>
+							<var name="fLowT" type="REAL"/>
+						</localVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<sourceCode type="ST">
+						<![CDATA[
+
+for i := 0 TO 6 DO
+	res := BZTemperatureSensor_update(@me.TemperatureSensors[i]);
+end_for ;
+
+
+res := bzIProcess2Temperatures(?(@me.RATl), ?(@me.RATu), /*?fLowT,*/ ?fAvgT/*, ?fHighT*/);
+@me.fRATg := fAvgT;
+
+res := bzIProcess2Temperatures(?(@me.SATl), ?(@me.SATu), /*?fLowT,*/ ?fAvgT/*, ?fHighT*/);
+@me.fSATg := fAvgT;
+
+bzSaaralUnit_run := TRUE;
+]]>
+					</sourceCode>
+				</function>
+				<function name="bzIProcess2Temperatures" version="1.0.0" creationDate="1611820719" lastModifiedDate="1611824437">
+					<returnValue>BOOL</returnValue>
+					<vars>
+						<inputVars>
+							<var name="sen1" type="@BZTemperatureSensor"/>
+							<var name="sen2" type="@BZTemperatureSensor"/>
+							<var name="fAvgPtr" type="@REAL"/>
+						</inputVars>
+						<localVars>
+							<var name="i" type="INT"/>
+							<var name="fLowPtr" type="@REAL"/>
+							<var name="fHighPtr" type="@REAL"/>
+							<var name="fHigh" type="REAL">
+								<initValue>0</initValue>
+							</var>
+							<var name="fLow" type="REAL">
+								<initValue>0</initValue>
+							</var>
+							<var name="fAvg" type="REAL">
+								<initValue>0</initValue>
+							</var>
+						</localVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<sourceCode type="ST">
+						<![CDATA[
+
+fAvg := 0.0;
+fLow := 0.0;
+fHigh := 0.0;
+
+i := 0;
+if @sen1.bIsAvailable then
+	fAvg := fAvg + BZTemperatureSensor_read(sen1, @sen1.m_enUnit);
+	fLow := BZTemperatureSensor_read(sen1, @sen1.m_enUnit);
+	fHigh := BZTemperatureSensor_read(sen1, @sen1.m_enUnit);
+	i := i + 1;
+else ;
+end_if;
+
+if @sen2.bIsAvailable then
+	fAvg := fAvg + BZTemperatureSensor_read(sen2, @sen2.m_enUnit);
+	
+	if (BZTemperatureSensor_read(sen2, @sen2.m_enUnit) < fLow) then
+		fLow := BZTemperatureSensor_read(sen2, @sen2.m_enUnit);
+	end_if;
+	
+	if (BZTemperatureSensor_read(sen2, @sen2.m_enUnit) > fHigh) then
+		fHigh := BZTemperatureSensor_read(sen2, @sen2.m_enUnit);
+	end_if;
+	
+	i := i + 1;
+else ;
+end_if;
+
+
+if (i = 0) then
+	@fAvgPtr := -3276.8;
+else
+	@fAvgPtr := fAvg / TO_REAL(i);
+end_if;
+
+/*
+if (not @sen1.bIsAvailable and not @sen2.bIsAvailable) then
+	@fLowPtr := -3276.8;
+	@fHighPtr := -3276.8;
+else ;
+end_if;
+*/
+
+bzIProcess2Temperatures := TRUE;
+]]>
+					</sourceCode>
+				</function>
 			</functions>
 			<functionBlocks/>
 			<programs>
-				<program name="main" version="1.0.0" creationDate="0" lastModifiedDate="1611717879">
-					<vars/>
+				<program name="main" version="1.0.0" creationDate="0" lastModifiedDate="1611819938">
+					<vars>
+						<localVars>
+							<var name="i" type="INT"/>
+							<var name="res" type="BOOL"/>
+						</localVars>
+					</vars>
 					<iecDeclaration active="FALSE"/>
 					<sourceCode type="ST">
 						<![CDATA[cnt := cnt + 1;
+
+/**
+ *
+ * machine control
+ *
+ */
+res := bzSaaralUnit_run(?g_saaral_unit);
+
+
+/**
+ *
+ * MODBUS status variables update
+ *
+ */
+bzRATu := TO_INT(BZTemperatureSensor_read(?g_saaral_unit.RATu, enCelcius) * 10);
+bzRATl := TO_INT(BZTemperatureSensor_read(?g_saaral_unit.RATl, enCelcius) * 10);
+bzSATu := TO_INT(BZTemperatureSensor_read(?g_saaral_unit.SATu, enCelcius) * 10);
+bzSATl := TO_INT(BZTemperatureSensor_read(?g_saaral_unit.SATl, enCelcius) * 10);
+bzRCT1 := TO_INT(BZTemperatureSensor_read(?g_saaral_unit.RCT1, enCelcius) * 10);
+bzRCT2 := TO_INT(BZTemperatureSensor_read(?g_saaral_unit.RCT2, enCelcius) * 10);
+
+bzRATg := TO_INT(g_saaral_unit.fRATg * 10.0);
+bzSATg := TO_INT(g_saaral_unit.fSATg * 10.0);
+bzRCTh := TO_INT(g_saaral_unit.fRACh * 10.0);
+
+
 ]]>
 					</sourceCode>
 				</program>
@@ -491,6 +734,40 @@ end_if;
 ]]>
 					</sourceCode>
 				</program>
+				<program name="init" version="1.0.0" creationDate="1611809132" lastModifiedDate="1611820452">
+					<vars>
+						<localVars>
+							<var name="res" type="BOOL"/>
+						</localVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<sourceCode type="ST">
+						<![CDATA[
+
+
+/**
+ *
+ * initialize components installed on the unit according to IO map
+ *
+ */
+res := BZTemperatureSensor_new(?(g_saaral_unit.RATu),			enCelcius, ?HW_AI_01);
+res := BZTemperatureSensor_new(?(g_saaral_unit.RATl), 			enCelcius, ?HW_AI_02);
+res := BZTemperatureSensor_new(?(g_saaral_unit.SATu), 			enCelcius, ?HW_AI_03);
+res := BZTemperatureSensor_new(?(g_saaral_unit.SATl), 			enCelcius, ?HW_AI_04);
+res := BZTemperatureSensor_new(?(g_saaral_unit.RCT1), 			enCelcius, ?HW_AI_05);
+res := BZTemperatureSensor_new(?(g_saaral_unit.RCT2), 			enCelcius, ?HW_AI_06);
+res := BZTemperatureSensor_new(?(g_saaral_unit.Tcoil_inlet), 	enCelcius, ?HW_AI_07);
+
+
+/**
+ *
+ * initialize the unit
+ *
+ */
+res := bzSaaralUnit_init(?g_saaral_unit);
+]]>
+					</sourceCode>
+				</program>
 			</programs>
 			<macros/>
 			<structs>
@@ -587,6 +864,84 @@ of the actual position.</descr>
 						</var>
 					</vars>
 				</struct>
+				<struct name="BZTemperatureSensor" version="1.0.0">
+					<title>Temperature sensor object</title>
+					<descr>The base class of a temperature sensor object definition.</descr>
+					<vars>
+						<var name="m_ptrHWValue" type="@INT">
+							<descr>HW interface (pointer) that can pass the raw value in (x10 scaled)</descr>
+							<initValue>0</initValue>
+						</var>
+						<var name="m_fValue" type="REAL">
+							<descr>The instant measurement by physical presentation</descr>
+							<initValue>0.0</initValue>
+						</var>
+						<var name="m_enUnit" type="BZTemperatureUnitE">
+							<descr>The unit of the physical reading and it's metric by default</descr>
+						</var>
+						<var name="bIsAvailable" type="BOOL">
+							<descr>If the reading is in the available range of the probe, it's true otherwise, false</descr>
+							<initValue>TRUE</initValue>
+						</var>
+						<var name="m_i16Range" type="BZInt16RangeT">
+							<descr>By default, it's from -50C to 150C.</descr>
+							<initValue>(Max:=1500, Min:=-500)</initValue>
+						</var>
+					</vars>
+				</struct>
+				<struct name="BZInt16RangeT" version="1.0.0">
+					<descr>[-32768, 32767] by default</descr>
+					<vars>
+						<var name="Max" type="INT">
+							<initValue>32767</initValue>
+						</var>
+						<var name="Min" type="INT">
+							<initValue>-32768</initValue>
+						</var>
+					</vars>
+				</struct>
+				<struct name="bzSaaralUnit" version="1.0.0">
+					<title>Saaral Unit</title>
+					<descr>A type of an air conditioner unit built from a project called Saaral which is regarded as replacedment of ACRD100, but who knows how long it can survive.</descr>
+					<vars>
+						<var name="RATu" type="BZTemperatureSensor">
+							<descr>Upper return air temperature sensor</descr>
+						</var>
+						<var name="RATl" type="BZTemperatureSensor">
+							<descr>Lower return air temperature sensor</descr>
+						</var>
+						<var name="SATu" type="BZTemperatureSensor">
+							<descr>Upper supply air temperature sensor</descr>
+						</var>
+						<var name="SATl" type="BZTemperatureSensor">
+							<descr>Lower supply air temperature sensor</descr>
+						</var>
+						<var name="RCT1" type="BZTemperatureSensor">
+							<descr>Rack inlet air temperature sensor 1</descr>
+						</var>
+						<var name="RCT2" type="BZTemperatureSensor">
+							<descr>Rack inlet air temperature sensor 2</descr>
+						</var>
+						<var name="fRATg" type="REAL">
+							<descr>Average measurement of return air temperature</descr>
+						</var>
+						<var name="fSATg" type="REAL">
+							<descr>Average measurement of supply air temperature</descr>
+						</var>
+						<var name="fRACh" type="REAL">
+							<descr>Max of local rack inlet air temperature</descr>
+						</var>
+						<var name="TemperatureSensors" type="@BZTemperatureSensor" dim0="7">
+							<descr>Object reference of the temperature sensor</descr>
+						</var>
+						<var name="Tcoil_inlet" type="BZTemperatureSensor">
+							<descr>Coil inlet temperature sensor</descr>
+						</var>
+						<var name="fTcoil" type="REAL">
+							<descr>Liquid temperature at evaporator coil inlet side</descr>
+						</var>
+					</vars>
+				</struct>
 			</structs>
 			<typedefs/>
 			<enums>
@@ -631,6 +986,20 @@ of the actual position.</descr>
 						<element name="STOPPING">
 							<descr>RUNNING to OFF or IDLE</descr>
 							<value>4</value>
+						</element>
+					</elements>
+				</enum>
+				<enum name="BZTemperatureUnitE" version="1.0.0">
+					<title>Temperature unit type enumerations</title>
+					<descr>Celcius degree of metrics or US customary (Fahrenheit).</descr>
+					<elements>
+						<element name="enCelcius">
+							<descr>Celcius degree (C)</descr>
+							<value>0</value>
+						</element>
+						<element name="enFahrenheit">
+							<descr>Fahrenheit degree (F)</descr>
+							<value>1</value>
 						</element>
 					</elements>
 				</enum>
@@ -53613,13 +53982,43 @@ ui16_random := TO_UINT(ui16_random_copy or (ui16_random_tmp and 16#00FF));
 				<![CDATA[(* Automatically generated, do not edit! *)
 	VAR_GLOBAL
 		{G:"Status_variables"}
-	BZCANMailbox1 AT %MW110.0 : INT;
+	bzBIOSVersion AT %MW110.0 : STRING[ 8 ];  {DE:"M172 BIOS version"}
 		{G:"Status_variables"}
-	BZCANMailbox2 AT %MW110.1 : INT;
+	bzAppVersion AT %MW110.5 : STRING[ 8 ];  {DE:"Application version by a string type format of xx.xx.xx"}
 		{G:"Status_variables"}
-	BZCANMailbox3 AT %MW110.2 : INT;
+	bzRATu AT %MW110.10 : INT;  {DE:"Upper return air temperature"}
 		{G:"Status_variables"}
-	BZIsRealMode AT %MW110.3 : BOOL := 1;  {DE:"Controller is working on real mode."}
+	bzRATl AT %MW110.11 : INT;  {DE:"Lower return air temperature"}
+		{G:"Status_variables"}
+	bzRATg AT %MW110.12 : INT;  {DE:"Average measurement of the return air temperature"}
+		{G:"Status_variables"}
+	bzSATu AT %MW110.13 : INT;  {DE:"Upper supply air temperature"}
+		{G:"Status_variables"}
+	bzSATl AT %MW110.14 : INT;  {DE:"Lower supply air temperature"}
+		{G:"Status_variables"}
+	bzSATg AT %MW110.15 : INT;  {DE:"Average measurement of the supply air temperature"}
+		{G:"Status_variables"}
+	bzRCT1 AT %MW110.16 : INT;  {DE:"Rack inlet air temperature 1"}
+		{G:"Status_variables"}
+	bzRCT2 AT %MW110.17 : INT;  {DE:"Rack inlet air temperature 2"}
+		{G:"Status_variables"}
+	bzRCTh AT %MW110.18 : INT;  {DE:"Max rack inlet air temperature of the two probes supposed to be located right in front of the rack"}
+		{G:"Status_variables"}
+	bzWarningBase AT %MW110.19 : INT := 0;  {DE:"Warning code base"}
+		{G:"Status_variables"}
+	bzAlarmBase AT %MW110.20 : INT := 0;  {DE:"Alarm code base"}
+		{G:"Status_variables"}
+	bzSerialNO AT %MW110.21 : STRING[ 16 ] := '0';  {DE:"Serial NO."}
+		{G:"Status_variables"}
+	bzModelNO AT %MW110.30 : STRING[ 16 ] := '0';  {DE:"Model NO."}
+		{G:"Status_variables"}
+	BZCANMailbox1 AT %MW110.39 : INT;
+		{G:"Status_variables"}
+	BZCANMailbox2 AT %MW110.40 : INT;
+		{G:"Status_variables"}
+	BZCANMailbox3 AT %MW110.41 : INT;
+		{G:"Status_variables"}
+	BZIsRealMode AT %MW110.42 : BOOL := 1;  {DE:"Controller is working on real mode."}
 		{G:"IO_Mapping"}
 	HW_AI_01 AT %IW1.0 : INT;  {DE:"AIL1 analogue input"}
 		{G:"IO_Mapping"}
@@ -53651,8 +54050,8 @@ ui16_random := TO_UINT(ui16_random_copy or (ui16_random_tmp and 16#00FF));
 				<![CDATA[(* Automatically generated, do not edit! *)
 
 VAR_GLOBAL CONSTANT
-$$ParDB : ARRAY[ 0..143 ] OF USINT; { HIDDEN:ON } { INIT:"BZ172Lab.PLK+0" }
-$$ParDBLength  : DWORD := 4; { HIDDEN:ON }
+$$ParDB : ARRAY[ 0..683 ] OF USINT; { HIDDEN:ON } { INIT:"BZ172Lab.PLK+0" }
+$$ParDBLength  : DWORD := 19; { HIDDEN:ON }
 END_VAR
 
 PROGRAM InitParDB WITH Serv;
@@ -53665,7 +54064,7 @@ PROGRAM InitParDB
 		dummyCrc32: UDINT;
 	END_VAR
 
-	dummyCrc32 := 10040002;
+	dummyCrc32 := 3273560658;
 
 	warningsKiller := sysDBase_SetExtTable( ADR( $$ParDB ), $$ParDBLength );
 
@@ -53693,7 +54092,7 @@ END_PROGRAM
 			</src>
 		</aux>
 		<workspace>
-			<root name="BZ172Lab" nextID="557">
+			<root name="BZ172Lab" nextID="1347">
 				<GlobalVars name="Global_vars" id="11"/>
 				<Pou name="main" id="2"/>
 				<folder id="16" name="BZ172Lab">
@@ -53718,15 +54117,32 @@ END_PROGRAM
 						<Definition name="BZECFan" id="34"/>
 						<Definition name="BZElectricHeaterBar" id="35"/>
 						<Definition name="BZBinaryOutput" id="36"/>
+						<folder name="BZTemperatureSensor" id="620">
+							<Definition name="BZTemperatureSensor" id="594"/>
+							<Pou name="BZTemperatureSensor_new" id="621"/>
+							<Pou name="BZTemperatureSensor_update" id="622"/>
+							<Pou name="BZTemperatureSensor_read" id="623"/>
+						</folder>
 					</folder>
 					<folder name="Types" id="37">
 						<Definition name="BZActuatorStatus" id="38"/>
 						<Definition name="BZActuatorMode" id="39"/>
 						<Definition name="BZRealRange" id="40"/>
+						<Definition name="BZTemperatureUnitE" id="595"/>
+						<Definition name="BZInt16RangeT" id="598"/>
 					</folder>
 					<folder name="Utilities" id="41">
 						<Pou name="BZComputeY" id="42"/>
 						<Pou name="BZBoundY" id="43"/>
+					</folder>
+				</folder>
+				<Pou name="init" id="688"/>
+				<folder name="Machines" id="746">
+					<folder name="Saaral" id="747">
+						<Definition name="bzSaaralUnit" id="748" genHidden="false"/>
+						<Pou name="bzSaaralUnit_init" id="749"/>
+						<Pou name="bzSaaralUnit_run" id="809"/>
+						<Pou name="bzIProcess2Temperatures" id="941"/>
 					</folder>
 				</folder>
 			</root>
@@ -53765,6 +54181,411 @@ END_PROGRAM
 						<params/>
 						<paramsRO>
 							<param>
+								<ipa>5012</ipa>
+								<address>8960</address>
+								<name>bzBIOSVersion</name>
+								<typepar>8</typepar>
+								<typetarg>STRING</typetarg>
+								<value/>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description>M172 BIOS version</description>
+								<note/>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>1</readonly>
+								<shortname/>
+								<size>8</size>
+								<dataBlock>MW110.0</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>5010</ipa>
+								<address>8965</address>
+								<name>bzAppVersion</name>
+								<typepar>8</typepar>
+								<typetarg>STRING</typetarg>
+								<value/>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description>Application version by a string type format of xx.xx.xx</description>
+								<note/>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>1</readonly>
+								<shortname/>
+								<size>8</size>
+								<dataBlock>MW110.5</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>5005</ipa>
+								<address>8970</address>
+								<name>bzRATu</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value/>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description>Upper return air temperature</description>
+								<note/>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>1</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.10</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>5007</ipa>
+								<address>8971</address>
+								<name>bzRATl</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value/>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description>Lower return air temperature</description>
+								<note/>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>1</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.11</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>5011</ipa>
+								<address>8972</address>
+								<name>bzRATg</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value/>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description>Average measurement of the return air temperature</description>
+								<note/>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>1</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.12</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>5013</ipa>
+								<address>8973</address>
+								<name>bzSATu</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value/>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description>Upper supply air temperature</description>
+								<note/>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>1</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.13</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>5014</ipa>
+								<address>8974</address>
+								<name>bzSATl</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value/>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description>Lower supply air temperature</description>
+								<note/>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>1</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.14</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>5015</ipa>
+								<address>8975</address>
+								<name>bzSATg</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value/>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description>Average measurement of the supply air temperature</description>
+								<note/>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>1</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.15</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>5016</ipa>
+								<address>8976</address>
+								<name>bzRCT1</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value/>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description>Rack inlet air temperature 1</description>
+								<note/>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>1</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.16</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>5017</ipa>
+								<address>8977</address>
+								<name>bzRCT2</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value/>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description>Rack inlet air temperature 2</description>
+								<note/>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>1</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.17</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>5018</ipa>
+								<address>8978</address>
+								<name>bzRCTh</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value/>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description>Max rack inlet air temperature of the two probes supposed to be located right in front of the rack</description>
+								<note/>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>1</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.18</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>5008</ipa>
+								<address>9960</address>
+								<name>bzWarningBase</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value>0</value>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description>Warning code base</description>
+								<note/>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.19</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>5009</ipa>
+								<address>10060</address>
+								<name>bzAlarmBase</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value>0</value>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description>Alarm code base</description>
+								<note/>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.20</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>5003</ipa>
+								<address>10160</address>
+								<name>bzSerialNO</name>
+								<typepar>8</typepar>
+								<typetarg>STRING</typetarg>
+								<value>0</value>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description>Serial NO.</description>
+								<note/>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>16</size>
+								<dataBlock>MW110.21</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>5004</ipa>
+								<address>10169</address>
+								<name>bzModelNO</name>
+								<typepar>8</typepar>
+								<typetarg>STRING</typetarg>
+								<value>0</value>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description>Model NO.</description>
+								<note/>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>16</size>
+								<dataBlock>MW110.30</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
 								<ipa>5000</ipa>
 								<address>10960</address>
 								<name>BZCANMailbox1</name>
@@ -53785,7 +54606,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW110.0</dataBlock>
+								<dataBlock>MW110.39</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -53812,7 +54633,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW110.1</dataBlock>
+								<dataBlock>MW110.40</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -53839,7 +54660,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW110.2</dataBlock>
+								<dataBlock>MW110.41</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -53866,7 +54687,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW110.3</dataBlock>
+								<dataBlock>MW110.42</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -54388,13 +55209,13 @@ END_PROGRAM
 								<value ipa="10069" subidx="0">0</value>
 								<value ipa="10070" subidx="0">30</value>
 								<value ipa="10071" subidx="0">10</value>
-								<value ipa="10072" subidx="0">307</value>
-								<value ipa="10073" subidx="0">184</value>
-								<value ipa="10074" subidx="0">177</value>
-								<value ipa="10075" subidx="0">234</value>
+								<value ipa="10072" subidx="0">284</value>
+								<value ipa="10073" subidx="0">306</value>
+								<value ipa="10074" subidx="0">186</value>
+								<value ipa="10075" subidx="0">188</value>
 								<value ipa="10076" subidx="0">252</value>
 								<value ipa="10077" subidx="0">205</value>
-								<value ipa="10078" subidx="0">259</value>
+								<value ipa="10078" subidx="0">254</value>
 								<value ipa="10079" subidx="0">236</value>
 								<value ipa="10080" subidx="0">0</value>
 								<value ipa="10081" subidx="0">0</value>
@@ -54402,12 +55223,12 @@ END_PROGRAM
 								<value ipa="10083" subidx="0">-32768</value>
 								<value ipa="10084" subidx="0">0</value>
 								<value ipa="10085" subidx="0">0</value>
-								<value ipa="10086" subidx="0">0</value>
-								<value ipa="10087" subidx="0">0</value>
-								<value ipa="10088" subidx="0">0</value>
-								<value ipa="10089" subidx="0">0</value>
-								<value ipa="10090" subidx="0">0</value>
-								<value ipa="10091" subidx="0">0</value>
+								<value ipa="10086" subidx="0">1</value>
+								<value ipa="10087" subidx="0">1</value>
+								<value ipa="10088" subidx="0">1</value>
+								<value ipa="10089" subidx="0">1</value>
+								<value ipa="10090" subidx="0">1</value>
+								<value ipa="10091" subidx="0">1</value>
 								<value ipa="10092" subidx="0">1</value>
 								<value ipa="10093" subidx="0">1</value>
 								<value ipa="10094" subidx="0">0</value>
@@ -54771,6 +55592,21 @@ END_PROGRAM
 								<value ipa="50002" subidx="0">***************</value>
 								<value ipa="50003" subidx="0">0</value>
 								<value ipa="50004" subidx="0">0</value>
+								<value ipa="5012" subidx="0"/>
+								<value ipa="5010" subidx="0"/>
+								<value ipa="5005" subidx="0">0</value>
+								<value ipa="5007" subidx="0">0</value>
+								<value ipa="5011" subidx="0">0</value>
+								<value ipa="5013" subidx="0">0</value>
+								<value ipa="5014" subidx="0">0</value>
+								<value ipa="5015" subidx="0">0</value>
+								<value ipa="5016" subidx="0">0</value>
+								<value ipa="5017" subidx="0">0</value>
+								<value ipa="5018" subidx="0">0</value>
+								<value ipa="5008" subidx="0">0</value>
+								<value ipa="5009" subidx="0">0</value>
+								<value ipa="5003" subidx="0">0</value>
+								<value ipa="5004" subidx="0">0</value>
 								<value ipa="5000" subidx="0">0</value>
 								<value ipa="5001" subidx="0">0</value>
 								<value ipa="5002" subidx="0">0</value>

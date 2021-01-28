@@ -6,10 +6,25 @@
 
         VAR_GLOBAL
 	{G:"Status_variables"}
-BZCANMailbox1 AT %MW110.0 : INT;
-BZCANMailbox2 AT %MW110.1 : INT;
-BZCANMailbox3 AT %MW110.2 : INT;
-BZIsRealMode AT %MW110.3 : BOOL := 1;	{ DE:"Controller is working on real mode." }
+bzBIOSVersion AT %MW110.0 : STRING[ 8 ];	{ DE:"M172 BIOS version" }
+bzAppVersion AT %MW110.5 : STRING[ 8 ];	{ DE:"Application version by a string type format of xx.xx.xx" }
+bzRATu AT %MW110.10 : INT;	{ DE:"Upper return air temperature" }
+bzRATl AT %MW110.11 : INT;	{ DE:"Lower return air temperature" }
+bzRATg AT %MW110.12 : INT;	{ DE:"Average measurement of the return air temperature" }
+bzSATu AT %MW110.13 : INT;	{ DE:"Upper supply air temperature" }
+bzSATl AT %MW110.14 : INT;	{ DE:"Lower supply air temperature" }
+bzSATg AT %MW110.15 : INT;	{ DE:"Average measurement of the supply air temperature" }
+bzRCT1 AT %MW110.16 : INT;	{ DE:"Rack inlet air temperature 1" }
+bzRCT2 AT %MW110.17 : INT;	{ DE:"Rack inlet air temperature 2" }
+bzRCTh AT %MW110.18 : INT;	{ DE:"Max rack inlet air temperature of the two probes supposed to be located right in front of the rack" }
+bzWarningBase AT %MW110.19 : INT := 0;	{ DE:"Warning code base" }
+bzAlarmBase AT %MW110.20 : INT := 0;	{ DE:"Alarm code base" }
+bzSerialNO AT %MW110.21 : STRING[ 16 ] := '0';	{ DE:"Serial NO." }
+bzModelNO AT %MW110.30 : STRING[ 16 ] := '0';	{ DE:"Model NO." }
+BZCANMailbox1 AT %MW110.39 : INT;
+BZCANMailbox2 AT %MW110.40 : INT;
+BZCANMailbox3 AT %MW110.41 : INT;
+BZIsRealMode AT %MW110.42 : BOOL := 1;	{ DE:"Controller is working on real mode." }
 	{G:"IO_Mapping"}
 HW_AI_01 AT %IW1.0 : INT;	{ DE:"AIL1 analogue input" }
 HW_AI_02 AT %IW1.1 : INT;	{ DE:"AIL2 analogue input" }
