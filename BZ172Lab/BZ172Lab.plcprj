@@ -21,7 +21,7 @@
 				<group name="Global_vars">
 					<var name="cnt" type="INT"/>
 					<var name="SATu" type="BZTemperatureSensor"/>
-					<var name="g_saaral_unit" type="bzSaaralUnit"/>
+					<var name="gSaaralUnit" type="bzSaaralUnit"/>
 				</group>
 			</globalVars>
 			<retainVars>
@@ -395,18 +395,21 @@ end_if;
 				</function>
 			</functions>
 			<functionBlocks>
-				<functionBlock name="bzSaaralUnit_pickup_temperature" version="1.0.0" creationDate="1611891178" lastModifiedDate="1611904766">
+				<functionBlock name="bzSaaralUnit_pickup_temperature" version="1.0.0" creationDate="1611891178" lastModifiedDate="1611925120">
 					<vars>
 						<inputVars>
+							<var name="me" type="@bzSaaralUnit"/>
 							<var name="Sensors" type="@BZTemperatureSensor" dim0="8"/>
 							<var name="NbrOfSen" type="INT"/>
 						</inputVars>
 						<outputVars>
 							<var name="Mean" type="REAL"/>
+							<var name="High" type="REAL"/>
 						</outputVars>
 						<localVars>
 							<var name="i" type="INT"/>
 							<var name="cnt" type="INT"/>
+							<var name="val" type="REAL"/>
 						</localVars>
 					</vars>
 					<iecDeclaration active="FALSE"/>
@@ -416,12 +419,19 @@ end_if;
 						<![CDATA[
 
 Mean := 0.0;
+High := -3276.8;
 
 cnt := 0;
 for i := 0 to NbrOfSen - 1 do
 	if (@Sensors[i].bIsAvailable) then
-		Mean := Mean + BZTemperatureSensor_read(Sensors[i], @Sensors[i].m_enUnit);
+		val := BZTemperatureSensor_read(Sensors[i], @Sensors[i].m_enUnit);
+		Mean := Mean + val;
 		cnt := cnt + 1;
+		
+		if (High < val) then
+			High := val;
+		else ;
+		end_if;
 	else ;
 	end_if;
 end_for;
@@ -436,7 +446,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="bzSaaralUnit_run" version="1.0.0" creationDate="1611906522" lastModifiedDate="1611908049">
+				<functionBlock name="bzSaaralUnit_run" version="1.0.0" creationDate="1611906522" lastModifiedDate="1611925215">
 					<vars>
 						<inputVars>
 							<var name="me" type="@bzSaaralUnit"/>
@@ -457,19 +467,26 @@ for i := 0 TO 6 DO
 end_for ;
 
 
+@me.pickupTemperatures.me := me;
 @me.pickupTemperatures.Sensors[0] := ?(@me.RATl);
 @me.pickupTemperatures.Sensors[1] := ?(@me.RATu);
 @me.pickupTemperatures.NbrOfSen := 2;
 @me.pickupTemperatures();
 @me.fRATg := @me.pickupTemperatures.Mean;
 
-
-
+@me.pickupTemperatures.me := me;
 @me.pickupTemperatures.Sensors[0] := ?(@me.SATl);
 @me.pickupTemperatures.Sensors[1] := ?(@me.SATu);
 @me.pickupTemperatures.NbrOfSen := 2;
 @me.pickupTemperatures();
 @me.fSATg := @me.pickupTemperatures.Mean;
+
+@me.pickupTemperatures.me := me;
+@me.pickupTemperatures.Sensors[0] := ?(@me.RCT1);
+@me.pickupTemperatures.Sensors[1] := ?(@me.RCT2);
+@me.pickupTemperatures.NbrOfSen := 2;
+@me.pickupTemperatures();
+@me.fRACh := @me.pickupTemperatures.High;
 ]]>
 					</sourceCode>
 				</functionBlock>
@@ -497,7 +514,7 @@ end_for ;
 				</functionBlock>
 			</functionBlocks>
 			<programs>
-				<program name="main" version="1.0.0" creationDate="0" lastModifiedDate="1611906965">
+				<program name="main" version="1.0.0" creationDate="0" lastModifiedDate="1611923916">
 					<vars>
 						<localVars>
 							<var name="i" type="INT"/>
@@ -513,8 +530,8 @@ end_for ;
  * machine control
  *
  */
-g_saaral_unit.run.me := ?g_saaral_unit;
-g_saaral_unit.run();
+gSaaralUnit.run.me := ?gSaaralUnit;
+gSaaralUnit.run();
 
 
 /**
@@ -522,16 +539,16 @@ g_saaral_unit.run();
  * MODBUS status variables update
  *
  */
-bzRATu := TO_INT(BZTemperatureSensor_read(?g_saaral_unit.RATu, enCelcius) * 10);
-bzRATl := TO_INT(BZTemperatureSensor_read(?g_saaral_unit.RATl, enCelcius) * 10);
-bzSATu := TO_INT(BZTemperatureSensor_read(?g_saaral_unit.SATu, enCelcius) * 10);
-bzSATl := TO_INT(BZTemperatureSensor_read(?g_saaral_unit.SATl, enCelcius) * 10);
-bzRCT1 := TO_INT(BZTemperatureSensor_read(?g_saaral_unit.RCT1, enCelcius) * 10);
-bzRCT2 := TO_INT(BZTemperatureSensor_read(?g_saaral_unit.RCT2, enCelcius) * 10);
+bzRATu := TO_INT(BZTemperatureSensor_read(?gSaaralUnit.RATu, enCelcius) * 10);
+bzRATl := TO_INT(BZTemperatureSensor_read(?gSaaralUnit.RATl, enCelcius) * 10);
+bzSATu := TO_INT(BZTemperatureSensor_read(?gSaaralUnit.SATu, enCelcius) * 10);
+bzSATl := TO_INT(BZTemperatureSensor_read(?gSaaralUnit.SATl, enCelcius) * 10);
+bzRCT1 := TO_INT(BZTemperatureSensor_read(?gSaaralUnit.RCT1, enCelcius) * 10);
+bzRCT2 := TO_INT(BZTemperatureSensor_read(?gSaaralUnit.RCT2, enCelcius) * 10);
 
-bzRATg := TO_INT(g_saaral_unit.fRATg * 10.0);
-bzSATg := TO_INT(g_saaral_unit.fSATg * 10.0);
-bzRCTh := TO_INT(g_saaral_unit.fRACh * 10.0);
+bzRATg := TO_INT(gSaaralUnit.fRATg * 10.0);
+bzSATg := TO_INT(gSaaralUnit.fSATg * 10.0);
+bzRCTh := TO_INT(gSaaralUnit.fRACh * 10.0);
 
 
 ]]>
@@ -704,7 +721,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</program>
-				<program name="init" version="1.0.0" creationDate="1611809132" lastModifiedDate="1611908413">
+				<program name="init" version="1.0.0" creationDate="1611809132" lastModifiedDate="1611923956">
 					<vars>
 						<localVars>
 							<var name="res" type="BOOL"/>
@@ -720,13 +737,13 @@ end_if;
  * initialize components installed on the unit according to IO map
  *
  */
-res := BZTemperatureSensor_new(?(g_saaral_unit.RATu),			enCelcius, ?HW_AI_01);
-res := BZTemperatureSensor_new(?(g_saaral_unit.RATl), 			enCelcius, ?HW_AI_02);
-res := BZTemperatureSensor_new(?(g_saaral_unit.SATu), 			enCelcius, ?HW_AI_03);
-res := BZTemperatureSensor_new(?(g_saaral_unit.SATl), 			enCelcius, ?HW_AI_04);
-res := BZTemperatureSensor_new(?(g_saaral_unit.RCT1), 			enCelcius, ?HW_AI_05);
-res := BZTemperatureSensor_new(?(g_saaral_unit.RCT2), 			enCelcius, ?HW_AI_06);
-res := BZTemperatureSensor_new(?(g_saaral_unit.Tcoil_inlet), 	enCelcius, ?HW_AI_07);
+res := BZTemperatureSensor_new(?(gSaaralUnit.RATu),			enCelcius, ?HW_AI_01);
+res := BZTemperatureSensor_new(?(gSaaralUnit.RATl), 		enCelcius, ?HW_AI_02);
+res := BZTemperatureSensor_new(?(gSaaralUnit.SATu), 		enCelcius, ?HW_AI_03);
+res := BZTemperatureSensor_new(?(gSaaralUnit.SATl), 		enCelcius, ?HW_AI_04);
+res := BZTemperatureSensor_new(?(gSaaralUnit.RCT1), 		enCelcius, ?HW_AI_05);
+res := BZTemperatureSensor_new(?(gSaaralUnit.RCT2), 		enCelcius, ?HW_AI_06);
+res := BZTemperatureSensor_new(?(gSaaralUnit.Tcoil_inlet), 	enCelcius, ?HW_AI_07);
 
 
 /**
@@ -734,8 +751,8 @@ res := BZTemperatureSensor_new(?(g_saaral_unit.Tcoil_inlet), 	enCelcius, ?HW_AI_
  * initialize the unit
  *
  */
-g_saaral_unit.init.me := ?g_saaral_unit;
-g_saaral_unit.init();
+gSaaralUnit.init.me := ?gSaaralUnit;
+gSaaralUnit.init();
 ]]>
 					</sourceCode>
 				</program>
@@ -893,6 +910,12 @@ of the actual position.</descr>
 						<var name="RCT2" type="BZTemperatureSensor">
 							<descr>Rack inlet air temperature sensor 2</descr>
 						</var>
+						<var name="Tcoil_inlet" type="BZTemperatureSensor">
+							<descr>Coil inlet temperature sensor</descr>
+						</var>
+						<var name="NTCProbes" type="@BZTemperatureSensor" dim0="8">
+							<descr>References of all temperature sensor objects</descr>
+						</var>
 						<var name="fRATg" type="REAL">
 							<descr>Average measurement of return air temperature</descr>
 						</var>
@@ -902,23 +925,17 @@ of the actual position.</descr>
 						<var name="fRACh" type="REAL">
 							<descr>Max of local rack inlet air temperature</descr>
 						</var>
-						<var name="Tcoil_inlet" type="BZTemperatureSensor">
-							<descr>Coil inlet temperature sensor</descr>
-						</var>
 						<var name="fTcoil" type="REAL">
 							<descr>Liquid temperature at evaporator coil inlet side</descr>
+						</var>
+						<var name="init" type="bzSaaralUnit_init">
+							<descr>Public method to initialize a 'Saaral' object. Call me right after instantiating an object.</descr>
 						</var>
 						<var name="pickupTemperatures" type="bzSaaralUnit_pickup_temperature">
 							<descr>Method to calculate the max, min and mean of the specific temperatures</descr>
 						</var>
 						<var name="run" type="bzSaaralUnit_run">
 							<descr>Public method to execute the control process</descr>
-						</var>
-						<var name="NTCProbes" type="@BZTemperatureSensor" dim0="8">
-							<descr>References of all temperature sensor objects</descr>
-						</var>
-						<var name="init" type="bzSaaralUnit_init">
-							<descr>Public method to initialize a 'Saaral' object. Call me right after instantiating an object. </descr>
 						</var>
 					</vars>
 				</struct>
@@ -54072,7 +54089,7 @@ END_PROGRAM
 			</src>
 		</aux>
 		<workspace>
-			<root name="BZ172Lab" nextID="1665">
+			<root name="BZ172Lab" nextID="1858">
 				<GlobalVars name="Global_vars" id="11"/>
 				<Pou name="main" id="2"/>
 				<folder id="16" name="BZ172Lab">
@@ -55117,7 +55134,7 @@ END_PROGRAM
 							<commstring>Modbus:1,1000#COM:1,38400,E,8,1</commstring>
 							<values stopNodeParsing="true">
 								<value ipa="10000" subidx="0">0</value>
-								<value ipa="10001" subidx="0">2055</value>
+								<value ipa="10001" subidx="0">1031</value>
 								<value ipa="10002" subidx="0">0</value>
 								<value ipa="10003" subidx="0">0</value>
 								<value ipa="10004" subidx="0">2</value>
