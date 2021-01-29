@@ -393,142 +393,111 @@ end_if;
 ]]>
 					</sourceCode>
 				</function>
-				<function name="bzSaaralUnit_init" version="1.0.0" creationDate="1611812428" lastModifiedDate="1611824332">
-					<returnValue>BOOL</returnValue>
+			</functions>
+			<functionBlocks>
+				<functionBlock name="bzSaaralUnit_pickup_temperature" version="1.0.0" creationDate="1611891178" lastModifiedDate="1611904766">
 					<vars>
 						<inputVars>
-							<var name="me" type="@bzSaaralUnit"/>
+							<var name="Sensors" type="@BZTemperatureSensor" dim0="8"/>
+							<var name="NbrOfSen" type="INT"/>
 						</inputVars>
+						<outputVars>
+							<var name="Mean" type="REAL"/>
+						</outputVars>
 						<localVars>
-							<var name="res" type="BOOL"/>
+							<var name="i" type="INT"/>
+							<var name="cnt" type="INT"/>
 						</localVars>
 					</vars>
 					<iecDeclaration active="FALSE"/>
+					<interfaces/>
+					<methods/>
 					<sourceCode type="ST">
 						<![CDATA[
-@me.TemperatureSensors[0] := ?(@me.RATu);
-@me.TemperatureSensors[1] := ?(@me.RATl);
-@me.TemperatureSensors[2] := ?(@me.SATu);
-@me.TemperatureSensors[3] := ?(@me.SATl);
-@me.TemperatureSensors[4] := ?(@me.RCT1);
-@me.TemperatureSensors[5] := ?(@me.RCT2);
-@me.TemperatureSensors[6] := ?(@me.Tcoil_inlet);
 
-bzSaaralUnit_init := TRUE;
+Mean := 0.0;
+
+cnt := 0;
+for i := 0 to NbrOfSen - 1 do
+	if (@Sensors[i].bIsAvailable) then
+		Mean := Mean + BZTemperatureSensor_read(Sensors[i], @Sensors[i].m_enUnit);
+		cnt := cnt + 1;
+	else ;
+	end_if;
+end_for;
+
+if (cnt = 0) then
+	Mean := -3276.8;
+else
+	Mean := Mean / TO_REAL(cnt);
+end_if;
+
+
 ]]>
 					</sourceCode>
-				</function>
-				<function name="bzSaaralUnit_run" version="1.0.0" creationDate="1611816161" lastModifiedDate="1611824046">
-					<returnValue>BOOL</returnValue>
+				</functionBlock>
+				<functionBlock name="bzSaaralUnit_run" version="1.0.0" creationDate="1611906522" lastModifiedDate="1611908049">
 					<vars>
 						<inputVars>
 							<var name="me" type="@bzSaaralUnit"/>
 						</inputVars>
 						<localVars>
-							<var name="res" type="BOOL"/>
 							<var name="i" type="INT"/>
-							<var name="fHighT" type="REAL"/>
-							<var name="fAvgT" type="REAL"/>
-							<var name="fLowT" type="REAL"/>
+							<var name="res" type="BOOL"/>
 						</localVars>
 					</vars>
 					<iecDeclaration active="FALSE"/>
+					<interfaces/>
+					<methods/>
 					<sourceCode type="ST">
 						<![CDATA[
 
 for i := 0 TO 6 DO
-	res := BZTemperatureSensor_update(@me.TemperatureSensors[i]);
+	res := BZTemperatureSensor_update(@me.NTCProbes[i]);
 end_for ;
 
 
-res := bzIProcess2Temperatures(?(@me.RATl), ?(@me.RATu), /*?fLowT,*/ ?fAvgT/*, ?fHighT*/);
-@me.fRATg := fAvgT;
+@me.pickupTemperatures.Sensors[0] := ?(@me.RATl);
+@me.pickupTemperatures.Sensors[1] := ?(@me.RATu);
+@me.pickupTemperatures.NbrOfSen := 2;
+@me.pickupTemperatures();
+@me.fRATg := @me.pickupTemperatures.Mean;
 
-res := bzIProcess2Temperatures(?(@me.SATl), ?(@me.SATu), /*?fLowT,*/ ?fAvgT/*, ?fHighT*/);
-@me.fSATg := fAvgT;
 
-bzSaaralUnit_run := TRUE;
+
+@me.pickupTemperatures.Sensors[0] := ?(@me.SATl);
+@me.pickupTemperatures.Sensors[1] := ?(@me.SATu);
+@me.pickupTemperatures.NbrOfSen := 2;
+@me.pickupTemperatures();
+@me.fSATg := @me.pickupTemperatures.Mean;
 ]]>
 					</sourceCode>
-				</function>
-				<function name="bzIProcess2Temperatures" version="1.0.0" creationDate="1611820719" lastModifiedDate="1611824437">
-					<returnValue>BOOL</returnValue>
+				</functionBlock>
+				<functionBlock name="bzSaaralUnit_init" version="1.0.0" creationDate="1611908172" lastModifiedDate="1611908207">
 					<vars>
 						<inputVars>
-							<var name="sen1" type="@BZTemperatureSensor"/>
-							<var name="sen2" type="@BZTemperatureSensor"/>
-							<var name="fAvgPtr" type="@REAL"/>
+							<var name="me" type="@bzSaaralUnit"/>
 						</inputVars>
-						<localVars>
-							<var name="i" type="INT"/>
-							<var name="fLowPtr" type="@REAL"/>
-							<var name="fHighPtr" type="@REAL"/>
-							<var name="fHigh" type="REAL">
-								<initValue>0</initValue>
-							</var>
-							<var name="fLow" type="REAL">
-								<initValue>0</initValue>
-							</var>
-							<var name="fAvg" type="REAL">
-								<initValue>0</initValue>
-							</var>
-						</localVars>
 					</vars>
 					<iecDeclaration active="FALSE"/>
+					<interfaces/>
+					<methods/>
 					<sourceCode type="ST">
 						<![CDATA[
 
-fAvg := 0.0;
-fLow := 0.0;
-fHigh := 0.0;
-
-i := 0;
-if @sen1.bIsAvailable then
-	fAvg := fAvg + BZTemperatureSensor_read(sen1, @sen1.m_enUnit);
-	fLow := BZTemperatureSensor_read(sen1, @sen1.m_enUnit);
-	fHigh := BZTemperatureSensor_read(sen1, @sen1.m_enUnit);
-	i := i + 1;
-else ;
-end_if;
-
-if @sen2.bIsAvailable then
-	fAvg := fAvg + BZTemperatureSensor_read(sen2, @sen2.m_enUnit);
-	
-	if (BZTemperatureSensor_read(sen2, @sen2.m_enUnit) < fLow) then
-		fLow := BZTemperatureSensor_read(sen2, @sen2.m_enUnit);
-	end_if;
-	
-	if (BZTemperatureSensor_read(sen2, @sen2.m_enUnit) > fHigh) then
-		fHigh := BZTemperatureSensor_read(sen2, @sen2.m_enUnit);
-	end_if;
-	
-	i := i + 1;
-else ;
-end_if;
-
-
-if (i = 0) then
-	@fAvgPtr := -3276.8;
-else
-	@fAvgPtr := fAvg / TO_REAL(i);
-end_if;
-
-/*
-if (not @sen1.bIsAvailable and not @sen2.bIsAvailable) then
-	@fLowPtr := -3276.8;
-	@fHighPtr := -3276.8;
-else ;
-end_if;
-*/
-
-bzIProcess2Temperatures := TRUE;
+@me.NTCProbes[0] := ?(@me.RATu);
+@me.NTCProbes[1] := ?(@me.RATl);
+@me.NTCProbes[2] := ?(@me.SATu);
+@me.NTCProbes[3] := ?(@me.SATl);
+@me.NTCProbes[4] := ?(@me.RCT1);
+@me.NTCProbes[5] := ?(@me.RCT2);
+@me.NTCProbes[6] := ?(@me.Tcoil_inlet);
 ]]>
 					</sourceCode>
-				</function>
-			</functions>
-			<functionBlocks/>
+				</functionBlock>
+			</functionBlocks>
 			<programs>
-				<program name="main" version="1.0.0" creationDate="0" lastModifiedDate="1611819938">
+				<program name="main" version="1.0.0" creationDate="0" lastModifiedDate="1611906965">
 					<vars>
 						<localVars>
 							<var name="i" type="INT"/>
@@ -544,7 +513,8 @@ bzIProcess2Temperatures := TRUE;
  * machine control
  *
  */
-res := bzSaaralUnit_run(?g_saaral_unit);
+g_saaral_unit.run.me := ?g_saaral_unit;
+g_saaral_unit.run();
 
 
 /**
@@ -734,7 +704,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</program>
-				<program name="init" version="1.0.0" creationDate="1611809132" lastModifiedDate="1611820452">
+				<program name="init" version="1.0.0" creationDate="1611809132" lastModifiedDate="1611908413">
 					<vars>
 						<localVars>
 							<var name="res" type="BOOL"/>
@@ -764,7 +734,8 @@ res := BZTemperatureSensor_new(?(g_saaral_unit.Tcoil_inlet), 	enCelcius, ?HW_AI_
  * initialize the unit
  *
  */
-res := bzSaaralUnit_init(?g_saaral_unit);
+g_saaral_unit.init.me := ?g_saaral_unit;
+g_saaral_unit.init();
 ]]>
 					</sourceCode>
 				</program>
@@ -931,14 +902,23 @@ of the actual position.</descr>
 						<var name="fRACh" type="REAL">
 							<descr>Max of local rack inlet air temperature</descr>
 						</var>
-						<var name="TemperatureSensors" type="@BZTemperatureSensor" dim0="7">
-							<descr>Object reference of the temperature sensor</descr>
-						</var>
 						<var name="Tcoil_inlet" type="BZTemperatureSensor">
 							<descr>Coil inlet temperature sensor</descr>
 						</var>
 						<var name="fTcoil" type="REAL">
 							<descr>Liquid temperature at evaporator coil inlet side</descr>
+						</var>
+						<var name="pickupTemperatures" type="bzSaaralUnit_pickup_temperature">
+							<descr>Method to calculate the max, min and mean of the specific temperatures</descr>
+						</var>
+						<var name="run" type="bzSaaralUnit_run">
+							<descr>Public method to execute the control process</descr>
+						</var>
+						<var name="NTCProbes" type="@BZTemperatureSensor" dim0="8">
+							<descr>References of all temperature sensor objects</descr>
+						</var>
+						<var name="init" type="bzSaaralUnit_init">
+							<descr>Public method to initialize a 'Saaral' object. Call me right after instantiating an object. </descr>
 						</var>
 					</vars>
 				</struct>
@@ -54092,7 +54072,7 @@ END_PROGRAM
 			</src>
 		</aux>
 		<workspace>
-			<root name="BZ172Lab" nextID="1347">
+			<root name="BZ172Lab" nextID="1665">
 				<GlobalVars name="Global_vars" id="11"/>
 				<Pou name="main" id="2"/>
 				<folder id="16" name="BZ172Lab">
@@ -54140,9 +54120,9 @@ END_PROGRAM
 				<folder name="Machines" id="746">
 					<folder name="Saaral" id="747">
 						<Definition name="bzSaaralUnit" id="748" genHidden="false"/>
-						<Pou name="bzSaaralUnit_init" id="749"/>
-						<Pou name="bzSaaralUnit_run" id="809"/>
-						<Pou name="bzIProcess2Temperatures" id="941"/>
+						<Pou name="bzSaaralUnit_pickup_temperature" id="1456"/>
+						<Pou name="bzSaaralUnit_run" id="1518"/>
+						<Pou name="bzSaaralUnit_init" id="1645"/>
 					</folder>
 				</folder>
 			</root>
