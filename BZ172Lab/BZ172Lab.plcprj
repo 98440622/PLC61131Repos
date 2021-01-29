@@ -20,7 +20,13 @@
 			<globalVars>
 				<group name="Global_vars">
 					<var name="cnt" type="INT"/>
-					<var name="SATu" type="BZTemperatureSensor"/>
+					<var name="AI1_NTCProbe" type="BZTemperatureSensor"/>
+					<var name="AI2_NTCProbe" type="BZTemperatureSensor"/>
+					<var name="AI3_NTCProbe" type="BZTemperatureSensor"/>
+					<var name="AI4_NTCProbe" type="BZTemperatureSensor"/>
+					<var name="AI5_NTCProbe" type="BZTemperatureSensor"/>
+					<var name="AI6_NTCProbe" type="BZTemperatureSensor"/>
+					<var name="AI7_NTCProbe" type="BZTemperatureSensor"/>
 					<var name="gSaaralUnit" type="bzSaaralUnit"/>
 				</group>
 			</globalVars>
@@ -32,7 +38,21 @@
 			</constantVars>
 			<iecVarsDeclaration>
 				<group name="Global_vars">
-					<iecDeclaration active="FALSE"/>
+					<iecDeclaration active="TRUE" valid="TRUE">
+						<![CDATA[VAR_GLOBAL
+	cnt : INT;
+	AI1_NTCProbe : BZTemperatureSensor;
+	AI2_NTCProbe : BZTemperatureSensor;
+	AI3_NTCProbe : BZTemperatureSensor;
+	AI4_NTCProbe : BZTemperatureSensor;
+	AI5_NTCProbe : BZTemperatureSensor;
+	AI6_NTCProbe : BZTemperatureSensor;
+	AI7_NTCProbe : BZTemperatureSensor;
+	gSaaralUnit : bzSaaralUnit;
+END_VAR
+
+]]>
+					</iecDeclaration>
 				</group>
 			</iecVarsDeclaration>
 			<functions>
@@ -395,7 +415,7 @@ end_if;
 				</function>
 			</functions>
 			<functionBlocks>
-				<functionBlock name="bzSaaralUnit_pickup_temperature" version="1.0.0" creationDate="1611891178" lastModifiedDate="1611925120">
+				<functionBlock name="bzSaaralUnit_groupTemperatures" version="1.0.0" creationDate="1611891178" lastModifiedDate="1611925120">
 					<vars>
 						<inputVars>
 							<var name="me" type="@bzSaaralUnit"/>
@@ -446,7 +466,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="bzSaaralUnit_run" version="1.0.0" creationDate="1611906522" lastModifiedDate="1611925215">
+				<functionBlock name="bzSaaralUnit_run" version="1.0.0" creationDate="1611906522" lastModifiedDate="1611933620">
 					<vars>
 						<inputVars>
 							<var name="me" type="@bzSaaralUnit"/>
@@ -463,34 +483,18 @@ end_if;
 						<![CDATA[
 
 for i := 0 TO 6 DO
-	res := BZTemperatureSensor_update(@me.NTCProbes[i]);
+	res := BZTemperatureSensor_update(@me.TempSensors[i]);
 end_for ;
 
 
-@me.pickupTemperatures.me := me;
-@me.pickupTemperatures.Sensors[0] := ?(@me.RATl);
-@me.pickupTemperatures.Sensors[1] := ?(@me.RATu);
-@me.pickupTemperatures.NbrOfSen := 2;
-@me.pickupTemperatures();
-@me.fRATg := @me.pickupTemperatures.Mean;
+@me.ReturnAirSensors();
+@me.SupplyAirSensors();
+@me.RackAirSensors();
 
-@me.pickupTemperatures.me := me;
-@me.pickupTemperatures.Sensors[0] := ?(@me.SATl);
-@me.pickupTemperatures.Sensors[1] := ?(@me.SATu);
-@me.pickupTemperatures.NbrOfSen := 2;
-@me.pickupTemperatures();
-@me.fSATg := @me.pickupTemperatures.Mean;
-
-@me.pickupTemperatures.me := me;
-@me.pickupTemperatures.Sensors[0] := ?(@me.RCT1);
-@me.pickupTemperatures.Sensors[1] := ?(@me.RCT2);
-@me.pickupTemperatures.NbrOfSen := 2;
-@me.pickupTemperatures();
-@me.fRACh := @me.pickupTemperatures.High;
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="bzSaaralUnit_init" version="1.0.0" creationDate="1611908172" lastModifiedDate="1611908207">
+				<functionBlock name="bzSaaralUnit_init" version="1.0.0" creationDate="1611908172" lastModifiedDate="1611933543">
 					<vars>
 						<inputVars>
 							<var name="me" type="@bzSaaralUnit"/>
@@ -502,19 +506,19 @@ end_for ;
 					<sourceCode type="ST">
 						<![CDATA[
 
-@me.NTCProbes[0] := ?(@me.RATu);
-@me.NTCProbes[1] := ?(@me.RATl);
-@me.NTCProbes[2] := ?(@me.SATu);
-@me.NTCProbes[3] := ?(@me.SATl);
-@me.NTCProbes[4] := ?(@me.RCT1);
-@me.NTCProbes[5] := ?(@me.RCT2);
-@me.NTCProbes[6] := ?(@me.Tcoil_inlet);
+@me.TempSensors[0] := @me.ReturnAirSensors.Sensors[0];
+@me.TempSensors[1] := @me.ReturnAirSensors.Sensors[1];
+@me.TempSensors[2] := @me.SupplyAirSensors.Sensors[0];
+@me.TempSensors[3] := @me.SupplyAirSensors.Sensors[1];
+@me.TempSensors[4] := @me.RackAirSensors.Sensors[0];
+@me.TempSensors[5] := @me.RackAirSensors.Sensors[1];
+@me.TempSensors[6] := @me.EvapCoilTempSensor;
 ]]>
 					</sourceCode>
 				</functionBlock>
 			</functionBlocks>
 			<programs>
-				<program name="main" version="1.0.0" creationDate="0" lastModifiedDate="1611923916">
+				<program name="main" version="1.0.0" creationDate="0" lastModifiedDate="1611933707">
 					<vars>
 						<localVars>
 							<var name="i" type="INT"/>
@@ -539,16 +543,16 @@ gSaaralUnit.run();
  * MODBUS status variables update
  *
  */
-bzRATu := TO_INT(BZTemperatureSensor_read(?gSaaralUnit.RATu, enCelcius) * 10);
-bzRATl := TO_INT(BZTemperatureSensor_read(?gSaaralUnit.RATl, enCelcius) * 10);
-bzSATu := TO_INT(BZTemperatureSensor_read(?gSaaralUnit.SATu, enCelcius) * 10);
-bzSATl := TO_INT(BZTemperatureSensor_read(?gSaaralUnit.SATl, enCelcius) * 10);
-bzRCT1 := TO_INT(BZTemperatureSensor_read(?gSaaralUnit.RCT1, enCelcius) * 10);
-bzRCT2 := TO_INT(BZTemperatureSensor_read(?gSaaralUnit.RCT2, enCelcius) * 10);
+bzRATu := TO_INT(BZTemperatureSensor_read(gSaaralUnit.ReturnAirSensors.Sensors[0], 	enCelcius) * 10);
+bzRATl := TO_INT(BZTemperatureSensor_read(gSaaralUnit.ReturnAirSensors.Sensors[1], 	enCelcius) * 10);
+bzSATu := TO_INT(BZTemperatureSensor_read(gSaaralUnit.SupplyAirSensors.Sensors[0], 	enCelcius) * 10);
+bzSATl := TO_INT(BZTemperatureSensor_read(gSaaralUnit.SupplyAirSensors.Sensors[1], 	enCelcius) * 10);
+bzRCT1 := TO_INT(BZTemperatureSensor_read(gSaaralUnit.RackAirSensors.Sensors[0],	enCelcius) * 10);
+bzRCT2 := TO_INT(BZTemperatureSensor_read(gSaaralUnit.RackAirSensors.Sensors[1], 	enCelcius) * 10);
 
-bzRATg := TO_INT(gSaaralUnit.fRATg * 10.0);
-bzSATg := TO_INT(gSaaralUnit.fSATg * 10.0);
-bzRCTh := TO_INT(gSaaralUnit.fRACh * 10.0);
+bzRATg := TO_INT(gSaaralUnit.ReturnAirSensors.Mean 	* 10.0);
+bzSATg := TO_INT(gSaaralUnit.SupplyAirSensors.Mean 	* 10.0);
+bzRCTh := TO_INT(gSaaralUnit.RackAirSensors.High 	* 10.0);
 
 
 ]]>
@@ -721,7 +725,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</program>
-				<program name="init" version="1.0.0" creationDate="1611809132" lastModifiedDate="1611923956">
+				<program name="init" version="1.0.0" creationDate="1611809132" lastModifiedDate="1611933786">
 					<vars>
 						<localVars>
 							<var name="res" type="BOOL"/>
@@ -737,20 +741,33 @@ end_if;
  * initialize components installed on the unit according to IO map
  *
  */
-res := BZTemperatureSensor_new(?(gSaaralUnit.RATu),			enCelcius, ?HW_AI_01);
-res := BZTemperatureSensor_new(?(gSaaralUnit.RATl), 		enCelcius, ?HW_AI_02);
-res := BZTemperatureSensor_new(?(gSaaralUnit.SATu), 		enCelcius, ?HW_AI_03);
-res := BZTemperatureSensor_new(?(gSaaralUnit.SATl), 		enCelcius, ?HW_AI_04);
-res := BZTemperatureSensor_new(?(gSaaralUnit.RCT1), 		enCelcius, ?HW_AI_05);
-res := BZTemperatureSensor_new(?(gSaaralUnit.RCT2), 		enCelcius, ?HW_AI_06);
-res := BZTemperatureSensor_new(?(gSaaralUnit.Tcoil_inlet), 	enCelcius, ?HW_AI_07);
-
+res := BZTemperatureSensor_new(?AI1_NTCProbe, enCelcius, ?HW_AI_01);
+res := BZTemperatureSensor_new(?AI2_NTCProbe, enCelcius, ?HW_AI_02);
+res := BZTemperatureSensor_new(?AI3_NTCProbe, enCelcius, ?HW_AI_03);
+res := BZTemperatureSensor_new(?AI4_NTCProbe, enCelcius, ?HW_AI_04);
+res := BZTemperatureSensor_new(?AI5_NTCProbe, enCelcius, ?HW_AI_05);
+res := BZTemperatureSensor_new(?AI6_NTCProbe, enCelcius, ?HW_AI_06);
+res := BZTemperatureSensor_new(?AI7_NTCProbe, enCelcius, ?HW_AI_07);
 
 /**
  *
  * initialize the unit
  *
  */
+gSaaralUnit.ReturnAirSensors.Sensors[0] := ?AI1_NTCProbe;
+gSaaralUnit.ReturnAirSensors.Sensors[1] := ?AI2_NTCProbe;
+gSaaralUnit.ReturnAirSensors.NbrOfSen 	:= 2;
+
+gSaaralUnit.SupplyAirSensors.Sensors[0] := ?AI3_NTCProbe;
+gSaaralUnit.SupplyAirSensors.Sensors[1] := ?AI4_NTCProbe;
+gSaaralUnit.SupplyAirSensors.NbrOfSen 	:= 2;
+
+gSaaralUnit.RackAirSensors.Sensors[0]	:= ?AI5_NTCProbe;
+gSaaralUnit.RackAirSensors.Sensors[1]	:= ?AI6_NTCProbe;
+gSaaralUnit.RackAirSensors.NbrOfSen		:= 2;
+
+gSaaralUnit.EvapCoilTempSensor	:= ?AI7_NTCProbe; 
+ 
 gSaaralUnit.init.me := ?gSaaralUnit;
 gSaaralUnit.init();
 ]]>
@@ -892,46 +909,25 @@ of the actual position.</descr>
 					<title>Saaral Unit</title>
 					<descr>A type of an air conditioner unit built from a project called Saaral which is regarded as replacedment of ACRD100, but who knows how long it can survive.</descr>
 					<vars>
-						<var name="RATu" type="BZTemperatureSensor">
-							<descr>Upper return air temperature sensor</descr>
+						<var name="ReturnAirSensors" type="bzSaaralUnit_groupTemperatures">
+							<descr>Two NTC sensors on return air side</descr>
 						</var>
-						<var name="RATl" type="BZTemperatureSensor">
-							<descr>Lower return air temperature sensor</descr>
+						<var name="SupplyAirSensors" type="bzSaaralUnit_groupTemperatures">
+							<descr>Two NTC sensors on supply air side</descr>
 						</var>
-						<var name="SATu" type="BZTemperatureSensor">
-							<descr>Upper supply air temperature sensor</descr>
+						<var name="RackAirSensors" type="bzSaaralUnit_groupTemperatures">
+							<descr>Two NTC sensors in front of the server racks on customer side</descr>
 						</var>
-						<var name="SATl" type="BZTemperatureSensor">
-							<descr>Lower supply air temperature sensor</descr>
+						<var name="EvapCoilTempSensor" type="@BZTemperatureSensor">
+							<descr>One NTC sensor for coil inlet temperature</descr>
 						</var>
-						<var name="RCT1" type="BZTemperatureSensor">
-							<descr>Rack inlet air temperature sensor 1</descr>
-						</var>
-						<var name="RCT2" type="BZTemperatureSensor">
-							<descr>Rack inlet air temperature sensor 2</descr>
-						</var>
-						<var name="Tcoil_inlet" type="BZTemperatureSensor">
-							<descr>Coil inlet temperature sensor</descr>
-						</var>
-						<var name="NTCProbes" type="@BZTemperatureSensor" dim0="8">
+						<var name="TempSensors" type="@BZTemperatureSensor" dim0="8">
 							<descr>References of all temperature sensor objects</descr>
-						</var>
-						<var name="fRATg" type="REAL">
-							<descr>Average measurement of return air temperature</descr>
-						</var>
-						<var name="fSATg" type="REAL">
-							<descr>Average measurement of supply air temperature</descr>
-						</var>
-						<var name="fRACh" type="REAL">
-							<descr>Max of local rack inlet air temperature</descr>
-						</var>
-						<var name="fTcoil" type="REAL">
-							<descr>Liquid temperature at evaporator coil inlet side</descr>
 						</var>
 						<var name="init" type="bzSaaralUnit_init">
 							<descr>Public method to initialize a 'Saaral' object. Call me right after instantiating an object.</descr>
 						</var>
-						<var name="pickupTemperatures" type="bzSaaralUnit_pickup_temperature">
+						<var name="groupTemperatures" type="bzSaaralUnit_groupTemperatures">
 							<descr>Method to calculate the max, min and mean of the specific temperatures</descr>
 						</var>
 						<var name="run" type="bzSaaralUnit_run">
@@ -54089,7 +54085,7 @@ END_PROGRAM
 			</src>
 		</aux>
 		<workspace>
-			<root name="BZ172Lab" nextID="1858">
+			<root name="BZ172Lab" nextID="2122">
 				<GlobalVars name="Global_vars" id="11"/>
 				<Pou name="main" id="2"/>
 				<folder id="16" name="BZ172Lab">
@@ -54137,7 +54133,7 @@ END_PROGRAM
 				<folder name="Machines" id="746">
 					<folder name="Saaral" id="747">
 						<Definition name="bzSaaralUnit" id="748" genHidden="false"/>
-						<Pou name="bzSaaralUnit_pickup_temperature" id="1456"/>
+						<Pou name="bzSaaralUnit_groupTemperatures" id="1456"/>
 						<Pou name="bzSaaralUnit_run" id="1518"/>
 						<Pou name="bzSaaralUnit_init" id="1645"/>
 					</folder>
