@@ -75,7 +75,7 @@
 						<ACCESS>RO</ACCESS>
 						<DESC/>
 						<ZORDER>7</ZORDER>
-						<VAR type="INT">@LocalParameters.AIL1</VAR>
+						<VAR type="INT">@LocalParameters.bzRATg</VAR>
 						<TYPE>INT</TYPE>
 						<REFRESH>TRUE</REFRESH>
 						<VISIBLE>TRUE</VISIBLE>
@@ -113,7 +113,7 @@
 						<ACCESS>RO</ACCESS>
 						<DESC/>
 						<ZORDER>8</ZORDER>
-						<VAR type="INT">@LocalParameters.AIL2</VAR>
+						<VAR type="INT">@LocalParameters.bzSATg</VAR>
 						<TYPE>INT</TYPE>
 						<REFRESH>TRUE</REFRESH>
 						<VISIBLE>TRUE</VISIBLE>
@@ -151,7 +151,7 @@
 						<ACCESS>RO</ACCESS>
 						<DESC/>
 						<ZORDER>9</ZORDER>
-						<VAR type="INT">@LocalParameters.AIL3</VAR>
+						<VAR type="INT">@LocalParameters.bzRCTh</VAR>
 						<TYPE>INT</TYPE>
 						<REFRESH>TRUE</REFRESH>
 						<VISIBLE>TRUE</VISIBLE>

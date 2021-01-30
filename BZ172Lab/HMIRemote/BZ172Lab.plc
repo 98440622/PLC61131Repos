@@ -21,9 +21,9 @@ VAR_GLOBAL
 	{G:"TempSyncByCAN_vars"}
 	fbTempSyncByCAN : DrawTempSyncByCAN;
 	fbRefrTempSyncByCAN : RefrTempSyncByCAN;
-	fbTempSyncByCANEdit_7 : EditBox01 := (x1:=18, y1:=8, x2:=47, y2:=15, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, pVar:=16#00209000, order:=1, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#0000000C, pCanSel:=1);
-	fbTempSyncByCANEdit_8 : EditBox01 := (wHnd:=1, x1:=18, y1:=24, x2:=47, y2:=31, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, pVar:=16#00209100, order:=2, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#0000000C, pCanSel:=1);
-	fbTempSyncByCANEdit_9 : EditBox01 := (wHnd:=2, x1:=18, y1:=40, x2:=47, y2:=47, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, pVar:=16#00209200, order:=3, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#0000000C, pCanSel:=1);
+	fbTempSyncByCANEdit_7 : EditBox01 := (x1:=18, y1:=8, x2:=47, y2:=15, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, pVar:=16#00230C00, order:=1, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#0000000C, pCanSel:=1);
+	fbTempSyncByCANEdit_8 : EditBox01 := (wHnd:=1, x1:=18, y1:=24, x2:=47, y2:=31, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, pVar:=16#00230F00, order:=2, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#0000000C, pCanSel:=1);
+	fbTempSyncByCANEdit_9 : EditBox01 := (wHnd:=2, x1:=18, y1:=40, x2:=47, y2:=47, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, pVar:=16#00231200, order:=3, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#0000000C, pCanSel:=1);
 	fbTempSyncByCANEdit_10 : EditBox01 := (wHnd:=3, x1:=84, y1:=24, x2:=113, y2:=31, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, pVar:=16#002AD100, order:=4, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#0000000C, pCanSel:=1);
 	fbTempSyncByCANEdit_11 : EditBox01 := (wHnd:=4, x1:=84, y1:=8, x2:=113, y2:=15, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, pVar:=16#002AD000, order:=5, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#0000000C, pCanSel:=1);
 	fbTempSyncByCANEdit_12 : EditBox01 := (wHnd:=5, x1:=84, y1:=40, x2:=113, y2:=47, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, pVar:=16#002AD200, order:=6, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#0000000C, pCanSel:=1);
