@@ -20,13 +20,6 @@
 			<globalVars>
 				<group name="Global_vars">
 					<var name="cnt" type="INT"/>
-					<var name="AI1_NTCProbe" type="BZTemperatureSensor"/>
-					<var name="AI2_NTCProbe" type="BZTemperatureSensor"/>
-					<var name="AI3_NTCProbe" type="BZTemperatureSensor"/>
-					<var name="AI4_NTCProbe" type="BZTemperatureSensor"/>
-					<var name="AI5_NTCProbe" type="BZTemperatureSensor"/>
-					<var name="AI6_NTCProbe" type="BZTemperatureSensor"/>
-					<var name="AI7_NTCProbe" type="BZTemperatureSensor"/>
 					<var name="ptrHWAIs" type="@INT" dim0="8"/>
 					<var name="NTCProbes" type="BZTemperatureSensor" dim0="8"/>
 					<var name="gSaaralUnit" type="bzSaaralUnit"/>
@@ -330,7 +323,7 @@ BZActuatorBase_SetMode := TRUE;
 ]]>
 					</sourceCode>
 				</function>
-				<function name="IBZTemperatureSensor_new" version="1.0.0" creationDate="1611807303" lastModifiedDate="1612017130">
+				<function name="IBZTemperatureSensor_new" version="1.0.0" creationDate="1611807303" lastModifiedDate="1612166812">
 					<returnValue>BOOL</returnValue>
 					<vars>
 						<inputVars>
@@ -356,6 +349,7 @@ BZActuatorBase_SetMode := TRUE;
 // initialize 'this' for methods
 //
 @me.update.me := me;
+@me.read.me := me;
 
 IBZTemperatureSensor_new := TRUE;
 ]]>
@@ -562,6 +556,26 @@ else
 	@me.bIsAvailable := FALSE;
 	@me.m_fValue := -3276.8;
 end_if;
+
+]]>
+					</sourceCode>
+				</functionBlock>
+				<functionBlock name="BZTemperatureSensor_read" version="1.0.0" creationDate="1612166024" lastModifiedDate="1612166601">
+					<vars>
+						<inputVars>
+							<var name="me" type="@BZTemperatureSensor"/>
+							<var name="as_type" type="BZTemperatureUnitE"/>
+						</inputVars>
+						<outputVars>
+							<var name="value" type="REAL"/>
+						</outputVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<interfaces/>
+					<methods/>
+					<sourceCode type="ST">
+						<![CDATA[
+value := IBZTemperatureSensor_read(me, as_type);
 
 ]]>
 					</sourceCode>
@@ -958,6 +972,9 @@ of the actual position.</descr>
 						</var>
 						<var name="update" type="BZTemperatureSensor_update">
 							<descr>Public method to update the reading.</descr>
+						</var>
+						<var name="read" type="BZTemperatureSensor_read">
+							<descr>Public method to read the measurement according to the given type of unit.</descr>
 						</var>
 					</vars>
 				</struct>
@@ -54149,7 +54166,7 @@ END_PROGRAM
 			</src>
 		</aux>
 		<workspace>
-			<root name="BZ172Lab" nextID="2665">
+			<root name="BZ172Lab" nextID="2782">
 				<GlobalVars name="Global_vars" id="11"/>
 				<Pou name="main" id="2"/>
 				<folder id="16" name="BZ172Lab">
@@ -54180,6 +54197,7 @@ END_PROGRAM
 							<Pou name="IBZTemperatureSensor_update" id="622"/>
 							<Pou name="IBZTemperatureSensor_read" id="623"/>
 							<Pou name="BZTemperatureSensor_update" id="2416"/>
+							<Pou name="BZTemperatureSensor_read" id="2736"/>
 						</folder>
 					</folder>
 					<folder name="Types" id="37">
@@ -55169,6 +55187,170 @@ END_PROGRAM
 								<ipa>10046</ipa>
 								<defval/>
 							</biosParam>
+							<biosParam>
+								<ipa>10003</ipa>
+								<defval>0</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10010</ipa>
+								<defval>0</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10012</ipa>
+								<defval>0</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10011</ipa>
+								<defval>0</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10013</ipa>
+								<defval>0</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10014</ipa>
+								<defval>0</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10015</ipa>
+								<defval>0</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10372</ipa>
+								<defval>0</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10373</ipa>
+								<defval>0</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10025</ipa>
+								<defval>1</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10026</ipa>
+								<defval>2</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10339</ipa>
+								<defval>0</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10397</ipa>
+								<defval>1000</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10340</ipa>
+								<defval>0</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10342</ipa>
+								<defval>0</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10344</ipa>
+								<defval>0</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10346</ipa>
+								<defval>0</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10348</ipa>
+								<defval>0</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10360</ipa>
+								<defval>0</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10362</ipa>
+								<defval>0</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10363</ipa>
+								<defval>1000</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10361</ipa>
+								<defval>1000</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10349</ipa>
+								<defval>1000</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10347</ipa>
+								<defval>1000</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10345</ipa>
+								<defval>1000</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10343</ipa>
+								<defval>1000</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10341</ipa>
+								<defval>1000</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10350</ipa>
+								<defval>0</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10351</ipa>
+								<defval>0</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10364</ipa>
+								<defval>0</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10366</ipa>
+								<defval>0</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10368</ipa>
+								<defval>0</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10370</ipa>
+								<defval>0</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10374</ipa>
+								<defval>0</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10375</ipa>
+								<defval>0</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10376</ipa>
+								<defval>0</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10377</ipa>
+								<defval>0</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10371</ipa>
+								<defval>1000</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10369</ipa>
+								<defval>1000</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10367</ipa>
+								<defval>1000</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10365</ipa>
+								<defval>1000</defval>
+							</biosParam>
 						</biosParams>
 						<executionTime custom="0">20</executionTime>
 						<webmenus/>
@@ -55195,8 +55377,8 @@ END_PROGRAM
 							<commstring>Modbus:1,1000#COM:1,38400,E,8,1</commstring>
 							<values stopNodeParsing="true">
 								<value ipa="10000" subidx="0">0</value>
-								<value ipa="10001" subidx="0">1031</value>
-								<value ipa="10002" subidx="0">0</value>
+								<value ipa="10001" subidx="0">2055</value>
+								<value ipa="10002" subidx="0">1</value>
 								<value ipa="10003" subidx="0">0</value>
 								<value ipa="10004" subidx="0">2</value>
 								<value ipa="10005" subidx="0">2</value>
@@ -55236,25 +55418,25 @@ END_PROGRAM
 								<value ipa="10038" subidx="0">1</value>
 								<value ipa="10039" subidx="0">2</value>
 								<value ipa="10040" subidx="0">2</value>
-								<value ipa="10041" subidx="0">65535</value>
+								<value ipa="10041" subidx="0">0</value>
 								<value ipa="10042" subidx="0">0</value>
-								<value ipa="10043" subidx="0">65535</value>
+								<value ipa="10043" subidx="0">502</value>
 								<value ipa="10044" subidx="0">10</value>
 								<value ipa="10045" subidx="0">0</value>
 								<value ipa="10046" subidx="0">0</value>
 								<value ipa="10047" subidx="0">100</value>
-								<value ipa="10048" subidx="0">10</value>
-								<value ipa="10049" subidx="0">0</value>
-								<value ipa="10050" subidx="0">0</value>
+								<value ipa="10048" subidx="0">192</value>
+								<value ipa="10049" subidx="0">168</value>
+								<value ipa="10050" subidx="0">1</value>
 								<value ipa="10051" subidx="0">1</value>
 								<value ipa="10052" subidx="0">255</value>
 								<value ipa="10053" subidx="0">255</value>
 								<value ipa="10054" subidx="0">255</value>
 								<value ipa="10055" subidx="0">0</value>
-								<value ipa="10056" subidx="0">8</value>
-								<value ipa="10057" subidx="0">8</value>
-								<value ipa="10058" subidx="0">8</value>
-								<value ipa="10059" subidx="0">8</value>
+								<value ipa="10056" subidx="0">192</value>
+								<value ipa="10057" subidx="0">168</value>
+								<value ipa="10058" subidx="0">1</value>
+								<value ipa="10059" subidx="0">1</value>
 								<value ipa="10060" subidx="0">8</value>
 								<value ipa="10061" subidx="0">8</value>
 								<value ipa="10062" subidx="0">4</value>
@@ -55267,18 +55449,18 @@ END_PROGRAM
 								<value ipa="10069" subidx="0">0</value>
 								<value ipa="10070" subidx="0">30</value>
 								<value ipa="10071" subidx="0">10</value>
-								<value ipa="10072" subidx="0">284</value>
-								<value ipa="10073" subidx="0">306</value>
-								<value ipa="10074" subidx="0">186</value>
-								<value ipa="10075" subidx="0">188</value>
-								<value ipa="10076" subidx="0">252</value>
-								<value ipa="10077" subidx="0">205</value>
-								<value ipa="10078" subidx="0">254</value>
-								<value ipa="10079" subidx="0">236</value>
-								<value ipa="10080" subidx="0">0</value>
-								<value ipa="10081" subidx="0">0</value>
-								<value ipa="10082" subidx="0">-32768</value>
-								<value ipa="10083" subidx="0">-32768</value>
+								<value ipa="10072" subidx="0">313</value>
+								<value ipa="10073" subidx="0">323</value>
+								<value ipa="10074" subidx="0">218</value>
+								<value ipa="10075" subidx="0">223</value>
+								<value ipa="10076" subidx="0">176</value>
+								<value ipa="10077" subidx="0">182</value>
+								<value ipa="10078" subidx="0">253</value>
+								<value ipa="10079" subidx="0">235</value>
+								<value ipa="10080" subidx="0">79</value>
+								<value ipa="10081" subidx="0">79</value>
+								<value ipa="10082" subidx="0">1</value>
+								<value ipa="10083" subidx="0">0</value>
 								<value ipa="10084" subidx="0">0</value>
 								<value ipa="10085" subidx="0">0</value>
 								<value ipa="10086" subidx="0">1</value>
@@ -55325,17 +55507,17 @@ END_PROGRAM
 								<value ipa="10131" subidx="0">0</value>
 								<value ipa="10132" subidx="0">0</value>
 								<value ipa="10133" subidx="0">0</value>
-								<value ipa="10134" subidx="0">1</value>
-								<value ipa="10135" subidx="0">1</value>
+								<value ipa="10134" subidx="0">0</value>
+								<value ipa="10135" subidx="0">0</value>
 								<value ipa="10136" subidx="0">0</value>
-								<value ipa="10137" subidx="0">0</value>
+								<value ipa="10137" subidx="0">1</value>
 								<value ipa="10138" subidx="0">0</value>
 								<value ipa="10139" subidx="0">0</value>
 								<value ipa="10140" subidx="0">0</value>
-								<value ipa="10141" subidx="0">0</value>
-								<value ipa="10142" subidx="0">1</value>
-								<value ipa="10143" subidx="0">1</value>
-								<value ipa="10144" subidx="0">0</value>
+								<value ipa="10141" subidx="0">4</value>
+								<value ipa="10142" subidx="0">19</value>
+								<value ipa="10143" subidx="0">3</value>
+								<value ipa="10144" subidx="0">20</value>
 								<value ipa="10145" subidx="0">0</value>
 								<value ipa="10146" subidx="0">4294967295</value>
 								<value ipa="10147" subidx="0">32439</value>
@@ -55533,7 +55715,7 @@ END_PROGRAM
 								<value ipa="10339" subidx="0">0</value>
 								<value ipa="10397" subidx="0">1000</value>
 								<value ipa="10340" subidx="0">0</value>
-								<value ipa="10341" subidx="0">3000</value>
+								<value ipa="10341" subidx="0">1000</value>
 								<value ipa="10342" subidx="0">0</value>
 								<value ipa="10343" subidx="0">1000</value>
 								<value ipa="10344" subidx="0">0</value>
@@ -55546,8 +55728,8 @@ END_PROGRAM
 								<value ipa="10361" subidx="0">1000</value>
 								<value ipa="10362" subidx="0">0</value>
 								<value ipa="10363" subidx="0">1000</value>
-								<value ipa="10350" subidx="0">3</value>
-								<value ipa="10351" subidx="0">2</value>
+								<value ipa="10350" subidx="0">0</value>
+								<value ipa="10351" subidx="0">0</value>
 								<value ipa="10352" subidx="0">1000</value>
 								<value ipa="10353" subidx="0">1</value>
 								<value ipa="10356" subidx="0">3</value>
@@ -55576,8 +55758,8 @@ END_PROGRAM
 								<value ipa="10385" subidx="0">24</value>
 								<value ipa="10386" subidx="0">187</value>
 								<value ipa="10387" subidx="0">0</value>
-								<value ipa="10388" subidx="0">0</value>
-								<value ipa="10389" subidx="0">0</value>
+								<value ipa="10388" subidx="0">79</value>
+								<value ipa="10389" subidx="0">145</value>
 								<value ipa="10390" subidx="0">0</value>
 								<value ipa="10391" subidx="0">0</value>
 								<value ipa="10392" subidx="0">0</value>
@@ -55596,24 +55778,24 @@ END_PROGRAM
 								<value ipa="20045" subidx="0">0</value>
 								<value ipa="20046" subidx="0">0</value>
 								<value ipa="20047" subidx="0">100</value>
-								<value ipa="20048" subidx="0">10</value>
-								<value ipa="20049" subidx="0">0</value>
-								<value ipa="20050" subidx="0">0</value>
+								<value ipa="20048" subidx="0">192</value>
+								<value ipa="20049" subidx="0">168</value>
+								<value ipa="20050" subidx="0">1</value>
 								<value ipa="20051" subidx="0">1</value>
 								<value ipa="20052" subidx="0">255</value>
 								<value ipa="20053" subidx="0">255</value>
 								<value ipa="20054" subidx="0">255</value>
 								<value ipa="20055" subidx="0">0</value>
-								<value ipa="20056" subidx="0">8</value>
-								<value ipa="20057" subidx="0">8</value>
-								<value ipa="20058" subidx="0">8</value>
-								<value ipa="20059" subidx="0">8</value>
+								<value ipa="20056" subidx="0">192</value>
+								<value ipa="20057" subidx="0">168</value>
+								<value ipa="20058" subidx="0">1</value>
+								<value ipa="20059" subidx="0">1</value>
 								<value ipa="20060" subidx="0">8</value>
 								<value ipa="20061" subidx="0">8</value>
 								<value ipa="20062" subidx="0">4</value>
 								<value ipa="20063" subidx="0">4</value>
-								<value ipa="11311" subidx="0">1</value>
-								<value ipa="11312" subidx="0">65535</value>
+								<value ipa="11311" subidx="0">0</value>
+								<value ipa="11312" subidx="0">0</value>
 								<value ipa="10407" subidx="0">322</value>
 								<value ipa="10437" subidx="0">0</value>
 								<value ipa="10408" subidx="0">0</value>
@@ -55645,22 +55827,22 @@ END_PROGRAM
 								<value ipa="10435" subidx="0"/>
 								<value ipa="10436" subidx="0"/>
 								<value ipa="10438" subidx="0"/>
-								<value ipa="50000" subidx="0">administrator</value>
+								<value ipa="50000" subidx="0">***************</value>
 								<value ipa="50001" subidx="0">***************</value>
 								<value ipa="50002" subidx="0">***************</value>
 								<value ipa="50003" subidx="0">0</value>
 								<value ipa="50004" subidx="0">0</value>
 								<value ipa="5012" subidx="0"/>
 								<value ipa="5010" subidx="0"/>
-								<value ipa="5005" subidx="0">0</value>
-								<value ipa="5007" subidx="0">0</value>
-								<value ipa="5011" subidx="0">0</value>
-								<value ipa="5013" subidx="0">0</value>
-								<value ipa="5014" subidx="0">0</value>
-								<value ipa="5015" subidx="0">0</value>
-								<value ipa="5016" subidx="0">0</value>
-								<value ipa="5017" subidx="0">0</value>
-								<value ipa="5018" subidx="0">0</value>
+								<value ipa="5005" subidx="0">313</value>
+								<value ipa="5007" subidx="0">323</value>
+								<value ipa="5011" subidx="0">318</value>
+								<value ipa="5013" subidx="0">218</value>
+								<value ipa="5014" subidx="0">223</value>
+								<value ipa="5015" subidx="0">220</value>
+								<value ipa="5016" subidx="0">176</value>
+								<value ipa="5017" subidx="0">182</value>
+								<value ipa="5018" subidx="0">182</value>
 								<value ipa="5008" subidx="0">0</value>
 								<value ipa="5009" subidx="0">0</value>
 								<value ipa="5003" subidx="0">0</value>
