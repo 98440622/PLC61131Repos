@@ -22,7 +22,7 @@
 					<var name="cnt" type="INT"/>
 					<var name="ptrHWAIs" type="@INT" dim0="8"/>
 					<var name="NTCProbes" type="BZTemperatureSensor" dim0="8"/>
-					<var name="gSaaralUnit" type="bzSaaralUnit"/>
+					<var name="ACUnit" type="bzSaaralUnit"/>
 					<var name="TachoMeter" type="BZCarelUXPB000100111"/>
 					<var name="OutdoorUnit" type="BZCSCB1"/>
 				</group>
@@ -409,7 +409,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</function>
-				<function name="IbzSaaralUnit_new" version="1.0.0" creationDate="1612017920" lastModifiedDate="1612018588">
+				<function name="IbzSaaralUnit_new" version="1.0.0" creationDate="1612017920" lastModifiedDate="1612340025">
 					<returnValue>BOOL</returnValue>
 					<vars>
 						<inputVars>
@@ -422,23 +422,25 @@ end_if;
 //
 // initialize properties
 //
-@me.strModelNO := 'M172';
-@me.strSerialNO := 'IEC6113-3';
+@me.strModelNO	:= 'M172';
+@me.strSerialNO	:= 'IEC6113-3';
 
 //
 // initialize 'this' for public methods
 //
-@me.groupRackAirSensors.me := me;
-@me.groupReturnAirSensors.me := me;
-@me.groupSupplyAirSensors.me := me;
-@me.run.me := me;
+@me.groupRackAirSensors.me 		:= me;
+@me.groupReturnAirSensors.me 	:= me;
+@me.groupSupplyAirSensors.me 	:= me;
+@me.run.me 						:= me;
+@me.poll.me 					:= me;
+
 
 IbzSaaralUnit_new := TRUE;
 
 ]]>
 					</sourceCode>
 				</function>
-				<function name="IBZMBDevice_new" version="1.0.0" creationDate="1612238910" lastModifiedDate="1612239232">
+				<function name="IBZMBDevice_new" version="1.0.0" creationDate="1612238910" lastModifiedDate="1612338530">
 					<returnValue>BOOL</returnValue>
 					<vars>
 						<inputVars>
@@ -458,6 +460,7 @@ IbzSaaralUnit_new := TRUE;
 //
 // initialize 'this' for methods
 //
+@me.read.me := me;
 
 IBZMBDevice_new := TRUE;
 ]]>
@@ -663,15 +666,102 @@ value := IBZTemperatureSensor_read(me, as_type);
 ]]>
 					</sourceCode>
 				</functionBlock>
+				<functionBlock name="BZMBDevice_read" version="1.0.0" creationDate="1612336253" lastModifiedDate="1612338004">
+					<vars>
+						<inoutVars>
+							<var name="regs" type="INT" dim0="100"/>
+						</inoutVars>
+						<inputVars>
+							<var name="me" type="@BZMBDevice"/>
+							<var name="addr" type="UINT"/>
+							<var name="nbr" type="UINT"/>
+							<var name="type" type="BZModbusRegisterTypeE"/>
+						</inputVars>
+						<outputVars>
+							<var name="rtn" type="BOOL"/>
+						</outputVars>
+						<localVars>
+							<var name="res" type="UINT"/>
+						</localVars>
+						<localConsts>
+							<const name="TIMEOUT" type="UINT">
+								<initValue>100</initValue>
+							</const>
+						</localConsts>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<interfaces/>
+					<methods/>
+					<sourceCode type="ST">
+						<![CDATA[
+rtn := TRUE;
+
+if (type = BZMBCoil) then 
+	;//sysMbMRTU_FC01
+elsif (type = BZMBDiscreteInput) then
+	;//sysMbMRTU_FC02
+elsif (type = BZMBInputRegister) then
+	;//sysMbMRTU_FC04
+elsif (type = BZMBHoldingRegister) then
+	res := sysMbMRTU_FC03(@me.Id, addr, nbr, ?regs, TIMEOUT);
+else 
+	rtn := FALSE;
+end_if;
+
+if (rtn) then
+	if (res > 0) then
+		rtn := FALSE;
+	else ;
+	end_if;
+else ;
+end_if;
+
+
+
+]]>
+					</sourceCode>
+				</functionBlock>
+				<functionBlock name="bzSaaralUnit_poll" version="1.0.0" creationDate="1612339446" lastModifiedDate="1612339958">
+					<vars>
+						<inputVars>
+							<var name="me" type="@bzSaaralUnit"/>
+						</inputVars>
+						<localVars>
+							<var name="ptrFanTachoModule" type="@BZCarelUXPB000100111"/>
+							<var name="ptrOutdoorModule" type="@BZCSCB1"/>
+							<var name="reg_vals" type="INT" dim0="100"/>
+						</localVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<interfaces/>
+					<methods/>
+					<sourceCode type="ST">
+						<![CDATA[
+ptrFanTachoModule := @me.FanTachoModule;
+@ptrFanTachoModule.parent.read.type := BZMBHoldingRegister;
+@ptrFanTachoModule.parent.read.addr := @ptrFanTachoModule.parent.HoldingRegisterAddresses[0];
+@ptrFanTachoModule.parent.read.nbr := @ptrFanTachoModule.parent.NumberOfHoldingRegisters;
+@ptrFanTachoModule.parent.read.regs := reg_vals;
+@ptrFanTachoModule.parent.read();
+
+ptrOutdoorModule := @me.OutdoorModbule;
+@ptrOutdoorModule.parent.read.type := BZMBHoldingRegister;
+@ptrOutdoorModule.parent.read.addr := @ptrOutdoorModule.parent.HoldingRegisterAddresses[0];
+@ptrOutdoorModule.parent.read.nbr := @ptrOutdoorModule.parent.NumberOfHoldingRegisters;
+@ptrOutdoorModule.parent.read.regs := reg_vals;
+@ptrOutdoorModule.parent.read();
+
+]]>
+					</sourceCode>
+				</functionBlock>
 			</functionBlocks>
 			<programs>
-				<program name="main" version="1.0.0" creationDate="0" lastModifiedDate="1612252787">
+				<program name="main" version="1.0.0" creationDate="0" lastModifiedDate="1612340297">
 					<vars>
 						<localVars>
 							<var name="i" type="INT"/>
 							<var name="res" type="BOOL"/>
 							<var name="reg_res" type="UINT"/>
-							<var name="reg_vals" type="INT" dim0="20"/>
 						</localVars>
 					</vars>
 					<iecDeclaration active="FALSE"/>
@@ -683,12 +773,10 @@ value := IBZTemperatureSensor_read(me, as_type);
  * machine control
  *
  */
-gSaaralUnit.run();
+ACUnit.run();
 
-
-if (mod(cnt, 100) = 0) then
-	reg_res := sysMbMRTU_FC03(TachoMeter.parent.Id, TachoMeter.parent.HoldingRegisterAddresses[0], TachoMeter.parent.NumberOfHoldingRegisters, ?reg_vals, TO_UINT(100));
-	reg_res := sysMbMRTU_FC03(OutdoorUnit.parent.Id, OutdoorUnit.parent.HoldingRegisterAddresses[0], OutdoorUnit.parent.NumberOfHoldingRegisters, ?reg_vals, TO_UINT(100));
+if (mod(cnt, 50) = 0) then
+	ACUnit.poll();
 end_if;
 
 
@@ -697,16 +785,16 @@ end_if;
  * MODBUS status variables update
  *
  */
-bzRATu := TO_INT(IBZTemperatureSensor_read(gSaaralUnit.groupReturnAirSensors.Sensors[0], 	enCelcius) * 10);
-bzRATl := TO_INT(IBZTemperatureSensor_read(gSaaralUnit.groupReturnAirSensors.Sensors[1], 	enCelcius) * 10);
-bzSATu := TO_INT(IBZTemperatureSensor_read(gSaaralUnit.groupSupplyAirSensors.Sensors[0], 	enCelcius) * 10);
-bzSATl := TO_INT(IBZTemperatureSensor_read(gSaaralUnit.groupSupplyAirSensors.Sensors[1], 	enCelcius) * 10);
-bzRCT1 := TO_INT(IBZTemperatureSensor_read(gSaaralUnit.groupRackAirSensors.Sensors[0],		enCelcius) * 10);
-bzRCT2 := TO_INT(IBZTemperatureSensor_read(gSaaralUnit.groupRackAirSensors.Sensors[1], 		enCelcius) * 10);
+bzRATu := TO_INT(IBZTemperatureSensor_read(ACUnit.groupReturnAirSensors.Sensors[0], 	enCelcius) * 10);
+bzRATl := TO_INT(IBZTemperatureSensor_read(ACUnit.groupReturnAirSensors.Sensors[1], 	enCelcius) * 10);
+bzSATu := TO_INT(IBZTemperatureSensor_read(ACUnit.groupSupplyAirSensors.Sensors[0], 	enCelcius) * 10);
+bzSATl := TO_INT(IBZTemperatureSensor_read(ACUnit.groupSupplyAirSensors.Sensors[1], 	enCelcius) * 10);
+bzRCT1 := TO_INT(IBZTemperatureSensor_read(ACUnit.groupRackAirSensors.Sensors[0],		enCelcius) * 10);
+bzRCT2 := TO_INT(IBZTemperatureSensor_read(ACUnit.groupRackAirSensors.Sensors[1], 		enCelcius) * 10);
 
-bzRATg := TO_INT(gSaaralUnit.groupReturnAirSensors.Mean 	* 10.0);
-bzSATg := TO_INT(gSaaralUnit.groupSupplyAirSensors.Mean 	* 10.0);
-bzRCTh := TO_INT(gSaaralUnit.groupRackAirSensors.High 		* 10.0);
+bzRATg := TO_INT(ACUnit.groupReturnAirSensors.Mean 	* 10.0);
+bzSATg := TO_INT(ACUnit.groupSupplyAirSensors.Mean 	* 10.0);
+bzRCTh := TO_INT(ACUnit.groupRackAirSensors.High 	* 10.0);
 
 
 ]]>
@@ -879,7 +967,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</program>
-				<program name="init" version="1.0.0" creationDate="1611809132" lastModifiedDate="1612252654">
+				<program name="init" version="1.0.0" creationDate="1611809132" lastModifiedDate="1612340251">
 					<vars>
 						<localVars>
 							<var name="res" type="BOOL"/>
@@ -922,17 +1010,16 @@ res := sysWriteParINT(ADR(Offs_mA_AI10), 	0);
 res := sysWriteParINT(ADR(Offs_10V_AI11), 	0);
 res := sysWriteParINT(ADR(Offs_10V_AI12), 	0);
 
+// AO04 is for PWM
 // AO gain
 res := sysWriteParINT(ADR(Gain_10V_AO1),	32768);
 res := sysWriteParINT(ADR(Gain_10V_AO2),	32768);
 res := sysWriteParINT(ADR(Gain_mA_AO3),		32768);
-res := sysWriteParINT(ADR(Gain_mA_AO4),		32768);
 
 // AO offset
 res := sysWriteParINT(ADR(Offs_10V_AO1),	0);
 res := sysWriteParINT(ADR(Offs_10V_AO2),	0);
 res := sysWriteParINT(ADR(Offs_mA_AO3),		0);
-res := sysWriteParINT(ADR(Offs_mA_AO4),		0);
 
 //
 // IOs from the controller
@@ -969,24 +1056,31 @@ res := IBZCSCB1_new(?OutdoorUnit, 7);	//TODO : CSCB address should be 1
 //
 // create the unit
 //
-res := IbzSaaralUnit_new(?gSaaralUnit);
+res := IbzSaaralUnit_new(?ACUnit);
 
 //
 // connect the 'hardware' components to the unit according to the IO map
 //
-gSaaralUnit.groupReturnAirSensors.Sensors[0] := ?NTCProbes[0];
-gSaaralUnit.groupReturnAirSensors.Sensors[1] := ?NTCProbes[1];
-gSaaralUnit.groupReturnAirSensors.NbrOfSen 	:= 2;
 
-gSaaralUnit.groupSupplyAirSensors.Sensors[0] := ?NTCProbes[2];
-gSaaralUnit.groupSupplyAirSensors.Sensors[1] := ?NTCProbes[3];
-gSaaralUnit.groupSupplyAirSensors.NbrOfSen 	:= 2;
+// NTC sensors
+ACUnit.groupReturnAirSensors.Sensors[0] := ?NTCProbes[0];
+ACUnit.groupReturnAirSensors.Sensors[1] := ?NTCProbes[1];
+ACUnit.groupReturnAirSensors.NbrOfSen 	:= 2;
 
-gSaaralUnit.groupRackAirSensors.Sensors[0]	:= ?NTCProbes[4];
-gSaaralUnit.groupRackAirSensors.Sensors[1]	:= ?NTCProbes[5];
-gSaaralUnit.groupRackAirSensors.NbrOfSen		:= 2;
+ACUnit.groupSupplyAirSensors.Sensors[0] := ?NTCProbes[2];
+ACUnit.groupSupplyAirSensors.Sensors[1] := ?NTCProbes[3];
+ACUnit.groupSupplyAirSensors.NbrOfSen 	:= 2;
 
-gSaaralUnit.EvapCoilTempSensor	:= ?NTCProbes[6];
+ACUnit.groupRackAirSensors.Sensors[0]	:= ?NTCProbes[4];
+ACUnit.groupRackAirSensors.Sensors[1]	:= ?NTCProbes[5];
+ACUnit.groupRackAirSensors.NbrOfSen		:= 2;
+
+ACUnit.EvapCoilTempSensor	:= ?NTCProbes[6];
+
+// Expansion boards
+ACUnit.FanTachoModule := ?TachoMeter;
+
+ACUnit.OutdoorModbule := ?OutdoorUnit;
  
 ]]>
 					</sourceCode>
@@ -1154,6 +1248,15 @@ of the actual position.</descr>
 						<var name="run" type="bzSaaralUnit_run">
 							<descr>Public method to execute the control process</descr>
 						</var>
+						<var name="FanTachoModule" type="@BZCarelUXPB000100111">
+							<descr>Fan speed feedback measurement module by modbus RTU</descr>
+						</var>
+						<var name="OutdoorModbule" type="@BZCSCB1">
+							<descr>Outdoor control module by modbus RTU</descr>
+						</var>
+						<var name="poll" type="bzSaaralUnit_poll">
+							<descr>Method to poll the slave devices on RTU bus</descr>
+						</var>
 					</vars>
 				</struct>
 				<struct name="BZMBDevice" version="1.0.0">
@@ -1191,6 +1294,9 @@ of the actual position.</descr>
 						</var>
 						<var name="DiscreteInputs" type="BOOL" dim0="32">
 							<descr>Discrete input registers</descr>
+						</var>
+						<var name="read" type="BZMBDevice_read">
+							<descr>Method to read registers</descr>
 						</var>
 					</vars>
 				</struct>
@@ -1270,6 +1376,24 @@ of the actual position.</descr>
 						<element name="enFahrenheit">
 							<descr>Fahrenheit degree (F)</descr>
 							<value>1</value>
+						</element>
+					</elements>
+				</enum>
+				<enum name="BZModbusRegisterTypeE" version="1.0.0">
+					<title>Modbus Register Type</title>
+					<descr>Four types of modbus register enumeration.</descr>
+					<elements>
+						<element name="BZMBCoil">
+							<value>0</value>
+						</element>
+						<element name="BZMBDiscreteInput">
+							<value>1</value>
+						</element>
+						<element name="BZMBInputRegister">
+							<value>2</value>
+						</element>
+						<element name="BZMBHoldingRegister">
+							<value>3</value>
 						</element>
 					</elements>
 				</enum>
@@ -54362,7 +54486,7 @@ END_PROGRAM
 			</src>
 		</aux>
 		<workspace>
-			<root name="BZ172Lab" nextID="3085">
+			<root name="BZ172Lab" nextID="3556">
 				<GlobalVars name="Global_vars" id="11"/>
 				<Pou name="main" id="2"/>
 				<folder id="16" name="BZ172Lab">
@@ -54402,6 +54526,7 @@ END_PROGRAM
 							<Pou name="IBZCarelUXPB000100111_new" id="2908"/>
 							<Definition name="BZCSCB1" id="3014"/>
 							<Pou name="IBZCSCB1_new" id="3026"/>
+							<Pou name="BZMBDevice_read" id="3271"/>
 						</folder>
 					</folder>
 					<folder name="Types" id="37">
@@ -54410,6 +54535,7 @@ END_PROGRAM
 						<Definition name="BZRealRange" id="40"/>
 						<Definition name="BZTemperatureUnitE" id="595"/>
 						<Definition name="BZInt16RangeT" id="598"/>
+						<Definition name="BZModbusRegisterTypeE" id="3293"/>
 					</folder>
 					<folder name="Utilities" id="41">
 						<Pou name="BZComputeY" id="42"/>
@@ -54423,6 +54549,7 @@ END_PROGRAM
 						<Pou name="bzSaaralUnit_groupTemperatures" id="1456"/>
 						<Pou name="bzSaaralUnit_run" id="1518"/>
 						<Pou name="IbzSaaralUnit_new" id="2621"/>
+						<Pou name="bzSaaralUnit_poll" id="3451"/>
 					</folder>
 				</folder>
 			</root>
@@ -55505,7 +55632,7 @@ END_PROGRAM
 							</biosParam>
 							<biosParam>
 								<ipa>10351</ipa>
-								<defval>0</defval>
+								<defval>3</defval>
 							</biosParam>
 							<biosParam>
 								<ipa>10364</ipa>
@@ -55553,6 +55680,10 @@ END_PROGRAM
 							</biosParam>
 							<biosParam>
 								<ipa>10365</ipa>
+								<defval>1000</defval>
+							</biosParam>
+							<biosParam>
+								<ipa>10352</ipa>
 								<defval>1000</defval>
 							</biosParam>
 						</biosParams>
@@ -55653,28 +55784,28 @@ END_PROGRAM
 								<value ipa="10069" subidx="0">0</value>
 								<value ipa="10070" subidx="0">30</value>
 								<value ipa="10071" subidx="0">10</value>
-								<value ipa="10072" subidx="0">303</value>
-								<value ipa="10073" subidx="0">323</value>
-								<value ipa="10074" subidx="0">219</value>
-								<value ipa="10075" subidx="0">224</value>
-								<value ipa="10076" subidx="0">178</value>
-								<value ipa="10077" subidx="0">183</value>
-								<value ipa="10078" subidx="0">253</value>
-								<value ipa="10079" subidx="0">235</value>
+								<value ipa="10072" subidx="0">247</value>
+								<value ipa="10073" subidx="0">-32768</value>
+								<value ipa="10074" subidx="0">255</value>
+								<value ipa="10075" subidx="0">-32768</value>
+								<value ipa="10076" subidx="0">251</value>
+								<value ipa="10077" subidx="0">-32768</value>
+								<value ipa="10078" subidx="0">-32768</value>
+								<value ipa="10079" subidx="0">-32768</value>
 								<value ipa="10080" subidx="0">-32768</value>
-								<value ipa="10081" subidx="0">-19</value>
+								<value ipa="10081" subidx="0">-32768</value>
 								<value ipa="10082" subidx="0">1</value>
 								<value ipa="10083" subidx="0">0</value>
 								<value ipa="10084" subidx="0">0</value>
 								<value ipa="10085" subidx="0">0</value>
-								<value ipa="10086" subidx="0">1</value>
-								<value ipa="10087" subidx="0">1</value>
-								<value ipa="10088" subidx="0">1</value>
-								<value ipa="10089" subidx="0">1</value>
-								<value ipa="10090" subidx="0">1</value>
-								<value ipa="10091" subidx="0">1</value>
-								<value ipa="10092" subidx="0">1</value>
-								<value ipa="10093" subidx="0">1</value>
+								<value ipa="10086" subidx="0">0</value>
+								<value ipa="10087" subidx="0">0</value>
+								<value ipa="10088" subidx="0">0</value>
+								<value ipa="10089" subidx="0">0</value>
+								<value ipa="10090" subidx="0">0</value>
+								<value ipa="10091" subidx="0">0</value>
+								<value ipa="10092" subidx="0">0</value>
+								<value ipa="10093" subidx="0">0</value>
 								<value ipa="10094" subidx="0">0</value>
 								<value ipa="10095" subidx="0">0</value>
 								<value ipa="10096" subidx="0">0</value>
@@ -55689,9 +55820,9 @@ END_PROGRAM
 								<value ipa="10105" subidx="0">0</value>
 								<value ipa="10106" subidx="0">0</value>
 								<value ipa="10107" subidx="0">0</value>
-								<value ipa="10108" subidx="0">100</value>
+								<value ipa="10108" subidx="0">0</value>
 								<value ipa="10109" subidx="0">0</value>
-								<value ipa="10110" subidx="0">100</value>
+								<value ipa="10110" subidx="0">0</value>
 								<value ipa="10111" subidx="0">0</value>
 								<value ipa="10112" subidx="0">0</value>
 								<value ipa="10113" subidx="0">0</value>
@@ -55724,59 +55855,59 @@ END_PROGRAM
 								<value ipa="10144" subidx="0">20</value>
 								<value ipa="10145" subidx="0">0</value>
 								<value ipa="10146" subidx="0">4294967295</value>
-								<value ipa="10147" subidx="0">32439</value>
-								<value ipa="10148" subidx="0">32321</value>
+								<value ipa="10147" subidx="0">32423</value>
+								<value ipa="10148" subidx="0">32448</value>
 								<value ipa="10149" subidx="0">32768</value>
 								<value ipa="10150" subidx="0">32768</value>
-								<value ipa="10151" subidx="0">32218</value>
-								<value ipa="10152" subidx="0">32243</value>
-								<value ipa="10153" subidx="0">32295</value>
-								<value ipa="10154" subidx="0">32260</value>
-								<value ipa="10155" subidx="0">32436</value>
-								<value ipa="10156" subidx="0">32273</value>
-								<value ipa="10157" subidx="0">32453</value>
-								<value ipa="10158" subidx="0">32379</value>
+								<value ipa="10151" subidx="0">32364</value>
+								<value ipa="10152" subidx="0">32431</value>
+								<value ipa="10153" subidx="0">32459</value>
+								<value ipa="10154" subidx="0">32417</value>
+								<value ipa="10155" subidx="0">32438</value>
+								<value ipa="10156" subidx="0">32417</value>
+								<value ipa="10157" subidx="0">32322</value>
+								<value ipa="10158" subidx="0">32463</value>
 								<value ipa="10159" subidx="0">32768</value>
 								<value ipa="10160" subidx="0">32768</value>
-								<value ipa="10161" subidx="0">24605</value>
-								<value ipa="10162" subidx="0">24596</value>
-								<value ipa="10163" subidx="0">29412</value>
-								<value ipa="10164" subidx="0">29493</value>
-								<value ipa="10165" subidx="0">32079</value>
-								<value ipa="10166" subidx="0">32398</value>
-								<value ipa="10167" subidx="0">32065</value>
-								<value ipa="10168" subidx="0">32379</value>
-								<value ipa="10169" subidx="0">32056</value>
-								<value ipa="10170" subidx="0">32374</value>
-								<value ipa="10171" subidx="0">32059</value>
-								<value ipa="10172" subidx="0">32372</value>
-								<value ipa="10173" subidx="0">32047</value>
-								<value ipa="10174" subidx="0">32367</value>
-								<value ipa="10175" subidx="0">31984</value>
-								<value ipa="10176" subidx="0">32309</value>
-								<value ipa="10177" subidx="0">32018</value>
-								<value ipa="10178" subidx="0">32342</value>
-								<value ipa="10179" subidx="0">32041</value>
-								<value ipa="10180" subidx="0">32357</value>
-								<value ipa="10181" subidx="0">32070</value>
-								<value ipa="10182" subidx="0">32395</value>
-								<value ipa="10183" subidx="0">32042</value>
-								<value ipa="10184" subidx="0">32365</value>
-								<value ipa="10185" subidx="0">32081</value>
-								<value ipa="10186" subidx="0">32403</value>
-								<value ipa="10187" subidx="0">32079</value>
-								<value ipa="10188" subidx="0">32396</value>
-								<value ipa="10189" subidx="0">31505</value>
+								<value ipa="10161" subidx="0">24648</value>
+								<value ipa="10162" subidx="0">24670</value>
+								<value ipa="10163" subidx="0">29590</value>
+								<value ipa="10164" subidx="0">29706</value>
+								<value ipa="10165" subidx="0">32038</value>
+								<value ipa="10166" subidx="0">32504</value>
+								<value ipa="10167" subidx="0">32047</value>
+								<value ipa="10168" subidx="0">32514</value>
+								<value ipa="10169" subidx="0">32031</value>
+								<value ipa="10170" subidx="0">32494</value>
+								<value ipa="10171" subidx="0">32016</value>
+								<value ipa="10172" subidx="0">32476</value>
+								<value ipa="10173" subidx="0">31981</value>
+								<value ipa="10174" subidx="0">32447</value>
+								<value ipa="10175" subidx="0">32010</value>
+								<value ipa="10176" subidx="0">32480</value>
+								<value ipa="10177" subidx="0">32032</value>
+								<value ipa="10178" subidx="0">32497</value>
+								<value ipa="10179" subidx="0">31988</value>
+								<value ipa="10180" subidx="0">32448</value>
+								<value ipa="10181" subidx="0">32023</value>
+								<value ipa="10182" subidx="0">32488</value>
+								<value ipa="10183" subidx="0">32032</value>
+								<value ipa="10184" subidx="0">32499</value>
+								<value ipa="10185" subidx="0">31965</value>
+								<value ipa="10186" subidx="0">32426</value>
+								<value ipa="10187" subidx="0">32066</value>
+								<value ipa="10188" subidx="0">32528</value>
+								<value ipa="10189" subidx="0">31596</value>
 								<value ipa="10190" subidx="0">32768</value>
-								<value ipa="10191" subidx="0">31612</value>
-								<value ipa="10192" subidx="0">31602</value>
-								<value ipa="10193" subidx="0">31593</value>
-								<value ipa="10194" subidx="0">31566</value>
-								<value ipa="10195" subidx="0">31567</value>
-								<value ipa="10196" subidx="0">31495</value>
-								<value ipa="10197" subidx="0">31598</value>
-								<value ipa="10198" subidx="0">31518</value>
-								<value ipa="10199" subidx="0">31576</value>
+								<value ipa="10191" subidx="0">31637</value>
+								<value ipa="10192" subidx="0">31643</value>
+								<value ipa="10193" subidx="0">31568</value>
+								<value ipa="10194" subidx="0">31452</value>
+								<value ipa="10195" subidx="0">31519</value>
+								<value ipa="10196" subidx="0">31613</value>
+								<value ipa="10197" subidx="0">31626</value>
+								<value ipa="10198" subidx="0">31605</value>
+								<value ipa="10199" subidx="0">31577</value>
 								<value ipa="10200" subidx="0">32768</value>
 								<value ipa="10201" subidx="0">32768</value>
 								<value ipa="10202" subidx="0">32768</value>
@@ -55785,9 +55916,9 @@ END_PROGRAM
 								<value ipa="10205" subidx="0">32768</value>
 								<value ipa="10206" subidx="0">32768</value>
 								<value ipa="10207" subidx="0">32768</value>
-								<value ipa="10208" subidx="0">32891</value>
-								<value ipa="10209" subidx="0">32896</value>
-								<value ipa="10210" subidx="0">32893</value>
+								<value ipa="10208" subidx="0">32873</value>
+								<value ipa="10209" subidx="0">32868</value>
+								<value ipa="10210" subidx="0">32864</value>
 								<value ipa="10211" subidx="0">32768</value>
 								<value ipa="10212" subidx="0">32768</value>
 								<value ipa="10213" subidx="0">32768</value>
@@ -55795,126 +55926,126 @@ END_PROGRAM
 								<value ipa="10215" subidx="0">32768</value>
 								<value ipa="10216" subidx="0">32768</value>
 								<value ipa="10217" subidx="0">32768</value>
-								<value ipa="10218" subidx="0">32897</value>
-								<value ipa="10219" subidx="0">33070</value>
-								<value ipa="10220" subidx="0">33048</value>
-								<value ipa="10221" subidx="0">33109</value>
-								<value ipa="10222" subidx="0">33116</value>
-								<value ipa="10223" subidx="0">33055</value>
-								<value ipa="10224" subidx="0">33055</value>
-								<value ipa="10225" subidx="0">33070</value>
-								<value ipa="10226" subidx="0">33048</value>
-								<value ipa="10227" subidx="0">33055</value>
-								<value ipa="10228" subidx="0">33086</value>
-								<value ipa="10229" subidx="0">33070</value>
-								<value ipa="10230" subidx="0">33086</value>
-								<value ipa="10231" subidx="0">33112</value>
-								<value ipa="10232" subidx="0">33068</value>
-								<value ipa="10233" subidx="0">33112</value>
-								<value ipa="10234" subidx="0">33135</value>
-								<value ipa="10235" subidx="0">33073</value>
-								<value ipa="10236" subidx="0">33096</value>
-								<value ipa="10237" subidx="0">33107</value>
-								<value ipa="10238" subidx="0">33068</value>
-								<value ipa="10239" subidx="0">33073</value>
-								<value ipa="10240" subidx="0">33062</value>
-								<value ipa="10241" subidx="0">33107</value>
-								<value ipa="10242" subidx="0">33123</value>
+								<value ipa="10218" subidx="0">32870</value>
+								<value ipa="10219" subidx="0">32971</value>
+								<value ipa="10220" subidx="0">32933</value>
+								<value ipa="10221" subidx="0">32956</value>
+								<value ipa="10222" subidx="0">32964</value>
+								<value ipa="10223" subidx="0">32941</value>
+								<value ipa="10224" subidx="0">32926</value>
+								<value ipa="10225" subidx="0">32971</value>
+								<value ipa="10226" subidx="0">32971</value>
+								<value ipa="10227" subidx="0">32903</value>
+								<value ipa="10228" subidx="0">33002</value>
+								<value ipa="10229" subidx="0">32956</value>
+								<value ipa="10230" subidx="0">32941</value>
+								<value ipa="10231" subidx="0">33018</value>
+								<value ipa="10232" subidx="0">32985</value>
+								<value ipa="10233" subidx="0">33001</value>
+								<value ipa="10234" subidx="0">33007</value>
+								<value ipa="10235" subidx="0">32973</value>
+								<value ipa="10236" subidx="0">32990</value>
+								<value ipa="10237" subidx="0">33007</value>
+								<value ipa="10238" subidx="0">33023</value>
+								<value ipa="10239" subidx="0">32985</value>
+								<value ipa="10240" subidx="0">33023</value>
+								<value ipa="10241" subidx="0">33040</value>
+								<value ipa="10242" subidx="0">32996</value>
 								<value ipa="10243" subidx="0">0</value>
-								<value ipa="10244" subidx="0">34</value>
-								<value ipa="10245" subidx="0">-31</value>
-								<value ipa="10246" subidx="0">0</value>
-								<value ipa="10247" subidx="0">389</value>
+								<value ipa="10244" subidx="0">55</value>
+								<value ipa="10245" subidx="0">-11</value>
+								<value ipa="10246" subidx="0">-2</value>
+								<value ipa="10247" subidx="0">429</value>
 								<value ipa="10248" subidx="0">0</value>
-								<value ipa="10249" subidx="0">-1</value>
+								<value ipa="10249" subidx="0">15</value>
 								<value ipa="10250" subidx="0">0</value>
-								<value ipa="10251" subidx="0">10</value>
-								<value ipa="10252" subidx="0">-28</value>
-								<value ipa="10253" subidx="0">0</value>
-								<value ipa="10254" subidx="0">394</value>
-								<value ipa="10255" subidx="0">0</value>
-								<value ipa="10256" subidx="0">-11</value>
+								<value ipa="10251" subidx="0">24</value>
+								<value ipa="10252" subidx="0">-7</value>
+								<value ipa="10253" subidx="0">-3</value>
+								<value ipa="10254" subidx="0">415</value>
+								<value ipa="10255" subidx="0">-1</value>
+								<value ipa="10256" subidx="0">-6</value>
 								<value ipa="10257" subidx="0">0</value>
-								<value ipa="10258" subidx="0">16</value>
-								<value ipa="10259" subidx="0">-30</value>
-								<value ipa="10260" subidx="0">-4</value>
-								<value ipa="10261" subidx="0">385</value>
-								<value ipa="10262" subidx="0">-1</value>
-								<value ipa="10263" subidx="0">-17</value>
+								<value ipa="10258" subidx="0">75</value>
+								<value ipa="10259" subidx="0">-5</value>
+								<value ipa="10260" subidx="0">-7</value>
+								<value ipa="10261" subidx="0">422</value>
+								<value ipa="10262" subidx="0">-3</value>
+								<value ipa="10263" subidx="0">21</value>
 								<value ipa="10264" subidx="0">0</value>
-								<value ipa="10265" subidx="0">21</value>
-								<value ipa="10266" subidx="0">-30</value>
-								<value ipa="10267" subidx="0">-6</value>
-								<value ipa="10268" subidx="0">383</value>
-								<value ipa="10269" subidx="0">-7</value>
-								<value ipa="10270" subidx="0">-19</value>
+								<value ipa="10265" subidx="0">57</value>
+								<value ipa="10266" subidx="0">-14</value>
+								<value ipa="10267" subidx="0">-9</value>
+								<value ipa="10268" subidx="0">428</value>
+								<value ipa="10269" subidx="0">-6</value>
+								<value ipa="10270" subidx="0">25</value>
 								<value ipa="10271" subidx="0">0</value>
-								<value ipa="10272" subidx="0">13</value>
-								<value ipa="10273" subidx="0">-33</value>
-								<value ipa="10274" subidx="0">0</value>
-								<value ipa="10275" subidx="0">387</value>
-								<value ipa="10276" subidx="0">0</value>
-								<value ipa="10277" subidx="0">-9</value>
+								<value ipa="10272" subidx="0">87</value>
+								<value ipa="10273" subidx="0">-13</value>
+								<value ipa="10274" subidx="0">-4</value>
+								<value ipa="10275" subidx="0">413</value>
+								<value ipa="10276" subidx="0">-1</value>
+								<value ipa="10277" subidx="0">37</value>
 								<value ipa="10278" subidx="0">0</value>
-								<value ipa="10279" subidx="0">32</value>
-								<value ipa="10280" subidx="0">-31</value>
-								<value ipa="10281" subidx="0">0</value>
-								<value ipa="10282" subidx="0">396</value>
-								<value ipa="10283" subidx="0">0</value>
-								<value ipa="10284" subidx="0">4</value>
+								<value ipa="10279" subidx="0">77</value>
+								<value ipa="10280" subidx="0">-13</value>
+								<value ipa="10281" subidx="0">-3</value>
+								<value ipa="10282" subidx="0">431</value>
+								<value ipa="10283" subidx="0">-1</value>
+								<value ipa="10284" subidx="0">11</value>
 								<value ipa="10285" subidx="0">0</value>
-								<value ipa="10286" subidx="0">-17</value>
-								<value ipa="10287" subidx="0">-33</value>
-								<value ipa="10288" subidx="0">-7</value>
-								<value ipa="10289" subidx="0">379</value>
-								<value ipa="10290" subidx="0">-3</value>
-								<value ipa="10291" subidx="0">-11</value>
+								<value ipa="10286" subidx="0">40</value>
+								<value ipa="10287" subidx="0">-18</value>
+								<value ipa="10288" subidx="0">-9</value>
+								<value ipa="10289" subidx="0">419</value>
+								<value ipa="10290" subidx="0">-8</value>
+								<value ipa="10291" subidx="0">17</value>
 								<value ipa="10292" subidx="0">0</value>
-								<value ipa="10293" subidx="0">17</value>
-								<value ipa="10294" subidx="0">-36</value>
-								<value ipa="10295" subidx="0">-7</value>
-								<value ipa="10296" subidx="0">361</value>
-								<value ipa="10297" subidx="0">-4</value>
-								<value ipa="10298" subidx="0">-15</value>
-								<value ipa="10299" subidx="0">-40</value>
-								<value ipa="10300" subidx="0">-4</value>
-								<value ipa="10301" subidx="0">-52</value>
-								<value ipa="10302" subidx="0">-6</value>
+								<value ipa="10293" subidx="0">64</value>
+								<value ipa="10294" subidx="0">-18</value>
+								<value ipa="10295" subidx="0">-10</value>
+								<value ipa="10296" subidx="0">399</value>
+								<value ipa="10297" subidx="0">-6</value>
+								<value ipa="10298" subidx="0">-5</value>
+								<value ipa="10299" subidx="0">-28</value>
+								<value ipa="10300" subidx="0">12</value>
+								<value ipa="10301" subidx="0">-29</value>
+								<value ipa="10302" subidx="0">-11</value>
 								<value ipa="10303" subidx="0">0</value>
-								<value ipa="10304" subidx="0">-10</value>
-								<value ipa="10305" subidx="0">-39</value>
-								<value ipa="10306" subidx="0">-39</value>
-								<value ipa="10307" subidx="0">-16</value>
-								<value ipa="10308" subidx="0">-49</value>
-								<value ipa="10309" subidx="0">-8</value>
+								<value ipa="10304" subidx="0">-11</value>
+								<value ipa="10305" subidx="0">-31</value>
+								<value ipa="10306" subidx="0">-28</value>
+								<value ipa="10307" subidx="0">16</value>
+								<value ipa="10308" subidx="0">-28</value>
+								<value ipa="10309" subidx="0">-11</value>
 								<value ipa="10310" subidx="0">0</value>
-								<value ipa="10311" subidx="0">-8</value>
-								<value ipa="10312" subidx="0">-41</value>
-								<value ipa="10313" subidx="0">-49</value>
-								<value ipa="10314" subidx="0">27</value>
-								<value ipa="10315" subidx="0">-50</value>
+								<value ipa="10311" subidx="0">-15</value>
+								<value ipa="10312" subidx="0">-24</value>
+								<value ipa="10313" subidx="0">-20</value>
+								<value ipa="10314" subidx="0">60</value>
+								<value ipa="10315" subidx="0">-28</value>
 								<value ipa="10316" subidx="0">0</value>
-								<value ipa="10317" subidx="0">346</value>
-								<value ipa="10318" subidx="0">-13</value>
-								<value ipa="10319" subidx="0">8</value>
-								<value ipa="10320" subidx="0">-44</value>
-								<value ipa="10321" subidx="0">23</value>
-								<value ipa="10322" subidx="0">-51</value>
+								<value ipa="10317" subidx="0">395</value>
+								<value ipa="10318" subidx="0">-14</value>
+								<value ipa="10319" subidx="0">21</value>
+								<value ipa="10320" subidx="0">-17</value>
+								<value ipa="10321" subidx="0">53</value>
+								<value ipa="10322" subidx="0">-27</value>
 								<value ipa="10323" subidx="0">0</value>
-								<value ipa="10324" subidx="0">334</value>
+								<value ipa="10324" subidx="0">395</value>
 								<value ipa="10325" subidx="0">-10</value>
-								<value ipa="10326" subidx="0">0</value>
+								<value ipa="10326" subidx="0">13</value>
 								<value ipa="10327" subidx="0">0</value>
 								<value ipa="10328" subidx="0">0</value>
 								<value ipa="10329" subidx="0">0</value>
 								<value ipa="10330" subidx="0">0</value>
-								<value ipa="10331" subidx="0">6801</value>
+								<value ipa="10331" subidx="0">6868</value>
 								<value ipa="10332" subidx="0">0</value>
-								<value ipa="10333" subidx="0">6797</value>
+								<value ipa="10333" subidx="0">6871</value>
 								<value ipa="10334" subidx="0">0</value>
-								<value ipa="10335" subidx="0">-86</value>
+								<value ipa="10335" subidx="0">-74</value>
 								<value ipa="10336" subidx="0">0</value>
-								<value ipa="10337" subidx="0">-37</value>
+								<value ipa="10337" subidx="0">-66</value>
 								<value ipa="10338" subidx="0">0</value>
 								<value ipa="10339" subidx="0">0</value>
 								<value ipa="10397" subidx="0">1000</value>
@@ -55933,7 +56064,7 @@ END_PROGRAM
 								<value ipa="10362" subidx="0">0</value>
 								<value ipa="10363" subidx="0">1000</value>
 								<value ipa="10350" subidx="0">0</value>
-								<value ipa="10351" subidx="0">0</value>
+								<value ipa="10351" subidx="0">3</value>
 								<value ipa="10352" subidx="0">1000</value>
 								<value ipa="10353" subidx="0">1</value>
 								<value ipa="10356" subidx="0">3</value>
