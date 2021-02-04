@@ -8,10 +8,9 @@
 			<tasks>
 				<task name="Background">
 					<program>main</program>
-					<program>BZCANUTProg</program>
 				</task>
 				<task name="Timed">
-					<program>BZActuatorUTProg</program>
+					<program>task_100ms</program>
 				</task>
 				<task name="Init">
 					<program>init</program>
@@ -22,6 +21,7 @@
 					<var name="cnt" type="INT"/>
 					<var name="ptrHWAIs" type="@INT" dim0="8"/>
 					<var name="NTCProbes" type="BZTemperatureSensor" dim0="8"/>
+					<var name="Switches" type="BZSwitch" dim0="8"/>
 					<var name="ACUnit" type="bzSaaralUnit"/>
 					<var name="TachoMeter" type="BZCarelUXPB000100111"/>
 					<var name="OutdoorUnit" type="BZCSCB1"/>
@@ -409,7 +409,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</function>
-				<function name="IbzSaaralUnit_new" version="1.0.0" creationDate="1612017920" lastModifiedDate="1612340025">
+				<function name="IbzSaaralUnit_new" version="1.0.0" creationDate="1612017920" lastModifiedDate="1612415529">
 					<returnValue>BOOL</returnValue>
 					<vars>
 						<inputVars>
@@ -433,6 +433,8 @@ end_if;
 @me.groupSupplyAirSensors.me 	:= me;
 @me.run.me 						:= me;
 @me.poll.me 					:= me;
+@me.on1s.me						:= me;
+@me.on1min.me					:= me;
 
 
 IbzSaaralUnit_new := TRUE;
@@ -522,6 +524,57 @@ IBZCSCB1_new := TRUE;
 ]]>
 					</sourceCode>
 				</function>
+				<function name="IBZSwitch_new" version="1.0.0" creationDate="1612425590" lastModifiedDate="1612428415">
+					<returnValue>BOOL</returnValue>
+					<vars>
+						<inputVars>
+							<var name="me" type="@BZSwitch"/>
+							<var name="ptrHW" type="@BOOL"/>
+						</inputVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<sourceCode type="ST">
+						<![CDATA[
+//
+// initialize properties
+//
+@me.m_ptrHWValue := ptrHW;
+
+//
+// initialize 'this' for methods
+//
+
+
+IBZSwitch_new := TRUE;
+]]>
+					</sourceCode>
+				</function>
+				<function name="IBZSwitch_update" version="1.0.0" creationDate="1612425901" lastModifiedDate="1612429431">
+					<returnValue>BOOL</returnValue>
+					<vars>
+						<inputVars>
+							<var name="me" type="@BZSwitch"/>
+						</inputVars>
+						<localVars>
+							<var name="ptrHW" type="@BOOL"/>
+						</localVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<sourceCode type="ST">
+						<![CDATA[
+ptrHW := @me.m_ptrHWValue; // have to make a copy because the syntax of @(@()) can not be recognized
+
+// TODO : the status can be independent to the real status of HW input
+if (@ptrHW) then
+	@me.Status := BZSwitchCLOSE;
+else
+	@me.Status := BZSwitchOPEN;
+end_if;
+
+IBZSwitch_update := TRUE;
+]]>
+					</sourceCode>
+				</function>
 			</functions>
 			<functionBlocks>
 				<functionBlock name="bzSaaralUnit_groupTemperatures" version="1.0.0" creationDate="1611891178" lastModifiedDate="1612017544">
@@ -578,7 +631,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="bzSaaralUnit_run" version="1.0.0" creationDate="1611906522" lastModifiedDate="1612019234">
+				<functionBlock name="bzSaaralUnit_run" version="1.0.0" creationDate="1611906522" lastModifiedDate="1612429627">
 					<vars>
 						<inputVars>
 							<var name="me" type="@bzSaaralUnit"/>
@@ -587,6 +640,7 @@ end_if;
 							<var name="i" type="INT"/>
 							<var name="res" type="BOOL"/>
 							<var name="ptrTmp" type="@BZTemperatureSensor"/>
+							<var name="ptrSwitchTmp" type="@BZSwitch"/>
 						</localVars>
 					</vars>
 					<iecDeclaration active="FALSE"/>
@@ -611,6 +665,64 @@ me := me;	// TO AVOID AN ERROR WHEN DOWNLOAD THE PROGRAM, DON'T KNOW WHY IT WORK
 //
 ptrTmp := @me.EvapCoilTempSensor;	// HAVE TO USE A TEMPORARY VARIABLE BECAUSE '@(@)' IS IMPOSSIBLE
 @ptrTmp.update();
+
+ptrSwitchTmp := @me.RemoteShutdownSwitch;
+res := IBZSwitch_update(ptrSwitchTmp);
+
+
+//
+// unit control sm
+//
+if (@me.m_unit_status = BZ_OFF) then
+
+	ptrSwitchTmp := @me.RemoteShutdownSwitch;
+
+	if (@me.unit_mode_cmd = 1 and @ptrSwitchTmp.Status = BZSwitchOPEN) then
+		@me.m_unit_startup_delay_counter_u16 := @me.unit_startup_delay_timeout;
+		
+		@me.m_unit_status := BZ_STARTUP_DELAY;
+	elsif (@me.unit_mode_cmd = 2) then
+		@me.m_unit_maintenance_timeout_counter_u16 := @me.unit_maintenance_timeout;
+	
+		@me.m_unit_status := BZ_MAINTENANCE;
+	else;
+	end_if;
+	
+elsif (@me.m_unit_status = BZ_STARTUP_DELAY) then
+	
+	if (@me.unit_mode_cmd = 0) then
+		@me.m_unit_status := BZ_OFF;
+	else
+		if (@me.m_unit_startup_delay_counter_u16 = 0) then
+			@me.m_unit_status := BZ_ON;
+		else;
+		end_if;
+	end_if;
+
+elsif (@me.m_unit_status = BZ_ON) then
+	
+	ptrSwitchTmp := @me.RemoteShutdownSwitch;
+	
+	if (@ptrSwitchTmp.Status = BZSwitchCLOSE) then
+		@me.m_unit_status := BZ_OFF;
+	elsif (@me.unit_mode_cmd = 0) then
+		@me.m_unit_status := BZ_OFF;	
+	else;
+	end_if;
+
+elsif (@me.m_unit_status = BZ_MAINTENANCE) then
+
+	if (@me.unit_mode_cmd = 0) then
+		@me.m_unit_status := BZ_OFF;
+	elsif (@me.m_unit_maintenance_timeout_counter_u16 = 0) then
+		@me.m_unit_status := BZ_OFF;
+		
+		res := sysWriteParINT(@me.unit_mode_cmd_adr, 0);
+	else;
+	end_if;
+	
+else;
+end_if;
 
 
 //
@@ -754,9 +866,66 @@ ptrOutdoorModule := @me.OutdoorModbule;
 ]]>
 					</sourceCode>
 				</functionBlock>
+				<functionBlock name="bzSaaralUnit_on1s" version="1.0.0" creationDate="1612413586" lastModifiedDate="1612414467">
+					<vars>
+						<inputVars>
+							<var name="me" type="@bzSaaralUnit"/>
+						</inputVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<interfaces/>
+					<methods/>
+					<sourceCode type="ST">
+						<![CDATA[
+/**********************************************************************************************************************
+  _______   _____   __  __   ______   _____         _____    ____    _    _   _   _   _______   ______   _____        
+ |__   __| |_   _| |  \/  | |  ____| |  __ \       / ____|  / __ \  | |  | | | \ | | |__   __| |  ____| |  __ \       
+    | |      | |   | \  / | | |__    | |__) |     | |      | |  | | | |  | | |  \| |    | |    | |__    | |__) |  ___ 
+    | |      | |   | |\/| | |  __|   |  _  /      | |      | |  | | | |  | | | . ` |    | |    |  __|   |  _  /  / __|
+    | |     _| |_  | |  | | | |____  | | \ \      | |____  | |__| | | |__| | | |\  |    | |    | |____  | | \ \  \__ \
+    |_|    |_____| |_|  |_| |______| |_|  \_\      \_____|  \____/   \____/  |_| \_|    |_|    |______| |_|  \_\ |___/
+                                                                                                                      
+ **********************************************************************************************************************/
+
+if (@me.m_unit_startup_delay_counter_u16 > 0) then
+	@me.m_unit_startup_delay_counter_u16 := @me.m_unit_startup_delay_counter_u16 - 1;
+else;
+end_if;
+
+]]>
+					</sourceCode>
+				</functionBlock>
+				<functionBlock name="bzSaaralUnit_on1min" version="1.0.0" creationDate="1612415370" lastModifiedDate="1612415475">
+					<vars>
+						<inputVars>
+							<var name="me" type="@bzSaaralUnit"/>
+						</inputVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<interfaces/>
+					<methods/>
+					<sourceCode type="ST">
+						<![CDATA[
+/**********************************************************************************************************************
+  _______   _____   __  __   ______   _____         _____    ____    _    _   _   _   _______   ______   _____        
+ |__   __| |_   _| |  \/  | |  ____| |  __ \       / ____|  / __ \  | |  | | | \ | | |__   __| |  ____| |  __ \       
+    | |      | |   | \  / | | |__    | |__) |     | |      | |  | | | |  | | |  \| |    | |    | |__    | |__) |  ___ 
+    | |      | |   | |\/| | |  __|   |  _  /      | |      | |  | | | |  | | | . ` |    | |    |  __|   |  _  /  / __|
+    | |     _| |_  | |  | | | |____  | | \ \      | |____  | |__| | | |__| | | |\  |    | |    | |____  | | \ \  \__ \
+    |_|    |_____| |_|  |_| |______| |_|  \_\      \_____|  \____/   \____/  |_| \_|    |_|    |______| |_|  \_\ |___/
+                                                                                                                      
+ **********************************************************************************************************************/
+
+if (@me.m_unit_maintenance_timeout_counter_u16 > 0) then
+	@me.m_unit_maintenance_timeout_counter_u16 := @me.m_unit_maintenance_timeout_counter_u16 - 1;
+else;
+end_if;
+]]>
+					</sourceCode>
+				</functionBlock>
 			</functionBlocks>
 			<programs>
-				<program name="main" version="1.0.0" creationDate="0" lastModifiedDate="1612340297">
+				<program name="main" version="1.0.0" creationDate="0" lastModifiedDate="1612424625">
 					<vars>
 						<localVars>
 							<var name="i" type="INT"/>
@@ -768,11 +937,34 @@ ptrOutdoorModule := @me.OutdoorModbule;
 					<sourceCode type="ST">
 						<![CDATA[cnt := cnt + 1;
 
-/**
- *
- * machine control
- *
- */
+
+/*****************************************************************************************************
+					  _____   _   _   _____    _    _   _______       
+					 |_   _| | \ | | |  __ \  | |  | | |__   __|      
+					   | |   |  \| | | |__) | | |  | |    | |     ___ 
+					   | |   | . ` | |  ___/  | |  | |    | |    / __|
+					  _| |_  | |\  | | |      | |__| |    | |    \__ \
+					 |_____| |_| \_| |_|       \____/     |_|    |___/
+					                                                  
+ *****************************************************************************************************/
+
+// read configurations
+ACUnit.unit_mode_cmd 				:= bzUnitModeCfg;
+ACUnit.unit_mode_cmd_adr			:= ADR(bzUnitModeCfg);
+ACUnit.unit_maintenance_timeout		:= bzUnitMaintenanceTimeoutCfg;
+ACUnit.unit_startup_delay_timeout 	:= bzUnitStartupDelayCfg;
+
+
+/******************************************************************************************************
+
+				   _____    ____    _   _   _______   _____     ____    _      
+				  / ____|  / __ \  | \ | | |__   __| |  __ \   / __ \  | |     
+				 | |      | |  | | |  \| |    | |    | |__) | | |  | | | |     
+				 | |      | |  | | | . ` |    | |    |  _  /  | |  | | | |     
+				 | |____  | |__| | | |\  |    | |    | | \ \  | |__| | | |____ 
+				  \_____|  \____/  |_| \_|    |_|    |_|  \_\  \____/  |______|
+                                                               
+ ******************************************************************************************************/
 ACUnit.run();
 
 if (mod(cnt, 50) = 0) then
@@ -780,11 +972,17 @@ if (mod(cnt, 50) = 0) then
 end_if;
 
 
-/**
- *
- * MODBUS status variables update
- *
- */
+/******************************************************************************************************
+				   ____    _    _   _______   _____    _    _   _______       
+				  / __ \  | |  | | |__   __| |  __ \  | |  | | |__   __|      
+				 | |  | | | |  | |    | |    | |__) | | |  | |    | |     ___ 
+				 | |  | | | |  | |    | |    |  ___/  | |  | |    | |    / __|
+				 | |__| | | |__| |    | |    | |      | |__| |    | |    \__ \
+				  \____/   \____/     |_|    |_|       \____/     |_|    |___/
+				  
+ *****************************************************************************************************/
+
+// Update modbus registers
 bzRATu := TO_INT(IBZTemperatureSensor_read(ACUnit.groupReturnAirSensors.Sensors[0], 	enCelcius) * 10);
 bzRATl := TO_INT(IBZTemperatureSensor_read(ACUnit.groupReturnAirSensors.Sensors[1], 	enCelcius) * 10);
 bzSATu := TO_INT(IBZTemperatureSensor_read(ACUnit.groupSupplyAirSensors.Sensors[0], 	enCelcius) * 10);
@@ -796,6 +994,7 @@ bzRATg := TO_INT(ACUnit.groupReturnAirSensors.Mean 	* 10.0);
 bzSATg := TO_INT(ACUnit.groupSupplyAirSensors.Mean 	* 10.0);
 bzRCTh := TO_INT(ACUnit.groupRackAirSensors.High 	* 10.0);
 
+bzUnitStatus := TO_INT(ACUnit.m_unit_status);
 
 ]]>
 					</sourceCode>
@@ -967,7 +1166,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</program>
-				<program name="init" version="1.0.0" creationDate="1611809132" lastModifiedDate="1612340251">
+				<program name="init" version="1.0.0" creationDate="1611809132" lastModifiedDate="1612428346">
 					<vars>
 						<localVars>
 							<var name="res" type="BOOL"/>
@@ -1041,6 +1240,9 @@ for i := 0 to MAX_NBR_OF_TEMPERATURE_SENSORS - 1 do
 	res := IBZTemperatureSensor_new(?NTCProbes[i], enCelcius, ptrHWAIs[i]);
 end_for;
 
+// Switches
+res := IBZSwitch_new(?Switches[0], ?HW_DI_03);
+
 // Tacho meter
 res := IBZCarelUXPB000100111_new(?TachoMeter, 3);
 
@@ -1077,11 +1279,67 @@ ACUnit.groupRackAirSensors.NbrOfSen		:= 2;
 
 ACUnit.EvapCoilTempSensor	:= ?NTCProbes[6];
 
+// Switches
+ACUnit.RemoteShutdownSwitch := ?Switches[0];
+
 // Expansion boards
 ACUnit.FanTachoModule := ?TachoMeter;
 
 ACUnit.OutdoorModbule := ?OutdoorUnit;
  
+]]>
+					</sourceCode>
+				</program>
+				<program name="task_100ms" version="1.0.0" creationDate="1612412940" lastModifiedDate="1612417218">
+					<vars>
+						<localVars>
+							<var name="second_counter" type="INT"/>
+							<var name="minute_counter" type="INT"/>
+							<var name="hour_counter" type="INT"/>
+							<var name="day_counter" type="INT"/>
+						</localVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<sourceCode type="ST">
+						<![CDATA[
+if second_counter = 10 then
+	second_counter := 0;
+	
+	// 1 second fired
+	ACUnit.on1s();
+	
+	if (minute_counter = 60) then
+		minute_counter := 0;
+		
+		// 1 minute fired
+		ACUnit.on1min();
+		
+		if (hour_counter = 60) then
+			hour_counter := 0;
+			
+			// 1 hour fired
+			
+			if (day_counter = 24) then
+				day_counter := 0;
+				
+				// 1 day fired
+				
+			else
+				day_counter := day_counter + 1;
+			end_if;
+		else
+			hour_counter := hour_counter + 1;
+		end_if;
+	else
+		minute_counter := minute_counter + 1;
+	end_if;	
+else
+	second_counter := second_counter + 1;
+end_if;
+
+
+
+
 ]]>
 					</sourceCode>
 				</program>
@@ -1245,8 +1503,8 @@ of the actual position.</descr>
 						<var name="EvapCoilTempSensor" type="@BZTemperatureSensor">
 							<descr>One NTC sensor for coil inlet temperature</descr>
 						</var>
-						<var name="run" type="bzSaaralUnit_run">
-							<descr>Public method to execute the control process</descr>
+						<var name="RemoteShutdownSwitch" type="@BZSwitch">
+							<descr>Remote shutdown switch input</descr>
 						</var>
 						<var name="FanTachoModule" type="@BZCarelUXPB000100111">
 							<descr>Fan speed feedback measurement module by modbus RTU</descr>
@@ -1254,8 +1512,38 @@ of the actual position.</descr>
 						<var name="OutdoorModbule" type="@BZCSCB1">
 							<descr>Outdoor control module by modbus RTU</descr>
 						</var>
+						<var name="unit_mode_cmd" type="INT">
+							<descr>Link to bzUnitModeCfg</descr>
+						</var>
+						<var name="unit_mode_cmd_adr" type="UDINT">
+							<descr>Link to bzUnitModeCfg</descr>
+						</var>
+						<var name="m_unit_status" type="BZIRACUnitStatusE">
+							<descr>Unit status</descr>
+						</var>
+						<var name="unit_startup_delay_timeout" type="UINT">
+							<descr>Link to bzUnitStartupDelayCfg</descr>
+						</var>
+						<var name="unit_maintenance_timeout" type="UINT">
+							<descr>Link to bzUnitMaintenanceTimeoutCfg</descr>
+						</var>
+						<var name="m_unit_startup_delay_counter_u16" type="UINT">
+							<descr>Unit startup delay timer</descr>
+						</var>
+						<var name="m_unit_maintenance_timeout_counter_u16" type="UINT">
+							<descr>Unit maintenance timeout timer</descr>
+						</var>
+						<var name="run" type="bzSaaralUnit_run">
+							<descr>Public method to execute the control process</descr>
+						</var>
 						<var name="poll" type="bzSaaralUnit_poll">
 							<descr>Method to poll the slave devices on RTU bus</descr>
+						</var>
+						<var name="on1s" type="bzSaaralUnit_on1s">
+							<descr>Method for the one-second callback</descr>
+						</var>
+						<var name="on1min" type="bzSaaralUnit_on1min">
+							<descr>Method for the one-minute callback</descr>
 						</var>
 					</vars>
 				</struct>
@@ -1315,6 +1603,18 @@ of the actual position.</descr>
 					<vars>
 						<var name="parent" type="BZMBDevice">
 							<descr>Base class</descr>
+						</var>
+					</vars>
+				</struct>
+				<struct name="BZSwitch" version="1.0.0">
+					<title>Switch</title>
+					<descr>A binary type of input.</descr>
+					<vars>
+						<var name="m_ptrHWValue" type="@BOOL">
+							<descr>HW interface (pointer) that can pass the raw value in</descr>
+						</var>
+						<var name="Status" type="BZSwitchStatusE">
+							<descr>The logic status of the binary input</descr>
 						</var>
 					</vars>
 				</struct>
@@ -1394,6 +1694,36 @@ of the actual position.</descr>
 						</element>
 						<element name="BZMBHoldingRegister">
 							<value>3</value>
+						</element>
+					</elements>
+				</enum>
+				<enum name="BZIRACUnitStatusE" version="1.0.0">
+					<title>IRAC Unit Status</title>
+					<descr>Status of a IRAC unit</descr>
+					<elements>
+						<element name="BZ_OFF">
+							<value>0</value>
+						</element>
+						<element name="BZ_STARTUP_DELAY">
+							<value>1</value>
+						</element>
+						<element name="BZ_ON">
+							<value>2</value>
+						</element>
+						<element name="BZ_MAINTENANCE">
+							<value>3</value>
+						</element>
+					</elements>
+				</enum>
+				<enum name="BZSwitchStatusE" version="1.0.0">
+					<title>BZSwitch Status</title>
+					<descr>TBD</descr>
+					<elements>
+						<element name="BZSwitchOPEN">
+							<value>0</value>
+						</element>
+						<element name="BZSwitchCLOSE">
+							<value>1</value>
 						</element>
 					</elements>
 				</enum>
@@ -54375,6 +54705,12 @@ ui16_random := TO_UINT(ui16_random_copy or (ui16_random_tmp and 16#00FF));
 			<src fullXml="false" name="Global shared.plc" order="0" hidden="false">
 				<![CDATA[(* Automatically generated, do not edit! *)
 	VAR_GLOBAL
+		{G:"EEPROM_Parameters"}
+	bzUnitModeCfg AT %MW101.0 : INT;  {DE:"Unit mode"}
+		{G:"EEPROM_Parameters"}
+	bzUnitMaintenanceTimeoutCfg AT %MW101.1 : UINT;  {DE:"Unit maintenance timeout in minute"}
+		{G:"EEPROM_Parameters"}
+	bzUnitStartupDelayCfg AT %MW101.2 : UINT;  {DE:"Unit startup delay timeout in second"}
 		{G:"Status_variables"}
 	bzBIOSVersion AT %MW110.0 : STRING[ 8 ];  {DE:"M172 BIOS version"}
 		{G:"Status_variables"}
@@ -54413,6 +54749,8 @@ ui16_random := TO_UINT(ui16_random_copy or (ui16_random_tmp and 16#00FF));
 	BZCANMailbox3 AT %MW110.41 : INT;
 		{G:"Status_variables"}
 	BZIsRealMode AT %MW110.42 : BOOL := 1;  {DE:"Controller is working on real mode."}
+		{G:"Status_variables"}
+	bzUnitStatus AT %MW110.43 : INT;  {DE:"Unit status"}
 		{G:"IO_Mapping"}
 	HW_AI_01 AT %IW1.0 : INT;  {DE:"AIL1 analogue input"}
 		{G:"IO_Mapping"}
@@ -54437,6 +54775,30 @@ ui16_random := TO_UINT(ui16_random_copy or (ui16_random_tmp and 16#00FF));
 	HW_AI_11 AT %IW1.10 : INT;  {DE:"AIL11 analogue input"}
 		{G:"IO_Mapping"}
 	HW_AI_12 AT %IW1.11 : INT;  {DE:"AIL12 analogue input"}
+		{G:"IO_Mapping"}
+	HW_DI_01 AT %IX0.0 : BOOL;  {DE:"DIL1 digital input"}
+		{G:"IO_Mapping"}
+	HW_DI_02 AT %IX0.1 : BOOL;  {DE:"DIL2 digital input"}
+		{G:"IO_Mapping"}
+	HW_DI_03 AT %IX0.2 : BOOL;  {DE:"DIL3 digital input"}
+		{G:"IO_Mapping"}
+	HW_DI_04 AT %IX0.3 : BOOL;  {DE:"DIL4 digital input"}
+		{G:"IO_Mapping"}
+	HW_DI_05 AT %IX0.4 : BOOL;  {DE:"DIL5 digital input"}
+		{G:"IO_Mapping"}
+	HW_DI_06 AT %IX0.5 : BOOL;  {DE:"DIL6 digital input"}
+		{G:"IO_Mapping"}
+	HW_DI_07 AT %IX0.6 : BOOL;  {DE:"DIL7 digital input"}
+		{G:"IO_Mapping"}
+	HW_DI_08 AT %IX0.7 : BOOL;  {DE:"DIL8 digital input"}
+		{G:"IO_Mapping"}
+	HW_DI_09 AT %IX0.8 : BOOL;  {DE:"DIL9 digital input"}
+		{G:"IO_Mapping"}
+	HW_DI_10 AT %IX0.9 : BOOL;  {DE:"DIL10 digital input"}
+		{G:"IO_Mapping"}
+	HW_DI_11 AT %IX0.10 : BOOL;  {DE:"DIL11 digital input"}
+		{G:"IO_Mapping"}
+	HW_DI_12 AT %IX0.11 : BOOL;  {DE:"DIL12 digital input"}
 	END_VAR
 ]]>
 			</src>
@@ -54444,8 +54806,8 @@ ui16_random := TO_UINT(ui16_random_copy or (ui16_random_tmp and 16#00FF));
 				<![CDATA[(* Automatically generated, do not edit! *)
 
 VAR_GLOBAL CONSTANT
-$$ParDB : ARRAY[ 0..683 ] OF USINT; { HIDDEN:ON } { INIT:"BZ172Lab.PLK+0" }
-$$ParDBLength  : DWORD := 19; { HIDDEN:ON }
+$$ParDB : ARRAY[ 0..827 ] OF USINT; { HIDDEN:ON } { INIT:"BZ172Lab.PLK+0" }
+$$ParDBLength  : DWORD := 23; { HIDDEN:ON }
 END_VAR
 
 PROGRAM InitParDB WITH Serv;
@@ -54458,7 +54820,7 @@ PROGRAM InitParDB
 		dummyCrc32: UDINT;
 	END_VAR
 
-	dummyCrc32 := 3273560658;
+	dummyCrc32 := 3625180391;
 
 	warningsKiller := sysDBase_SetExtTable( ADR( $$ParDB ), $$ParDBLength );
 
@@ -54486,7 +54848,7 @@ END_PROGRAM
 			</src>
 		</aux>
 		<workspace>
-			<root name="BZ172Lab" nextID="3556">
+			<root name="BZ172Lab" nextID="4684">
 				<GlobalVars name="Global_vars" id="11"/>
 				<Pou name="main" id="2"/>
 				<folder id="16" name="BZ172Lab">
@@ -54528,6 +54890,11 @@ END_PROGRAM
 							<Pou name="IBZCSCB1_new" id="3026"/>
 							<Pou name="BZMBDevice_read" id="3271"/>
 						</folder>
+						<folder name="BZSwitch" id="4428">
+							<Definition name="BZSwitch" id="4429"/>
+							<Pou name="IBZSwitch_new" id="4446"/>
+							<Pou name="IBZSwitch_update" id="4473"/>
+						</folder>
 					</folder>
 					<folder name="Types" id="37">
 						<Definition name="BZActuatorStatus" id="38"/>
@@ -54536,6 +54903,8 @@ END_PROGRAM
 						<Definition name="BZTemperatureUnitE" id="595"/>
 						<Definition name="BZInt16RangeT" id="598"/>
 						<Definition name="BZModbusRegisterTypeE" id="3293"/>
+						<Definition name="BZIRACUnitStatusE" id="3854"/>
+						<Definition name="BZSwitchStatusE" id="4450"/>
 					</folder>
 					<folder name="Utilities" id="41">
 						<Pou name="BZComputeY" id="42"/>
@@ -54550,8 +54919,11 @@ END_PROGRAM
 						<Pou name="bzSaaralUnit_run" id="1518"/>
 						<Pou name="IbzSaaralUnit_new" id="2621"/>
 						<Pou name="bzSaaralUnit_poll" id="3451"/>
+						<Pou name="bzSaaralUnit_on1s" id="4118"/>
+						<Pou name="bzSaaralUnit_on1min" id="4206"/>
 					</folder>
 				</folder>
+				<Pou name="task_100ms" id="4093"/>
 			</root>
 		</workspace>
 	</sources>
@@ -54585,7 +54957,89 @@ END_PROGRAM
 				</project_config>
 				<M172P_596p10 template="FreeAdvance\M172P_596p10.pct" version="13" uniqueID="0" name="M172 28-42 I/Os" caption="M172 28-42 I/Os">
 					<devConfig HMIProject="" HMIRemoteProject="HMIRemote\BZ172Lab.pajx" resetBindingCfg="0">
-						<params/>
+						<params>
+							<param>
+								<ipa>0</ipa>
+								<address>16384</address>
+								<name>bzUnitModeCfg</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value>0</value>
+								<min>0</min>
+								<max>2</max>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description>Unit mode</description>
+								<note>0:OFF;1:ON;2:MAINTENANCE</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW101.0</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>1</ipa>
+								<address>16385</address>
+								<name>bzUnitMaintenanceTimeoutCfg</name>
+								<typepar>2</typepar>
+								<typetarg>UINT</typetarg>
+								<value>10</value>
+								<min>5</min>
+								<max>10080</max>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um>min</um>
+								<description>Unit maintenance timeout in minute</description>
+								<note>When the timeout is expired, maintenance mode is terminated compulsively</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW101.1</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>2</ipa>
+								<address>16386</address>
+								<name>bzUnitStartupDelayCfg</name>
+								<typepar>0</typepar>
+								<typetarg>UINT</typetarg>
+								<value>0</value>
+								<min>0</min>
+								<max>300</max>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um>sec</um>
+								<description>Unit startup delay timeout in second</description>
+								<note>If none zero is set, the unit will be trully turned on after the timeout is expired</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW101.2</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+						</params>
 						<paramsRO>
 							<param>
 								<ipa>5012</ipa>
@@ -54913,7 +55367,7 @@ END_PROGRAM
 							</param>
 							<param>
 								<ipa>5009</ipa>
-								<address>10060</address>
+								<address>10160</address>
 								<name>bzAlarmBase</name>
 								<typepar>0</typepar>
 								<typetarg>INT</typetarg>
@@ -54940,7 +55394,7 @@ END_PROGRAM
 							</param>
 							<param>
 								<ipa>5003</ipa>
-								<address>10160</address>
+								<address>10360</address>
 								<name>bzSerialNO</name>
 								<typepar>8</typepar>
 								<typetarg>STRING</typetarg>
@@ -54967,7 +55421,7 @@ END_PROGRAM
 							</param>
 							<param>
 								<ipa>5004</ipa>
-								<address>10169</address>
+								<address>10369</address>
 								<name>bzModelNO</name>
 								<typepar>8</typepar>
 								<typetarg>STRING</typetarg>
@@ -55100,8 +55554,35 @@ END_PROGRAM
 								<visibility>0</visibility>
 								<clientType>0</clientType>
 							</param>
+							<param>
+								<ipa>5019</ipa>
+								<address>8979</address>
+								<name>bzUnitStatus</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value/>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description>Unit status</description>
+								<note>0:OFF;1:STARTUP DELAY;2:ON;3:MAINTENANCE</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>1</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.43</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
 						</paramsRO>
-						<enums nextID="0"/>
+						<enums nextID="1"/>
 						<menus/>
 						<ioMappings>
 							<ioMappingsLocal>
@@ -55180,73 +55661,73 @@ END_PROGRAM
 								<ioMapping inout="in" idx="0">
 									<name>DIL1</name>
 									<description>DIL1 digital input</description>
-									<variable/>
+									<variable>HW_DI_01</variable>
 									<type>BOOL</type>
 								</ioMapping>
 								<ioMapping inout="in" idx="1">
 									<name>DIL2</name>
 									<description>DIL2 digital input</description>
-									<variable/>
+									<variable>HW_DI_02</variable>
 									<type>BOOL</type>
 								</ioMapping>
 								<ioMapping inout="in" idx="2">
 									<name>DIL3</name>
 									<description>DIL3 digital input</description>
-									<variable/>
+									<variable>HW_DI_03</variable>
 									<type>BOOL</type>
 								</ioMapping>
 								<ioMapping inout="in" idx="3">
 									<name>DIL4</name>
 									<description>DIL4 digital input</description>
-									<variable/>
+									<variable>HW_DI_04</variable>
 									<type>BOOL</type>
 								</ioMapping>
 								<ioMapping inout="in" idx="4">
 									<name>DIL5</name>
 									<description>DIL5 digital input</description>
-									<variable/>
+									<variable>HW_DI_05</variable>
 									<type>BOOL</type>
 								</ioMapping>
 								<ioMapping inout="in" idx="5">
 									<name>DIL6</name>
 									<description>DIL6 digital input</description>
-									<variable/>
+									<variable>HW_DI_06</variable>
 									<type>BOOL</type>
 								</ioMapping>
 								<ioMapping inout="in" idx="6">
 									<name>DIL7</name>
 									<description>DIL7 digital input</description>
-									<variable/>
+									<variable>HW_DI_07</variable>
 									<type>BOOL</type>
 								</ioMapping>
 								<ioMapping inout="in" idx="7">
 									<name>DIL8</name>
 									<description>DIL8 digital input</description>
-									<variable/>
+									<variable>HW_DI_08</variable>
 									<type>BOOL</type>
 								</ioMapping>
 								<ioMapping inout="in" idx="8">
 									<name>DIL9</name>
 									<description>DIL9 digital input</description>
-									<variable/>
+									<variable>HW_DI_09</variable>
 									<type>BOOL</type>
 								</ioMapping>
 								<ioMapping inout="in" idx="9">
 									<name>DIL10</name>
 									<description>DIL10 digital input</description>
-									<variable/>
+									<variable>HW_DI_10</variable>
 									<type>BOOL</type>
 								</ioMapping>
 								<ioMapping inout="in" idx="10">
 									<name>DIL11</name>
 									<description>DIL11 digital input</description>
-									<variable/>
+									<variable>HW_DI_11</variable>
 									<type>BOOL</type>
 								</ioMapping>
 								<ioMapping inout="in" idx="11">
 									<name>DIL12</name>
 									<description>DIL12 digital input</description>
-									<variable/>
+									<variable>HW_DI_12</variable>
 									<type>BOOL</type>
 								</ioMapping>
 								<ioMapping inout="out" idx="0">
@@ -55784,14 +56265,14 @@ END_PROGRAM
 								<value ipa="10069" subidx="0">0</value>
 								<value ipa="10070" subidx="0">30</value>
 								<value ipa="10071" subidx="0">10</value>
-								<value ipa="10072" subidx="0">247</value>
-								<value ipa="10073" subidx="0">-32768</value>
-								<value ipa="10074" subidx="0">255</value>
-								<value ipa="10075" subidx="0">-32768</value>
-								<value ipa="10076" subidx="0">251</value>
-								<value ipa="10077" subidx="0">-32768</value>
-								<value ipa="10078" subidx="0">-32768</value>
-								<value ipa="10079" subidx="0">-32768</value>
+								<value ipa="10072" subidx="0">309</value>
+								<value ipa="10073" subidx="0">325</value>
+								<value ipa="10074" subidx="0">219</value>
+								<value ipa="10075" subidx="0">221</value>
+								<value ipa="10076" subidx="0">173</value>
+								<value ipa="10077" subidx="0">181</value>
+								<value ipa="10078" subidx="0">253</value>
+								<value ipa="10079" subidx="0">235</value>
 								<value ipa="10080" subidx="0">-32768</value>
 								<value ipa="10081" subidx="0">-32768</value>
 								<value ipa="10082" subidx="0">1</value>
@@ -56167,6 +56648,9 @@ END_PROGRAM
 								<value ipa="50002" subidx="0">***************</value>
 								<value ipa="50003" subidx="0">0</value>
 								<value ipa="50004" subidx="0">0</value>
+								<value ipa="0" subidx="0">0</value>
+								<value ipa="1" subidx="0">10</value>
+								<value ipa="2" subidx="0">0</value>
 								<value ipa="5012" subidx="0"/>
 								<value ipa="5010" subidx="0"/>
 								<value ipa="5005" subidx="0">303</value>
@@ -56186,6 +56670,7 @@ END_PROGRAM
 								<value ipa="5001" subidx="0">0</value>
 								<value ipa="5002" subidx="0">0</value>
 								<value ipa="5006" subidx="0">1</value>
+								<value ipa="5019" subidx="0">0</value>
 							</values>
 							<commDisabled>0</commDisabled>
 							<downloadVolume>0</downloadVolume>

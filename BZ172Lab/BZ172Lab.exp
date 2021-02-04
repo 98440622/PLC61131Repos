@@ -5,6 +5,10 @@
 	(******************************)
 
         VAR_GLOBAL
+	{G:"EEPROM_Parameters"}
+bzUnitModeCfg AT %MW101.0 : INT;	{ DE:"Unit mode" }
+bzUnitMaintenanceTimeoutCfg AT %MW101.1 : UINT;	{ DE:"Unit maintenance timeout in minute" }
+bzUnitStartupDelayCfg AT %MW101.2 : UINT;	{ DE:"Unit startup delay timeout in second" }
 	{G:"Status_variables"}
 bzBIOSVersion AT %MW110.0 : STRING[ 8 ];	{ DE:"M172 BIOS version" }
 bzAppVersion AT %MW110.5 : STRING[ 8 ];	{ DE:"Application version by a string type format of xx.xx.xx" }
@@ -25,6 +29,7 @@ BZCANMailbox1 AT %MW110.39 : INT;
 BZCANMailbox2 AT %MW110.40 : INT;
 BZCANMailbox3 AT %MW110.41 : INT;
 BZIsRealMode AT %MW110.42 : BOOL := 1;	{ DE:"Controller is working on real mode." }
+bzUnitStatus AT %MW110.43 : INT;	{ DE:"Unit status" }
 	{G:"IO_Mapping"}
 HW_AI_01 AT %IW1.0 : INT;	{ DE:"AIL1 analogue input" }
 HW_AI_02 AT %IW1.1 : INT;	{ DE:"AIL2 analogue input" }
@@ -38,5 +43,17 @@ HW_AI_09 AT %IW1.8 : INT;	{ DE:"AI9 analogue input" }
 HW_AI_10 AT %IW1.9 : INT;	{ DE:"AIL10 analogue input" }
 HW_AI_11 AT %IW1.10 : INT;	{ DE:"AIL11 analogue input" }
 HW_AI_12 AT %IW1.11 : INT;	{ DE:"AIL12 analogue input" }
+HW_DI_01 AT %IX0.0 : BOOL;	{ DE:"DIL1 digital input" }
+HW_DI_02 AT %IX0.1 : BOOL;	{ DE:"DIL2 digital input" }
+HW_DI_03 AT %IX0.2 : BOOL;	{ DE:"DIL3 digital input" }
+HW_DI_04 AT %IX0.3 : BOOL;	{ DE:"DIL4 digital input" }
+HW_DI_05 AT %IX0.4 : BOOL;	{ DE:"DIL5 digital input" }
+HW_DI_06 AT %IX0.5 : BOOL;	{ DE:"DIL6 digital input" }
+HW_DI_07 AT %IX0.6 : BOOL;	{ DE:"DIL7 digital input" }
+HW_DI_08 AT %IX0.7 : BOOL;	{ DE:"DIL8 digital input" }
+HW_DI_09 AT %IX0.8 : BOOL;	{ DE:"DIL9 digital input" }
+HW_DI_10 AT %IX0.9 : BOOL;	{ DE:"DIL10 digital input" }
+HW_DI_11 AT %IX0.10 : BOOL;	{ DE:"DIL11 digital input" }
+HW_DI_12 AT %IX0.11 : BOOL;	{ DE:"DIL12 digital input" }
 	END_VAR
 

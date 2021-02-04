@@ -7,8 +7,19 @@
 					<VAL id="0">SIMULATION</VAL>
 					<VAL id="1">R E A L</VAL>
 				</ENUM>
+				<ENUM id="2" name="emUnitStatus" descr="emUnitStatus">
+					<VAL id="0">OFF</VAL>
+					<VAL id="1">DELAYING</VAL>
+					<VAL id="2">ON</VAL>
+					<VAL id="3">MAINTENANCE</VAL>
+				</ENUM>
 			</ENUMS>
-			<STRINGTABLE/>
+			<STRINGTABLE>
+				<VAL id="STR_UNIT_OFF">OFF</VAL>
+				<VAL id="STR_UNIT_STARTUP_DELAY">DELAYING</VAL>
+				<VAL id="STR_UNIT_ON">ON</VAL>
+				<VAL id="STR_UNIT_MAINTENANCE">MAINTENANCE</VAL>
+			</STRINGTABLE>
 		</LANG>
 	</LANGUAGES>
 	<PAGES_INFO>
@@ -361,6 +372,44 @@
 						<REFRESH>TRUE</REFRESH>
 						<VISIBLE>TRUE</VISIBLE>
 						<SELECT>FALSE</SELECT>
+						<LABEL/>
+						<VARMIN>*</VARMIN>
+						<VARMAX>*</VARMAX>
+						<EVENTS>
+							<EVENT name="BeforeUpdate"/>
+							<EVENT name="AfterUpdate"/>
+							<EVENT name="OnGotFocus"/>
+							<EVENT name="OnLostFocus"/>
+							<EVENT name="OnClick"/>
+							<EVENT name="OnEnter"/>
+							<EVENT name="OnChange"/>
+						</EVENTS>
+					</EDIT>
+					<EDIT name="Edit_2">
+						<FONT>EWP2_8x16</FONT>
+						<COLOR type="RGBColor">0</COLOR>
+						<BCKCOLOR type="RGBColor">16777215</BCKCOLOR>
+						<SELBCK type="RGBColor">0</SELBCK>
+						<SELCOL type="RGBColor">16777215</SELCOL>
+						<STYLE>Flat</STYLE>
+						<BORDCOL type="RGBColor">0</BORDCOL>
+						<BORDPTS>0</BORDPTS>
+						<XPOS>0</XPOS>
+						<YPOS>40</YPOS>
+						<XDIM>128</XDIM>
+						<YDIM>16</YDIM>
+						<NUMCHAR>16</NUMCHAR>
+						<ORDER>3</ORDER>
+						<FORMAT>emUnitStatus</FORMAT>
+						<ALIGN>Center</ALIGN>
+						<ACCESS>RO</ACCESS>
+						<DESC/>
+						<ZORDER>4</ZORDER>
+						<VAR type="INT">@LocalParameters.bzUnitStatus</VAR>
+						<TYPE>INT</TYPE>
+						<REFRESH>TRUE</REFRESH>
+						<VISIBLE>TRUE</VISIBLE>
+						<SELECT>TRUE</SELECT>
 						<LABEL/>
 						<VARMIN>*</VARMIN>
 						<VARMAX>*</VARMAX>

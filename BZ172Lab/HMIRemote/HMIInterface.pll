@@ -4,3 +4,12 @@
 	(*                           *)
 	(*****************************)
 
+	VAR_GLOBAL CONSTANT
+
+	{G:"String IDs"}
+	ksSTR_UNIT_OFF : UINT := 0;
+	ksSTR_UNIT_STARTUP_DELAY : UINT := 1;
+	ksSTR_UNIT_ON : UINT := 2;
+	ksSTR_UNIT_MAINTENANCE : UINT := 3;
+	
+END_VAR

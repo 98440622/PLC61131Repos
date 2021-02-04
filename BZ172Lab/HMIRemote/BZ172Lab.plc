@@ -32,6 +32,7 @@ VAR_GLOBAL
 	fbModeSelection : DrawModeSelection;
 	fbRefrModeSelection : RefrModeSelection;
 	fbModeSelectionEdit_1 : EditBox01 := (wHnd:=6, y1:=8, x2:=127, y2:=23, pFont:=?EWP2_8x16, bckCol:=16777215, rw:=TRUE, pVar:=16#00368700, order:=2, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyBool, enumId:=1, format:=16#00000014);
+	fbModeSelectionEdit_2 : EditBox01 := (wHnd:=7, y1:=40, x2:=127, y2:=55, pFont:=?EWP2_8x16, bckCol:=16777215, pVar:=16#00231300, order:=3, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, enumId:=2, format:=16#00000014, pCanSel:=1);
 	ModeSelection_tmpBOOL : BOOL;
 
 END_VAR
@@ -617,17 +618,33 @@ VAR_GLOBAL CONSTANT
 
 	{G:"Resources"}
 	kLangBaseLanguage : UDINT := 0;
-
+	kbLangIdxBaseLanguage : UDINT := 0;
+	kbResStrings : ARRAY[ 0..28 ] OF BYTE :=
+	(*** Language: BaseLanguage ***)
+	(* OFF *) 16#4F, 16#46, 16#46, 16#00, 
+	(* DELAYING *) 16#44, 16#45, 16#4C, 16#41, 16#59, 16#49, 16#4E, 16#47, 16#00, 
+	(* ON *) 16#4F, 16#4E, 16#00, 
+	(* MAINTENANCE *) 16#4D, 16#41, 16#49, 16#4E, 16#54, 16#45, 16#4E, 16#41, 16#4E, 16#43, 16#45, 16#00, 16#00 ;
 
 	(*** Enumeratives: ***)
 	kbEnumIdxBaseLanguage : UDINT := 0;
-	kbResEnums : ARRAY[ 0..39 ] OF BYTE :=
+	kbResEnums : ARRAY[ 0..92 ] OF BYTE :=
 	(*** Language: BaseLanguage ***)
 	(*** Enum ID ***) 16#01,
 	(* 0 *) 16#00, 16#00, 16#00, 16#00, 
 	(* SIMULATION *) 16#53, 16#49, 16#4D, 16#55, 16#4C, 16#41, 16#54, 16#49, 16#4F, 16#4E, 16#00, 
 	(* 1 *) 16#01, 16#00, 16#00, 16#00, 
 	(* R E A L *) 16#52, 16#20, 16#45, 16#20, 16#41, 16#20, 16#4C, 16#00, 
+	(* End of enum *) 16#CD, 16#CD, 16#CD, 16#CD, 16#CD, 16#CD, 16#CD, 16#CD, 
+	(*** Enum ID ***) 16#02,
+	(* 0 *) 16#00, 16#00, 16#00, 16#00, 
+	(* OFF *) 16#4F, 16#46, 16#46, 16#00, 
+	(* 1 *) 16#01, 16#00, 16#00, 16#00, 
+	(* DELAYING *) 16#44, 16#45, 16#4C, 16#41, 16#59, 16#49, 16#4E, 16#47, 16#00, 
+	(* 2 *) 16#02, 16#00, 16#00, 16#00, 
+	(* ON *) 16#4F, 16#4E, 16#00, 
+	(* 3 *) 16#03, 16#00, 16#00, 16#00, 
+	(* MAINTENANCE *) 16#4D, 16#41, 16#49, 16#4E, 16#54, 16#45, 16#4E, 16#41, 16#4E, 16#43, 16#45, 16#00, 
 	(* End of enum *) 16#CD, 16#CD, 16#CD, 16#CD, 16#CD, 16#CD, 16#CD, 16#CD, 
 	(* End of language *) 16#CD, 16#CD, 16#CD, 16#CD ;
 	{G:"Parameters"}
@@ -680,7 +697,7 @@ PROGRAM PageDraw
 	res := Video_SetEditKey( 13, kKEY_LongDown );
 
 	(* *** DECLARING THE RESOURCES *** *)
-	res := Video_LoadLanguage( 0, ?kbResEnums[0] );
+	res := Video_LoadLanguage( ?kbResStrings[0], ?kbResEnums[0] );
 
 	(* Declaring the imported fonts *)
 	res := Video_AddFontUnicode( ?EWP2_6x8, EWP2_6x8_len, EWP2_6x8_hei );
@@ -768,6 +785,7 @@ FUNCTION_BLOCK DrawModeSelection
 	ModeSelection_tmpBOOL : BOOL;
 	IsRealMode_MB_ADDR : UINT;
 	fbModeSelectionEdit_1 : EditBox01;
+	fbModeSelectionEdit_2 : EditBox01;
 	fbTempSyncByCAN : DrawTempSyncByCAN;
 	$waitRefresh : BOOL;
 	END_VAR
@@ -853,6 +871,9 @@ FUNCTION_BLOCK DrawModeSelection
 			fbModeSelectionEdit_1.accMode := kACS_INIT;
 			fbModeSelectionEdit_1();
 			fbModeSelectionEdit_1.accMode := kACS_PRINT;
+			fbModeSelectionEdit_2.accMode := kACS_INIT;
+			fbModeSelectionEdit_2();
+			fbModeSelectionEdit_2.accMode := kACS_PRINT;
 
 			(* Select the first selectable control *)
 			iNextSel := Video_FirstLastEdit( TRUE, FALSE );
@@ -919,16 +940,63 @@ FUNCTION_BLOCK DrawModeSelection
 						bMapsReset := TRUE;
 						EXIT;
 
+					13:	(* Key: Enter - Action: Edit *)
+
+						CASE iNextSel OF
+
+							6,7:
+								(* Entering the edit mode *)
+								res := Video_EnterEdit( TO_UINT( iNextSel ) );
+
+								IF res = kKEY_Up THEN
+
+									iNextSel := TO_INT( Video_NextEdit( TRUE ) );
+									IF iNextSel > -1 THEN
+										res := Video_SendEvent( kWM_SELECT, TO_UINT(iNextSel) );
+									END_IF;
+
+								ELSIF res = kKEY_Down THEN
+
+									iNextSel := TO_INT( Video_PrevEdit( TRUE ) );
+									IF iNextSel > -1 THEN
+										res := Video_SendEvent( kWM_SELECT, TO_UINT(iNextSel) );
+									END_IF;
+
+								END_IF;
+
+						END_CASE;
+
+					11:	(* Key: Up - Action: PrevField *)
+						iNextSel := TO_INT( Video_PrevEdit( TRUE ) );
+						IF iNextSel > -1 THEN
+							res := Video_SendEvent( kWM_SELECT, TO_UINT(iNextSel) );
+						END_IF;
+
+					10:	(* Key: Down - Action: NextField *)
+						iNextSel := TO_INT( Video_NextEdit( TRUE ) );
+						IF iNextSel > -1 THEN
+							res := Video_SendEvent( kWM_SELECT, TO_UINT(iNextSel) );
+						END_IF;
+
 					END_CASE;
 
-				END_CASE;
-			END_IF;
+				(* Selecting a control: *)
+				kWM_SELECT:
+
+					(* Extracting the index of the edit box clicked *)
+					iNextSel := TO_INT(SHR(udiev, 16));
+
+					(* Only select the object *)
+					res := Video_EnterEditSel( TO_UINT( iNextSel ), TRUE );
+
+					END_CASE;
+				END_IF;
+
+			END_WHILE;
 
 		END_WHILE;
 
-	END_WHILE;
-
-END_FUNCTION_BLOCK
+	END_FUNCTION_BLOCK
 
 FUNCTION_BLOCK DrawTempSyncByCAN
 
@@ -1158,6 +1226,7 @@ FUNCTION_BLOCK RefrModeSelection
 	IsRealMode_MB_ADDR : UINT;
 	ModeSelection_tmpBOOL : BOOL;
 	fbModeSelectionEdit_1 : EditBox01;
+	fbModeSelectionEdit_2 : EditBox01;
 	fbRefrTempSyncByCAN : RefrTempSyncByCAN;
 	$waitRefresh : BOOL;
 	END_VAR
@@ -1193,6 +1262,7 @@ FUNCTION_BLOCK RefrModeSelection
 			IF fbModeSelectionEdit_1.accMode <> kACS_MODIFY THEN
 				fbModeSelectionEdit_1();
 			END_IF;
+			fbModeSelectionEdit_2();
 
 			(* *** REFRESHING BACKGROUND ITEMS *** *)
 			(* Cursor across the call stack *)
