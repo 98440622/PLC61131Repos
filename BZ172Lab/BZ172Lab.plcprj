@@ -23,10 +23,10 @@
 					<var name="NTCProbes" type="BZTemperatureSensor" dim0="8"/>
 					<var name="Switches" type="BZSwitch" dim0="8"/>
 					<var name="Relays" type="@BZRelay" dim0="8"/>
-					<var name="DACs" type="BZAnalogConverter" dim0="6"/>
+					<var name="DACs" type="BZDAQChannel" dim0="6"/>
 					<var name="ACTs" type="BZActuator" dim0="6"/>
 					<var name="EvapFans" type="BZECFanEBM" dim0="6"/>
-					<var name="ACUnit" type="bzSaaralUnit"/>
+					<var name="ACUnit" type="bzAisleACUnit"/>
 					<var name="TachoMeter" type="BZCarelUXPB000100111"/>
 					<var name="OutdoorUnit" type="BZCSCB1"/>
 				</group>
@@ -419,11 +419,11 @@ end_if;
 ]]>
 					</sourceCode>
 				</function>
-				<function name="IbzSaaralUnit_new" version="1.0.0" creationDate="1612017920" lastModifiedDate="1612415529">
+				<function name="IbzAisleACUnit_new" version="1.0.0" creationDate="1612017920" lastModifiedDate="1612415529">
 					<returnValue>BOOL</returnValue>
 					<vars>
 						<inputVars>
-							<var name="me" type="@bzSaaralUnit"/>
+							<var name="me" type="@bzAisleACUnit"/>
 						</inputVars>
 					</vars>
 					<iecDeclaration active="FALSE"/>
@@ -447,7 +447,7 @@ end_if;
 @me.on1min.me					:= me;
 
 
-IbzSaaralUnit_new := TRUE;
+IbzAisleACUnit_new := TRUE;
 
 ]]>
 					</sourceCode>
@@ -654,13 +654,13 @@ IBZRelay_update := TRUE;
 ]]>
 					</sourceCode>
 				</function>
-				<function name="IBZAnalogConverter_new" version="1.0.0" creationDate="1612504085" lastModifiedDate="1612504204">
+				<function name="IBZDAQChannel_new" version="1.0.0" creationDate="1612504085" lastModifiedDate="1612504204">
 					<returnValue>BOOL</returnValue>
 					<vars>
 						<inputVars>
-							<var name="me" type="@BZAnalogConverter"/>
+							<var name="me" type="@BZDAQChannel"/>
 							<var name="ptrHW" type="@INT"/>
-							<var name="type" type="BZAnalogConverterTypeE"/>
+							<var name="type" type="BZDAQChannelTypeE"/>
 						</inputVars>
 					</vars>
 					<iecDeclaration active="FALSE"/>
@@ -669,7 +669,7 @@ IBZRelay_update := TRUE;
 @me.m_ptrHWValue 	:= ptrHW;
 @me.m_Type			:= type;
 
-IBZAnalogConverter_new := TRUE;	
+IBZDAQChannel_new := TRUE;	
 
 ]]>
 					</sourceCode>
@@ -679,7 +679,7 @@ IBZAnalogConverter_new := TRUE;
 					<vars>
 						<inputVars>
 							<var name="me" type="@BZActuator"/>
-							<var name="dac" type="@BZAnalogConverter"/>
+							<var name="dac" type="@BZDAQChannel"/>
 						</inputVars>
 					</vars>
 					<iecDeclaration active="FALSE"/>
@@ -717,10 +717,10 @@ IBZECFanEBM_new := TRUE;
 				</function>
 			</functions>
 			<functionBlocks>
-				<functionBlock name="bzSaaralUnit_groupTemperatures" version="1.0.0" creationDate="1611891178" lastModifiedDate="1612017544">
+				<functionBlock name="bzAisleACUnit_groupTemperatures" version="1.0.0" creationDate="1611891178" lastModifiedDate="1612017544">
 					<vars>
 						<inputVars>
-							<var name="me" type="@bzSaaralUnit"/>
+							<var name="me" type="@bzAisleACUnit"/>
 							<var name="Sensors" type="@BZTemperatureSensor" dim0="8"/>
 							<var name="NbrOfSen" type="INT"/>
 						</inputVars>
@@ -771,10 +771,10 @@ end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="bzSaaralUnit_run" version="1.0.0" creationDate="1611906522" lastModifiedDate="1612514129">
+				<functionBlock name="bzAisleACUnit_run" version="1.0.0" creationDate="1611906522" lastModifiedDate="1612533050">
 					<vars>
 						<inputVars>
-							<var name="me" type="@bzSaaralUnit"/>
+							<var name="me" type="@bzAisleACUnit"/>
 						</inputVars>
 						<localVars>
 							<var name="i" type="INT"/>
@@ -784,6 +784,9 @@ end_if;
 							<var name="ptrRelayTmp" type="@BZRelay"/>
 							<var name="ptrEvapFan" type="@BZECFanEBM"/>
 							<var name="ptrEvapFanAct" type="@BZActuator"/>
+							<var name="evap_fan_cmd" type="REAL">
+								<initValue>0</initValue>
+							</var>
 						</localVars>
 						<localConsts>
 							<const name="NUMBER_OF_EVAP_FANS" type="INT">
@@ -909,18 +912,21 @@ end_if;
 
 
 // Evaporator fans
+
+// calculate the fan speed command according to the logic
+if (@me.m_unit_status = BZ_ON) then
+	// TODO : PID control by air temperature
+	evap_fan_cmd := 50.0;
+elsif (@me.m_unit_status = BZ_MAINTENANCE) then
+	evap_fan_cmd := TO_REAL(@me.EvapFanManOut) / 10.0;
+else
+	evap_fan_cmd := 0.0;
+end_if;
+
 for i := 0 to NUMBER_OF_EVAP_FANS - 1 do
 	ptrEvapFan := @me.EvapFans[i];
 	ptrEvapFanAct := @ptrEvapFan.m_actuator;
-	
-	if (@me.m_unit_status = BZ_ON) then
-		// TODO fan control logic
-		//@ptrEvapFanAct.m_Output := ??
-	elsif (@me.m_unit_status = BZ_MAINTENANCE) then
-		@ptrEvapFanAct.m_Output := TO_REAL(@me.EvapFanManOut) / 10.0;
-	else
-		@ptrEvapFanAct.m_Output := 0.0;
-	end_if;
+	@ptrEvapFanAct.m_Output := evap_fan_cmd;
 end_for;
 ]]>
 					</sourceCode>
@@ -1027,10 +1033,10 @@ end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="bzSaaralUnit_poll" version="1.0.0" creationDate="1612339446" lastModifiedDate="1612339958">
+				<functionBlock name="bzAisleACUnit_poll" version="1.0.0" creationDate="1612339446" lastModifiedDate="1612339958">
 					<vars>
 						<inputVars>
-							<var name="me" type="@bzSaaralUnit"/>
+							<var name="me" type="@bzAisleACUnit"/>
 						</inputVars>
 						<localVars>
 							<var name="ptrFanTachoModule" type="@BZCarelUXPB000100111"/>
@@ -1060,10 +1066,10 @@ ptrOutdoorModule := @me.OutdoorModbule;
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="bzSaaralUnit_on1s" version="1.0.0" creationDate="1612413586" lastModifiedDate="1612414467">
+				<functionBlock name="bzAisleACUnit_on1s" version="1.0.0" creationDate="1612413586" lastModifiedDate="1612414467">
 					<vars>
 						<inputVars>
-							<var name="me" type="@bzSaaralUnit"/>
+							<var name="me" type="@bzAisleACUnit"/>
 						</inputVars>
 					</vars>
 					<iecDeclaration active="FALSE"/>
@@ -1089,10 +1095,10 @@ end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="bzSaaralUnit_on1min" version="1.0.0" creationDate="1612415370" lastModifiedDate="1612415475">
+				<functionBlock name="bzAisleACUnit_on1min" version="1.0.0" creationDate="1612415370" lastModifiedDate="1612415475">
 					<vars>
 						<inputVars>
-							<var name="me" type="@bzSaaralUnit"/>
+							<var name="me" type="@bzAisleACUnit"/>
 						</inputVars>
 					</vars>
 					<iecDeclaration active="FALSE"/>
@@ -1124,7 +1130,7 @@ end_if;
 						</inputVars>
 						<localVars>
 							<var name="ptrAct" type="@BZActuator"/>
-							<var name="ptrDAC" type="@BZAnalogConverter"/>
+							<var name="ptrDAC" type="@BZDAQChannel"/>
 							<var name="ptrHW" type="@INT"/>
 						</localVars>
 					</vars>
@@ -1363,12 +1369,12 @@ ptrHWAIs[5] := ?HW_AI_06;
 ptrHWAIs[6] := ?HW_AI_07;
 
 // AOs
-res := IBZAnalogConverter_new(?DACs[0], ?HW_AO_01, BZ_DAC_VOL);
-res := IBZAnalogConverter_new(?DACs[1], ?HW_AO_02, BZ_DAC_VOL);
-res := IBZAnalogConverter_new(?DACs[2], ?HW_AO_03, BZ_DAC_CUR);
-res := IBZAnalogConverter_new(?DACs[3], ?HW_AO_04, BZ_DAC_PWM);
-res := IBZAnalogConverter_new(?DACs[4], ?HW_AO_05, BZ_DAC_VOL);
-res := IBZAnalogConverter_new(?DACs[5], ?HW_AO_06, BZ_DAC_VOL);
+res := IBZDAQChannel_new(?DACs[0], ?HW_AO_01, BZ_DAC_VOL);
+res := IBZDAQChannel_new(?DACs[1], ?HW_AO_02, BZ_DAC_VOL);
+res := IBZDAQChannel_new(?DACs[2], ?HW_AO_03, BZ_DAC_CUR);
+res := IBZDAQChannel_new(?DACs[3], ?HW_AO_04, BZ_DAC_PWM);
+res := IBZDAQChannel_new(?DACs[4], ?HW_AO_05, BZ_DAC_VOL);
+res := IBZDAQChannel_new(?DACs[5], ?HW_AO_06, BZ_DAC_VOL);
 
 
 //
@@ -1423,7 +1429,7 @@ res := IBZCSCB1_new(?OutdoorUnit, 7);	//TODO : CSCB address should be 1
 //
 // create the unit
 //
-res := IbzSaaralUnit_new(?ACUnit);
+res := IbzAisleACUnit_new(?ACUnit);
 
 //
 // connect the 'hardware' components to the unit according to the IO map
@@ -1654,9 +1660,9 @@ of the actual position.</descr>
 						</var>
 					</vars>
 				</struct>
-				<struct name="bzSaaralUnit" version="1.0.0">
-					<title>Saaral Unit</title>
-					<descr>A type of an air conditioner unit built from a project called Saaral which is regarded as replacedment of ACRD100, but who knows how long it can survive.</descr>
+				<struct name="bzAisleACUnit" version="1.0.0">
+					<title>AisleAC Unit</title>
+					<descr>A type of an air conditioner unit built from a project called AisleAC which is regarded as replacedment of ACRD100, but who knows how long it can survive.</descr>
 					<vars>
 						<var name="strModelNO" type="STRING" length="16">
 							<descr>Unit model NO.</descr>
@@ -1664,13 +1670,13 @@ of the actual position.</descr>
 						<var name="strSerialNO" type="STRING" length="16">
 							<descr>Unit serial NO.</descr>
 						</var>
-						<var name="groupReturnAirSensors" type="bzSaaralUnit_groupTemperatures">
+						<var name="groupReturnAirSensors" type="bzAisleACUnit_groupTemperatures">
 							<descr>Two NTC sensors on return air side</descr>
 						</var>
-						<var name="groupSupplyAirSensors" type="bzSaaralUnit_groupTemperatures">
+						<var name="groupSupplyAirSensors" type="bzAisleACUnit_groupTemperatures">
 							<descr>Two NTC sensors on supply air side</descr>
 						</var>
-						<var name="groupRackAirSensors" type="bzSaaralUnit_groupTemperatures">
+						<var name="groupRackAirSensors" type="bzAisleACUnit_groupTemperatures">
 							<descr>Two NTC sensors in front of the server racks on customer side</descr>
 						</var>
 						<var name="EvapCoilTempSensor" type="@BZTemperatureSensor">
@@ -1715,16 +1721,16 @@ of the actual position.</descr>
 						<var name="m_unit_maintenance_timeout_counter_u16" type="UINT">
 							<descr>Unit maintenance timeout timer</descr>
 						</var>
-						<var name="run" type="bzSaaralUnit_run">
+						<var name="run" type="bzAisleACUnit_run">
 							<descr>Public method to execute the control process</descr>
 						</var>
-						<var name="poll" type="bzSaaralUnit_poll">
+						<var name="poll" type="bzAisleACUnit_poll">
 							<descr>Method to poll the slave devices on RTU bus</descr>
 						</var>
-						<var name="on1s" type="bzSaaralUnit_on1s">
+						<var name="on1s" type="bzAisleACUnit_on1s">
 							<descr>Method for the one-second callback</descr>
 						</var>
-						<var name="on1min" type="bzSaaralUnit_on1min">
+						<var name="on1min" type="bzAisleACUnit_on1min">
 							<descr>Method for the one-minute callback</descr>
 						</var>
 					</vars>
@@ -1816,21 +1822,21 @@ of the actual position.</descr>
 				</struct>
 				<struct name="BZActuator" version="1.0.0">
 					<title>BZActuator</title>
-					<descr>An actuator is regarded as an analog type of output that has a configurable output range. </descr>
+					<descr>An actuator is regarded as an analog type of output that has a configurable output range.</descr>
 					<vars>
-						<var name="m_DAC" type="@BZAnalogConverter"/>
+						<var name="m_DAC" type="@BZDAQChannel"/>
 						<var name="m_Output" type="REAL"/>
 						<var name="m_Range" type="BZRealRange"/>
 					</vars>
 				</struct>
-				<struct name="BZAnalogConverter" version="1.0.0">
+				<struct name="BZDAQChannel" version="1.0.0">
 					<title>BZAnalog Converter</title>
 					<descr>TBD</descr>
 					<vars>
 						<var name="m_ptrHWValue" type="@INT">
 							<descr>HW interface (pointer) that can pass the raw value in (x10 scaled)</descr>
 						</var>
-						<var name="m_Type" type="BZAnalogConverterTypeE">
+						<var name="m_Type" type="BZDAQChannelTypeE">
 							<descr>Type of the converter</descr>
 						</var>
 					</vars>
@@ -1969,7 +1975,7 @@ of the actual position.</descr>
 						</element>
 					</elements>
 				</enum>
-				<enum name="BZAnalogConverterTypeE" version="1.0.0">
+				<enum name="BZDAQChannelTypeE" version="1.0.0">
 					<title>Analog Converter Type</title>
 					<descr>0-10vDC
 4-20mA
@@ -55150,7 +55156,7 @@ END_PROGRAM
 			</src>
 		</aux>
 		<workspace>
-			<root name="BZ172Lab" nextID="5900">
+			<root name="BZ172Lab" nextID="6422">
 				<GlobalVars name="Global_vars" id="11"/>
 				<Pou name="main" id="2"/>
 				<folder id="16" name="BZoops172">
@@ -55205,9 +55211,9 @@ END_PROGRAM
 							<Definition name="BZActuator" id="5185"/>
 							<Pou name="IBZActuator_new" id="5257"/>
 						</folder>
-						<folder name="BZAnalogConverter" id="5371">
-							<Definition name="BZAnalogConverter" id="5192"/>
-							<Pou name="IBZAnalogConverter_new" id="5247"/>
+						<folder name="BZDAQChannel" id="5371">
+							<Definition name="BZDAQChannel" id="5192"/>
+							<Pou name="IBZDAQChannel_new" id="5247"/>
 						</folder>
 						<folder name="BZECFanEBM" id="5372">
 							<Definition name="BZECFanEBM" id="5373"/>
@@ -55225,7 +55231,7 @@ END_PROGRAM
 						<Definition name="BZIRACUnitStatusE" id="3854"/>
 						<Definition name="BZSwitchStatusE" id="4450"/>
 						<Definition name="BZRelayOutputE" id="4802"/>
-						<Definition name="BZAnalogConverterTypeE" id="5227"/>
+						<Definition name="BZDAQChannelTypeE" id="5227"/>
 					</folder>
 					<folder name="Utilities" id="41">
 						<Pou name="BZComputeY" id="42"/>
@@ -55234,14 +55240,14 @@ END_PROGRAM
 				</folder>
 				<Pou name="init" id="688"/>
 				<folder name="Machines" id="746">
-					<folder name="Saaral" id="747">
-						<Definition name="bzSaaralUnit" id="748" genHidden="false"/>
-						<Pou name="bzSaaralUnit_groupTemperatures" id="1456"/>
-						<Pou name="bzSaaralUnit_run" id="1518"/>
-						<Pou name="IbzSaaralUnit_new" id="2621"/>
-						<Pou name="bzSaaralUnit_poll" id="3451"/>
-						<Pou name="bzSaaralUnit_on1s" id="4118"/>
-						<Pou name="bzSaaralUnit_on1min" id="4206"/>
+					<folder name="bzAisleAC" id="747">
+						<Definition name="bzAisleACUnit" id="748" genHidden="false"/>
+						<Pou name="bzAisleACUnit_groupTemperatures" id="1456"/>
+						<Pou name="bzAisleACUnit_run" id="1518"/>
+						<Pou name="IbzAisleACUnit_new" id="2621"/>
+						<Pou name="bzAisleACUnit_poll" id="3451"/>
+						<Pou name="bzAisleACUnit_on1s" id="4118"/>
+						<Pou name="bzAisleACUnit_on1min" id="4206"/>
 					</folder>
 				</folder>
 				<Pou name="task_100ms" id="4093"/>
@@ -55483,7 +55489,7 @@ END_PROGRAM
 								<ipamax/>
 								<scale>1</scale>
 								<offs>0</offs>
-								<um/>
+								<um>0</um>
 								<description>Application version by a string type format of xx.xx.xx</description>
 								<note/>
 								<form/>
@@ -56568,7 +56574,7 @@ END_PROGRAM
 							<commstring>Modbus:1,1000#COM:1,38400,E,8,1</commstring>
 							<values stopNodeParsing="true">
 								<value ipa="10000" subidx="0">0</value>
-								<value ipa="10001" subidx="0">2055</value>
+								<value ipa="10001" subidx="0">1031</value>
 								<value ipa="10002" subidx="0">1</value>
 								<value ipa="10003" subidx="0">0</value>
 								<value ipa="10004" subidx="0">2</value>
@@ -57027,8 +57033,8 @@ END_PROGRAM
 								<value ipa="1" subidx="0">10</value>
 								<value ipa="2" subidx="0">0</value>
 								<value ipa="3" subidx="0">0</value>
-								<value ipa="4" subidx="0">0</value>
-								<value ipa="5" subidx="0">0</value>
+								<value ipa="4" subidx="0">1</value>
+								<value ipa="5" subidx="0">1</value>
 								<value ipa="5012" subidx="0"/>
 								<value ipa="5010" subidx="0"/>
 								<value ipa="5005" subidx="0">303</value>

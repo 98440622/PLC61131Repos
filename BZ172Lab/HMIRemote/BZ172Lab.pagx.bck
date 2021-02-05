@@ -13,6 +13,11 @@
 					<VAL id="2">ON</VAL>
 					<VAL id="3">MAINTENANCE</VAL>
 				</ENUM>
+				<ENUM id="3" name="emUnitMode" descr="emUnitMode">
+					<VAL id="0">OFF</VAL>
+					<VAL id="1">ON</VAL>
+					<VAL id="2">MAINTENANCE</VAL>
+				</ENUM>
 			</ENUMS>
 			<STRINGTABLE>
 				<VAL id="STR_UNIT_OFF">OFF</VAL>
@@ -341,7 +346,35 @@
 				<DESC/>
 			</ATTRIBUTES>
 			<OBJECTS>
-				<STRINGS/>
+				<STRINGS>
+					<STRING name="String_4">
+						<FONT>EWP2_6x8</FONT>
+						<BCKCOLOR type="RGBColor">16777215</BCKCOLOR>
+						<COLOR type="RGBColor">0</COLOR>
+						<TEXT>
+							<![CDATA[Mode.CMD]]>
+						</TEXT>
+						<XPOS>6</XPOS>
+						<YPOS>48</YPOS>
+						<XDIM>48</XDIM>
+						<YDIM>8</YDIM>
+						<VISIBLE>TRUE</VISIBLE>
+						<ZORDER>6</ZORDER>
+						<STYLE>Flat</STYLE>
+						<BORDCOL type="RGBColor">0</BORDCOL>
+						<BORDPTS>0</BORDPTS>
+						<SELBCK type="RGBColor">0</SELBCK>
+						<SELCOL type="RGBColor">16777215</SELCOL>
+						<NUMCHAR>0</NUMCHAR>
+						<ALIGN>Left</ALIGN>
+						<REFRESH>FALSE</REFRESH>
+						<SELECT>FALSE</SELECT>
+						<EVENTS>
+							<EVENT name="BeforeUpdate"/>
+							<EVENT name="AfterUpdate"/>
+						</EVENTS>
+					</STRING>
+				</STRINGS>
 				<IMGS/>
 				<LINES/>
 				<RECTS/>
@@ -357,7 +390,7 @@
 						<BORDCOL type="RGBColor">0</BORDCOL>
 						<BORDPTS>0</BORDPTS>
 						<XPOS>0</XPOS>
-						<YPOS>8</YPOS>
+						<YPOS>0</YPOS>
 						<XDIM>128</XDIM>
 						<YDIM>16</YDIM>
 						<NUMCHAR>16</NUMCHAR>
@@ -395,7 +428,7 @@
 						<BORDCOL type="RGBColor">0</BORDCOL>
 						<BORDPTS>0</BORDPTS>
 						<XPOS>0</XPOS>
-						<YPOS>40</YPOS>
+						<YPOS>24</YPOS>
 						<XDIM>128</XDIM>
 						<YDIM>16</YDIM>
 						<NUMCHAR>16</NUMCHAR>
@@ -413,6 +446,44 @@
 						<LABEL/>
 						<VARMIN>*</VARMIN>
 						<VARMAX>*</VARMAX>
+						<EVENTS>
+							<EVENT name="BeforeUpdate"/>
+							<EVENT name="AfterUpdate"/>
+							<EVENT name="OnGotFocus"/>
+							<EVENT name="OnLostFocus"/>
+							<EVENT name="OnClick"/>
+							<EVENT name="OnEnter"/>
+							<EVENT name="OnChange"/>
+						</EVENTS>
+					</EDIT>
+					<EDIT name="Edit_3">
+						<FONT>EWP2_6x8</FONT>
+						<COLOR type="RGBColor">0</COLOR>
+						<BCKCOLOR type="RGBColor">16777215</BCKCOLOR>
+						<SELBCK type="RGBColor">16777215</SELBCK>
+						<SELCOL type="RGBColor">0</SELCOL>
+						<STYLE>Flat</STYLE>
+						<BORDCOL type="RGBColor">0</BORDCOL>
+						<BORDPTS>1</BORDPTS>
+						<XPOS>60</XPOS>
+						<YPOS>48</YPOS>
+						<XDIM>66</XDIM>
+						<YDIM>8</YDIM>
+						<NUMCHAR>11</NUMCHAR>
+						<ORDER>4</ORDER>
+						<FORMAT>emUnitMode</FORMAT>
+						<ALIGN>Center</ALIGN>
+						<ACCESS>RW</ACCESS>
+						<DESC/>
+						<ZORDER>5</ZORDER>
+						<VAR type="INT">@LocalParameters.bzUnitModeCfg</VAR>
+						<TYPE>INT</TYPE>
+						<REFRESH>TRUE</REFRESH>
+						<VISIBLE>TRUE</VISIBLE>
+						<SELECT>TRUE</SELECT>
+						<LABEL/>
+						<VARMIN>0</VARMIN>
+						<VARMAX>2</VARMAX>
 						<EVENTS>
 							<EVENT name="BeforeUpdate"/>
 							<EVENT name="AfterUpdate"/>
