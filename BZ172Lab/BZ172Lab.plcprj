@@ -23,6 +23,9 @@
 					<var name="NTCProbes" type="BZTemperatureSensor" dim0="8"/>
 					<var name="Switches" type="BZSwitch" dim0="8"/>
 					<var name="Relays" type="@BZRelay" dim0="8"/>
+					<var name="DACs" type="BZAnalogConverter" dim0="6"/>
+					<var name="ACTs" type="BZActuator" dim0="6"/>
+					<var name="EvapFans" type="BZECFanEBM" dim0="6"/>
 					<var name="ACUnit" type="bzSaaralUnit"/>
 					<var name="TachoMeter" type="BZCarelUXPB000100111"/>
 					<var name="OutdoorUnit" type="BZCSCB1"/>
@@ -33,8 +36,14 @@
 			</retainVars>
 			<constantVars>
 				<group name="Global_vars">
-					<const name="MAX_NBR_OF_TEMPERATURE_SENSORS" type="INT">
+					<const name="NUMBER_OF_TEMPERATURE_SENSORS" type="INT">
 						<initValue>8</initValue>
+					</const>
+					<const name="NUMBER_OF_DACS" type="INT">
+						<initValue>6</initValue>
+					</const>
+					<const name="NUMBER_OF_EVAP_FANS" type="INT">
+						<initValue>6</initValue>
 					</const>
 				</group>
 			</constantVars>
@@ -645,6 +654,67 @@ IBZRelay_update := TRUE;
 ]]>
 					</sourceCode>
 				</function>
+				<function name="IBZAnalogConverter_new" version="1.0.0" creationDate="1612504085" lastModifiedDate="1612504204">
+					<returnValue>BOOL</returnValue>
+					<vars>
+						<inputVars>
+							<var name="me" type="@BZAnalogConverter"/>
+							<var name="ptrHW" type="@INT"/>
+							<var name="type" type="BZAnalogConverterTypeE"/>
+						</inputVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<sourceCode type="ST">
+						<![CDATA[
+@me.m_ptrHWValue 	:= ptrHW;
+@me.m_Type			:= type;
+
+IBZAnalogConverter_new := TRUE;	
+
+]]>
+					</sourceCode>
+				</function>
+				<function name="IBZActuator_new" version="1.0.0" creationDate="1612504245" lastModifiedDate="1612512902">
+					<returnValue>BOOL</returnValue>
+					<vars>
+						<inputVars>
+							<var name="me" type="@BZActuator"/>
+							<var name="dac" type="@BZAnalogConverter"/>
+						</inputVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<sourceCode type="ST">
+						<![CDATA[
+@me.m_DAC		:= dac;
+@me.m_Range.Max	:= 100.0;
+@me.m_Range.Min	:= 0.0;
+
+IBZActuator_new := TRUE;
+
+]]>
+					</sourceCode>
+				</function>
+				<function name="IBZECFanEBM_new" version="1.0.0" creationDate="1612506311" lastModifiedDate="1612509313">
+					<returnValue>BOOL</returnValue>
+					<vars>
+						<inputVars>
+							<var name="me" type="@BZECFanEBM"/>
+							<var name="act" type="@BZActuator"/>
+						</inputVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<sourceCode type="ST">
+						<![CDATA[
+// properties
+@me.m_actuator := act;
+
+// 'this' for members
+@me.run.me := me;
+
+IBZECFanEBM_new := TRUE;
+]]>
+					</sourceCode>
+				</function>
 			</functions>
 			<functionBlocks>
 				<functionBlock name="bzSaaralUnit_groupTemperatures" version="1.0.0" creationDate="1611891178" lastModifiedDate="1612017544">
@@ -701,7 +771,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="bzSaaralUnit_run" version="1.0.0" creationDate="1611906522" lastModifiedDate="1612493305">
+				<functionBlock name="bzSaaralUnit_run" version="1.0.0" creationDate="1611906522" lastModifiedDate="1612514129">
 					<vars>
 						<inputVars>
 							<var name="me" type="@bzSaaralUnit"/>
@@ -712,7 +782,14 @@ end_if;
 							<var name="ptrTmp" type="@BZTemperatureSensor"/>
 							<var name="ptrSwitchTmp" type="@BZSwitch"/>
 							<var name="ptrRelayTmp" type="@BZRelay"/>
+							<var name="ptrEvapFan" type="@BZECFanEBM"/>
+							<var name="ptrEvapFanAct" type="@BZActuator"/>
 						</localVars>
+						<localConsts>
+							<const name="NUMBER_OF_EVAP_FANS" type="INT">
+								<initValue>6</initValue>
+							</const>
+						</localConsts>
 					</vars>
 					<iecDeclaration active="FALSE"/>
 					<interfaces/>
@@ -748,6 +825,14 @@ res := IBZSwitch_update(ptrSwitchTmp);
 //
 ptrRelayTmp := @me.UnitStatusRelay;
 res := IBZRelay_update(ptrRelayTmp);
+
+//
+// update fan output
+//
+for i := 0 to NUMBER_OF_EVAP_FANS - 1 do
+	ptrEvapFan := @me.EvapFans[i];
+	@ptrEvapFan.run();
+end_for;
 
 
 //
@@ -798,6 +883,8 @@ elsif (@me.m_unit_status = BZ_MAINTENANCE) then
 		@me.m_unit_status := BZ_OFF;
 		
 		res := sysWriteParINT(@me.unit_mode_cmd_adr, 0);
+		
+		//res := sysWriteDbgMsg(1, 'END OF MAINTENANCE');
 	else;
 	end_if;
 	
@@ -810,12 +897,31 @@ end_if;
 //
 
 // Unit status relay
-ptrRelayTmp := @me.UnitStatusRelay;
-if (@me.m_unit_status = BZ_ON) then
-	@ptrRelayTmp.m_output := BZRelay_CLOSE;
-else
-	@ptrRelayTmp.m_output := BZRelay_OPEN;
+if (@me.m_unit_status <> BZ_MAINTENANCE) then	
+	ptrRelayTmp := @me.UnitStatusRelay;
+	if (@me.m_unit_status = BZ_ON) then
+		@ptrRelayTmp.m_output := BZRelay_CLOSE;
+	else
+		@ptrRelayTmp.m_output := BZRelay_OPEN;
+	end_if;	
+else;
 end_if;
+
+
+// Evaporator fans
+for i := 0 to NUMBER_OF_EVAP_FANS - 1 do
+	ptrEvapFan := @me.EvapFans[i];
+	ptrEvapFanAct := @ptrEvapFan.m_actuator;
+	
+	if (@me.m_unit_status = BZ_ON) then
+		// TODO fan control logic
+		//@ptrEvapFanAct.m_Output := ??
+	elsif (@me.m_unit_status = BZ_MAINTENANCE) then
+		@ptrEvapFanAct.m_Output := TO_REAL(@me.EvapFanManOut) / 10.0;
+	else
+		@ptrEvapFanAct.m_Output := 0.0;
+	end_if;
+end_for;
 ]]>
 					</sourceCode>
 				</functionBlock>
@@ -1011,9 +1117,33 @@ end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
+				<functionBlock name="BZECFanEBM_run" version="1.0.0" creationDate="1612508970" lastModifiedDate="1612512049">
+					<vars>
+						<inputVars>
+							<var name="me" type="@BZECFanEBM"/>
+						</inputVars>
+						<localVars>
+							<var name="ptrAct" type="@BZActuator"/>
+							<var name="ptrDAC" type="@BZAnalogConverter"/>
+							<var name="ptrHW" type="@INT"/>
+						</localVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<interfaces/>
+					<methods/>
+					<sourceCode type="ST">
+						<![CDATA[
+ptrAct := @me.m_actuator;
+ptrDAC := @ptrAct.m_DAC;
+ptrHW := @ptrDAC.m_ptrHWValue;
+
+@ptrHW := TO_INT(@ptrAct.m_Output * 10.0);
+]]>
+					</sourceCode>
+				</functionBlock>
 			</functionBlocks>
 			<programs>
-				<program name="main" version="1.0.0" creationDate="0" lastModifiedDate="1612424625">
+				<program name="main" version="1.0.0" creationDate="0" lastModifiedDate="1612510029">
 					<vars>
 						<localVars>
 							<var name="i" type="INT"/>
@@ -1041,6 +1171,7 @@ ACUnit.unit_mode_cmd 				:= bzUnitModeCfg;
 ACUnit.unit_mode_cmd_adr			:= ADR(bzUnitModeCfg);
 ACUnit.unit_maintenance_timeout		:= bzUnitMaintenanceTimeoutCfg;
 ACUnit.unit_startup_delay_timeout 	:= bzUnitStartupDelayCfg;
+ACUnit.EvapFanManOut				:= bzManualFanSpeed;
 
 
 /******************************************************************************************************
@@ -1084,96 +1215,6 @@ bzRCTh := TO_INT(ACUnit.groupRackAirSensors.High 	* 10.0);
 
 bzUnitStatus := TO_INT(ACUnit.m_unit_status);
 
-]]>
-					</sourceCode>
-				</program>
-				<program name="BZActuatorUTProg" version="1.0.0" creationDate="0" lastModifiedDate="1607933425">
-					<vars>
-						<localVars>
-							<var name="res" type="BOOL"/>
-							<var name="valve1" type="BZProportionalValve"/>
-							<var name="fan1" type="BZECFan"/>
-							<var name="heater1" type="BZElectricHeaterBar"/>
-							<var name="probes" type="INT" dim0="4">
-								<initValue>[0, 0, 0, 0]</initValue>
-							</var>
-							<var name="cnt" type="UINT">
-								<initValue>0</initValue>
-							</var>
-							<var name="actuators" type="@BZActuatorBase" dim0="10"/>
-							<var name="analog_actuators" type="@BZAnalogActuator" dim0="5"/>
-							<var name="i" type="INT"/>
-							<var name="binary_actuators" type="@BZBinaryOutput" dim0="3"/>
-							<var name="is_first_called" type="BOOL">
-								<initValue>TRUE</initValue>
-							</var>
-						</localVars>
-					</vars>
-					<iecDeclaration active="FALSE"/>
-					<sourceCode type="ST">
-						<![CDATA[
-if (is_first_called) then
-	/*
-		initialize local variables
-	 */
-	i := 0;
-	
-	analog_actuators[0] := ?(valve1.Parent);
-	actuators[i] := ?(@analog_actuators[0].Parent); i := i + 1;
-	analog_actuators[1] := ?(fan1.Parent);
-	actuators[i] := ?(@analog_actuators[1].Parent); i := i + 1;
-	
-	binary_actuators[0] := ?(heater1.Parent);
-	actuators[i] := ?(@binary_actuators[0].Parent); i := i + 1;
-	
-	is_first_called := FALSE;
-else
-	/*
-		command actuators
-	 */
-	if MOD(cnt, 10) = 0 then
-		res := BZProportionalValve_Command(?valve1, AUTO, 40.5);
-	else
-		res := BZProportionalValve_Command(?valve1, STANDBY, 0);
-	end_if;
-	
-	
-	if MOD(cnt, 100) = 0 then
-		res := BZECFan_Command(?fan1, AUTO, 89.7);
-	else
-		res := BZECFan_Command(?fan1, STANDBY, 0);
-	end_if;
-	
-	
-	if MOD(cnt, 1000) = 0 then
-		res := BZElectricHeaterBar_Command(?heater1, AUTO, TRUE);
-	else
-		res := BZElectricHeaterBar_Command(?heater1, STANDBY, FALSE);
-	end_if;
-	
-	/*
-		run actuators
-	 */
-	res := BZProportionalValve_Run(?valve1);
-	res := BZECFan_Run(?fan1);
-	res := BZElectricHeaterBar_Run(?heater1);
-	
-	
-	/*
-		check actuators status
-	 */
-	for i := 0 to 2 do
-		if (BZActuatorBase_GetStatus(actuators[i]) = AUTO) then
-			probes[i] := probes[i] + 1;
-		end_if;
-	end_for;
-	
-end_if;
-
-/*
-	supporting 
- */
-cnt := cnt + 1;
 ]]>
 					</sourceCode>
 				</program>
@@ -1254,7 +1295,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</program>
-				<program name="init" version="1.0.0" creationDate="1611809132" lastModifiedDate="1612492659">
+				<program name="init" version="1.0.0" creationDate="1611809132" lastModifiedDate="1612512866">
 					<vars>
 						<localVars>
 							<var name="res" type="BOOL"/>
@@ -1311,6 +1352,8 @@ res := sysWriteParINT(ADR(Offs_mA_AO3),		0);
 //
 // IOs from the controller
 //
+
+// AIs
 ptrHWAIs[0] := ?HW_AI_01;
 ptrHWAIs[1] := ?HW_AI_02;
 ptrHWAIs[2] := ?HW_AI_03;
@@ -1319,12 +1362,29 @@ ptrHWAIs[4] := ?HW_AI_05;
 ptrHWAIs[5] := ?HW_AI_06;
 ptrHWAIs[6] := ?HW_AI_07;
 
+// AOs
+res := IBZAnalogConverter_new(?DACs[0], ?HW_AO_01, BZ_DAC_VOL);
+res := IBZAnalogConverter_new(?DACs[1], ?HW_AO_02, BZ_DAC_VOL);
+res := IBZAnalogConverter_new(?DACs[2], ?HW_AO_03, BZ_DAC_CUR);
+res := IBZAnalogConverter_new(?DACs[3], ?HW_AO_04, BZ_DAC_PWM);
+res := IBZAnalogConverter_new(?DACs[4], ?HW_AO_05, BZ_DAC_VOL);
+res := IBZAnalogConverter_new(?DACs[5], ?HW_AO_06, BZ_DAC_VOL);
+
+
 //
 // create hardware components
 //
 
+// Actuators
+res := IBZActuator_new(?ACTs[0], ?DACs[0]);
+res := IBZActuator_new(?ACTs[1], ?DACs[1]);
+res := IBZActuator_new(?ACTs[2], ?DACs[2]);
+res := IBZActuator_new(?ACTs[3], ?DACs[3]);
+res := IBZActuator_new(?ACTs[4], ?DACs[4]);
+res := IBZActuator_new(?ACTs[5], ?DACs[5]);
+
 // NTC probes
-for i := 0 to MAX_NBR_OF_TEMPERATURE_SENSORS - 1 do
+for i := 0 to NUMBER_OF_TEMPERATURE_SENSORS - 1 do
 	res := IBZTemperatureSensor_new(?NTCProbes[i], enCelcius, ptrHWAIs[i]);
 end_for;
 
@@ -1337,6 +1397,16 @@ if (bzUnitStatusRelayCfg = 1) then
 else
 	res := IBZRelay_new(?Relays[0], ?HW_DO_01, BZRelay_OPEN);
 end_if;
+
+
+// Evaporator Fans
+res := IBZECFanEBM_new(?EvapFans[0], ?ACTs[0]);
+res := IBZECFanEBM_new(?EvapFans[1], ?ACTs[0]);
+res := IBZECFanEBM_new(?EvapFans[2], ?ACTs[0]);
+res := IBZECFanEBM_new(?EvapFans[3], ?ACTs[1]);
+res := IBZECFanEBM_new(?EvapFans[4], ?ACTs[1]);
+res := IBZECFanEBM_new(?EvapFans[5], ?ACTs[1]);
+ 
 
 // Tacho meter
 res := IBZCarelUXPB000100111_new(?TachoMeter, 3);
@@ -1379,6 +1449,11 @@ ACUnit.RemoteShutdownSwitch := ?Switches[0];
 
 // Relays
 ACUnit.UnitStatusRelay := ?Relays[0];
+
+// Evaporator fans
+for i := 0 to NUMBER_OF_EVAP_FANS - 1 do
+	ACUnit.EvapFans[i] := ?EvapFans[i];
+end_for;
 
 // Expansion boards
 ACUnit.FanTachoModule := ?TachoMeter;
@@ -1607,6 +1682,12 @@ of the actual position.</descr>
 						<var name="UnitStatusRelay" type="@BZRelay">
 							<descr>Indication of unit status</descr>
 						</var>
+						<var name="EvapFans" type="@BZECFanEBM" dim0="6">
+							<descr>6 EC fans from EBM to provide airflow through evaporator coil</descr>
+						</var>
+						<var name="EvapFanManOut" type="INT">
+							<descr>Link to bzManualFanSpeed</descr>
+						</var>
 						<var name="FanTachoModule" type="@BZCarelUXPB000100111">
 							<descr>Fan speed feedback measurement module by modbus RTU</descr>
 						</var>
@@ -1733,6 +1814,40 @@ of the actual position.</descr>
 						<var name="m_cfg" type="BZRelayOutputE"/>
 					</vars>
 				</struct>
+				<struct name="BZActuator" version="1.0.0">
+					<title>BZActuator</title>
+					<descr>An actuator is regarded as an analog type of output that has a configurable output range. </descr>
+					<vars>
+						<var name="m_DAC" type="@BZAnalogConverter"/>
+						<var name="m_Output" type="REAL"/>
+						<var name="m_Range" type="BZRealRange"/>
+					</vars>
+				</struct>
+				<struct name="BZAnalogConverter" version="1.0.0">
+					<title>BZAnalog Converter</title>
+					<descr>TBD</descr>
+					<vars>
+						<var name="m_ptrHWValue" type="@INT">
+							<descr>HW interface (pointer) that can pass the raw value in (x10 scaled)</descr>
+						</var>
+						<var name="m_Type" type="BZAnalogConverterTypeE">
+							<descr>Type of the converter</descr>
+						</var>
+					</vars>
+				</struct>
+				<struct name="BZECFanEBM" version="1.0.0">
+					<title>EBM EC fan</title>
+					<descr>EBM EC fan controlled by 10vdc with pulse feedback for tacho.</descr>
+					<vars>
+						<var name="m_actuator" type="@BZActuator"/>
+						<var name="Tacho" type="UINT">
+							<descr>RPM</descr>
+						</var>
+						<var name="run" type="BZECFanEBM_run">
+							<descr>'run' member function</descr>
+						</var>
+					</vars>
+				</struct>
 			</structs>
 			<typedefs/>
 			<enums>
@@ -1851,6 +1966,26 @@ of the actual position.</descr>
 						</element>
 						<element name="BZRelay_CLOSE">
 							<value>1</value>
+						</element>
+					</elements>
+				</enum>
+				<enum name="BZAnalogConverterTypeE" version="1.0.0">
+					<title>Analog Converter Type</title>
+					<descr>0-10vDC
+4-20mA
+PWM</descr>
+					<elements>
+						<element name="BZ_DAC_VOL">
+							<descr>0-10vDC</descr>
+							<value>0</value>
+						</element>
+						<element name="BZ_DAC_CUR">
+							<descr>4-20mA</descr>
+							<value>1</value>
+						</element>
+						<element name="BZ_DAC_PWM">
+							<descr>PWM</descr>
+							<value>2</value>
 						</element>
 					</elements>
 				</enum>
@@ -54871,19 +55006,17 @@ ui16_random := TO_UINT(ui16_random_copy or (ui16_random_tmp and 16#00FF));
 		{G:"Status_variables"}
 	bzAlarmBase AT %MW110.20 : INT := 0;  {DE:"Alarm code base"}
 		{G:"Status_variables"}
-	bzSerialNO AT %MW110.21 : STRING[ 16 ] := '0';  {DE:"Serial NO."}
+	bzManualFanSpeed AT %MW110.21 : INT := 0;  {DE:"Evaporator fan manual speed output"}
 		{G:"Status_variables"}
-	bzModelNO AT %MW110.30 : STRING[ 16 ] := '0';  {DE:"Model NO."}
+	BZCANMailbox1 AT %MW110.22 : INT;
 		{G:"Status_variables"}
-	BZCANMailbox1 AT %MW110.39 : INT;
+	BZCANMailbox2 AT %MW110.23 : INT;
 		{G:"Status_variables"}
-	BZCANMailbox2 AT %MW110.40 : INT;
+	BZCANMailbox3 AT %MW110.24 : INT;
 		{G:"Status_variables"}
-	BZCANMailbox3 AT %MW110.41 : INT;
+	BZIsRealMode AT %MW110.25 : BOOL := 1;  {DE:"Controller is working on real mode."}
 		{G:"Status_variables"}
-	BZIsRealMode AT %MW110.42 : BOOL := 1;  {DE:"Controller is working on real mode."}
-		{G:"Status_variables"}
-	bzUnitStatus AT %MW110.43 : INT;  {DE:"Unit status"}
+	bzUnitStatus AT %MW110.26 : INT;  {DE:"Unit status"}
 		{G:"IO_Mapping"}
 	HW_AI_01 AT %IW1.0 : INT;  {DE:"AIL1 analogue input"}
 		{G:"IO_Mapping"}
@@ -54956,6 +55089,18 @@ ui16_random := TO_UINT(ui16_random_copy or (ui16_random_tmp and 16#00FF));
 	HW_DO_11 AT %QX1.10 : BOOL;  {DE:"DOL11 digital output"}
 		{G:"IO_Mapping"}
 	HW_DO_12 AT %QX1.11 : BOOL;  {DE:"DOL12 digital output"}
+		{G:"IO_Mapping"}
+	HW_AO_01 AT %QW0.0 : INT;  {DE:"AOL1 analogue output"}
+		{G:"IO_Mapping"}
+	HW_AO_02 AT %QW0.1 : INT;  {DE:"AOL2 analogue output"}
+		{G:"IO_Mapping"}
+	HW_AO_03 AT %QW0.2 : INT;  {DE:"AOL3 analogue output"}
+		{G:"IO_Mapping"}
+	HW_AO_04 AT %QW0.3 : INT;  {DE:"AOL4 analogue output"}
+		{G:"IO_Mapping"}
+	HW_AO_05 AT %QW0.4 : INT;  {DE:"AOL5 analogue output"}
+		{G:"IO_Mapping"}
+	HW_AO_06 AT %QW0.5 : INT;  {DE:"AOL6 analogue output"}
 	END_VAR
 ]]>
 			</src>
@@ -54963,8 +55108,8 @@ ui16_random := TO_UINT(ui16_random_copy or (ui16_random_tmp and 16#00FF));
 				<![CDATA[(* Automatically generated, do not edit! *)
 
 VAR_GLOBAL CONSTANT
-$$ParDB : ARRAY[ 0..935 ] OF USINT; { HIDDEN:ON } { INIT:"BZ172Lab.PLK+0" }
-$$ParDBLength  : DWORD := 26; { HIDDEN:ON }
+$$ParDB : ARRAY[ 0..899 ] OF USINT; { HIDDEN:ON } { INIT:"BZ172Lab.PLK+0" }
+$$ParDBLength  : DWORD := 25; { HIDDEN:ON }
 END_VAR
 
 PROGRAM InitParDB WITH Serv;
@@ -54977,7 +55122,7 @@ PROGRAM InitParDB
 		dummyCrc32: UDINT;
 	END_VAR
 
-	dummyCrc32 := 1227267721;
+	dummyCrc32 := 3065284587;
 
 	warningsKiller := sysDBase_SetExtTable( ADR( $$ParDB ), $$ParDBLength );
 
@@ -55005,12 +55150,11 @@ END_PROGRAM
 			</src>
 		</aux>
 		<workspace>
-			<root name="BZ172Lab" nextID="5065">
+			<root name="BZ172Lab" nextID="5900">
 				<GlobalVars name="Global_vars" id="11"/>
 				<Pou name="main" id="2"/>
-				<folder id="16" name="BZ172Lab">
+				<folder id="16" name="BZoops172">
 					<folder name="Programs" id="19">
-						<Pou name="BZActuatorUTProg" id="20"/>
 						<Pou name="BZCANUTProg" id="483"/>
 					</folder>
 					<folder name="Interfaces" id="21">
@@ -55057,6 +55201,19 @@ END_PROGRAM
 							<Pou name="IBZRelay_new" id="4800"/>
 							<Pou name="IBZRelay_update" id="4828"/>
 						</folder>
+						<folder name="BZActuator" id="5184">
+							<Definition name="BZActuator" id="5185"/>
+							<Pou name="IBZActuator_new" id="5257"/>
+						</folder>
+						<folder name="BZAnalogConverter" id="5371">
+							<Definition name="BZAnalogConverter" id="5192"/>
+							<Pou name="IBZAnalogConverter_new" id="5247"/>
+						</folder>
+						<folder name="BZECFanEBM" id="5372">
+							<Definition name="BZECFanEBM" id="5373"/>
+							<Pou name="IBZECFanEBM_new" id="5374"/>
+							<Pou name="BZECFanEBM_run" id="5466"/>
+						</folder>
 					</folder>
 					<folder name="Types" id="37">
 						<Definition name="BZActuatorStatus" id="38"/>
@@ -55068,6 +55225,7 @@ END_PROGRAM
 						<Definition name="BZIRACUnitStatusE" id="3854"/>
 						<Definition name="BZSwitchStatusE" id="4450"/>
 						<Definition name="BZRelayOutputE" id="4802"/>
+						<Definition name="BZAnalogConverterTypeE" id="5227"/>
 					</folder>
 					<folder name="Utilities" id="41">
 						<Pou name="BZComputeY" id="42"/>
@@ -55639,18 +55797,18 @@ END_PROGRAM
 							<param>
 								<ipa>5003</ipa>
 								<address>10360</address>
-								<name>bzSerialNO</name>
-								<typepar>8</typepar>
-								<typetarg>STRING</typetarg>
+								<name>bzManualFanSpeed</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
 								<value>0</value>
-								<min/>
-								<max/>
+								<min>0</min>
+								<max>1000</max>
 								<ipamin/>
 								<ipamax/>
 								<scale>1</scale>
 								<offs>0</offs>
-								<um/>
-								<description>Serial NO.</description>
+								<um>.1%</um>
+								<description>Evaporator fan manual speed output</description>
 								<note/>
 								<form/>
 								<accesslevel>3</accesslevel>
@@ -55658,33 +55816,6 @@ END_PROGRAM
 								<shortname/>
 								<size>16</size>
 								<dataBlock>MW110.21</dataBlock>
-								<label/>
-								<translation/>
-								<visibility>0</visibility>
-								<clientType>0</clientType>
-							</param>
-							<param>
-								<ipa>5004</ipa>
-								<address>10369</address>
-								<name>bzModelNO</name>
-								<typepar>8</typepar>
-								<typetarg>STRING</typetarg>
-								<value>0</value>
-								<min/>
-								<max/>
-								<ipamin/>
-								<ipamax/>
-								<scale>1</scale>
-								<offs>0</offs>
-								<um/>
-								<description>Model NO.</description>
-								<note/>
-								<form/>
-								<accesslevel>3</accesslevel>
-								<readonly>0</readonly>
-								<shortname/>
-								<size>16</size>
-								<dataBlock>MW110.30</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -55711,7 +55842,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW110.39</dataBlock>
+								<dataBlock>MW110.22</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -55738,7 +55869,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW110.40</dataBlock>
+								<dataBlock>MW110.23</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -55765,7 +55896,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW110.41</dataBlock>
+								<dataBlock>MW110.24</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -55792,7 +55923,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW110.42</dataBlock>
+								<dataBlock>MW110.25</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -55819,7 +55950,7 @@ END_PROGRAM
 								<readonly>1</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW110.43</dataBlock>
+								<dataBlock>MW110.26</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -56049,37 +56180,37 @@ END_PROGRAM
 								<ioMapping inout="out" idx="0">
 									<name>AOL1</name>
 									<description>AOL1 analogue output</description>
-									<variable/>
+									<variable>HW_AO_01</variable>
 									<type>INT</type>
 								</ioMapping>
 								<ioMapping inout="out" idx="1">
 									<name>AOL2</name>
 									<description>AOL2 analogue output</description>
-									<variable/>
+									<variable>HW_AO_02</variable>
 									<type>INT</type>
 								</ioMapping>
 								<ioMapping inout="out" idx="2">
 									<name>AOL3</name>
 									<description>AOL3 analogue output</description>
-									<variable/>
+									<variable>HW_AO_03</variable>
 									<type>INT</type>
 								</ioMapping>
 								<ioMapping inout="out" idx="3">
 									<name>AOL4</name>
 									<description>AOL4 analogue output</description>
-									<variable/>
+									<variable>HW_AO_04</variable>
 									<type>INT</type>
 								</ioMapping>
 								<ioMapping inout="out" idx="4">
 									<name>AOL5</name>
 									<description>AOL5 analogue output</description>
-									<variable/>
+									<variable>HW_AO_05</variable>
 									<type>INT</type>
 								</ioMapping>
 								<ioMapping inout="out" idx="5">
 									<name>AOL6</name>
 									<description>AOL6 analogue output</description>
-									<variable/>
+									<variable>HW_AO_06</variable>
 									<type>INT</type>
 								</ioMapping>
 								<ioMapping inout="impulse1" idx="0">
@@ -56509,14 +56640,14 @@ END_PROGRAM
 								<value ipa="10069" subidx="0">0</value>
 								<value ipa="10070" subidx="0">30</value>
 								<value ipa="10071" subidx="0">10</value>
-								<value ipa="10072" subidx="0">309</value>
+								<value ipa="10072" subidx="0">310</value>
 								<value ipa="10073" subidx="0">325</value>
 								<value ipa="10074" subidx="0">219</value>
-								<value ipa="10075" subidx="0">221</value>
-								<value ipa="10076" subidx="0">173</value>
+								<value ipa="10075" subidx="0">222</value>
+								<value ipa="10076" subidx="0">174</value>
 								<value ipa="10077" subidx="0">181</value>
 								<value ipa="10078" subidx="0">253</value>
-								<value ipa="10079" subidx="0">235</value>
+								<value ipa="10079" subidx="0">236</value>
 								<value ipa="10080" subidx="0">-32768</value>
 								<value ipa="10081" subidx="0">-32768</value>
 								<value ipa="10082" subidx="0">1</value>
@@ -56912,7 +57043,6 @@ END_PROGRAM
 								<value ipa="5008" subidx="0">0</value>
 								<value ipa="5009" subidx="0">0</value>
 								<value ipa="5003" subidx="0">0</value>
-								<value ipa="5004" subidx="0">0</value>
 								<value ipa="5000" subidx="0">0</value>
 								<value ipa="5001" subidx="0">0</value>
 								<value ipa="5002" subidx="0">0</value>
