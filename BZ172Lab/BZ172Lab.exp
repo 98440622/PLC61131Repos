@@ -9,6 +9,9 @@
 bzUnitModeCfg AT %MW101.0 : INT;	{ DE:"Unit mode" }
 bzUnitMaintenanceTimeoutCfg AT %MW101.1 : UINT;	{ DE:"Unit maintenance timeout in minute" }
 bzUnitStartupDelayCfg AT %MW101.2 : UINT;	{ DE:"Unit startup delay timeout in second" }
+BZSwitchReversedCfg AT %MW101.3 : INT;	{ DE:"BZSwitch status logic configuration" }
+bzUnitStatusRelayCfg AT %MW101.4 : INT;	{ DE:"Output of relay of unit status indication configuration" }
+bzMajorAlarmRelayCfg AT %MW101.5 : INT;	{ DE:"Output of relay of unit major alarm indication configuration" }
 	{G:"Status_variables"}
 bzBIOSVersion AT %MW110.0 : STRING[ 8 ];	{ DE:"M172 BIOS version" }
 bzAppVersion AT %MW110.5 : STRING[ 8 ];	{ DE:"Application version by a string type format of xx.xx.xx" }
@@ -55,5 +58,17 @@ HW_DI_09 AT %IX0.8 : BOOL;	{ DE:"DIL9 digital input" }
 HW_DI_10 AT %IX0.9 : BOOL;	{ DE:"DIL10 digital input" }
 HW_DI_11 AT %IX0.10 : BOOL;	{ DE:"DIL11 digital input" }
 HW_DI_12 AT %IX0.11 : BOOL;	{ DE:"DIL12 digital input" }
+HW_DO_01 AT %QX1.0 : BOOL;	{ DE:"DOL1 digital output" }
+HW_DO_02 AT %QX1.1 : BOOL;	{ DE:"DOL2 digital output" }
+HW_DO_03 AT %QX1.2 : BOOL;	{ DE:"DOL3 digital output" }
+HW_DO_04 AT %QX1.3 : BOOL;	{ DE:"DOL4 digital output" }
+HW_DO_05 AT %QX1.4 : BOOL;	{ DE:"DOL5 digital output" }
+HW_DO_06 AT %QX1.5 : BOOL;	{ DE:"DOL6 digital output" }
+HW_DO_07 AT %QX1.6 : BOOL;	{ DE:"DOL7 digital output" }
+HW_DO_08 AT %QX1.7 : BOOL;	{ DE:"DOL8 digital output" }
+HW_DO_09 AT %QX1.8 : BOOL;	{ DE:"DOL9 digital output" }
+HW_DO_10 AT %QX1.9 : BOOL;	{ DE:"DOL10 digital output" }
+HW_DO_11 AT %QX1.10 : BOOL;	{ DE:"DOL11 digital output" }
+HW_DO_12 AT %QX1.11 : BOOL;	{ DE:"DOL12 digital output" }
 	END_VAR
 

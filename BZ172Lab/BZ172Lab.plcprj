@@ -22,6 +22,7 @@
 					<var name="ptrHWAIs" type="@INT" dim0="8"/>
 					<var name="NTCProbes" type="BZTemperatureSensor" dim0="8"/>
 					<var name="Switches" type="BZSwitch" dim0="8"/>
+					<var name="Relays" type="@BZRelay" dim0="8"/>
 					<var name="ACUnit" type="bzSaaralUnit"/>
 					<var name="TachoMeter" type="BZCarelUXPB000100111"/>
 					<var name="OutdoorUnit" type="BZCSCB1"/>
@@ -524,12 +525,13 @@ IBZCSCB1_new := TRUE;
 ]]>
 					</sourceCode>
 				</function>
-				<function name="IBZSwitch_new" version="1.0.0" creationDate="1612425590" lastModifiedDate="1612428415">
+				<function name="IBZSwitch_new" version="1.0.0" creationDate="1612425590" lastModifiedDate="1612490012">
 					<returnValue>BOOL</returnValue>
 					<vars>
 						<inputVars>
 							<var name="me" type="@BZSwitch"/>
 							<var name="ptrHW" type="@BOOL"/>
+							<var name="is_reversed" type="BOOL"/>
 						</inputVars>
 					</vars>
 					<iecDeclaration active="FALSE"/>
@@ -538,7 +540,8 @@ IBZCSCB1_new := TRUE;
 //
 // initialize properties
 //
-@me.m_ptrHWValue := ptrHW;
+@me.m_ptrHWValue 	:= ptrHW;
+@me.m_bReversed 	:= is_reversed;
 
 //
 // initialize 'this' for methods
@@ -549,7 +552,7 @@ IBZSwitch_new := TRUE;
 ]]>
 					</sourceCode>
 				</function>
-				<function name="IBZSwitch_update" version="1.0.0" creationDate="1612425901" lastModifiedDate="1612429431">
+				<function name="IBZSwitch_update" version="1.0.0" creationDate="1612425901" lastModifiedDate="1612487147">
 					<returnValue>BOOL</returnValue>
 					<vars>
 						<inputVars>
@@ -564,14 +567,81 @@ IBZSwitch_new := TRUE;
 						<![CDATA[
 ptrHW := @me.m_ptrHWValue; // have to make a copy because the syntax of @(@()) can not be recognized
 
-// TODO : the status can be independent to the real status of HW input
-if (@ptrHW) then
-	@me.Status := BZSwitchCLOSE;
+if (@me.m_bReversed) then
+	if (@ptrHW) then
+		@me.Status := BZSwitchOPEN;
+	else
+		@me.Status := BZSwitchCLOSE;
+	end_if;
 else
-	@me.Status := BZSwitchOPEN;
+	if (@ptrHW) then
+		@me.Status := BZSwitchCLOSE;
+	else
+		@me.Status := BZSwitchOPEN;
+	end_if;
+end_if;
+	
+IBZSwitch_update := TRUE;
+]]>
+					</sourceCode>
+				</function>
+				<function name="IBZRelay_new" version="1.0.0" creationDate="1612489011" lastModifiedDate="1612490199">
+					<returnValue>BOOL</returnValue>
+					<vars>
+						<inputVars>
+							<var name="me" type="@BZRelay"/>
+							<var name="ptrHW" type="@BOOL"/>
+							<var name="output_of_true" type="BZRelayOutputE"/>
+						</inputVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<sourceCode type="ST">
+						<![CDATA[//
+// initialize properties
+//
+@me.m_ptrHWValue 	:= ptrHW;
+@me.m_cfg 			:= output_of_true;
+
+//
+// initialize 'this' for methods
+//
+
+
+IBZRelay_new := TRUE;
+]]>
+					</sourceCode>
+				</function>
+				<function name="IBZRelay_update" version="1.0.0" creationDate="1612490273" lastModifiedDate="1612491206">
+					<returnValue>BOOL</returnValue>
+					<vars>
+						<inputVars>
+							<var name="me" type="@BZRelay"/>
+						</inputVars>
+						<localVars>
+							<var name="ptrHW" type="@BOOL"/>
+						</localVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<sourceCode type="ST">
+						<![CDATA[
+ptrHW := @me.m_ptrHWValue; // have to make a copy because the syntax of @(@()) can not be recognized
+
+if (@me.m_cfg = BZRelay_CLOSE) then
+	if (@me.m_output = BZRelay_CLOSE) then
+		@ptrHW := TRUE;
+	else
+		@ptrHW := FALSE;
+	end_if;
+else
+	if (@me.m_output = BZRelay_CLOSE) then
+		@ptrHW := FALSE;
+	else
+		@ptrHW := TRUE;
+	end_if;
 end_if;
 
-IBZSwitch_update := TRUE;
+
+IBZRelay_update := TRUE;
 ]]>
 					</sourceCode>
 				</function>
@@ -631,7 +701,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="bzSaaralUnit_run" version="1.0.0" creationDate="1611906522" lastModifiedDate="1612429627">
+				<functionBlock name="bzSaaralUnit_run" version="1.0.0" creationDate="1611906522" lastModifiedDate="1612493305">
 					<vars>
 						<inputVars>
 							<var name="me" type="@bzSaaralUnit"/>
@@ -641,6 +711,7 @@ end_if;
 							<var name="res" type="BOOL"/>
 							<var name="ptrTmp" type="@BZTemperatureSensor"/>
 							<var name="ptrSwitchTmp" type="@BZSwitch"/>
+							<var name="ptrRelayTmp" type="@BZRelay"/>
 						</localVars>
 					</vars>
 					<iecDeclaration active="FALSE"/>
@@ -666,8 +737,17 @@ me := me;	// TO AVOID AN ERROR WHEN DOWNLOAD THE PROGRAM, DON'T KNOW WHY IT WORK
 ptrTmp := @me.EvapCoilTempSensor;	// HAVE TO USE A TEMPORARY VARIABLE BECAUSE '@(@)' IS IMPOSSIBLE
 @ptrTmp.update();
 
+//
+// update switch
+//
 ptrSwitchTmp := @me.RemoteShutdownSwitch;
 res := IBZSwitch_update(ptrSwitchTmp);
+
+//
+// update relay
+//
+ptrRelayTmp := @me.UnitStatusRelay;
+res := IBZRelay_update(ptrRelayTmp);
 
 
 //
@@ -728,6 +808,14 @@ end_if;
 //
 // TODO : control logic of actuators
 //
+
+// Unit status relay
+ptrRelayTmp := @me.UnitStatusRelay;
+if (@me.m_unit_status = BZ_ON) then
+	@ptrRelayTmp.m_output := BZRelay_CLOSE;
+else
+	@ptrRelayTmp.m_output := BZRelay_OPEN;
+end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
@@ -1166,7 +1254,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</program>
-				<program name="init" version="1.0.0" creationDate="1611809132" lastModifiedDate="1612428346">
+				<program name="init" version="1.0.0" creationDate="1611809132" lastModifiedDate="1612492659">
 					<vars>
 						<localVars>
 							<var name="res" type="BOOL"/>
@@ -1241,7 +1329,14 @@ for i := 0 to MAX_NBR_OF_TEMPERATURE_SENSORS - 1 do
 end_for;
 
 // Switches
-res := IBZSwitch_new(?Switches[0], ?HW_DI_03);
+res := IBZSwitch_new(?Switches[0], ?HW_DI_03, TO_BOOL(BZSwitchReversedCfg));
+
+// Relays
+if (bzUnitStatusRelayCfg = 1) then
+	res := IBZRelay_new(?Relays[0], ?HW_DO_01, BZRelay_CLOSE);
+else
+	res := IBZRelay_new(?Relays[0], ?HW_DO_01, BZRelay_OPEN);
+end_if;
 
 // Tacho meter
 res := IBZCarelUXPB000100111_new(?TachoMeter, 3);
@@ -1281,6 +1376,9 @@ ACUnit.EvapCoilTempSensor	:= ?NTCProbes[6];
 
 // Switches
 ACUnit.RemoteShutdownSwitch := ?Switches[0];
+
+// Relays
+ACUnit.UnitStatusRelay := ?Relays[0];
 
 // Expansion boards
 ACUnit.FanTachoModule := ?TachoMeter;
@@ -1506,6 +1604,9 @@ of the actual position.</descr>
 						<var name="RemoteShutdownSwitch" type="@BZSwitch">
 							<descr>Remote shutdown switch input</descr>
 						</var>
+						<var name="UnitStatusRelay" type="@BZRelay">
+							<descr>Indication of unit status</descr>
+						</var>
 						<var name="FanTachoModule" type="@BZCarelUXPB000100111">
 							<descr>Fan speed feedback measurement module by modbus RTU</descr>
 						</var>
@@ -1616,6 +1717,20 @@ of the actual position.</descr>
 						<var name="Status" type="BZSwitchStatusE">
 							<descr>The logic status of the binary input</descr>
 						</var>
+						<var name="m_bReversed" type="BOOL">
+							<descr>Reverses the logic open/close status according to the real hardward input</descr>
+						</var>
+					</vars>
+				</struct>
+				<struct name="BZRelay" version="1.0.0">
+					<title>BZRelay</title>
+					<descr>TBC</descr>
+					<vars>
+						<var name="m_ptrHWValue" type="@BOOL">
+							<descr>HW interface (pointer) that can pass the raw value in</descr>
+						</var>
+						<var name="m_output" type="BZRelayOutputE"/>
+						<var name="m_cfg" type="BZRelayOutputE"/>
 					</vars>
 				</struct>
 			</structs>
@@ -1723,6 +1838,18 @@ of the actual position.</descr>
 							<value>0</value>
 						</element>
 						<element name="BZSwitchCLOSE">
+							<value>1</value>
+						</element>
+					</elements>
+				</enum>
+				<enum name="BZRelayOutputE" version="1.0.0">
+					<title>BZRelay Output</title>
+					<descr>Relay output status</descr>
+					<elements>
+						<element name="BZRelay_OPEN">
+							<value>0</value>
+						</element>
+						<element name="BZRelay_CLOSE">
 							<value>1</value>
 						</element>
 					</elements>
@@ -54711,6 +54838,12 @@ ui16_random := TO_UINT(ui16_random_copy or (ui16_random_tmp and 16#00FF));
 	bzUnitMaintenanceTimeoutCfg AT %MW101.1 : UINT;  {DE:"Unit maintenance timeout in minute"}
 		{G:"EEPROM_Parameters"}
 	bzUnitStartupDelayCfg AT %MW101.2 : UINT;  {DE:"Unit startup delay timeout in second"}
+		{G:"EEPROM_Parameters"}
+	BZSwitchReversedCfg AT %MW101.3 : INT;  {DE:"BZSwitch status logic configuration"}
+		{G:"EEPROM_Parameters"}
+	bzUnitStatusRelayCfg AT %MW101.4 : INT;  {DE:"Output of relay of unit status indication configuration"}
+		{G:"EEPROM_Parameters"}
+	bzMajorAlarmRelayCfg AT %MW101.5 : INT;  {DE:"Output of relay of unit major alarm indication configuration"}
 		{G:"Status_variables"}
 	bzBIOSVersion AT %MW110.0 : STRING[ 8 ];  {DE:"M172 BIOS version"}
 		{G:"Status_variables"}
@@ -54799,6 +54932,30 @@ ui16_random := TO_UINT(ui16_random_copy or (ui16_random_tmp and 16#00FF));
 	HW_DI_11 AT %IX0.10 : BOOL;  {DE:"DIL11 digital input"}
 		{G:"IO_Mapping"}
 	HW_DI_12 AT %IX0.11 : BOOL;  {DE:"DIL12 digital input"}
+		{G:"IO_Mapping"}
+	HW_DO_01 AT %QX1.0 : BOOL;  {DE:"DOL1 digital output"}
+		{G:"IO_Mapping"}
+	HW_DO_02 AT %QX1.1 : BOOL;  {DE:"DOL2 digital output"}
+		{G:"IO_Mapping"}
+	HW_DO_03 AT %QX1.2 : BOOL;  {DE:"DOL3 digital output"}
+		{G:"IO_Mapping"}
+	HW_DO_04 AT %QX1.3 : BOOL;  {DE:"DOL4 digital output"}
+		{G:"IO_Mapping"}
+	HW_DO_05 AT %QX1.4 : BOOL;  {DE:"DOL5 digital output"}
+		{G:"IO_Mapping"}
+	HW_DO_06 AT %QX1.5 : BOOL;  {DE:"DOL6 digital output"}
+		{G:"IO_Mapping"}
+	HW_DO_07 AT %QX1.6 : BOOL;  {DE:"DOL7 digital output"}
+		{G:"IO_Mapping"}
+	HW_DO_08 AT %QX1.7 : BOOL;  {DE:"DOL8 digital output"}
+		{G:"IO_Mapping"}
+	HW_DO_09 AT %QX1.8 : BOOL;  {DE:"DOL9 digital output"}
+		{G:"IO_Mapping"}
+	HW_DO_10 AT %QX1.9 : BOOL;  {DE:"DOL10 digital output"}
+		{G:"IO_Mapping"}
+	HW_DO_11 AT %QX1.10 : BOOL;  {DE:"DOL11 digital output"}
+		{G:"IO_Mapping"}
+	HW_DO_12 AT %QX1.11 : BOOL;  {DE:"DOL12 digital output"}
 	END_VAR
 ]]>
 			</src>
@@ -54806,8 +54963,8 @@ ui16_random := TO_UINT(ui16_random_copy or (ui16_random_tmp and 16#00FF));
 				<![CDATA[(* Automatically generated, do not edit! *)
 
 VAR_GLOBAL CONSTANT
-$$ParDB : ARRAY[ 0..827 ] OF USINT; { HIDDEN:ON } { INIT:"BZ172Lab.PLK+0" }
-$$ParDBLength  : DWORD := 23; { HIDDEN:ON }
+$$ParDB : ARRAY[ 0..935 ] OF USINT; { HIDDEN:ON } { INIT:"BZ172Lab.PLK+0" }
+$$ParDBLength  : DWORD := 26; { HIDDEN:ON }
 END_VAR
 
 PROGRAM InitParDB WITH Serv;
@@ -54820,7 +54977,7 @@ PROGRAM InitParDB
 		dummyCrc32: UDINT;
 	END_VAR
 
-	dummyCrc32 := 3625180391;
+	dummyCrc32 := 1227267721;
 
 	warningsKiller := sysDBase_SetExtTable( ADR( $$ParDB ), $$ParDBLength );
 
@@ -54848,7 +55005,7 @@ END_PROGRAM
 			</src>
 		</aux>
 		<workspace>
-			<root name="BZ172Lab" nextID="4684">
+			<root name="BZ172Lab" nextID="5065">
 				<GlobalVars name="Global_vars" id="11"/>
 				<Pou name="main" id="2"/>
 				<folder id="16" name="BZ172Lab">
@@ -54895,6 +55052,11 @@ END_PROGRAM
 							<Pou name="IBZSwitch_new" id="4446"/>
 							<Pou name="IBZSwitch_update" id="4473"/>
 						</folder>
+						<folder name="BZRelay" id="4798">
+							<Definition name="BZRelay" id="4799"/>
+							<Pou name="IBZRelay_new" id="4800"/>
+							<Pou name="IBZRelay_update" id="4828"/>
+						</folder>
 					</folder>
 					<folder name="Types" id="37">
 						<Definition name="BZActuatorStatus" id="38"/>
@@ -54905,6 +55067,7 @@ END_PROGRAM
 						<Definition name="BZModbusRegisterTypeE" id="3293"/>
 						<Definition name="BZIRACUnitStatusE" id="3854"/>
 						<Definition name="BZSwitchStatusE" id="4450"/>
+						<Definition name="BZRelayOutputE" id="4802"/>
 					</folder>
 					<folder name="Utilities" id="41">
 						<Pou name="BZComputeY" id="42"/>
@@ -55034,6 +55197,87 @@ END_PROGRAM
 								<shortname/>
 								<size>31</size>
 								<dataBlock>MW101.2</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>3</ipa>
+								<address>18431</address>
+								<name>BZSwitchReversedCfg</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value>0</value>
+								<min>0</min>
+								<max>1</max>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description>BZSwitch status logic configuration</description>
+								<note>0:FALSE;1:TRUE</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW101.3</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>4</ipa>
+								<address>16387</address>
+								<name>bzUnitStatusRelayCfg</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value>1</value>
+								<min>0</min>
+								<max>1</max>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description>Output of relay of unit status indication configuration</description>
+								<note>0:Open;1:Close</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW101.4</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>5</ipa>
+								<address>16388</address>
+								<name>bzMajorAlarmRelayCfg</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value>1</value>
+								<min>0</min>
+								<max>1</max>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description>Output of relay of unit major alarm indication configuration</description>
+								<note>0:Open;1:Close</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW101.5</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -55733,73 +55977,73 @@ END_PROGRAM
 								<ioMapping inout="out" idx="0">
 									<name>DOL1</name>
 									<description>DOL1 digital output</description>
-									<variable/>
+									<variable>HW_DO_01</variable>
 									<type>BOOL</type>
 								</ioMapping>
 								<ioMapping inout="out" idx="1">
 									<name>DOL2</name>
 									<description>DOL2 digital output</description>
-									<variable/>
+									<variable>HW_DO_02</variable>
 									<type>BOOL</type>
 								</ioMapping>
 								<ioMapping inout="out" idx="2">
 									<name>DOL3</name>
 									<description>DOL3 digital output</description>
-									<variable/>
+									<variable>HW_DO_03</variable>
 									<type>BOOL</type>
 								</ioMapping>
 								<ioMapping inout="out" idx="3">
 									<name>DOL4</name>
 									<description>DOL4 digital output</description>
-									<variable/>
+									<variable>HW_DO_04</variable>
 									<type>BOOL</type>
 								</ioMapping>
 								<ioMapping inout="out" idx="4">
 									<name>DOL5</name>
 									<description>DOL5 digital output</description>
-									<variable/>
+									<variable>HW_DO_05</variable>
 									<type>BOOL</type>
 								</ioMapping>
 								<ioMapping inout="out" idx="5">
 									<name>DOL6</name>
 									<description>DOL6 digital output</description>
-									<variable/>
+									<variable>HW_DO_06</variable>
 									<type>BOOL</type>
 								</ioMapping>
 								<ioMapping inout="out" idx="6">
 									<name>DOL7</name>
 									<description>DOL7 digital output</description>
-									<variable/>
+									<variable>HW_DO_07</variable>
 									<type>BOOL</type>
 								</ioMapping>
 								<ioMapping inout="out" idx="7">
 									<name>DOL8</name>
 									<description>DOL8 digital output</description>
-									<variable/>
+									<variable>HW_DO_08</variable>
 									<type>BOOL</type>
 								</ioMapping>
 								<ioMapping inout="out" idx="8">
 									<name>DOL9</name>
 									<description>DOL9 digital output</description>
-									<variable/>
+									<variable>HW_DO_09</variable>
 									<type>BOOL</type>
 								</ioMapping>
 								<ioMapping inout="out" idx="9">
 									<name>DOL10</name>
 									<description>DOL10 digital output</description>
-									<variable/>
+									<variable>HW_DO_10</variable>
 									<type>BOOL</type>
 								</ioMapping>
 								<ioMapping inout="out" idx="10">
 									<name>DOL11</name>
 									<description>DOL11 digital output</description>
-									<variable/>
+									<variable>HW_DO_11</variable>
 									<type>BOOL</type>
 								</ioMapping>
 								<ioMapping inout="out" idx="11">
 									<name>DOL12</name>
 									<description>DOL12 digital output</description>
-									<variable/>
+									<variable>HW_DO_12</variable>
 									<type>BOOL</type>
 								</ioMapping>
 								<ioMapping inout="out" idx="0">
@@ -56651,6 +56895,9 @@ END_PROGRAM
 								<value ipa="0" subidx="0">0</value>
 								<value ipa="1" subidx="0">10</value>
 								<value ipa="2" subidx="0">0</value>
+								<value ipa="3" subidx="0">0</value>
+								<value ipa="4" subidx="0">0</value>
+								<value ipa="5" subidx="0">0</value>
 								<value ipa="5012" subidx="0"/>
 								<value ipa="5010" subidx="0"/>
 								<value ipa="5005" subidx="0">303</value>
