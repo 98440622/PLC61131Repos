@@ -12,6 +12,7 @@ bzUnitStartupDelayCfg AT %MW101.2 : UINT;	{ DE:"Unit startup delay timeout in se
 BZSwitchReversedCfg AT %MW101.3 : INT;	{ DE:"BZSwitch status logic configuration" }
 bzUnitStatusRelayCfg AT %MW101.4 : INT;	{ DE:"Output of relay of unit status indication configuration" }
 bzMajorAlarmRelayCfg AT %MW101.5 : INT;	{ DE:"Output of relay of unit major alarm indication configuration" }
+bzCondensatePumpDelay2OffCfg AT %MW101.6 : INT;	{ DE:"Condensate pump off delay timeout in second" }
 	{G:"Status_variables"}
 bzBIOSVersion AT %MW110.0 : STRING[ 8 ];	{ DE:"M172 BIOS version" }
 bzAppVersion AT %MW110.5 : STRING[ 8 ];	{ DE:"Application version by a string type format of xx.xx.xx" }
@@ -30,12 +31,14 @@ bzAlarmBase AT %MW110.21 : INT;	{ DE:"Alarm code base" }
 bzUnitRemoteShutdownAlarm AT %MW110.22 : INT;	{ DE:"Unit is shutdown by remote HW input" }
 bzAirfilterCloggedAlarm AT %MW110.23 : INT;	{ DE:"Airfilter is clogged." }
 bzLeakageAlarm AT %MW110.24 : INT;	{ DE:"Leakage is detected." }
-bzManualFanSpeed AT %MW110.25 : INT := 0;	{ DE:"Evaporator fan manual speed output" }
-BZCANMailbox1 AT %MW110.26 : INT;	{ DE:"TBC" }
-BZCANMailbox2 AT %MW110.27 : INT;	{ DE:"TBC" }
-BZCANMailbox3 AT %MW110.28 : INT;	{ DE:"TBC" }
-BZIsRealMode AT %MW110.29 : BOOL := 1;	{ DE:"Controller is working on real mode." }
-bzUnitStatus AT %MW110.30 : INT;	{ DE:"Unit status" }
+bzPanFullAlarm AT %MW110.25 : INT;	{ DE:"Pan full." }
+bzManualFanSpeed AT %MW110.26 : INT := 0;	{ DE:"Evaporator fan manual speed output" }
+bzManualCondensatePump AT %MW110.27 : INT := 0;	{ DE:"Condensate pump manual control output" }
+BZCANMailbox1 AT %MW110.28 : INT;	{ DE:"TBC" }
+BZCANMailbox2 AT %MW110.29 : INT;	{ DE:"TBC" }
+BZCANMailbox3 AT %MW110.30 : INT;	{ DE:"TBC" }
+BZIsRealMode AT %MW110.31 : BOOL := 1;	{ DE:"Controller is working on real mode." }
+bzUnitStatus AT %MW110.32 : INT;	{ DE:"Unit status" }
 	{G:"IO_Mapping"}
 HW_AI_01 AT %IW1.0 : INT;	{ DE:"AIL1 analogue input" }
 HW_AI_02 AT %IW1.1 : INT;	{ DE:"AIL2 analogue input" }

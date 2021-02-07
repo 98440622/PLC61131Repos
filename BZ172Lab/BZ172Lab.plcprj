@@ -788,7 +788,7 @@ IBZFault_UnitRemoteShutdownAlarm_new := TRUE;
 ]]>
 					</sourceCode>
 				</function>
-				<function name="IbzAisleACUnitFault_new" version="1.0.0" creationDate="1612682568" lastModifiedDate="1612704261">
+				<function name="IbzAisleACUnitFault_new" version="1.0.0" creationDate="1612682568" lastModifiedDate="1612708955">
 					<returnValue>BOOL</returnValue>
 					<vars>
 						<inputVars>
@@ -805,7 +805,8 @@ IBZFault_UnitRemoteShutdownAlarm_new := TRUE;
 res := IBZFault_UnitMaintenanceWarning_new(?(@unit.BZFault_evaluators.UnitMaintenanceWarning_evaluator), 	unit);
 res := IBZFault_UnitRemoteShutdownAlarm_new(?(@unit.BZFault_evaluators.UnitRemoteShutdownAlarm_evaluator), 	unit);
 res := IBZFault_AirfilterCloggedAlarm_new(?(@unit.BZFault_evaluators.AirfilterCloggedAlarm_evaluator),		unit);
-res := IBZFault_LeakageAlarm_new(?(@unit.BZFault_evaluators.LeakageAlarm_evaluator),						unit);					
+res := IBZFault_LeakageAlarm_new(?(@unit.BZFault_evaluators.LeakageAlarm_evaluator),						unit);
+res := IBZFault_PanFullAlarm_new(?(@unit.BZFault_evaluators.PanFullAlarm_evaluator),						unit);
 
 @me.NumberOfAlarmDetected := 0;
 
@@ -857,6 +858,28 @@ res := IBZFault_new(?(@me.parent), BZ_ALARM, 10262);
 @me.me := unit;
 
 IBZFault_LeakageAlarm_new := TRUE;
+]]>
+					</sourceCode>
+				</function>
+				<function name="IBZFault_PanFullAlarm_new" version="1.0.0" creationDate="1612665753" lastModifiedDate="1612708805">
+					<returnValue>BOOL</returnValue>
+					<vars>
+						<inputVars>
+							<var name="me" type="@BZFault_UnitRemoteShutdownAlarm"/>
+							<var name="unit" type="@bzAisleACUnit"/>
+						</inputVars>
+						<localVars>
+							<var name="res" type="BOOL"/>
+						</localVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<sourceCode type="ST">
+						<![CDATA[
+res := IBZFault_new(?(@me.parent), BZ_ALARM, 10250);
+
+@me.me := unit;
+
+IBZFault_PanFullAlarm_new := TRUE;
 ]]>
 					</sourceCode>
 				</function>
@@ -916,7 +939,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="bzAisleACUnit_run" version="1.0.0" creationDate="1611906522" lastModifiedDate="1612701984">
+				<functionBlock name="bzAisleACUnit_run" version="1.0.0" creationDate="1611906522" lastModifiedDate="1612708468">
 					<vars>
 						<inputVars>
 							<var name="me" type="@bzAisleACUnit"/>
@@ -974,6 +997,13 @@ res := IBZSwitch_update(ptrSwitchTmp);
 ptrSwitchTmp := @me.LeakageSwitch;
 res := IBZSwitch_update(ptrSwitchTmp);
 
+ptrSwitchTmp := @me.UpperPanSwitch;
+res := IBZSwitch_update(ptrSwitchTmp);
+
+ptrSwitchTmp := @me.LowerPanSwitch;
+res := IBZSwitch_update(ptrSwitchTmp);
+
+
 //
 // update relay
 //
@@ -982,6 +1012,10 @@ res := IBZRelay_update(ptrRelayTmp);
 
 ptrRelayTmp := @me.UnitAlarmHWIndicatorRelay;
 res := IBZRelay_update(ptrRelayTmp);
+
+ptrRelayTmp := @me.CondensatePumpRelay;
+res := IBZRelay_update(ptrRelayTmp);
+
 
 //
 // update fan output
@@ -1074,6 +1108,28 @@ if (@me.BZFault_evaluators.NumberOfAlarmDetected > 0) then
 	@ptrRelayTmp.m_output := BZRelay_CLOSE;
 else
 	@ptrRelayTmp.m_output := BZRelay_OPEN;
+end_if;
+
+// Condensate pump
+ptrRelayTmp := @me.CondensatePumpRelay;
+
+if (@me.m_unit_status = BZ_MAINTENANCE) then
+	@ptrRelayTmp.m_output := @me.CondPumpManOut;
+else
+	ptrSwitchTmp := @me.LowerPanSwitch;
+	if (@ptrSwitchTmp.Status = BZSwitchCLOSE) then
+		// keep timer on
+		@me.m_cond_pump_off_delay_counter_u16 := TO_UINT(@me.cond_pump_off_delay_timeout);
+		
+		// turn on condensate pump
+		@ptrRelayTmp.m_output := BZRelay_CLOSE;
+	else
+		if (@me.m_cond_pump_off_delay_counter_u16 = 0) then
+			// when timeout is expired, turn off pump
+			@ptrRelayTmp.m_output := BZRelay_OPEN;
+		else;
+		end_if;
+	end_if;
 end_if;
 
 
@@ -1235,7 +1291,7 @@ ptrOutdoorModule := @me.OutdoorModbule;
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="bzAisleACUnit_on1s" version="1.0.0" creationDate="1612413586" lastModifiedDate="1612414467">
+				<functionBlock name="bzAisleACUnit_on1s" version="1.0.0" creationDate="1612413586" lastModifiedDate="1612707755">
 					<vars>
 						<inputVars>
 							<var name="me" type="@bzAisleACUnit"/>
@@ -1258,6 +1314,11 @@ ptrOutdoorModule := @me.OutdoorModbule;
 
 if (@me.m_unit_startup_delay_counter_u16 > 0) then
 	@me.m_unit_startup_delay_counter_u16 := @me.m_unit_startup_delay_counter_u16 - 1;
+else;
+end_if;
+
+if (@me.m_cond_pump_off_delay_counter_u16 > 0) then
+	@me.m_cond_pump_off_delay_counter_u16 := @me.m_cond_pump_off_delay_counter_u16 - 1;
 else;
 end_if;
 
@@ -1364,7 +1425,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="bzAisleACUnitFault_evaulate" version="1.0.0" creationDate="1612683126" lastModifiedDate="1612704389">
+				<functionBlock name="bzAisleACUnitFault_evaulate" version="1.0.0" creationDate="1612683126" lastModifiedDate="1612709013">
 					<vars>
 						<inputVars>
 							<var name="me" type="@bzAisleACUnitFault"/>
@@ -1429,6 +1490,15 @@ if (@me.LeakageAlarm_evaluator.parent.IsPresent) then
 	@me.NumberOfAlarmDetected := @me.NumberOfAlarmDetected + 1;
 else;
 end_if;
+
+//
+// Pan full
+//
+@me.PanFullAlarm_evaluator();
+if (@me.PanFullAlarm_evaluator.parent.IsPresent) then
+	@me.NumberOfAlarmDetected := @me.NumberOfAlarmDetected + 1;
+else;
+end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
@@ -1484,9 +1554,35 @@ end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
+				<functionBlock name="BZFault_PanFullAlarm" version="1.0.0" creationDate="1612663089" lastModifiedDate="1612708744">
+					<vars>
+						<inputVars>
+							<var name="me" type="@bzAisleACUnit"/>
+							<var name="parent" type="BZFault"/>
+						</inputVars>
+						<localVars>
+							<var name="ptrSwitchTmp" type="@BZSwitch"/>
+						</localVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<interfaces/>
+					<methods/>
+					<sourceCode type="ST">
+						<![CDATA[
+// DO WHAT YOU WANT TO DO, HIAHIA...
+ptrSwitchTmp := @me.UpperPanSwitch;
+
+if (@ptrSwitchTmp.Status = BZSwitchCLOSE) then
+	@me.BZFault_evaluators.PanFullAlarm_evaluator.parent.IsPresent := TRUE;
+else
+	@me.BZFault_evaluators.PanFullAlarm_evaluator.parent.IsPresent := FALSE;
+end_if;
+]]>
+					</sourceCode>
+				</functionBlock>
 			</functionBlocks>
 			<programs>
-				<program name="main" version="1.0.0" creationDate="0" lastModifiedDate="1612704574">
+				<program name="main" version="1.0.0" creationDate="0" lastModifiedDate="1612709205">
 					<vars>
 						<localVars>
 							<var name="i" type="INT"/>
@@ -1515,7 +1611,8 @@ ACUnit.unit_mode_cmd_adr			:= ADR(bzUnitModeCfg);
 ACUnit.unit_maintenance_timeout		:= bzUnitMaintenanceTimeoutCfg;
 ACUnit.unit_startup_delay_timeout 	:= bzUnitStartupDelayCfg;
 ACUnit.EvapFanManOut				:= bzManualFanSpeed;
-
+ACUnit.CondPumpManOut				:= TO_BOOL(bzManualCondensatePump);
+ACUnit.cond_pump_off_delay_timeout	:= bzCondensatePumpDelay2OffCfg;
 
 /******************************************************************************************************
 
@@ -1563,6 +1660,7 @@ bzUnitMaintenanceWarning 	:= TO_INT(ACUnit.BZFault_evaluators.UnitMaintenanceWar
 bzUnitRemoteShutdownAlarm	:= TO_INT(ACUnit.BZFault_evaluators.UnitRemoteShutdownAlarm_evaluator.parent.IsPresent);
 bzAirfilterCloggedAlarm		:= TO_INT(ACUnit.BZFault_evaluators.AirfilterCloggedAlarm_evaluator.parent.IsPresent);
 bzLeakageAlarm				:= TO_INT(ACUnit.BZFault_evaluators.LeakageAlarm_evaluator.parent.IsPresent);
+bzPanFullAlarm				:= TO_INT(ACUnit.BZFault_evaluators.PanFullAlarm_evaluator.parent.IsPresent);
 ]]>
 					</sourceCode>
 				</program>
@@ -1643,7 +1741,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</program>
-				<program name="init" version="1.0.0" creationDate="1611809132" lastModifiedDate="1612703747">
+				<program name="init" version="1.0.0" creationDate="1611809132" lastModifiedDate="1612705874">
 					<vars>
 						<localVars>
 							<var name="res" type="BOOL"/>
@@ -1748,7 +1846,7 @@ res := IBZSwitch_new(?Switches[0], ?HW_DI_03, TO_BOOL(BZSwitchReversedCfg)); 	//
 res := IBZSwitch_new(?Switches[1], ?HW_DI_04, TO_BOOL(BZSwitchReversedCfg));	// ACD
 res := IBZSwitch_new(?Switches[2], ?HW_DI_05, TO_BOOL(BZSwitchReversedCfg));	// LKD
 res := IBZSwitch_new(?Switches[3], ?HW_DI_06, TO_BOOL(BZSwitchReversedCfg));	// CPSu
-res := IBZSwitch_new(?Switches[4], ?HW_DI_07, TO_BOOL(BZSwitchReversedCfg));	// CPSu
+res := IBZSwitch_new(?Switches[4], ?HW_DI_07, TO_BOOL(BZSwitchReversedCfg));	// CPSl
 
 // Relays
 if (bzUnitStatusRelayCfg = 1) then
@@ -1812,10 +1910,13 @@ ACUnit.EvapCoilTempSensor	:= ?NTCProbes[6];
 ACUnit.RemoteShutdownSwitch 	:= ?Switches[0];
 ACUnit.AirfilterCloggedSwitch	:= ?Switches[1];
 ACUnit.LeakageSwitch			:= ?Switches[2];
+ACUnit.UpperPanSwitch			:= ?Switches[3];
+ACUnit.LowerPanSwitch			:= ?Switches[4];
 
 // Relays
 ACUnit.UnitStatusRelay 				:= ?Relays[0];
 ACUnit.UnitAlarmHWIndicatorRelay	:= ?Relays[1];
+ACUnit.CondensatePumpRelay			:= ?Relays[4];
 
 // Evaporator fans
 for i := 0 to NUMBER_OF_EVAP_FANS - 1 do
@@ -2052,15 +2153,29 @@ of the actual position.</descr>
 						<var name="LeakageSwitch" type="@BZSwitch">
 							<descr>Leak detector binary type input</descr>
 						</var>
+						<var name="LowerPanSwitch" type="@BZSwitch">
+							<descr>The lower switch inside the pan to detect the condensate level</descr>
+						</var>
+						<var name="UpperPanSwitch" type="@BZSwitch">
+							<descr>The upper switch inside the pan to detect the condensate level</descr>
+						</var>
 						<var name="UnitStatusRelay" type="@BZRelay">
 							<descr>Indication of unit status</descr>
 						</var>
-						<var name="UnitAlarmHWIndicatorRelay" type="@BZRelay"/>
+						<var name="UnitAlarmHWIndicatorRelay" type="@BZRelay">
+							<descr>Energize the relay when any of alarms is raised</descr>
+						</var>
+						<var name="CondensatePumpRelay" type="@BZRelay">
+							<descr>Condensate pump actuator</descr>
+						</var>
 						<var name="EvapFans" type="@BZECFanEBM" dim0="6">
 							<descr>6 EC fans from EBM to provide airflow through evaporator coil</descr>
 						</var>
 						<var name="EvapFanManOut" type="INT">
 							<descr>Link to bzManualFanSpeed</descr>
+						</var>
+						<var name="CondPumpManOut" type="BOOL">
+							<descr>Link to bzManualCondensatePump</descr>
 						</var>
 						<var name="FanTachoModule" type="@BZCarelUXPB000100111">
 							<descr>Fan speed feedback measurement module by modbus RTU</descr>
@@ -2083,11 +2198,17 @@ of the actual position.</descr>
 						<var name="unit_maintenance_timeout" type="UINT">
 							<descr>Link to bzUnitMaintenanceTimeoutCfg</descr>
 						</var>
+						<var name="cond_pump_off_delay_timeout" type="INT">
+							<descr>Link to bzCondensatePumpDelay2OffCfg</descr>
+						</var>
 						<var name="m_unit_startup_delay_counter_u16" type="UINT">
 							<descr>Unit startup delay timer</descr>
 						</var>
 						<var name="m_unit_maintenance_timeout_counter_u16" type="UINT">
 							<descr>Unit maintenance timeout timer</descr>
+						</var>
+						<var name="m_cond_pump_off_delay_counter_u16" type="UINT">
+							<descr>Condensate pump off delay timer</descr>
 						</var>
 						<var name="BZFault_evaluators" type="bzAisleACUnitFault">
 							<descr>Warning and alarm detectors</descr>
@@ -2254,8 +2375,9 @@ of the actual position.</descr>
 						<var name="UnitMaintenanceWarning_evaluator" type="BZFault_UnitMaintenanceWarning"/>
 						<var name="UnitRemoteShutdownAlarm_evaluator" type="BZFault_UnitRemoteShutdownAlarm"/>
 						<var name="AirfilterCloggedAlarm_evaluator" type="BZFault_AirfilterCloggedAlarm"/>
-						<var name="evaulate" type="bzAisleACUnitFault_evaulate"/>
 						<var name="LeakageAlarm_evaluator" type="BZFault_LeakageAlarm"/>
+						<var name="PanFullAlarm_evaluator" type="BZFault_PanFullAlarm"/>
+						<var name="evaulate" type="bzAisleACUnitFault_evaulate"/>
 					</vars>
 				</struct>
 			</structs>
@@ -55407,6 +55529,8 @@ ui16_random := TO_UINT(ui16_random_copy or (ui16_random_tmp and 16#00FF));
 	bzUnitStatusRelayCfg AT %MW101.4 : INT;  {DE:"Output of relay of unit status indication configuration"}
 		{G:"EEPROM_Parameters"}
 	bzMajorAlarmRelayCfg AT %MW101.5 : INT;  {DE:"Output of relay of unit major alarm indication configuration"}
+		{G:"EEPROM_Parameters"}
+	bzCondensatePumpDelay2OffCfg AT %MW101.6 : INT;  {DE:"Condensate pump off delay timeout in second"}
 		{G:"Status_variables"}
 	bzBIOSVersion AT %MW110.0 : STRING[ 8 ];  {DE:"M172 BIOS version"}
 		{G:"Status_variables"}
@@ -55442,17 +55566,21 @@ ui16_random := TO_UINT(ui16_random_copy or (ui16_random_tmp and 16#00FF));
 		{G:"Status_variables"}
 	bzLeakageAlarm AT %MW110.24 : INT;  {DE:"Leakage is detected."}
 		{G:"Status_variables"}
-	bzManualFanSpeed AT %MW110.25 : INT := 0;  {DE:"Evaporator fan manual speed output"}
+	bzPanFullAlarm AT %MW110.25 : INT;  {DE:"Pan full."}
 		{G:"Status_variables"}
-	BZCANMailbox1 AT %MW110.26 : INT;  {DE:"TBC"}
+	bzManualFanSpeed AT %MW110.26 : INT := 0;  {DE:"Evaporator fan manual speed output"}
 		{G:"Status_variables"}
-	BZCANMailbox2 AT %MW110.27 : INT;  {DE:"TBC"}
+	bzManualCondensatePump AT %MW110.27 : INT := 0;  {DE:"Condensate pump manual control output"}
 		{G:"Status_variables"}
-	BZCANMailbox3 AT %MW110.28 : INT;  {DE:"TBC"}
+	BZCANMailbox1 AT %MW110.28 : INT;  {DE:"TBC"}
 		{G:"Status_variables"}
-	BZIsRealMode AT %MW110.29 : BOOL := 1;  {DE:"Controller is working on real mode."}
+	BZCANMailbox2 AT %MW110.29 : INT;  {DE:"TBC"}
 		{G:"Status_variables"}
-	bzUnitStatus AT %MW110.30 : INT;  {DE:"Unit status"}
+	BZCANMailbox3 AT %MW110.30 : INT;  {DE:"TBC"}
+		{G:"Status_variables"}
+	BZIsRealMode AT %MW110.31 : BOOL := 1;  {DE:"Controller is working on real mode."}
+		{G:"Status_variables"}
+	bzUnitStatus AT %MW110.32 : INT;  {DE:"Unit status"}
 		{G:"IO_Mapping"}
 	HW_AI_01 AT %IW1.0 : INT;  {DE:"AIL1 analogue input"}
 		{G:"IO_Mapping"}
@@ -55544,8 +55672,8 @@ ui16_random := TO_UINT(ui16_random_copy or (ui16_random_tmp and 16#00FF));
 				<![CDATA[(* Automatically generated, do not edit! *)
 
 VAR_GLOBAL CONSTANT
-$$ParDB : ARRAY[ 0..1043 ] OF USINT; { HIDDEN:ON } { INIT:"BZ172Lab.PLK+0" }
-$$ParDBLength  : DWORD := 29; { HIDDEN:ON }
+$$ParDB : ARRAY[ 0..1151 ] OF USINT; { HIDDEN:ON } { INIT:"BZ172Lab.PLK+0" }
+$$ParDBLength  : DWORD := 32; { HIDDEN:ON }
 END_VAR
 
 PROGRAM InitParDB WITH Serv;
@@ -55558,7 +55686,7 @@ PROGRAM InitParDB
 		dummyCrc32: UDINT;
 	END_VAR
 
-	dummyCrc32 := 927563794;
+	dummyCrc32 := 472349605;
 
 	warningsKiller := sysDBase_SetExtTable( ADR( $$ParDB ), $$ParDBLength );
 
@@ -55586,7 +55714,7 @@ END_PROGRAM
 			</src>
 		</aux>
 		<workspace>
-			<root name="BZ172Lab" nextID="8188">
+			<root name="BZ172Lab" nextID="8831">
 				<GlobalVars name="Global_vars" id="11"/>
 				<Pou name="main" id="2"/>
 				<folder id="16" name="BZoops172">
@@ -55688,6 +55816,8 @@ END_PROGRAM
 							<Pou name="IBZFault_AirfilterCloggedAlarm_new" id="7766"/>
 							<Pou name="BZFault_LeakageAlarm" id="8146"/>
 							<Pou name="IBZFault_LeakageAlarm_new" id="8150"/>
+							<Pou name="BZFault_PanFullAlarm" id="8652"/>
+							<Pou name="IBZFault_PanFullAlarm_new" id="8656"/>
 						</folder>
 						<Definition name="bzAisleACUnit" id="748"/>
 						<Pou name="bzAisleACUnit_groupTemperatures" id="1456"/>
@@ -55890,6 +56020,33 @@ END_PROGRAM
 								<shortname/>
 								<size>31</size>
 								<dataBlock>MW101.5</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>6</ipa>
+								<address>16389</address>
+								<name>bzCondensatePumpDelay2OffCfg</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value>30</value>
+								<min>10</min>
+								<max>600</max>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um>sec</um>
+								<description>Condensate pump off delay timeout in second</description>
+								<note>When condensate pump is about to stop, a few moment delay is needed</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW101.6</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -56357,6 +56514,33 @@ END_PROGRAM
 								<clientType>0</clientType>
 							</param>
 							<param>
+								<ipa>5024</ipa>
+								<address>10250</address>
+								<name>bzPanFullAlarm</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value/>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description>Pan full.</description>
+								<note>0:NO;1:YES</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>1</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.25</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
 								<ipa>5003</ipa>
 								<address>10360</address>
 								<name>bzManualFanSpeed</name>
@@ -56377,7 +56561,34 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>16</size>
-								<dataBlock>MW110.25</dataBlock>
+								<dataBlock>MW110.26</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>5023</ipa>
+								<address>10361</address>
+								<name>bzManualCondensatePump</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value>0</value>
+								<min>0</min>
+								<max>1</max>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description>Condensate pump manual control output</description>
+								<note>0:OFF;1:ON</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.27</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -56404,7 +56615,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW110.26</dataBlock>
+								<dataBlock>MW110.28</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -56431,7 +56642,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW110.27</dataBlock>
+								<dataBlock>MW110.29</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -56458,7 +56669,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW110.28</dataBlock>
+								<dataBlock>MW110.30</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -56485,7 +56696,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW110.29</dataBlock>
+								<dataBlock>MW110.31</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -56512,7 +56723,7 @@ END_PROGRAM
 								<readonly>1</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW110.30</dataBlock>
+								<dataBlock>MW110.32</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -57591,6 +57802,7 @@ END_PROGRAM
 								<value ipa="3" subidx="0">0</value>
 								<value ipa="4" subidx="0">1</value>
 								<value ipa="5" subidx="0">1</value>
+								<value ipa="6" subidx="0">30</value>
 								<value ipa="5012" subidx="0"/>
 								<value ipa="5010" subidx="0"/>
 								<value ipa="5005" subidx="0">303</value>
@@ -57608,7 +57820,9 @@ END_PROGRAM
 								<value ipa="5020" subidx="0">0</value>
 								<value ipa="5021" subidx="0">0</value>
 								<value ipa="5022" subidx="0">0</value>
+								<value ipa="5024" subidx="0">0</value>
 								<value ipa="5003" subidx="0">0</value>
+								<value ipa="5023" subidx="0">0</value>
 								<value ipa="5000" subidx="0">0</value>
 								<value ipa="5001" subidx="0">0</value>
 								<value ipa="5002" subidx="0">0</value>
