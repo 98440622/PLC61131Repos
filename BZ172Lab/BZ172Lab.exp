@@ -26,15 +26,16 @@ bzRCT2 AT %MW110.17 : INT;	{ DE:"Rack inlet air temperature 2" }
 bzRCTh AT %MW110.18 : INT;	{ DE:"Max rack inlet air temperature of the two probes supposed to be located right in front of the rack" }
 bzWarningBase AT %MW110.19 : INT;	{ DE:"Warning code base" }
 bzUnitMaintenanceWarning AT %MW110.20 : INT;	{ DE:"Unit is in maintenance" }
-bzAlarmBase AT %MW110.21 : INT := 0;	{ DE:"Alarm code base" }
+bzAlarmBase AT %MW110.21 : INT;	{ DE:"Alarm code base" }
 bzUnitRemoteShutdownAlarm AT %MW110.22 : INT;	{ DE:"Unit is shutdown by remote HW input" }
 bzAirfilterCloggedAlarm AT %MW110.23 : INT;	{ DE:"Airfilter is clogged." }
-bzManualFanSpeed AT %MW110.24 : INT := 0;	{ DE:"Evaporator fan manual speed output" }
-BZCANMailbox1 AT %MW110.25 : INT;	{ DE:"TBC" }
-BZCANMailbox2 AT %MW110.26 : INT;	{ DE:"TBC" }
-BZCANMailbox3 AT %MW110.27 : INT;	{ DE:"TBC" }
-BZIsRealMode AT %MW110.28 : BOOL := 1;	{ DE:"Controller is working on real mode." }
-bzUnitStatus AT %MW110.29 : INT;	{ DE:"Unit status" }
+bzLeakageAlarm AT %MW110.24 : INT;	{ DE:"Leakage is detected." }
+bzManualFanSpeed AT %MW110.25 : INT := 0;	{ DE:"Evaporator fan manual speed output" }
+BZCANMailbox1 AT %MW110.26 : INT;	{ DE:"TBC" }
+BZCANMailbox2 AT %MW110.27 : INT;	{ DE:"TBC" }
+BZCANMailbox3 AT %MW110.28 : INT;	{ DE:"TBC" }
+BZIsRealMode AT %MW110.29 : BOOL := 1;	{ DE:"Controller is working on real mode." }
+bzUnitStatus AT %MW110.30 : INT;	{ DE:"Unit status" }
 	{G:"IO_Mapping"}
 HW_AI_01 AT %IW1.0 : INT;	{ DE:"AIL1 analogue input" }
 HW_AI_02 AT %IW1.1 : INT;	{ DE:"AIL2 analogue input" }

@@ -788,7 +788,7 @@ IBZFault_UnitRemoteShutdownAlarm_new := TRUE;
 ]]>
 					</sourceCode>
 				</function>
-				<function name="IbzAisleACUnitFault_new" version="1.0.0" creationDate="1612682568" lastModifiedDate="1612685464">
+				<function name="IbzAisleACUnitFault_new" version="1.0.0" creationDate="1612682568" lastModifiedDate="1612704261">
 					<returnValue>BOOL</returnValue>
 					<vars>
 						<inputVars>
@@ -804,7 +804,8 @@ IBZFault_UnitRemoteShutdownAlarm_new := TRUE;
 						<![CDATA[
 res := IBZFault_UnitMaintenanceWarning_new(?(@unit.BZFault_evaluators.UnitMaintenanceWarning_evaluator), 	unit);
 res := IBZFault_UnitRemoteShutdownAlarm_new(?(@unit.BZFault_evaluators.UnitRemoteShutdownAlarm_evaluator), 	unit);
-res := IBZFault_AirfilterCloggedAlarm_new(?(@unit.BZFault_evaluators.AirfilterCloggedAlarm_evaulator),		unit);
+res := IBZFault_AirfilterCloggedAlarm_new(?(@unit.BZFault_evaluators.AirfilterCloggedAlarm_evaluator),		unit);
+res := IBZFault_LeakageAlarm_new(?(@unit.BZFault_evaluators.LeakageAlarm_evaluator),						unit);					
 
 @me.NumberOfAlarmDetected := 0;
 
@@ -834,6 +835,28 @@ res := IBZFault_new(?(@me.parent), BZ_ALARM, 10261);
 @me.me := unit;
 
 IBZFault_AirfilterCloggedAlarm_new := TRUE;
+]]>
+					</sourceCode>
+				</function>
+				<function name="IBZFault_LeakageAlarm_new" version="1.0.0" creationDate="1612665753" lastModifiedDate="1612704089">
+					<returnValue>BOOL</returnValue>
+					<vars>
+						<inputVars>
+							<var name="me" type="@BZFault_UnitRemoteShutdownAlarm"/>
+							<var name="unit" type="@bzAisleACUnit"/>
+						</inputVars>
+						<localVars>
+							<var name="res" type="BOOL"/>
+						</localVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<sourceCode type="ST">
+						<![CDATA[
+res := IBZFault_new(?(@me.parent), BZ_ALARM, 10262);
+
+@me.me := unit;
+
+IBZFault_LeakageAlarm_new := TRUE;
 ]]>
 					</sourceCode>
 				</function>
@@ -893,7 +916,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="bzAisleACUnit_run" version="1.0.0" creationDate="1611906522" lastModifiedDate="1612685149">
+				<functionBlock name="bzAisleACUnit_run" version="1.0.0" creationDate="1611906522" lastModifiedDate="1612701984">
 					<vars>
 						<inputVars>
 							<var name="me" type="@bzAisleACUnit"/>
@@ -946,6 +969,9 @@ ptrSwitchTmp := @me.RemoteShutdownSwitch;
 res := IBZSwitch_update(ptrSwitchTmp);
 
 ptrSwitchTmp := @me.AirfilterCloggedSwitch;
+res := IBZSwitch_update(ptrSwitchTmp);
+
+ptrSwitchTmp := @me.LeakageSwitch;
 res := IBZSwitch_update(ptrSwitchTmp);
 
 //
@@ -1338,7 +1364,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="bzAisleACUnitFault_evaulate" version="1.0.0" creationDate="1612683126" lastModifiedDate="1612686200">
+				<functionBlock name="bzAisleACUnitFault_evaulate" version="1.0.0" creationDate="1612683126" lastModifiedDate="1612704389">
 					<vars>
 						<inputVars>
 							<var name="me" type="@bzAisleACUnitFault"/>
@@ -1389,15 +1415,24 @@ end_if;
 //
 // Airfilter clogged
 //
-@me.AirfilterCloggedAlarm_evaulator();
-if (@me.AirfilterCloggedAlarm_evaulator.parent.IsPresent) then	
+@me.AirfilterCloggedAlarm_evaluator();
+if (@me.AirfilterCloggedAlarm_evaluator.parent.IsPresent) then	
+	@me.NumberOfAlarmDetected := @me.NumberOfAlarmDetected + 1;
+else;
+end_if;
+
+//
+// Leakage
+//
+@me.LeakageAlarm_evaluator();
+if (@me.LeakageAlarm_evaluator.parent.IsPresent) then
 	@me.NumberOfAlarmDetected := @me.NumberOfAlarmDetected + 1;
 else;
 end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="BZFault_AirfilterCloggedAlarm" version="1.0.0" creationDate="1612663089" lastModifiedDate="1612685489">
+				<functionBlock name="BZFault_AirfilterCloggedAlarm" version="1.0.0" creationDate="1612663089" lastModifiedDate="1612704493">
 					<vars>
 						<inputVars>
 							<var name="me" type="@bzAisleACUnit"/>
@@ -1416,16 +1451,42 @@ end_if;
 ptrSwitchTmp := @me.AirfilterCloggedSwitch;
 
 if (@ptrSwitchTmp.Status = BZSwitchCLOSE) then
-	@me.BZFault_evaluators.AirfilterCloggedAlarm_evaulator.parent.IsPresent := TRUE;
+	@me.BZFault_evaluators.AirfilterCloggedAlarm_evaluator.parent.IsPresent := TRUE;
 else
-	@me.BZFault_evaluators.AirfilterCloggedAlarm_evaulator.parent.IsPresent := FALSE;
+	@me.BZFault_evaluators.AirfilterCloggedAlarm_evaluator.parent.IsPresent := FALSE;
+end_if;
+]]>
+					</sourceCode>
+				</functionBlock>
+				<functionBlock name="BZFault_LeakageAlarm" version="1.0.0" creationDate="1612663089" lastModifiedDate="1612704513">
+					<vars>
+						<inputVars>
+							<var name="me" type="@bzAisleACUnit"/>
+							<var name="parent" type="BZFault"/>
+						</inputVars>
+						<localVars>
+							<var name="ptrSwitchTmp" type="@BZSwitch"/>
+						</localVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<interfaces/>
+					<methods/>
+					<sourceCode type="ST">
+						<![CDATA[
+// DO WHAT YOU WANT TO DO, HIAHIA...
+ptrSwitchTmp := @me.LeakageSwitch;
+
+if (@ptrSwitchTmp.Status = BZSwitchCLOSE) then
+	@me.BZFault_evaluators.LeakageAlarm_evaluator.parent.IsPresent := TRUE;
+else
+	@me.BZFault_evaluators.LeakageAlarm_evaluator.parent.IsPresent := FALSE;
 end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
 			</functionBlocks>
 			<programs>
-				<program name="main" version="1.0.0" creationDate="0" lastModifiedDate="1612685788">
+				<program name="main" version="1.0.0" creationDate="0" lastModifiedDate="1612704574">
 					<vars>
 						<localVars>
 							<var name="i" type="INT"/>
@@ -1500,7 +1561,8 @@ bzUnitStatus := TO_INT(ACUnit.m_unit_status);
 bzUnitMaintenanceWarning 	:= TO_INT(ACUnit.BZFault_evaluators.UnitMaintenanceWarning_evaluator.parent.IsPresent);
 
 bzUnitRemoteShutdownAlarm	:= TO_INT(ACUnit.BZFault_evaluators.UnitRemoteShutdownAlarm_evaluator.parent.IsPresent);
-bzAirfilterCloggedAlarm		:= TO_INT(ACUnit.BZFault_evaluators.AirfilterCloggedAlarm_evaulator.parent.IsPresent);
+bzAirfilterCloggedAlarm		:= TO_INT(ACUnit.BZFault_evaluators.AirfilterCloggedAlarm_evaluator.parent.IsPresent);
+bzLeakageAlarm				:= TO_INT(ACUnit.BZFault_evaluators.LeakageAlarm_evaluator.parent.IsPresent);
 ]]>
 					</sourceCode>
 				</program>
@@ -1581,7 +1643,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</program>
-				<program name="init" version="1.0.0" creationDate="1611809132" lastModifiedDate="1612686592">
+				<program name="init" version="1.0.0" creationDate="1611809132" lastModifiedDate="1612703747">
 					<vars>
 						<localVars>
 							<var name="res" type="BOOL"/>
@@ -1604,7 +1666,6 @@ end_if;
  *
  */
 // AI gain
-
 res := sysWriteParINT(ADR(Gain_Ntc_AI1), 	32768);
 res := sysWriteParINT(ADR(Gain_Ntc_AI2), 	32768);
 res := sysWriteParINT(ADR(Gain_Ntc_AI3), 	32768);
@@ -1637,7 +1698,6 @@ res := sysWriteParINT(ADR(Offs_10V_AI12), 	0);
 res := sysWriteParINT(ADR(Gain_10V_AO1),	32768);
 res := sysWriteParINT(ADR(Gain_10V_AO2),	32768);
 res := sysWriteParINT(ADR(Gain_mA_AO3),		32768);
-
 
 // AO offset
 res := sysWriteParINT(ADR(Offs_10V_AO1),	0);
@@ -1684,8 +1744,11 @@ for i := 0 to NUMBER_OF_TEMPERATURE_SENSORS - 1 do
 end_for;
 
 // Switches
-res := IBZSwitch_new(?Switches[0], ?HW_DI_03, TO_BOOL(BZSwitchReversedCfg));
-res := IBZSwitch_new(?Switches[1], ?HW_DI_04, TO_BOOL(BZSwitchReversedCfg));
+res := IBZSwitch_new(?Switches[0], ?HW_DI_03, TO_BOOL(BZSwitchReversedCfg)); 	// RSS
+res := IBZSwitch_new(?Switches[1], ?HW_DI_04, TO_BOOL(BZSwitchReversedCfg));	// ACD
+res := IBZSwitch_new(?Switches[2], ?HW_DI_05, TO_BOOL(BZSwitchReversedCfg));	// LKD
+res := IBZSwitch_new(?Switches[3], ?HW_DI_06, TO_BOOL(BZSwitchReversedCfg));	// CPSu
+res := IBZSwitch_new(?Switches[4], ?HW_DI_07, TO_BOOL(BZSwitchReversedCfg));	// CPSu
 
 // Relays
 if (bzUnitStatusRelayCfg = 1) then
@@ -1695,7 +1758,10 @@ else
 end_if;
 
 res := IBZRelay_new(?Relays[1], ?HW_DO_02, BZRelay_CLOSE);
-
+res := IBZRelay_new(?Relays[2], ?HW_DO_03, BZRelay_CLOSE);
+res := IBZRelay_new(?Relays[3], ?HW_DO_04, BZRelay_CLOSE);
+res := IBZRelay_new(?Relays[4], ?HW_DO_05, BZRelay_CLOSE);
+res := IBZRelay_new(?Relays[5], ?HW_DO_06, BZRelay_CLOSE);
 
 // Evaporator Fans
 res := IBZECFanEBM_new(?EvapFans[0], ?ACTs[0]);
@@ -1745,6 +1811,7 @@ ACUnit.EvapCoilTempSensor	:= ?NTCProbes[6];
 // Switches
 ACUnit.RemoteShutdownSwitch 	:= ?Switches[0];
 ACUnit.AirfilterCloggedSwitch	:= ?Switches[1];
+ACUnit.LeakageSwitch			:= ?Switches[2];
 
 // Relays
 ACUnit.UnitStatusRelay 				:= ?Relays[0];
@@ -1982,6 +2049,9 @@ of the actual position.</descr>
 						<var name="AirfilterCloggedSwitch" type="@BZSwitch">
 							<descr>Airfilter clogged detector switch input</descr>
 						</var>
+						<var name="LeakageSwitch" type="@BZSwitch">
+							<descr>Leak detector binary type input</descr>
+						</var>
 						<var name="UnitStatusRelay" type="@BZRelay">
 							<descr>Indication of unit status</descr>
 						</var>
@@ -2183,8 +2253,9 @@ of the actual position.</descr>
 						<var name="NumberOfAlarmDetected" type="INT"/>
 						<var name="UnitMaintenanceWarning_evaluator" type="BZFault_UnitMaintenanceWarning"/>
 						<var name="UnitRemoteShutdownAlarm_evaluator" type="BZFault_UnitRemoteShutdownAlarm"/>
-						<var name="AirfilterCloggedAlarm_evaulator" type="BZFault_AirfilterCloggedAlarm"/>
+						<var name="AirfilterCloggedAlarm_evaluator" type="BZFault_AirfilterCloggedAlarm"/>
 						<var name="evaulate" type="bzAisleACUnitFault_evaulate"/>
+						<var name="LeakageAlarm_evaluator" type="BZFault_LeakageAlarm"/>
 					</vars>
 				</struct>
 			</structs>
@@ -55363,23 +55434,25 @@ ui16_random := TO_UINT(ui16_random_copy or (ui16_random_tmp and 16#00FF));
 		{G:"Status_variables"}
 	bzUnitMaintenanceWarning AT %MW110.20 : INT;  {DE:"Unit is in maintenance"}
 		{G:"Status_variables"}
-	bzAlarmBase AT %MW110.21 : INT := 0;  {DE:"Alarm code base"}
+	bzAlarmBase AT %MW110.21 : INT;  {DE:"Alarm code base"}
 		{G:"Status_variables"}
 	bzUnitRemoteShutdownAlarm AT %MW110.22 : INT;  {DE:"Unit is shutdown by remote HW input"}
 		{G:"Status_variables"}
 	bzAirfilterCloggedAlarm AT %MW110.23 : INT;  {DE:"Airfilter is clogged."}
 		{G:"Status_variables"}
-	bzManualFanSpeed AT %MW110.24 : INT := 0;  {DE:"Evaporator fan manual speed output"}
+	bzLeakageAlarm AT %MW110.24 : INT;  {DE:"Leakage is detected."}
 		{G:"Status_variables"}
-	BZCANMailbox1 AT %MW110.25 : INT;  {DE:"TBC"}
+	bzManualFanSpeed AT %MW110.25 : INT := 0;  {DE:"Evaporator fan manual speed output"}
 		{G:"Status_variables"}
-	BZCANMailbox2 AT %MW110.26 : INT;  {DE:"TBC"}
+	BZCANMailbox1 AT %MW110.26 : INT;  {DE:"TBC"}
 		{G:"Status_variables"}
-	BZCANMailbox3 AT %MW110.27 : INT;  {DE:"TBC"}
+	BZCANMailbox2 AT %MW110.27 : INT;  {DE:"TBC"}
 		{G:"Status_variables"}
-	BZIsRealMode AT %MW110.28 : BOOL := 1;  {DE:"Controller is working on real mode."}
+	BZCANMailbox3 AT %MW110.28 : INT;  {DE:"TBC"}
 		{G:"Status_variables"}
-	bzUnitStatus AT %MW110.29 : INT;  {DE:"Unit status"}
+	BZIsRealMode AT %MW110.29 : BOOL := 1;  {DE:"Controller is working on real mode."}
+		{G:"Status_variables"}
+	bzUnitStatus AT %MW110.30 : INT;  {DE:"Unit status"}
 		{G:"IO_Mapping"}
 	HW_AI_01 AT %IW1.0 : INT;  {DE:"AIL1 analogue input"}
 		{G:"IO_Mapping"}
@@ -55471,8 +55544,8 @@ ui16_random := TO_UINT(ui16_random_copy or (ui16_random_tmp and 16#00FF));
 				<![CDATA[(* Automatically generated, do not edit! *)
 
 VAR_GLOBAL CONSTANT
-$$ParDB : ARRAY[ 0..1007 ] OF USINT; { HIDDEN:ON } { INIT:"BZ172Lab.PLK+0" }
-$$ParDBLength  : DWORD := 28; { HIDDEN:ON }
+$$ParDB : ARRAY[ 0..1043 ] OF USINT; { HIDDEN:ON } { INIT:"BZ172Lab.PLK+0" }
+$$ParDBLength  : DWORD := 29; { HIDDEN:ON }
 END_VAR
 
 PROGRAM InitParDB WITH Serv;
@@ -55485,7 +55558,7 @@ PROGRAM InitParDB
 		dummyCrc32: UDINT;
 	END_VAR
 
-	dummyCrc32 := 124958998;
+	dummyCrc32 := 927563794;
 
 	warningsKiller := sysDBase_SetExtTable( ADR( $$ParDB ), $$ParDBLength );
 
@@ -55513,7 +55586,7 @@ END_PROGRAM
 			</src>
 		</aux>
 		<workspace>
-			<root name="BZ172Lab" nextID="7839">
+			<root name="BZ172Lab" nextID="8188">
 				<GlobalVars name="Global_vars" id="11"/>
 				<Pou name="main" id="2"/>
 				<folder id="16" name="BZoops172">
@@ -55613,6 +55686,8 @@ END_PROGRAM
 							<Pou name="bzAisleACUnitFault_evaulate" id="7562"/>
 							<Pou name="BZFault_AirfilterCloggedAlarm" id="7762"/>
 							<Pou name="IBZFault_AirfilterCloggedAlarm_new" id="7766"/>
+							<Pou name="BZFault_LeakageAlarm" id="8146"/>
+							<Pou name="IBZFault_LeakageAlarm_new" id="8150"/>
 						</folder>
 						<Definition name="bzAisleACUnit" id="748"/>
 						<Pou name="bzAisleACUnit_groupTemperatures" id="1456"/>
@@ -56179,7 +56254,7 @@ END_PROGRAM
 								<name>bzAlarmBase</name>
 								<typepar>0</typepar>
 								<typetarg>INT</typetarg>
-								<value>0</value>
+								<value/>
 								<min/>
 								<max/>
 								<ipamin/>
@@ -56191,7 +56266,7 @@ END_PROGRAM
 								<note/>
 								<form/>
 								<accesslevel>3</accesslevel>
-								<readonly>0</readonly>
+								<readonly>1</readonly>
 								<shortname/>
 								<size>31</size>
 								<dataBlock>MW110.21</dataBlock>
@@ -56255,6 +56330,33 @@ END_PROGRAM
 								<clientType>0</clientType>
 							</param>
 							<param>
+								<ipa>5022</ipa>
+								<address>10262</address>
+								<name>bzLeakageAlarm</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value/>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description>Leakage is detected.</description>
+								<note>0:NO;1:YES</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>1</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.24</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
 								<ipa>5003</ipa>
 								<address>10360</address>
 								<name>bzManualFanSpeed</name>
@@ -56275,7 +56377,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>16</size>
-								<dataBlock>MW110.24</dataBlock>
+								<dataBlock>MW110.25</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -56302,7 +56404,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW110.25</dataBlock>
+								<dataBlock>MW110.26</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -56329,7 +56431,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW110.26</dataBlock>
+								<dataBlock>MW110.27</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -56356,7 +56458,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW110.27</dataBlock>
+								<dataBlock>MW110.28</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -56383,7 +56485,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW110.28</dataBlock>
+								<dataBlock>MW110.29</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -56410,7 +56512,7 @@ END_PROGRAM
 								<readonly>1</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW110.29</dataBlock>
+								<dataBlock>MW110.30</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -57028,7 +57130,7 @@ END_PROGRAM
 							<commstring>Modbus:1,1000#COM:1,38400,E,8,1</commstring>
 							<values stopNodeParsing="true">
 								<value ipa="10000" subidx="0">0</value>
-								<value ipa="10001" subidx="0">2055</value>
+								<value ipa="10001" subidx="0">1031</value>
 								<value ipa="10002" subidx="0">1</value>
 								<value ipa="10003" subidx="0">0</value>
 								<value ipa="10004" subidx="0">2</value>
@@ -57100,19 +57202,19 @@ END_PROGRAM
 								<value ipa="10069" subidx="0">0</value>
 								<value ipa="10070" subidx="0">30</value>
 								<value ipa="10071" subidx="0">10</value>
-								<value ipa="10072" subidx="0">310</value>
-								<value ipa="10073" subidx="0">325</value>
-								<value ipa="10074" subidx="0">219</value>
-								<value ipa="10075" subidx="0">222</value>
-								<value ipa="10076" subidx="0">174</value>
-								<value ipa="10077" subidx="0">181</value>
-								<value ipa="10078" subidx="0">253</value>
-								<value ipa="10079" subidx="0">236</value>
+								<value ipa="10072" subidx="0">0</value>
+								<value ipa="10073" subidx="0">0</value>
+								<value ipa="10074" subidx="0">0</value>
+								<value ipa="10075" subidx="0">0</value>
+								<value ipa="10076" subidx="0">0</value>
+								<value ipa="10077" subidx="0">0</value>
+								<value ipa="10078" subidx="0">0</value>
+								<value ipa="10079" subidx="0">0</value>
 								<value ipa="10080" subidx="0">-32768</value>
 								<value ipa="10081" subidx="0">-32768</value>
 								<value ipa="10082" subidx="0">1</value>
 								<value ipa="10083" subidx="0">0</value>
-								<value ipa="10084" subidx="0">0</value>
+								<value ipa="10084" subidx="0">1</value>
 								<value ipa="10085" subidx="0">0</value>
 								<value ipa="10086" subidx="0">0</value>
 								<value ipa="10087" subidx="0">0</value>
@@ -57124,7 +57226,7 @@ END_PROGRAM
 								<value ipa="10093" subidx="0">0</value>
 								<value ipa="10094" subidx="0">0</value>
 								<value ipa="10095" subidx="0">0</value>
-								<value ipa="10096" subidx="0">0</value>
+								<value ipa="10096" subidx="0">1</value>
 								<value ipa="10097" subidx="0">0</value>
 								<value ipa="10098" subidx="0">0</value>
 								<value ipa="10099" subidx="0">0</value>
@@ -57136,8 +57238,8 @@ END_PROGRAM
 								<value ipa="10105" subidx="0">0</value>
 								<value ipa="10106" subidx="0">0</value>
 								<value ipa="10107" subidx="0">0</value>
-								<value ipa="10108" subidx="0">0</value>
-								<value ipa="10109" subidx="0">0</value>
+								<value ipa="10108" subidx="0">50</value>
+								<value ipa="10109" subidx="0">50</value>
 								<value ipa="10110" subidx="0">0</value>
 								<value ipa="10111" subidx="0">0</value>
 								<value ipa="10112" subidx="0">0</value>
@@ -57505,6 +57607,7 @@ END_PROGRAM
 								<value ipa="5009" subidx="0">0</value>
 								<value ipa="5020" subidx="0">0</value>
 								<value ipa="5021" subidx="0">0</value>
+								<value ipa="5022" subidx="0">0</value>
 								<value ipa="5003" subidx="0">0</value>
 								<value ipa="5000" subidx="0">0</value>
 								<value ipa="5001" subidx="0">0</value>
