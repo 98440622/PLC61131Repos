@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <plcProject caseSensitive="false" extcheck="true">
 	<image>BZ172Lab.imgx</image>
-	<commSettings>GDB:0,1000#TCPIP:127.0.0.1/5000</commSettings>
+	<commSettings>Modbus:1,1000#COM:1,38400,E,8,1</commSettings>
 	<sources>
 		<main>BZ172Lab.plc</main>
 		<target id="M172P_596p10">FreeAdvance_HMI_596p10.tgt</target>

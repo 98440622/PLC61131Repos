@@ -22,7 +22,7 @@
 					<var name="ptrHWAIs" type="@INT" dim0="8"/>
 					<var name="NTCProbes" type="BZTemperatureSensor" dim0="8"/>
 					<var name="Switches" type="BZSwitch" dim0="8"/>
-					<var name="Relays" type="@BZRelay" dim0="8"/>
+					<var name="Relays" type="BZRelay" dim0="8"/>
 					<var name="DACs" type="BZDAQChannel" dim0="6"/>
 					<var name="ACTs" type="BZActuator" dim0="6"/>
 					<var name="EvapFans" type="BZECFanEBM" dim0="6"/>
@@ -419,12 +419,15 @@ end_if;
 ]]>
 					</sourceCode>
 				</function>
-				<function name="IbzAisleACUnit_new" version="1.0.0" creationDate="1612017920" lastModifiedDate="1612415529">
+				<function name="IbzAisleACUnit_new" version="1.0.0" creationDate="1612017920" lastModifiedDate="1612683554">
 					<returnValue>BOOL</returnValue>
 					<vars>
 						<inputVars>
 							<var name="me" type="@bzAisleACUnit"/>
 						</inputVars>
+						<localVars>
+							<var name="res" type="BOOL"/>
+						</localVars>
 					</vars>
 					<iecDeclaration active="FALSE"/>
 					<sourceCode type="ST">
@@ -434,6 +437,8 @@ end_if;
 //
 @me.strModelNO	:= 'M172';
 @me.strSerialNO	:= 'IEC6113-3';
+
+res	:= IbzAisleACUnitFault_new(?(@me.BZFault_evaluators), me);
 
 //
 // initialize 'this' for public methods
@@ -715,6 +720,123 @@ IBZECFanEBM_new := TRUE;
 ]]>
 					</sourceCode>
 				</function>
+				<function name="IBZFault_new" version="1.0.0" creationDate="1612660643" lastModifiedDate="1612666049">
+					<returnValue>BOOL</returnValue>
+					<vars>
+						<inputVars>
+							<var name="me" type="@BZFault"/>
+							<var name="level" type="BZFaultLevelE"/>
+							<var name="code" type="INT"/>
+						</inputVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<sourceCode type="ST">
+						<![CDATA[
+@me.Code 		:= code;
+@me.Enabled 	:= TRUE;
+@me.Level 		:= level;
+@me.Reset 		:= FALSE;
+@me.IsPresent	:= FALSE;
+
+IBZFault_new := TRUE;
+
+
+]]>
+					</sourceCode>
+				</function>
+				<function name="IBZFault_UnitMaintenanceWarning_new" version="1.0.0" creationDate="1612665753" lastModifiedDate="1612668107">
+					<returnValue>BOOL</returnValue>
+					<vars>
+						<inputVars>
+							<var name="me" type="@BZFault_UnitMaintenanceWarning"/>
+							<var name="unit" type="@bzAisleACUnit"/>
+						</inputVars>
+						<localVars>
+							<var name="res" type="BOOL"/>
+						</localVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<sourceCode type="ST">
+						<![CDATA[
+res := IBZFault_new(?(@me.parent), BZ_WARNING, 10060);
+
+@me.me := unit;
+
+IBZFault_UnitMaintenanceWarning_new := TRUE;
+]]>
+					</sourceCode>
+				</function>
+				<function name="IBZFault_UnitRemoteShutdownAlarm_new" version="1.0.0" creationDate="1612665753" lastModifiedDate="1612681261">
+					<returnValue>BOOL</returnValue>
+					<vars>
+						<inputVars>
+							<var name="me" type="@BZFault_UnitRemoteShutdownAlarm"/>
+							<var name="unit" type="@bzAisleACUnit"/>
+						</inputVars>
+						<localVars>
+							<var name="res" type="BOOL"/>
+						</localVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<sourceCode type="ST">
+						<![CDATA[
+res := IBZFault_new(?(@me.parent), BZ_ALARM, 10260);
+
+@me.me := unit;
+
+IBZFault_UnitRemoteShutdownAlarm_new := TRUE;
+]]>
+					</sourceCode>
+				</function>
+				<function name="IbzAisleACUnitFault_new" version="1.0.0" creationDate="1612682568" lastModifiedDate="1612685464">
+					<returnValue>BOOL</returnValue>
+					<vars>
+						<inputVars>
+							<var name="me" type="@bzAisleACUnitFault"/>
+							<var name="unit" type="@bzAisleACUnit"/>
+						</inputVars>
+						<localVars>
+							<var name="res" type="BOOL"/>
+						</localVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<sourceCode type="ST">
+						<![CDATA[
+res := IBZFault_UnitMaintenanceWarning_new(?(@unit.BZFault_evaluators.UnitMaintenanceWarning_evaluator), 	unit);
+res := IBZFault_UnitRemoteShutdownAlarm_new(?(@unit.BZFault_evaluators.UnitRemoteShutdownAlarm_evaluator), 	unit);
+res := IBZFault_AirfilterCloggedAlarm_new(?(@unit.BZFault_evaluators.AirfilterCloggedAlarm_evaulator),		unit);
+
+@me.NumberOfAlarmDetected := 0;
+
+@me.evaulate.me := me;
+
+IbzAisleACUnitFault_new := TRUE;
+
+]]>
+					</sourceCode>
+				</function>
+				<function name="IBZFault_AirfilterCloggedAlarm_new" version="1.0.0" creationDate="1612665753" lastModifiedDate="1612685619">
+					<returnValue>BOOL</returnValue>
+					<vars>
+						<inputVars>
+							<var name="me" type="@BZFault_UnitRemoteShutdownAlarm"/>
+							<var name="unit" type="@bzAisleACUnit"/>
+						</inputVars>
+						<localVars>
+							<var name="res" type="BOOL"/>
+						</localVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<sourceCode type="ST">
+						<![CDATA[
+res := IBZFault_new(?(@me.parent), BZ_ALARM, 10261);
+
+@me.me := unit;
+
+IBZFault_AirfilterCloggedAlarm_new := TRUE;
+]]>
+					</sourceCode>
+				</function>
 			</functions>
 			<functionBlocks>
 				<functionBlock name="bzAisleACUnit_groupTemperatures" version="1.0.0" creationDate="1611891178" lastModifiedDate="1612017544">
@@ -771,7 +893,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="bzAisleACUnit_run" version="1.0.0" creationDate="1611906522" lastModifiedDate="1612533050">
+				<functionBlock name="bzAisleACUnit_run" version="1.0.0" creationDate="1611906522" lastModifiedDate="1612685149">
 					<vars>
 						<inputVars>
 							<var name="me" type="@bzAisleACUnit"/>
@@ -823,10 +945,16 @@ ptrTmp := @me.EvapCoilTempSensor;	// HAVE TO USE A TEMPORARY VARIABLE BECAUSE '@
 ptrSwitchTmp := @me.RemoteShutdownSwitch;
 res := IBZSwitch_update(ptrSwitchTmp);
 
+ptrSwitchTmp := @me.AirfilterCloggedSwitch;
+res := IBZSwitch_update(ptrSwitchTmp);
+
 //
 // update relay
 //
 ptrRelayTmp := @me.UnitStatusRelay;
+res := IBZRelay_update(ptrRelayTmp);
+
+ptrRelayTmp := @me.UnitAlarmHWIndicatorRelay;
 res := IBZRelay_update(ptrRelayTmp);
 
 //
@@ -894,6 +1022,10 @@ elsif (@me.m_unit_status = BZ_MAINTENANCE) then
 else;
 end_if;
 
+//
+// Evaulate faults
+//
+@me.BZFault_evaluators.evaulate();
 
 //
 // TODO : control logic of actuators
@@ -908,6 +1040,14 @@ if (@me.m_unit_status <> BZ_MAINTENANCE) then
 		@ptrRelayTmp.m_output := BZRelay_OPEN;
 	end_if;	
 else;
+end_if;
+
+// Unit major alarm indicator relay
+ptrRelayTmp := @me.UnitAlarmHWIndicatorRelay;
+if (@me.BZFault_evaluators.NumberOfAlarmDetected > 0) then
+	@ptrRelayTmp.m_output := BZRelay_CLOSE;
+else
+	@ptrRelayTmp.m_output := BZRelay_OPEN;
 end_if;
 
 
@@ -928,6 +1068,9 @@ for i := 0 to NUMBER_OF_EVAP_FANS - 1 do
 	ptrEvapFanAct := @ptrEvapFan.m_actuator;
 	@ptrEvapFanAct.m_Output := evap_fan_cmd;
 end_for;
+
+
+
 ]]>
 					</sourceCode>
 				</functionBlock>
@@ -1147,9 +1290,142 @@ ptrHW := @ptrDAC.m_ptrHWValue;
 ]]>
 					</sourceCode>
 				</functionBlock>
+				<functionBlock name="BZFault_UnitMaintenanceWarning" version="1.0.0" creationDate="1612663089" lastModifiedDate="1612683692">
+					<vars>
+						<inputVars>
+							<var name="me" type="@bzAisleACUnit"/>
+							<var name="parent" type="BZFault"/>
+						</inputVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<interfaces/>
+					<methods/>
+					<sourceCode type="ST">
+						<![CDATA[
+// DO WHAT YOU WANT TO DO, HIAHIA...
+
+if (@me.m_unit_status = BZ_MAINTENANCE) then
+	@me.BZFault_evaluators.UnitMaintenanceWarning_evaluator.parent.IsPresent := TRUE;
+else
+	@me.BZFault_evaluators.UnitMaintenanceWarning_evaluator.parent.IsPresent := FALSE;
+end_if;
+]]>
+					</sourceCode>
+				</functionBlock>
+				<functionBlock name="BZFault_UnitRemoteShutdownAlarm" version="1.0.0" creationDate="1612663089" lastModifiedDate="1612683711">
+					<vars>
+						<inputVars>
+							<var name="me" type="@bzAisleACUnit"/>
+							<var name="parent" type="BZFault"/>
+						</inputVars>
+						<localVars>
+							<var name="ptrSwitchTmp" type="@BZSwitch"/>
+						</localVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<interfaces/>
+					<methods/>
+					<sourceCode type="ST">
+						<![CDATA[
+// DO WHAT YOU WANT TO DO, HIAHIA...
+ptrSwitchTmp := @me.RemoteShutdownSwitch;
+
+if (@ptrSwitchTmp.Status = BZSwitchCLOSE) then
+	@me.BZFault_evaluators.UnitRemoteShutdownAlarm_evaluator.parent.IsPresent := TRUE;
+else
+	@me.BZFault_evaluators.UnitRemoteShutdownAlarm_evaluator.parent.IsPresent := FALSE;
+end_if;
+]]>
+					</sourceCode>
+				</functionBlock>
+				<functionBlock name="bzAisleACUnitFault_evaulate" version="1.0.0" creationDate="1612683126" lastModifiedDate="1612686200">
+					<vars>
+						<inputVars>
+							<var name="me" type="@bzAisleACUnitFault"/>
+						</inputVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<interfaces/>
+					<methods/>
+					<sourceCode type="ST">
+						<![CDATA[
+/*****************************************************************************
+ __          __             _____    _   _   _____   _   _    _____       
+ \ \        / /     /\     |  __ \  | \ | | |_   _| | \ | |  / ____|      
+  \ \  /\  / /     /  \    | |__) | |  \| |   | |   |  \| | | |  __   ___ 
+   \ \/  \/ /     / /\ \   |  _  /  | . ` |   | |   | . ` | | | |_ | / __|
+    \  /\  /     / ____ \  | | \ \  | |\  |  _| |_  | |\  | | |__| | \__ \
+     \/  \/     /_/    \_\ |_|  \_\ |_| \_| |_____| |_| \_|  \_____| |___/
+                                                                          
+
+ ****************************************************************************/
+
+//
+// Unit maintenance mode
+//
+@me.UnitMaintenanceWarning_evaluator();
+
+/*****************************************************************************
+		             _                   _____    __  __       
+		     /\     | |          /\     |  __ \  |  \/  |      
+		    /  \    | |         /  \    | |__) | | \  / |  ___ 
+		   / /\ \   | |        / /\ \   |  _  /  | |\/| | / __|
+		  / ____ \  | |____   / ____ \  | | \ \  | |  | | \__ \
+		 /_/    \_\ |______| /_/    \_\ |_|  \_\ |_|  |_| |___/
+		                                                       
+
+ *****************************************************************************/
+@me.NumberOfAlarmDetected := 0;
+
+//
+// Remote shutdown
+//
+@me.UnitRemoteShutdownAlarm_evaluator();
+if (@me.UnitRemoteShutdownAlarm_evaluator.parent.IsPresent) then	// STUPID CODE BECAUSE THERE'S NO '?:' SUPPORTING!
+	@me.NumberOfAlarmDetected := @me.NumberOfAlarmDetected + 1;
+else;
+end_if;
+
+//
+// Airfilter clogged
+//
+@me.AirfilterCloggedAlarm_evaulator();
+if (@me.AirfilterCloggedAlarm_evaulator.parent.IsPresent) then	
+	@me.NumberOfAlarmDetected := @me.NumberOfAlarmDetected + 1;
+else;
+end_if;
+]]>
+					</sourceCode>
+				</functionBlock>
+				<functionBlock name="BZFault_AirfilterCloggedAlarm" version="1.0.0" creationDate="1612663089" lastModifiedDate="1612685489">
+					<vars>
+						<inputVars>
+							<var name="me" type="@bzAisleACUnit"/>
+							<var name="parent" type="BZFault"/>
+						</inputVars>
+						<localVars>
+							<var name="ptrSwitchTmp" type="@BZSwitch"/>
+						</localVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<interfaces/>
+					<methods/>
+					<sourceCode type="ST">
+						<![CDATA[
+// DO WHAT YOU WANT TO DO, HIAHIA...
+ptrSwitchTmp := @me.AirfilterCloggedSwitch;
+
+if (@ptrSwitchTmp.Status = BZSwitchCLOSE) then
+	@me.BZFault_evaluators.AirfilterCloggedAlarm_evaulator.parent.IsPresent := TRUE;
+else
+	@me.BZFault_evaluators.AirfilterCloggedAlarm_evaulator.parent.IsPresent := FALSE;
+end_if;
+]]>
+					</sourceCode>
+				</functionBlock>
 			</functionBlocks>
 			<programs>
-				<program name="main" version="1.0.0" creationDate="0" lastModifiedDate="1612510029">
+				<program name="main" version="1.0.0" creationDate="0" lastModifiedDate="1612685788">
 					<vars>
 						<localVars>
 							<var name="i" type="INT"/>
@@ -1221,6 +1497,10 @@ bzRCTh := TO_INT(ACUnit.groupRackAirSensors.High 	* 10.0);
 
 bzUnitStatus := TO_INT(ACUnit.m_unit_status);
 
+bzUnitMaintenanceWarning 	:= TO_INT(ACUnit.BZFault_evaluators.UnitMaintenanceWarning_evaluator.parent.IsPresent);
+
+bzUnitRemoteShutdownAlarm	:= TO_INT(ACUnit.BZFault_evaluators.UnitRemoteShutdownAlarm_evaluator.parent.IsPresent);
+bzAirfilterCloggedAlarm		:= TO_INT(ACUnit.BZFault_evaluators.AirfilterCloggedAlarm_evaulator.parent.IsPresent);
 ]]>
 					</sourceCode>
 				</program>
@@ -1301,12 +1581,19 @@ end_if;
 ]]>
 					</sourceCode>
 				</program>
-				<program name="init" version="1.0.0" creationDate="1611809132" lastModifiedDate="1612512866">
+				<program name="init" version="1.0.0" creationDate="1611809132" lastModifiedDate="1612686592">
 					<vars>
 						<localVars>
 							<var name="res" type="BOOL"/>
 							<var name="i" type="INT"/>
+							<var name="genericPtr" type="UDINT"/>
+							<var name="BZFaultPtr" type="@BZFault"/>
 						</localVars>
+						<localConsts>
+							<const name="MAX_32768" type="UINT">
+								<initValue>32768</initValue>
+							</const>
+						</localConsts>
 					</vars>
 					<iecDeclaration active="FALSE"/>
 					<sourceCode type="ST">
@@ -1317,6 +1604,7 @@ end_if;
  *
  */
 // AI gain
+
 res := sysWriteParINT(ADR(Gain_Ntc_AI1), 	32768);
 res := sysWriteParINT(ADR(Gain_Ntc_AI2), 	32768);
 res := sysWriteParINT(ADR(Gain_Ntc_AI3), 	32768);
@@ -1349,6 +1637,7 @@ res := sysWriteParINT(ADR(Offs_10V_AI12), 	0);
 res := sysWriteParINT(ADR(Gain_10V_AO1),	32768);
 res := sysWriteParINT(ADR(Gain_10V_AO2),	32768);
 res := sysWriteParINT(ADR(Gain_mA_AO3),		32768);
+
 
 // AO offset
 res := sysWriteParINT(ADR(Offs_10V_AO1),	0);
@@ -1396,6 +1685,7 @@ end_for;
 
 // Switches
 res := IBZSwitch_new(?Switches[0], ?HW_DI_03, TO_BOOL(BZSwitchReversedCfg));
+res := IBZSwitch_new(?Switches[1], ?HW_DI_04, TO_BOOL(BZSwitchReversedCfg));
 
 // Relays
 if (bzUnitStatusRelayCfg = 1) then
@@ -1403,6 +1693,8 @@ if (bzUnitStatusRelayCfg = 1) then
 else
 	res := IBZRelay_new(?Relays[0], ?HW_DO_01, BZRelay_OPEN);
 end_if;
+
+res := IBZRelay_new(?Relays[1], ?HW_DO_02, BZRelay_CLOSE);
 
 
 // Evaporator Fans
@@ -1451,10 +1743,12 @@ ACUnit.groupRackAirSensors.NbrOfSen		:= 2;
 ACUnit.EvapCoilTempSensor	:= ?NTCProbes[6];
 
 // Switches
-ACUnit.RemoteShutdownSwitch := ?Switches[0];
+ACUnit.RemoteShutdownSwitch 	:= ?Switches[0];
+ACUnit.AirfilterCloggedSwitch	:= ?Switches[1];
 
 // Relays
-ACUnit.UnitStatusRelay := ?Relays[0];
+ACUnit.UnitStatusRelay 				:= ?Relays[0];
+ACUnit.UnitAlarmHWIndicatorRelay	:= ?Relays[1];
 
 // Evaporator fans
 for i := 0 to NUMBER_OF_EVAP_FANS - 1 do
@@ -1685,9 +1979,13 @@ of the actual position.</descr>
 						<var name="RemoteShutdownSwitch" type="@BZSwitch">
 							<descr>Remote shutdown switch input</descr>
 						</var>
+						<var name="AirfilterCloggedSwitch" type="@BZSwitch">
+							<descr>Airfilter clogged detector switch input</descr>
+						</var>
 						<var name="UnitStatusRelay" type="@BZRelay">
 							<descr>Indication of unit status</descr>
 						</var>
+						<var name="UnitAlarmHWIndicatorRelay" type="@BZRelay"/>
 						<var name="EvapFans" type="@BZECFanEBM" dim0="6">
 							<descr>6 EC fans from EBM to provide airflow through evaporator coil</descr>
 						</var>
@@ -1720,6 +2018,9 @@ of the actual position.</descr>
 						</var>
 						<var name="m_unit_maintenance_timeout_counter_u16" type="UINT">
 							<descr>Unit maintenance timeout timer</descr>
+						</var>
+						<var name="BZFault_evaluators" type="bzAisleACUnitFault">
+							<descr>Warning and alarm detectors</descr>
 						</var>
 						<var name="run" type="bzAisleACUnit_run">
 							<descr>Public method to execute the control process</descr>
@@ -1852,6 +2153,38 @@ of the actual position.</descr>
 						<var name="run" type="BZECFanEBM_run">
 							<descr>'run' member function</descr>
 						</var>
+					</vars>
+				</struct>
+				<struct name="BZFault" version="1.0.0">
+					<title>BZFault</title>
+					<descr>It's a type of alarm generation for machine control.</descr>
+					<vars>
+						<var name="Level" type="BZFaultLevelE">
+							<descr>Level of the fault</descr>
+						</var>
+						<var name="Code" type="INT">
+							<descr>Fault code</descr>
+						</var>
+						<var name="Reset" type="BOOL">
+							<descr>Clear the fault manually</descr>
+						</var>
+						<var name="Enabled" type="BOOL">
+							<descr>YES to enable the fault in machine control</descr>
+						</var>
+						<var name="IsPresent" type="BOOL">
+							<descr>If the fault occurred, it's TRUE</descr>
+						</var>
+					</vars>
+				</struct>
+				<struct name="bzAisleACUnitFault" version="1.0.0">
+					<title>bzAisleACUnit Fault</title>
+					<descr>TBC</descr>
+					<vars>
+						<var name="NumberOfAlarmDetected" type="INT"/>
+						<var name="UnitMaintenanceWarning_evaluator" type="BZFault_UnitMaintenanceWarning"/>
+						<var name="UnitRemoteShutdownAlarm_evaluator" type="BZFault_UnitRemoteShutdownAlarm"/>
+						<var name="AirfilterCloggedAlarm_evaulator" type="BZFault_AirfilterCloggedAlarm"/>
+						<var name="evaulate" type="bzAisleACUnitFault_evaulate"/>
 					</vars>
 				</struct>
 			</structs>
@@ -1992,6 +2325,24 @@ PWM</descr>
 						<element name="BZ_DAC_PWM">
 							<descr>PWM</descr>
 							<value>2</value>
+						</element>
+					</elements>
+				</enum>
+				<enum name="BZFaultLevelE" version="1.0.0">
+					<title>BZFault Level</title>
+					<descr>Defines the level of a fault.</descr>
+					<elements>
+						<element name="BZ_WARNING">
+							<value>0</value>
+						</element>
+						<element name="BZ_ALARM">
+							<value>1</value>
+						</element>
+						<element name="BZ_EXCEPTION">
+							<value>2</value>
+						</element>
+						<element name="BZ_DEAD">
+							<value>3</value>
 						</element>
 					</elements>
 				</enum>
@@ -55008,21 +55359,27 @@ ui16_random := TO_UINT(ui16_random_copy or (ui16_random_tmp and 16#00FF));
 		{G:"Status_variables"}
 	bzRCTh AT %MW110.18 : INT;  {DE:"Max rack inlet air temperature of the two probes supposed to be located right in front of the rack"}
 		{G:"Status_variables"}
-	bzWarningBase AT %MW110.19 : INT := 0;  {DE:"Warning code base"}
+	bzWarningBase AT %MW110.19 : INT;  {DE:"Warning code base"}
 		{G:"Status_variables"}
-	bzAlarmBase AT %MW110.20 : INT := 0;  {DE:"Alarm code base"}
+	bzUnitMaintenanceWarning AT %MW110.20 : INT;  {DE:"Unit is in maintenance"}
 		{G:"Status_variables"}
-	bzManualFanSpeed AT %MW110.21 : INT := 0;  {DE:"Evaporator fan manual speed output"}
+	bzAlarmBase AT %MW110.21 : INT := 0;  {DE:"Alarm code base"}
 		{G:"Status_variables"}
-	BZCANMailbox1 AT %MW110.22 : INT;
+	bzUnitRemoteShutdownAlarm AT %MW110.22 : INT;  {DE:"Unit is shutdown by remote HW input"}
 		{G:"Status_variables"}
-	BZCANMailbox2 AT %MW110.23 : INT;
+	bzAirfilterCloggedAlarm AT %MW110.23 : INT;  {DE:"Airfilter is clogged."}
 		{G:"Status_variables"}
-	BZCANMailbox3 AT %MW110.24 : INT;
+	bzManualFanSpeed AT %MW110.24 : INT := 0;  {DE:"Evaporator fan manual speed output"}
 		{G:"Status_variables"}
-	BZIsRealMode AT %MW110.25 : BOOL := 1;  {DE:"Controller is working on real mode."}
+	BZCANMailbox1 AT %MW110.25 : INT;  {DE:"TBC"}
 		{G:"Status_variables"}
-	bzUnitStatus AT %MW110.26 : INT;  {DE:"Unit status"}
+	BZCANMailbox2 AT %MW110.26 : INT;  {DE:"TBC"}
+		{G:"Status_variables"}
+	BZCANMailbox3 AT %MW110.27 : INT;  {DE:"TBC"}
+		{G:"Status_variables"}
+	BZIsRealMode AT %MW110.28 : BOOL := 1;  {DE:"Controller is working on real mode."}
+		{G:"Status_variables"}
+	bzUnitStatus AT %MW110.29 : INT;  {DE:"Unit status"}
 		{G:"IO_Mapping"}
 	HW_AI_01 AT %IW1.0 : INT;  {DE:"AIL1 analogue input"}
 		{G:"IO_Mapping"}
@@ -55114,8 +55471,8 @@ ui16_random := TO_UINT(ui16_random_copy or (ui16_random_tmp and 16#00FF));
 				<![CDATA[(* Automatically generated, do not edit! *)
 
 VAR_GLOBAL CONSTANT
-$$ParDB : ARRAY[ 0..899 ] OF USINT; { HIDDEN:ON } { INIT:"BZ172Lab.PLK+0" }
-$$ParDBLength  : DWORD := 25; { HIDDEN:ON }
+$$ParDB : ARRAY[ 0..1007 ] OF USINT; { HIDDEN:ON } { INIT:"BZ172Lab.PLK+0" }
+$$ParDBLength  : DWORD := 28; { HIDDEN:ON }
 END_VAR
 
 PROGRAM InitParDB WITH Serv;
@@ -55128,7 +55485,7 @@ PROGRAM InitParDB
 		dummyCrc32: UDINT;
 	END_VAR
 
-	dummyCrc32 := 3065284587;
+	dummyCrc32 := 124958998;
 
 	warningsKiller := sysDBase_SetExtTable( ADR( $$ParDB ), $$ParDBLength );
 
@@ -55156,7 +55513,7 @@ END_PROGRAM
 			</src>
 		</aux>
 		<workspace>
-			<root name="BZ172Lab" nextID="6422">
+			<root name="BZ172Lab" nextID="7839">
 				<GlobalVars name="Global_vars" id="11"/>
 				<Pou name="main" id="2"/>
 				<folder id="16" name="BZoops172">
@@ -55220,6 +55577,10 @@ END_PROGRAM
 							<Pou name="IBZECFanEBM_new" id="5374"/>
 							<Pou name="BZECFanEBM_run" id="5466"/>
 						</folder>
+						<folder name="BZFault" id="6517">
+							<Definition name="BZFault" id="6518"/>
+							<Pou name="IBZFault_new" id="6537"/>
+						</folder>
 					</folder>
 					<folder name="Types" id="37">
 						<Definition name="BZActuatorStatus" id="38"/>
@@ -55232,6 +55593,7 @@ END_PROGRAM
 						<Definition name="BZSwitchStatusE" id="4450"/>
 						<Definition name="BZRelayOutputE" id="4802"/>
 						<Definition name="BZDAQChannelTypeE" id="5227"/>
+						<Definition name="BZFaultLevelE" id="6519"/>
 					</folder>
 					<folder name="Utilities" id="41">
 						<Pou name="BZComputeY" id="42"/>
@@ -55240,14 +55602,25 @@ END_PROGRAM
 				</folder>
 				<Pou name="init" id="688"/>
 				<folder name="Machines" id="746">
-					<folder name="bzAisleAC" id="747">
-						<Definition name="bzAisleACUnit" id="748" genHidden="false"/>
+					<folder name="bzAisleACUnit" id="747">
+						<folder name="BZFaultInheritor" id="6626">
+							<Pou name="BZFault_UnitMaintenanceWarning" id="6633"/>
+							<Pou name="IBZFault_UnitMaintenanceWarning_new" id="6776"/>
+							<Pou name="BZFault_UnitRemoteShutdownAlarm" id="7388"/>
+							<Pou name="IBZFault_UnitRemoteShutdownAlarm_new" id="7391"/>
+							<Definition name="bzAisleACUnitFault" id="7490"/>
+							<Pou name="IbzAisleACUnitFault_new" id="7491"/>
+							<Pou name="bzAisleACUnitFault_evaulate" id="7562"/>
+							<Pou name="BZFault_AirfilterCloggedAlarm" id="7762"/>
+							<Pou name="IBZFault_AirfilterCloggedAlarm_new" id="7766"/>
+						</folder>
+						<Definition name="bzAisleACUnit" id="748"/>
 						<Pou name="bzAisleACUnit_groupTemperatures" id="1456"/>
+						<Pou name="bzAisleACUnit_on1min" id="4206"/>
+						<Pou name="bzAisleACUnit_on1s" id="4118"/>
+						<Pou name="bzAisleACUnit_poll" id="3451"/>
 						<Pou name="bzAisleACUnit_run" id="1518"/>
 						<Pou name="IbzAisleACUnit_new" id="2621"/>
-						<Pou name="bzAisleACUnit_poll" id="3451"/>
-						<Pou name="bzAisleACUnit_on1s" id="4118"/>
-						<Pou name="bzAisleACUnit_on1min" id="4206"/>
 					</folder>
 				</folder>
 				<Pou name="task_100ms" id="4093"/>
@@ -55752,7 +56125,7 @@ END_PROGRAM
 								<name>bzWarningBase</name>
 								<typepar>0</typepar>
 								<typetarg>INT</typetarg>
-								<value>0</value>
+								<value/>
 								<min/>
 								<max/>
 								<ipamin/>
@@ -55764,10 +56137,37 @@ END_PROGRAM
 								<note/>
 								<form/>
 								<accesslevel>3</accesslevel>
-								<readonly>0</readonly>
+								<readonly>1</readonly>
 								<shortname/>
 								<size>31</size>
 								<dataBlock>MW110.19</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>5004</ipa>
+								<address>10060</address>
+								<name>bzUnitMaintenanceWarning</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value/>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description>Unit is in maintenance</description>
+								<note>0:NO;YES</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>1</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.20</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -55794,7 +56194,61 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW110.20</dataBlock>
+								<dataBlock>MW110.21</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>5020</ipa>
+								<address>10260</address>
+								<name>bzUnitRemoteShutdownAlarm</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value/>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description>Unit is shutdown by remote HW input</description>
+								<note>0:NO;1:YES</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>1</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.22</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>5021</ipa>
+								<address>10261</address>
+								<name>bzAirfilterCloggedAlarm</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value/>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description>Airfilter is clogged.</description>
+								<note>0:NO;1:YES</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>1</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.23</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -55821,7 +56275,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>16</size>
-								<dataBlock>MW110.21</dataBlock>
+								<dataBlock>MW110.24</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -55841,14 +56295,14 @@ END_PROGRAM
 								<scale>1</scale>
 								<offs>0</offs>
 								<um/>
-								<description/>
+								<description>TBC</description>
 								<note/>
 								<form/>
 								<accesslevel>3</accesslevel>
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW110.22</dataBlock>
+								<dataBlock>MW110.25</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -55868,14 +56322,14 @@ END_PROGRAM
 								<scale>1</scale>
 								<offs>0</offs>
 								<um/>
-								<description/>
+								<description>TBC</description>
 								<note/>
 								<form/>
 								<accesslevel>3</accesslevel>
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW110.23</dataBlock>
+								<dataBlock>MW110.26</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -55895,14 +56349,14 @@ END_PROGRAM
 								<scale>1</scale>
 								<offs>0</offs>
 								<um/>
-								<description/>
+								<description>TBC</description>
 								<note/>
 								<form/>
 								<accesslevel>3</accesslevel>
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW110.24</dataBlock>
+								<dataBlock>MW110.27</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -55929,7 +56383,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW110.25</dataBlock>
+								<dataBlock>MW110.28</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -55956,7 +56410,7 @@ END_PROGRAM
 								<readonly>1</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW110.26</dataBlock>
+								<dataBlock>MW110.29</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -56574,7 +57028,7 @@ END_PROGRAM
 							<commstring>Modbus:1,1000#COM:1,38400,E,8,1</commstring>
 							<values stopNodeParsing="true">
 								<value ipa="10000" subidx="0">0</value>
-								<value ipa="10001" subidx="0">1031</value>
+								<value ipa="10001" subidx="0">2055</value>
 								<value ipa="10002" subidx="0">1</value>
 								<value ipa="10003" subidx="0">0</value>
 								<value ipa="10004" subidx="0">2</value>
@@ -57047,7 +57501,10 @@ END_PROGRAM
 								<value ipa="5017" subidx="0">183</value>
 								<value ipa="5018" subidx="0">183</value>
 								<value ipa="5008" subidx="0">0</value>
+								<value ipa="5004" subidx="0">0</value>
 								<value ipa="5009" subidx="0">0</value>
+								<value ipa="5020" subidx="0">0</value>
+								<value ipa="5021" subidx="0">0</value>
 								<value ipa="5003" subidx="0">0</value>
 								<value ipa="5000" subidx="0">0</value>
 								<value ipa="5001" subidx="0">0</value>
