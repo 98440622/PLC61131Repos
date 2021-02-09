@@ -1,4 +1,4 @@
-﻿<lib version="1.0.0" name="c:\program files (x86)\schneider electric\ecostruxuremachineexperthvac\catalog\freeadvance\..\FreeEvolution\PLC\display.plclib" fullXml="true" link="true">
+﻿<lib version="1.0.0" name="Display" fullXml="true">
 	<descr/>
 	<libWorkspace>
 		<folder name="Display">

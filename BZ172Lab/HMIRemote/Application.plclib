@@ -1,4 +1,4 @@
-﻿<lib version="1.2.2" name="c:\program files (x86)\schneider electric\ecostruxuremachineexperthvac\catalog\freeadvance\PLC\Application.plclib" fullXml="true" link="true">
+﻿<lib version="1.2.2" name="Application" fullXml="true">
 	<descr>AFBs related to applications in HVAC and refrigeration</descr>
 	<libWorkspace>
 		<folder name="Application">

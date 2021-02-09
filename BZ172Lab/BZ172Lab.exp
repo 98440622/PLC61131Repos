@@ -13,6 +13,8 @@ BZSwitchReversedCfg AT %MW101.3 : INT;	{ DE:"BZSwitch status logic configuration
 bzUnitStatusRelayCfg AT %MW101.4 : INT;	{ DE:"Output of relay of unit status indication configuration" }
 bzMajorAlarmRelayCfg AT %MW101.5 : INT;	{ DE:"Output of relay of unit major alarm indication configuration" }
 bzCondensatePumpDelay2OffCfg AT %MW101.6 : INT;	{ DE:"Condensate pump off delay timeout in second" }
+bzCondensatePumpRunhourLog AT %MW101.7 : UINT;	{ DE:"Condensate pump runhour" }
+bzCondensatePumpRunhourThresholdCfg AT %MW101.8 : UINT;	{ DE:"Condensate pump runhour threshold" }
 	{G:"Status_variables"}
 bzBIOSVersion AT %MW110.0 : STRING[ 8 ];	{ DE:"M172 BIOS version" }
 bzAppVersion AT %MW110.5 : STRING[ 8 ];	{ DE:"Application version by a string type format of xx.xx.xx" }
