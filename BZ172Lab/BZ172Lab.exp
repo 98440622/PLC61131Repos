@@ -21,6 +21,10 @@ bzCondensatePumpRunhourLog AT %MW101.11 : UINT;	{ DE:"Condensate pump runhour" }
 bzCondensatePumpRunhourThresholdCfg AT %MW101.12 : UINT;	{ DE:"Condensate pump runhour threshold" }
 bzHighRackinletTemperatureThresholdCfg AT %MW101.13 : INT;	{ DE:"High rackinlet air temperature threshold" }
 bzHighRackinletTemperatureTimeoutCfg AT %MW101.14 : INT;	{ DE:"High rackinlet air temperature warning forgiven time" }
+bzEvaporatorFanStrategyCfg AT %MW101.15 : INT;	{ DE:"Evaporator fan control strategy" }
+bzCoolSetpointCfg AT %MW101.16 : INT;	{ DE:"Cool setpoint" }
+bzDeltaTSetpointCfg AT %MW101.17 : INT;	{ DE:"Differential between return air temperature and supply air temperature setpoint" }
+bzSupplyAirSetpointCfg AT %MW101.18 : INT;	{ DE:"Supply air temperature setpoint" }
 	{G:"Status_variables"}
 bzBIOSVersion AT %MW110.0 : STRING[ 8 ];	{ DE:"M172 BIOS version" }
 bzAppVersion AT %MW110.5 : STRING[ 8 ];	{ DE:"Application version by a string type format of xx.xx.xx" }

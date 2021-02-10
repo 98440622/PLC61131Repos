@@ -802,7 +802,7 @@ IBZFault_UnitRemoteShutdownAlarm_new := TRUE;
 ]]>
 					</sourceCode>
 				</function>
-				<function name="IbzAisleACUnitFault_new" version="1.0.0" creationDate="1612682568" lastModifiedDate="1612860945">
+				<function name="IbzAisleACUnitFault_new" version="1.0.0" creationDate="1612682568" lastModifiedDate="1612920577">
 					<returnValue>BOOL</returnValue>
 					<vars>
 						<inputVars>
@@ -821,6 +821,7 @@ res := IBZFault_NoneOfRackinletTemperatureWarning_new(?(@unit.BZFault_evaluators
 res := IBZFault_HighRackinletTemperatureWarning_new(?(@unit.BZFault_evaluators.HighRackinletTemperatureWarning_evaluator),		unit);
 res := IBZFault_HighReturnTemperatureWarning_new(?(@unit.BZFault_evaluators.HighReturnTemperatureWarning_evaluator),			unit);			
 res := IBZFault_HighSupplyTemperatureWarning_new(?(@unit.BZFault_evaluators.HighSupplyTemperatureWarning_evaluator),			unit);			
+res	:= IBZFault_CondensatePumpRunhourWarning_new(?(@unit.BZFault_evaluators.CondensatePumpRunhourWarning_evaluator),			unit);
 
 res := IBZFault_UnitRemoteShutdownAlarm_new(?(@unit.BZFault_evaluators.UnitRemoteShutdownAlarm_evaluator), 					unit);
 res := IBZFault_AirfilterCloggedAlarm_new(?(@unit.BZFault_evaluators.AirfilterCloggedAlarm_evaluator),						unit);
@@ -1102,6 +1103,28 @@ res := IBZFault_new(?(@me.parent), BZ_WARNING, 9962);
 @me.me := unit;
 
 IBZFault_HighSupplyTemperatureWarning_new := TRUE;
+]]>
+					</sourceCode>
+				</function>
+				<function name="IBZFault_CondensatePumpRunhourWarning_new" version="1.0.0" creationDate="1612665753" lastModifiedDate="1612920595">
+					<returnValue>BOOL</returnValue>
+					<vars>
+						<inputVars>
+							<var name="me" type="@BZFault_CondensatePumpRunhourWarning"/>
+							<var name="unit" type="@bzAisleACUnit"/>
+						</inputVars>
+						<localVars>
+							<var name="res" type="BOOL"/>
+						</localVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<sourceCode type="ST">
+						<![CDATA[
+res := IBZFault_new(?(@me.parent), BZ_WARNING, 10050);
+
+@me.me := unit;
+
+IBZFault_CondensatePumpRunhourWarning_new := TRUE;
 ]]>
 					</sourceCode>
 				</function>
@@ -1707,7 +1730,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="bzAisleACUnitFault_evaulate" version="1.0.0" creationDate="1612683126" lastModifiedDate="1612860915">
+				<functionBlock name="bzAisleACUnitFault_evaulate" version="1.0.0" creationDate="1612683126" lastModifiedDate="1612920587">
 					<vars>
 						<inputVars>
 							<var name="me" type="@bzAisleACUnitFault"/>
@@ -1737,6 +1760,7 @@ end_if;
 @me.HighRackinletTemperatureWarning_evaluator();
 @me.HighReturnTemperatureWarning_evaluator();
 @me.HighSupplyTemperatureWarning_evaluator();
+@me.CondensatePumpRunhourWarning_evaluator();
 
 /*****************************************************************************
 		             _                   _____    __  __       
@@ -2256,9 +2280,35 @@ end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
+				<functionBlock name="BZFault_CondensatePumpRunhourWarning" version="1.0.0" creationDate="1612663089" lastModifiedDate="1612920498">
+					<vars>
+						<inputVars>
+							<var name="me" type="@bzAisleACUnit"/>
+							<var name="parent" type="BZFault"/>
+						</inputVars>
+						<localVars>
+							<var name="ptrBZRelay" type="@BZRelay"/>
+						</localVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<interfaces/>
+					<methods/>
+					<sourceCode type="ST">
+						<![CDATA[
+// DO WHAT YOU WANT TO DO, HIAHIA...
+ptrBZRelay := @me.CondensatePumpRelay;
+
+if (@me.m_configurations.m_bzCondensatePumpRunhourThresholdCfg < @ptrBZRelay.m_runhours) then
+	@me.BZFault_evaluators.CondensatePumpRunhourWarning_evaluator.parent.IsPresent := TRUE;
+else
+	@me.BZFault_evaluators.CondensatePumpRunhourWarning_evaluator.parent.IsPresent := FALSE;
+end_if;
+]]>
+					</sourceCode>
+				</functionBlock>
 			</functionBlocks>
 			<programs>
-				<program name="main" version="1.0.0" creationDate="0" lastModifiedDate="1612860155">
+				<program name="main" version="1.0.0" creationDate="0" lastModifiedDate="1612920072">
 					<vars>
 						<localVars>
 							<var name="i" type="INT"/>
@@ -2281,6 +2331,9 @@ if (is_first_called) then
 	else;
 	end_if;
 	
+	ptrBZRelay := ACUnit.CondensatePumpRelay;
+	@ptrBZRelay.m_runhours := bzCondensatePumpRunhourLog;
+	
 	is_first_called := FALSE;
 else;
 end_if;
@@ -2302,7 +2355,7 @@ ACUnit.m_configurations.unit_mode_cmd_adr							:= ADR(bzUnitModeCfg);
 ACUnit.m_configurations.unit_maintenance_timeout					:= bzUnitMaintenanceTimeoutCfg;
 ACUnit.m_configurations.unit_startup_delay_timeout 					:= bzUnitStartupDelayCfg;
 ACUnit.m_configurations.cond_pump_off_delay_timeout					:= bzCondensatePumpDelay2OffCfg;
-ACUnit.m_configurations.m_condensate_pump_runhour_max				:= bzCondensatePumpRunhourThresholdCfg;
+ACUnit.m_configurations.m_bzCondensatePumpRunhourThresholdCfg		:= bzCondensatePumpRunhourThresholdCfg;
 ACUnit.m_configurations.m_bzHighRackinletTemperatureThresholdCfg	:= bzHighRackinletTemperatureThresholdCfg;
 ACUnit.m_configurations.m_bzHighRackinletTemperatureTimeoutCfg		:= bzHighRackinletTemperatureTimeoutCfg;
 ACUnit.m_configurations.m_bzHighReturnTemperatureThresholdCfg		:= bzHighReturnTemperatureThresholdCfg;
@@ -2310,11 +2363,6 @@ ACUnit.m_configurations.m_bzHighReturnTemperatureTimeoutCfg			:= bzHighReturnTem
 ACUnit.m_configurations.m_bzHighSupplyTemperatureThresholdCfg		:= bzHighSupplyTemperatureThresholdCfg;
 ACUnit.m_configurations.m_bzHighSupplyTemperatureTimeoutCfg			:= bzHighSupplyTemperatureTimeoutCfg;
 
-if (is_first_called) then
-	ptrBZRelay := ACUnit.CondensatePumpRelay;
-	@ptrBZRelay.m_runhours := bzCondensatePumpRunhourLog;
-else;
-end_if;
 
 ACUnit.EvapFanManOutPtr					:= ?bzManualFanSpeed;
 ACUnit.CondPumpManOutPtr				:= ?bzManualCondensatePump;
@@ -3105,6 +3153,7 @@ of the actual position.</descr>
 						<var name="LowerSupplyAirSensorFaultAlarm_evaluator" type="BZFault_LowerSupplyAirSensorFaultAlarm"/>
 						<var name="CoilOutletSensorFaultAlarm_evaluator" type="BZFault_CoilOutletSensorFaultAlarm"/>
 						<var name="evaulate" type="bzAisleACUnitFault_evaulate"/>
+						<var name="CondensatePumpRunhourWarning_evaluator" type="BZFault_CondensatePumpRunhourWarning"/>
 					</vars>
 				</struct>
 				<struct name="bzAisleACUnitCfg" version="1.0.0">
@@ -3126,15 +3175,13 @@ of the actual position.</descr>
 						<var name="cond_pump_off_delay_timeout" type="INT">
 							<descr>Link to bzCondensatePumpDelay2OffCfg</descr>
 						</var>
-						<var name="m_condensate_pump_runhour_max" type="UINT">
-							<descr>Link to bzCondensatePumpRunhourThresholdCfg</descr>
-						</var>
 						<var name="m_bzHighRackinletTemperatureThresholdCfg" type="INT"/>
 						<var name="m_bzHighRackinletTemperatureTimeoutCfg" type="INT"/>
 						<var name="m_bzHighReturnTemperatureThresholdCfg" type="INT"/>
 						<var name="m_bzHighReturnTemperatureTimeoutCfg" type="INT"/>
 						<var name="m_bzHighSupplyTemperatureThresholdCfg" type="INT"/>
 						<var name="m_bzHighSupplyTemperatureTimeoutCfg" type="INT"/>
+						<var name="m_bzCondensatePumpRunhourThresholdCfg" type="UINT"/>
 					</vars>
 				</struct>
 			</structs>
@@ -3293,6 +3340,21 @@ PWM</descr>
 						</element>
 						<element name="BZ_DEAD">
 							<value>3</value>
+						</element>
+					</elements>
+				</enum>
+				<enum name="bzAisleACUnitEvapFanCtrlStrategy" version="1.0.0">
+					<title>bzAisleACUnit Evap-fan control strategy</title>
+					<descr>3 types of strategies inherited from inrow product</descr>
+					<elements>
+						<element name="bzInRow_CACS">
+							<value>0</value>
+						</element>
+						<element name="bzHACS_RACS">
+							<value>1</value>
+						</element>
+						<element name="bzCONSTANT_SPD">
+							<value>2</value>
 						</element>
 					</elements>
 				</enum>
@@ -56304,6 +56366,14 @@ ui16_random := TO_UINT(ui16_random_copy or (ui16_random_tmp and 16#00FF));
 	bzHighRackinletTemperatureThresholdCfg AT %MW101.13 : INT;  {DE:"High rackinlet air temperature threshold"}
 		{G:"EEPROM_Parameters"}
 	bzHighRackinletTemperatureTimeoutCfg AT %MW101.14 : INT;  {DE:"High rackinlet air temperature warning forgiven time"}
+		{G:"EEPROM_Parameters"}
+	bzEvaporatorFanStrategyCfg AT %MW101.15 : INT;  {DE:"Evaporator fan control strategy"}
+		{G:"EEPROM_Parameters"}
+	bzCoolSetpointCfg AT %MW101.16 : INT;  {DE:"Cool setpoint"}
+		{G:"EEPROM_Parameters"}
+	bzDeltaTSetpointCfg AT %MW101.17 : INT;  {DE:"Differential between return air temperature and supply air temperature setpoint"}
+		{G:"EEPROM_Parameters"}
+	bzSupplyAirSetpointCfg AT %MW101.18 : INT;  {DE:"Supply air temperature setpoint"}
 		{G:"Status_variables"}
 	bzBIOSVersion AT %MW110.0 : STRING[ 8 ];  {DE:"M172 BIOS version"}
 		{G:"Status_variables"}
@@ -56465,8 +56535,8 @@ ui16_random := TO_UINT(ui16_random_copy or (ui16_random_tmp and 16#00FF));
 				<![CDATA[(* Automatically generated, do not edit! *)
 
 VAR_GLOBAL CONSTANT
-$$ParDB : ARRAY[ 0..1799 ] OF USINT; { HIDDEN:ON } { INIT:"BZ172Lab.PLK+0" }
-$$ParDBLength  : DWORD := 50; { HIDDEN:ON }
+$$ParDB : ARRAY[ 0..1943 ] OF USINT; { HIDDEN:ON } { INIT:"BZ172Lab.PLK+0" }
+$$ParDBLength  : DWORD := 54; { HIDDEN:ON }
 END_VAR
 
 PROGRAM InitParDB WITH Serv;
@@ -56479,7 +56549,7 @@ PROGRAM InitParDB
 		dummyCrc32: UDINT;
 	END_VAR
 
-	dummyCrc32 := 1581733738;
+	dummyCrc32 := 3273573392;
 
 	warningsKiller := sysDBase_SetExtTable( ADR( $$ParDB ), $$ParDBLength );
 
@@ -56507,7 +56577,7 @@ END_PROGRAM
 			</src>
 		</aux>
 		<workspace>
-			<root name="BZ172Lab" nextID="12203">
+			<root name="BZ172Lab" nextID="12674">
 				<GlobalVars name="Global_vars" id="11"/>
 				<Pou name="main" id="2"/>
 				<folder id="16" name="BZoops172">
@@ -56611,6 +56681,8 @@ END_PROGRAM
 									<Pou name="IBZFault_HighReturnTemperatureWarning_new" id="12016"/>
 									<Pou name="BZFault_HighSupplyTemperatureWarning" id="12115"/>
 									<Pou name="IBZFault_HighSupplyTemperatureWarning_new" id="12122"/>
+									<Pou name="IBZFault_CondensatePumpRunhourWarning_new" id="12396"/>
+									<Pou name="BZFault_CondensatePumpRunhourWarning" id="12400"/>
 								</folder>
 								<folder name="Alarms" id="10318">
 									<Pou name="BZFault_AirfilterCloggedAlarm" id="7762"/>
@@ -56642,11 +56714,19 @@ END_PROGRAM
 							<Pou name="IbzAisleACUnit_new" id="2621"/>
 							<Pou name="bzAisleACUnit_on1h" id="10494"/>
 							<Definition name="bzAisleACUnitCfg" id="11367"/>
+							<folder name="Typedefs" id="12365">
+								<Definition name="bzAisleACUnitEvapFanStrategy" id="12364" genHidden="false"/>
+							</folder>
 						</folder>
 					</folder>
 				</folder>
 				<Pou name="init" id="688"/>
 				<Pou name="task_100ms" id="4093"/>
+				<folder name="Definitions" id="12599">
+					<folder name="Enumerations" id="12600">
+						<Definition name="bzAisleACUnitEvapFanCtrlStrategy" id="12598"/>
+					</folder>
+				</folder>
 			</root>
 		</workspace>
 	</sources>
@@ -57081,6 +57161,114 @@ END_PROGRAM
 								<shortname/>
 								<size>31</size>
 								<dataBlock>MW101.14</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>15</ipa>
+								<address>16398</address>
+								<name>bzEvaporatorFanStrategyCfg</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value>0</value>
+								<min>0</min>
+								<max>2</max>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description>Evaporator fan control strategy</description>
+								<note>0:InRow_CACS;1:HACS_RACS;2:CONSTANT_SPD</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW101.15</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>16</ipa>
+								<address>16399</address>
+								<name>bzCoolSetpointCfg</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value>180</value>
+								<min>150</min>
+								<max>300</max>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um>.1°C</um>
+								<description>Cool setpoint</description>
+								<note>Evaporator fan control target with Inrow_CACS strategy</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW101.16</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>17</ipa>
+								<address>16400</address>
+								<name>bzDeltaTSetpointCfg</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value>100</value>
+								<min>20</min>
+								<max>200</max>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um>.1°C</um>
+								<description>Differential between return air temperature and supply air temperature setpoint</description>
+								<note>For return air temperature setpoint calculation with HACS strategy</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW101.17</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>18</ipa>
+								<address>16401</address>
+								<name>bzSupplyAirSetpointCfg</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value>180</value>
+								<min>150</min>
+								<max>300</max>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um>.1°C</um>
+								<description>Supply air temperature setpoint</description>
+								<note>Compressor or chilled water valve control target</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW101.18</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -59115,6 +59303,10 @@ END_PROGRAM
 								<value ipa="8" subidx="0">20208</value>
 								<value ipa="9" subidx="0">450</value>
 								<value ipa="10" subidx="0">10</value>
+								<value ipa="15" subidx="0">0</value>
+								<value ipa="16" subidx="0">180</value>
+								<value ipa="17" subidx="0">100</value>
+								<value ipa="18" subidx="0">180</value>
 								<value ipa="5012" subidx="0"/>
 								<value ipa="5010" subidx="0"/>
 								<value ipa="5005" subidx="0">303</value>
