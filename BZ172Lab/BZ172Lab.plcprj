@@ -802,7 +802,7 @@ IBZFault_UnitRemoteShutdownAlarm_new := TRUE;
 ]]>
 					</sourceCode>
 				</function>
-				<function name="IbzAisleACUnitFault_new" version="1.0.0" creationDate="1612682568" lastModifiedDate="1612920577">
+				<function name="IbzAisleACUnitFault_new" version="1.0.0" creationDate="1612682568" lastModifiedDate="1612931627">
 					<returnValue>BOOL</returnValue>
 					<vars>
 						<inputVars>
@@ -822,6 +822,7 @@ res := IBZFault_HighRackinletTemperatureWarning_new(?(@unit.BZFault_evaluators.H
 res := IBZFault_HighReturnTemperatureWarning_new(?(@unit.BZFault_evaluators.HighReturnTemperatureWarning_evaluator),			unit);			
 res := IBZFault_HighSupplyTemperatureWarning_new(?(@unit.BZFault_evaluators.HighSupplyTemperatureWarning_evaluator),			unit);			
 res	:= IBZFault_CondensatePumpRunhourWarning_new(?(@unit.BZFault_evaluators.CondensatePumpRunhourWarning_evaluator),			unit);
+res	:= IBZFault_SolenoidValveRunhourWarning_new(?(@unit.BZFault_evaluators.SolenoidValveRunhourWarning_evaluator),				unit);
 
 res := IBZFault_UnitRemoteShutdownAlarm_new(?(@unit.BZFault_evaluators.UnitRemoteShutdownAlarm_evaluator), 					unit);
 res := IBZFault_AirfilterCloggedAlarm_new(?(@unit.BZFault_evaluators.AirfilterCloggedAlarm_evaluator),						unit);
@@ -832,6 +833,7 @@ res := IBZFault_LowerReturnAirSensorFaultAlarm_new(?(@unit.BZFault_evaluators.Lo
 res := IBZFault_UpperSupplyAirSensorFaultAlarm_new(?(@unit.BZFault_evaluators.UpperSupplyAirSensorFaultAlarm_evaluator),	unit);
 res := IBZFault_LowerSupplyAirSensorFaultAlarm_new(?(@unit.BZFault_evaluators.LowerSupplyAirSensorFaultAlarm_evaluator),	unit);
 res := IBZFault_CoilOutletSensorFaultAlarm_new(?(@unit.BZFault_evaluators.CoilOutletSensorFaultAlarm_evaluator),			unit);
+res := IBZFault_AirfilterRunhourAlarm_new(?(@unit.BZFault_evaluators.AirfilterRunhourAlarm_evaluator),						unit);
 
 @me.NumberOfAlarmDetected := 0;
 
@@ -1125,6 +1127,50 @@ res := IBZFault_new(?(@me.parent), BZ_WARNING, 10050);
 @me.me := unit;
 
 IBZFault_CondensatePumpRunhourWarning_new := TRUE;
+]]>
+					</sourceCode>
+				</function>
+				<function name="IBZFault_SolenoidValveRunhourWarning_new" version="1.0.0" creationDate="1612665753" lastModifiedDate="1612924093">
+					<returnValue>BOOL</returnValue>
+					<vars>
+						<inputVars>
+							<var name="me" type="@BZFault_SolenoidValveRunhourWarning"/>
+							<var name="unit" type="@bzAisleACUnit"/>
+						</inputVars>
+						<localVars>
+							<var name="res" type="BOOL"/>
+						</localVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<sourceCode type="ST">
+						<![CDATA[
+res := IBZFault_new(?(@me.parent), BZ_WARNING, 10020);
+
+@me.me := unit;
+
+IBZFault_SolenoidValveRunhourWarning_new := TRUE;
+]]>
+					</sourceCode>
+				</function>
+				<function name="IBZFault_AirfilterRunhourAlarm_new" version="1.0.0" creationDate="1612665753" lastModifiedDate="1612931419">
+					<returnValue>BOOL</returnValue>
+					<vars>
+						<inputVars>
+							<var name="me" type="@BZFault_AirfilterRunhourAlarm"/>
+							<var name="unit" type="@bzAisleACUnit"/>
+						</inputVars>
+						<localVars>
+							<var name="res" type="BOOL"/>
+						</localVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<sourceCode type="ST">
+						<![CDATA[
+res := IBZFault_new(?(@me.parent), BZ_ALARM, 10263);
+
+@me.me := unit;
+
+IBZFault_AirfilterRunhourAlarm_new := TRUE;
 ]]>
 					</sourceCode>
 				</function>
@@ -1730,7 +1776,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="bzAisleACUnitFault_evaulate" version="1.0.0" creationDate="1612683126" lastModifiedDate="1612920587">
+				<functionBlock name="bzAisleACUnitFault_evaulate" version="1.0.0" creationDate="1612683126" lastModifiedDate="1612931590">
 					<vars>
 						<inputVars>
 							<var name="me" type="@bzAisleACUnitFault"/>
@@ -1761,6 +1807,7 @@ end_if;
 @me.HighReturnTemperatureWarning_evaluator();
 @me.HighSupplyTemperatureWarning_evaluator();
 @me.CondensatePumpRunhourWarning_evaluator();
+@me.SolenoidValveRunhourWarning_evaluator();
 
 /*****************************************************************************
 		             _                   _____    __  __       
@@ -1851,6 +1898,15 @@ end_if;
 //
 @me.CoilOutletSensorFaultAlarm_evaluator();
 if (@me.CoilOutletSensorFaultAlarm_evaluator.parent.IsPresent) then
+	@me.NumberOfAlarmDetected := @me.NumberOfAlarmDetected + 1;
+else;
+end_if;
+
+//
+// Airfilter runhour
+//
+@me.AirfilterRunhourAlarm_evaluator();
+if (@me.AirfilterRunhourAlarm_evaluator.parent.IsPresent) then
 	@me.NumberOfAlarmDetected := @me.NumberOfAlarmDetected + 1;
 else;
 end_if;
@@ -2105,7 +2161,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="bzAisleACUnit_on1h" version="1.0.0" creationDate="1612834083" lastModifiedDate="1612841952">
+				<functionBlock name="bzAisleACUnit_on1h" version="1.0.0" creationDate="1612834083" lastModifiedDate="1612931861">
 					<vars>
 						<inputVars>
 							<var name="me" type="@bzAisleACUnit"/>
@@ -2132,8 +2188,15 @@ end_if;
 ptrBZRelay := @me.CondensatePumpRelay;
 @ptrBZRelay.updateRunhour();
 
+ptrBZRelay := @me.SolenoidValveRelay;
+@ptrBZRelay.updateRunhour();
 
-
+// The criterion should be the actual airflow does go through the filter, 
+// but now I just put unit status instead to make my life easier.
+if (@me.m_unit_status = BZ_ON) then
+	@me.AirfilterRunhour := @me.AirfilterRunhour + 1;
+else;
+end_if;
 
 
 ]]>
@@ -2306,9 +2369,59 @@ end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
+				<functionBlock name="BZFault_SolenoidValveRunhourWarning" version="1.0.0" creationDate="1612663089" lastModifiedDate="1612924007">
+					<vars>
+						<inputVars>
+							<var name="me" type="@bzAisleACUnit"/>
+							<var name="parent" type="BZFault"/>
+						</inputVars>
+						<localVars>
+							<var name="ptrBZRelay" type="@BZRelay"/>
+						</localVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<interfaces/>
+					<methods/>
+					<sourceCode type="ST">
+						<![CDATA[
+// DO WHAT YOU WANT TO DO, HIAHIA...
+ptrBZRelay := @me.SolenoidValveRelay;
+
+if (@me.m_configurations.m_bzSolenoidValveRunhourThresholdCfg < @ptrBZRelay.m_runhours) then
+	@me.BZFault_evaluators.SolenoidValveRunhourWarning_evaluator.parent.IsPresent := TRUE;
+else
+	@me.BZFault_evaluators.SolenoidValveRunhourWarning_evaluator.parent.IsPresent := FALSE;
+end_if;
+]]>
+					</sourceCode>
+				</functionBlock>
+				<functionBlock name="BZFault_AirfilterRunhourAlarm" version="1.0.0" creationDate="1612663089" lastModifiedDate="1612931335">
+					<vars>
+						<inputVars>
+							<var name="me" type="@bzAisleACUnit"/>
+							<var name="parent" type="BZFault"/>
+						</inputVars>
+						<localVars>
+							<var name="ptrSwitchTmp" type="@BZSwitch"/>
+						</localVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<interfaces/>
+					<methods/>
+					<sourceCode type="ST">
+						<![CDATA[
+// DO WHAT YOU WANT TO DO, HIAHIA...
+if (@me.AirfilterRunhour > @me.m_configurations.m_bzAirfilterRunhourThresholdCfg) then
+	@me.BZFault_evaluators.AirfilterRunhourAlarm_evaluator.parent.IsPresent := TRUE;
+else
+	@me.BZFault_evaluators.AirfilterRunhourAlarm_evaluator.parent.IsPresent := FALSE;
+end_if;
+]]>
+					</sourceCode>
+				</functionBlock>
 			</functionBlocks>
 			<programs>
-				<program name="main" version="1.0.0" creationDate="0" lastModifiedDate="1612920072">
+				<program name="main" version="1.0.0" creationDate="0" lastModifiedDate="1612931755">
 					<vars>
 						<localVars>
 							<var name="i" type="INT"/>
@@ -2333,6 +2446,11 @@ if (is_first_called) then
 	
 	ptrBZRelay := ACUnit.CondensatePumpRelay;
 	@ptrBZRelay.m_runhours := bzCondensatePumpRunhourLog;
+	
+	ptrBZRelay := ACUnit.SolenoidValveRelay;
+	@ptrBZRelay.m_runhours := bzSolenoidValveRunhourLog;
+	
+	ACUnit.AirfilterRunhour := bzAirfilterRunhourLog;
 	
 	is_first_called := FALSE;
 else;
@@ -2362,7 +2480,8 @@ ACUnit.m_configurations.m_bzHighReturnTemperatureThresholdCfg		:= bzHighReturnTe
 ACUnit.m_configurations.m_bzHighReturnTemperatureTimeoutCfg			:= bzHighReturnTemperatureTimeoutCfg;
 ACUnit.m_configurations.m_bzHighSupplyTemperatureThresholdCfg		:= bzHighSupplyTemperatureThresholdCfg;
 ACUnit.m_configurations.m_bzHighSupplyTemperatureTimeoutCfg			:= bzHighSupplyTemperatureTimeoutCfg;
-
+ACUnit.m_configurations.m_bzSolenoidValveRunhourThresholdCfg		:= bzSolenoidValveRunhourThresholdCfg;
+ACUnit.m_configurations.m_bzAirfilterRunhourThresholdCfg			:= bzAirfilterRunhourThresholdCfg;
 
 ACUnit.EvapFanManOutPtr					:= ?bzManualFanSpeed;
 ACUnit.CondPumpManOutPtr				:= ?bzManualCondensatePump;
@@ -2414,6 +2533,9 @@ bzNoRackinletTemperatureProbeWarning		:= TO_INT(ACUnit.BZFault_evaluators.NoneOf
 bzHighRackinletTemperatureWarning			:= TO_INT(ACUnit.BZFault_evaluators.HighRackinletTemperatureWarning_evaluator.parent.IsPresent);
 bzHighReturnTemperatureWarning				:= TO_INT(ACUnit.BZFault_evaluators.HighReturnTemperatureWarning_evaluator.parent.IsPresent);
 bzHighSupplyTemperatureWarning				:= TO_INT(ACUnit.BZFault_evaluators.HighSupplyTemperatureWarning_evaluator.parent.IsPresent);
+bzCondensatePumpRunhourWarning				:= TO_INT(ACUnit.BZFault_evaluators.CondensatePumpRunhourWarning_evaluator.parent.IsPresent);
+bzSolenoidValveRunhourWarning				:= TO_INT(ACUnit.BZFault_evaluators.SolenoidValveRunhourWarning_evaluator.parent.IsPresent);
+
 
 bzUnitRemoteShutdownAlarm					:= TO_INT(ACUnit.BZFault_evaluators.UnitRemoteShutdownAlarm_evaluator.parent.IsPresent);
 bzAirfilterCloggedAlarm						:= TO_INT(ACUnit.BZFault_evaluators.AirfilterCloggedAlarm_evaluator.parent.IsPresent);
@@ -2424,10 +2546,22 @@ bzLowerReturnAirTemperatureProbeFaultAlarm	:= TO_INT(ACUnit.BZFault_evaluators.L
 bzUpperSupplyAirTemperatureProbeFaultAlarm	:= TO_INT(ACUnit.BZFault_evaluators.UpperSupplyAirSensorFaultAlarm_evaluator.parent.IsPresent);
 bzLowerSupplyAirTemperatureProbeFaultAlarm	:= TO_INT(ACUnit.BZFault_evaluators.LowerSupplyAirSensorFaultAlarm_evaluator.parent.IsPresent);
 bzCoilOutletTemperatureProbeFaultAlarm		:= TO_INT(ACUnit.BZFault_evaluators.CoilOutletSensorFaultAlarm_evaluator.parent.IsPresent);
+bzAirfilterRunhourAlarm						:= TO_INT(ACUnit.BZFault_evaluators.AirfilterRunhourAlarm_evaluator.parent.IsPresent);
 
 ptrBZRelay := ACUnit.CondensatePumpRelay;
 if (@ptrBZRelay.m_runhours <> bzCondensatePumpRunhourLog) then
 	res := sysWriteParUINT(ADR(bzCondensatePumpRunhourLog), @ptrBZRelay.m_runhours);
+else;
+end_if;
+
+ptrBZRelay := ACUnit.SolenoidValveRelay;
+if (@ptrBZRelay.m_runhours <> bzSolenoidValveRunhourLog) then
+	res := sysWriteParUINT(ADR(bzSolenoidValveRunhourLog), @ptrBZRelay.m_runhours);
+else;
+end_if;
+
+if (ACUnit.AirfilterRunhour <> bzAirfilterRunhourLog) then
+	res := sysWriteParUINT(ADR(bzAirfilterRunhourLog), ACUnit.AirfilterRunhour);
 else;
 end_if;
 ]]>
@@ -2701,13 +2835,16 @@ ACUnit.OutdoorModbule := ?OutdoorUnit;
 ]]>
 					</sourceCode>
 				</program>
-				<program name="task_100ms" version="1.0.0" creationDate="1612412940" lastModifiedDate="1612855161">
+				<program name="task_100ms" version="1.0.0" creationDate="1612412940" lastModifiedDate="1612932645">
 					<vars>
 						<localVars>
 							<var name="second_counter" type="INT"/>
 							<var name="minute_counter" type="INT"/>
 							<var name="hour_counter" type="INT"/>
 							<var name="day_counter" type="INT"/>
+							<var name="is_green_led_on" type="USINT">
+								<initValue>0</initValue>
+							</var>
 						</localVars>
 					</vars>
 					<iecDeclaration active="FALSE"/>
@@ -2717,6 +2854,13 @@ if second_counter >= 10 then
 	second_counter := 0;
 	
 	// 1 second fired
+	sysLocalLeds[0] := is_green_led_on;
+	if (is_green_led_on = 0) then
+		is_green_led_on := 1;
+	else
+		is_green_led_on := 0;
+	end_if;
+	
 	ACUnit.on1s();
 	
 	if (minute_counter >= 60) then
@@ -2970,6 +3114,9 @@ of the actual position.</descr>
 						<var name="BZFault_evaluators" type="bzAisleACUnitFault">
 							<descr>Warning and alarm detectors</descr>
 						</var>
+						<var name="AirfilterRunhour" type="UINT">
+							<descr>Count run hour for airfilter because it's a dummy actuator</descr>
+						</var>
 						<var name="run" type="bzAisleACUnit_run">
 							<descr>Public method to execute the control process</descr>
 						</var>
@@ -3151,9 +3298,11 @@ of the actual position.</descr>
 						<var name="LowerReturnAirSensorFaultAlarm_evaluator" type="BZFault_LowerReturnAirSensorFaultAlarm"/>
 						<var name="UpperSupplyAirSensorFaultAlarm_evaluator" type="BZFault_UpperSupplyAirSensorFaultAlarm"/>
 						<var name="LowerSupplyAirSensorFaultAlarm_evaluator" type="BZFault_LowerSupplyAirSensorFaultAlarm"/>
+						<var name="AirfilterRunhourAlarm_evaluator" type="BZFault_AirfilterRunhourAlarm"/>
 						<var name="CoilOutletSensorFaultAlarm_evaluator" type="BZFault_CoilOutletSensorFaultAlarm"/>
-						<var name="evaulate" type="bzAisleACUnitFault_evaulate"/>
 						<var name="CondensatePumpRunhourWarning_evaluator" type="BZFault_CondensatePumpRunhourWarning"/>
+						<var name="SolenoidValveRunhourWarning_evaluator" type="BZFault_SolenoidValveRunhourWarning"/>
+						<var name="evaulate" type="bzAisleACUnitFault_evaulate"/>
 					</vars>
 				</struct>
 				<struct name="bzAisleACUnitCfg" version="1.0.0">
@@ -3182,6 +3331,8 @@ of the actual position.</descr>
 						<var name="m_bzHighSupplyTemperatureThresholdCfg" type="INT"/>
 						<var name="m_bzHighSupplyTemperatureTimeoutCfg" type="INT"/>
 						<var name="m_bzCondensatePumpRunhourThresholdCfg" type="UINT"/>
+						<var name="m_bzSolenoidValveRunhourThresholdCfg" type="UINT"/>
+						<var name="m_bzAirfilterRunhourThresholdCfg" type="UINT"/>
 					</vars>
 				</struct>
 			</structs>
@@ -56374,6 +56525,14 @@ ui16_random := TO_UINT(ui16_random_copy or (ui16_random_tmp and 16#00FF));
 	bzDeltaTSetpointCfg AT %MW101.17 : INT;  {DE:"Differential between return air temperature and supply air temperature setpoint"}
 		{G:"EEPROM_Parameters"}
 	bzSupplyAirSetpointCfg AT %MW101.18 : INT;  {DE:"Supply air temperature setpoint"}
+		{G:"EEPROM_Parameters"}
+	bzSolenoidValveRunhourLog AT %MW101.19 : UINT;  {DE:"Solenoid valve run-hour"}
+		{G:"EEPROM_Parameters"}
+	bzSolenoidValveRunhourThresholdCfg AT %MW101.20 : UINT;  {DE:"Solenoid valve run-hour threshold"}
+		{G:"EEPROM_Parameters"}
+	bzAirfilterRunhourLog AT %MW101.21 : UINT;  {DE:"Airfilter run-hour"}
+		{G:"EEPROM_Parameters"}
+	bzAirfilterRunhourThresholdCfg AT %MW101.22 : UINT;  {DE:"Airfilter run-hour threshold"}
 		{G:"Status_variables"}
 	bzBIOSVersion AT %MW110.0 : STRING[ 8 ];  {DE:"M172 BIOS version"}
 		{G:"Status_variables"}
@@ -56444,6 +56603,12 @@ ui16_random := TO_UINT(ui16_random_copy or (ui16_random_tmp and 16#00FF));
 	BZCANMailbox3 AT %MW110.41 : INT;  {DE:"TBC"}
 		{G:"Status_variables"}
 	BZIsRealMode AT %MW110.42 : BOOL := 1;  {DE:"Controller is working on real mode."}
+		{G:"Status_variables"}
+	bzCondensatePumpRunhourWarning AT %MW110.43 : INT;  {DE:"Condensate pump run-hour warning"}
+		{G:"Status_variables"}
+	bzSolenoidValveRunhourWarning AT %MW110.44 : INT;  {DE:"Solenoid valve run-hour warning"}
+		{G:"Status_variables"}
+	bzAirfilterRunhourAlarm AT %MW110.45 : INT;  {DE:"Airfilter lifecycle alarm"}
 		{G:"IO_Mapping"}
 	HW_AI_01 AT %IW1.0 : INT;  {DE:"AIL1 analogue input"}
 		{G:"IO_Mapping"}
@@ -56535,8 +56700,8 @@ ui16_random := TO_UINT(ui16_random_copy or (ui16_random_tmp and 16#00FF));
 				<![CDATA[(* Automatically generated, do not edit! *)
 
 VAR_GLOBAL CONSTANT
-$$ParDB : ARRAY[ 0..1943 ] OF USINT; { HIDDEN:ON } { INIT:"BZ172Lab.PLK+0" }
-$$ParDBLength  : DWORD := 54; { HIDDEN:ON }
+$$ParDB : ARRAY[ 0..2195 ] OF USINT; { HIDDEN:ON } { INIT:"BZ172Lab.PLK+0" }
+$$ParDBLength  : DWORD := 61; { HIDDEN:ON }
 END_VAR
 
 PROGRAM InitParDB WITH Serv;
@@ -56549,7 +56714,7 @@ PROGRAM InitParDB
 		dummyCrc32: UDINT;
 	END_VAR
 
-	dummyCrc32 := 3273573392;
+	dummyCrc32 := 2828423204;
 
 	warningsKiller := sysDBase_SetExtTable( ADR( $$ParDB ), $$ParDBLength );
 
@@ -56577,7 +56742,7 @@ END_PROGRAM
 			</src>
 		</aux>
 		<workspace>
-			<root name="BZ172Lab" nextID="12674">
+			<root name="BZ172Lab" nextID="13729">
 				<GlobalVars name="Global_vars" id="11"/>
 				<Pou name="main" id="2"/>
 				<folder id="16" name="BZoops172">
@@ -56683,6 +56848,8 @@ END_PROGRAM
 									<Pou name="IBZFault_HighSupplyTemperatureWarning_new" id="12122"/>
 									<Pou name="IBZFault_CondensatePumpRunhourWarning_new" id="12396"/>
 									<Pou name="BZFault_CondensatePumpRunhourWarning" id="12400"/>
+									<Pou name="BZFault_SolenoidValveRunhourWarning" id="12896"/>
+									<Pou name="IBZFault_SolenoidValveRunhourWarning_new" id="12900"/>
 								</folder>
 								<folder name="Alarms" id="10318">
 									<Pou name="BZFault_AirfilterCloggedAlarm" id="7762"/>
@@ -56703,6 +56870,8 @@ END_PROGRAM
 									<Pou name="IBZFault_UnitRemoteShutdownAlarm_new" id="7391"/>
 									<Pou name="IBZFault_UpperReturnAirSensorFaultAlarm_new" id="8983"/>
 									<Pou name="IBZFault_UpperSupplyAirSensorFaultAlarm_new" id="9266"/>
+									<Pou name="BZFault_AirfilterRunhourAlarm" id="13267"/>
+									<Pou name="IBZFault_AirfilterRunhourAlarm_new" id="13271"/>
 								</folder>
 							</folder>
 							<Definition name="bzAisleACUnit" id="748"/>
@@ -56716,6 +56885,7 @@ END_PROGRAM
 							<Definition name="bzAisleACUnitCfg" id="11367"/>
 							<folder name="Typedefs" id="12365">
 								<Definition name="bzAisleACUnitEvapFanStrategy" id="12364" genHidden="false"/>
+								<Definition name="bzAisleACUnitEvapFanCtrlStrategy" id="12598"/>
 							</folder>
 						</folder>
 					</folder>
@@ -56723,9 +56893,7 @@ END_PROGRAM
 				<Pou name="init" id="688"/>
 				<Pou name="task_100ms" id="4093"/>
 				<folder name="Definitions" id="12599">
-					<folder name="Enumerations" id="12600">
-						<Definition name="bzAisleACUnitEvapFanCtrlStrategy" id="12598"/>
-					</folder>
+					<folder name="Enumerations" id="12600"/>
 				</folder>
 			</root>
 		</workspace>
@@ -57269,6 +57437,114 @@ END_PROGRAM
 								<shortname/>
 								<size>31</size>
 								<dataBlock>MW101.18</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>19</ipa>
+								<address>16402</address>
+								<name>bzSolenoidValveRunhourLog</name>
+								<typepar>2</typepar>
+								<typetarg>UINT</typetarg>
+								<value>0</value>
+								<min>0</min>
+								<max>65535</max>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um>hour</um>
+								<description>Solenoid valve run-hour</description>
+								<note>Resolution is an hour</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW101.19</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>20</ipa>
+								<address>16403</address>
+								<name>bzSolenoidValveRunhourThresholdCfg</name>
+								<typepar>2</typepar>
+								<typetarg>UINT</typetarg>
+								<value>20208</value>
+								<min>8736</min>
+								<max>65535</max>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um>hour</um>
+								<description>Solenoid valve run-hour threshold</description>
+								<note>Threshold for the run-hour warning</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW101.20</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>21</ipa>
+								<address>16404</address>
+								<name>bzAirfilterRunhourLog</name>
+								<typepar>2</typepar>
+								<typetarg>UINT</typetarg>
+								<value>0</value>
+								<min>0</min>
+								<max>65535</max>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um>hour</um>
+								<description>Airfilter run-hour</description>
+								<note>Resolution is an hour</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW101.21</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>22</ipa>
+								<address>16405</address>
+								<name>bzAirfilterRunhourThresholdCfg</name>
+								<typepar>2</typepar>
+								<typetarg>UINT</typetarg>
+								<value>20208</value>
+								<min>8736</min>
+								<max>65535</max>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um>hour</um>
+								<description>Airfilter run-hour threshold</description>
+								<note>Threshold for the run-hour warning</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW101.22</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -58216,6 +58492,87 @@ END_PROGRAM
 								<shortname/>
 								<size>31</size>
 								<dataBlock>MW110.42</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>5035</ipa>
+								<address>10050</address>
+								<name>bzCondensatePumpRunhourWarning</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value/>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description>Condensate pump run-hour warning</description>
+								<note>0:NO;1:YES</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>1</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.43</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>5036</ipa>
+								<address>10020</address>
+								<name>bzSolenoidValveRunhourWarning</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value/>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description>Solenoid valve run-hour warning</description>
+								<note>0:NO;1:YES</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>1</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.44</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>5037</ipa>
+								<address>10263</address>
+								<name>bzAirfilterRunhourAlarm</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value/>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description>Airfilter lifecycle alarm</description>
+								<note>0:ON;1:YES</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>1</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.45</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -59307,6 +59664,10 @@ END_PROGRAM
 								<value ipa="16" subidx="0">180</value>
 								<value ipa="17" subidx="0">100</value>
 								<value ipa="18" subidx="0">180</value>
+								<value ipa="19" subidx="0">0</value>
+								<value ipa="20" subidx="0">20208</value>
+								<value ipa="21" subidx="0">0</value>
+								<value ipa="22" subidx="0">20208</value>
 								<value ipa="5012" subidx="0"/>
 								<value ipa="5010" subidx="0"/>
 								<value ipa="5005" subidx="0">303</value>
@@ -59342,6 +59703,9 @@ END_PROGRAM
 								<value ipa="5001" subidx="0">0</value>
 								<value ipa="5002" subidx="0">0</value>
 								<value ipa="5006" subidx="0">1</value>
+								<value ipa="5035" subidx="0">0</value>
+								<value ipa="5036" subidx="0">0</value>
+								<value ipa="5037" subidx="0">0</value>
 							</values>
 							<commDisabled>0</commDisabled>
 							<downloadVolume>0</downloadVolume>

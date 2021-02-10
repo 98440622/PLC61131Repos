@@ -25,6 +25,10 @@ bzEvaporatorFanStrategyCfg AT %MW101.15 : INT;	{ DE:"Evaporator fan control stra
 bzCoolSetpointCfg AT %MW101.16 : INT;	{ DE:"Cool setpoint" }
 bzDeltaTSetpointCfg AT %MW101.17 : INT;	{ DE:"Differential between return air temperature and supply air temperature setpoint" }
 bzSupplyAirSetpointCfg AT %MW101.18 : INT;	{ DE:"Supply air temperature setpoint" }
+bzSolenoidValveRunhourLog AT %MW101.19 : UINT;	{ DE:"Solenoid valve run-hour" }
+bzSolenoidValveRunhourThresholdCfg AT %MW101.20 : UINT;	{ DE:"Solenoid valve run-hour threshold" }
+bzAirfilterRunhourLog AT %MW101.21 : UINT;	{ DE:"Airfilter run-hour" }
+bzAirfilterRunhourThresholdCfg AT %MW101.22 : UINT;	{ DE:"Airfilter run-hour threshold" }
 	{G:"Status_variables"}
 bzBIOSVersion AT %MW110.0 : STRING[ 8 ];	{ DE:"M172 BIOS version" }
 bzAppVersion AT %MW110.5 : STRING[ 8 ];	{ DE:"Application version by a string type format of xx.xx.xx" }
@@ -61,6 +65,9 @@ BZCANMailbox1 AT %MW110.39 : INT;	{ DE:"TBC" }
 BZCANMailbox2 AT %MW110.40 : INT;	{ DE:"TBC" }
 BZCANMailbox3 AT %MW110.41 : INT;	{ DE:"TBC" }
 BZIsRealMode AT %MW110.42 : BOOL := 1;	{ DE:"Controller is working on real mode." }
+bzCondensatePumpRunhourWarning AT %MW110.43 : INT;	{ DE:"Condensate pump run-hour warning" }
+bzSolenoidValveRunhourWarning AT %MW110.44 : INT;	{ DE:"Solenoid valve run-hour warning" }
+bzAirfilterRunhourAlarm AT %MW110.45 : INT;	{ DE:"Airfilter lifecycle alarm" }
 	{G:"IO_Mapping"}
 HW_AI_01 AT %IW1.0 : INT;	{ DE:"AIL1 analogue input" }
 HW_AI_02 AT %IW1.1 : INT;	{ DE:"AIL2 analogue input" }
