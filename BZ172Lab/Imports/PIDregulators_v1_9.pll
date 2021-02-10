@@ -1,0 +1,2119 @@
+﻿	(***************************)
+	(*                         *)
+	(*     FUNCTION BLOCKS     *)
+	(*                         *)
+	(***************************)
+
+
+FUNCTION_BLOCK PI_Light_Timed
+
+	{ DE:"PI procedure.
+
+Same as PID_Timed but with less I/O and Derivative part
+
+Integral part is calculated with Tustin method. Td is lower limited to 6*Tsample
+With bumpless I part is updated in order to match P+offset part (limited [0,1000])+I 
+with manual out.
+
+Bumpless		AutoManual	Reset	Out		Note
+F		F		F	ManualOut	P,I,D runs
+F		F		T	ManualOut	P,I,D = 0
+F		T		F	P+I+D+OffsetOut	Eventually limited by MaxVar
+F		T		T	OffsetOut		P,I,D = 0
+T		F		F	ManualOut	P,D runs; I=ManualOut-P-OffsetOut
+T		F		T	ManualOut	P,I,D = 0
+T		T		F	P+I+D+OffsetOut	Eventually limited by MaxVar
+T		T		T	OffsetOut		P,I,D = 0
+
+ARW input: Anti Reset Windup Time
+If ARW = 0 function is disabled
+If ARW <>0 its absolute value must be greater than Tsample
+ARW acts desaturating linearly I part when output is 100% or 0% 
+I part is desaturated, when output is 100%, up to -OffsetOut
+I part is desaturated, when output is 0% and I part lower than -OffsetOut, up to -OffsetOut
+
+Suggested values:
+ARW=-Ti/10 for PI
+ARW=-SQRT(TixTd) for PID
+
+NOTE:
+It must be used in Timed Task and a defined instance can be executed only once per cycle.	
+Warning: each PLC cycle the refresh is mandatory
+" }
+
+	VAR_INPUT
+	measure : INT; 	{ DE:"Measure to be controlled" }
+	setpoint : INT; 	{ DE:"Setpoint, same unit measure of measure" }
+	OffsetOut : INT; 	{ DE:"Fixed offset when pid works [0...1000]" }
+	reverse : BOOL; 	{ DE:"false=(p_pid increase with input)  true= (p_pid decrease with input)" }
+	Tsample : USINT := 1; 	{ DE:"Pid Output Update Period [sec/10] (default=1)" }
+	Pb : UINT; 	{ DE:"Proportional Band, same unit measure of in_pid" }
+	Ti : UINT; 	{ DE:"Integral Time: 0 disabled, 1...xxx [sec/10] >2xTsample" }
+	ARW : INT := -20; 	{ DE:"Anti reset windup Time: 0 disabled  [sec/10] See also block description" }
+	Bumpless : BOOL := TRUE; 	{ DE:"I part updated in order to match manual out (Ti must be >0)" }
+	AutoManual : BOOL := TRUE; 	{ DE:"if False Manual Control the output reaches manualOut" }
+	reset : BOOL; 	{ DE:"if TRUE the output reaches OffsetOut" }
+	ManualOut : INT; 	{ DE:"Pid Output with manual control [0...1000]" }
+	END_VAR
+
+	VAR_OUTPUT
+	outL : INT; 	{ DE:"Output forced to 0 in case of probe error and pid working" }
+	END_VAR
+
+	VAR_EXTERNAL
+	sysTskTmdScanTime : UINT; 	{ DE:"System Timed's Task Scan Time (ms)" }
+	END_VAR
+
+	VAR
+	AutoManual_old : BOOL := TRUE; 	{ DE:"It is supposed that PID will start in auto mode" }
+	init_pid : BOOL; 
+	measure_KO : BOOL; 
+	base_out : INT; 
+	ManualOut_old : INT; 
+	p : INT; 
+	pi_u : INT; 
+	tmp_int : INT; 
+	sample_counter : UINT; 
+	Tc_pid : UINT; 
+	Update_sample : UINT; 
+	e : DINT; 
+	e_1 : DINT; 
+	i : DINT; 
+	tmp_dint : DINT; 
+	tmp_dint2 : DINT; 
+	iReal : REAL; 
+	tmpReal : REAL; 
+	tmpReal1 : REAL; 
+	tmpReal2 : REAL; 
+	INTMIN : REAL := -1073741824.0; 
+	END_VAR
+
+	VAR CONSTANT
+	CONST1000 : INT := 1000; 
+	N : INT := 12; 
+	MAXINT : DINT := 32767; 
+	MININT : DINT := -32768; 
+	INTMAX : REAL := 1073741824.0; 
+	END_VAR
+
+	{ CODE:ST }(* Broken or not connected probe *)
+measure_KO := (measure<-32766);
+
+ManualOut := LIMIT(ManualOut,0,CONST1000);
+
+(* P.I.D. regulator *)
+Tc_pid:=TO_UINT(MAX(Tsample,1));
+
+Update_sample := TO_UINT(Tc_pid*100/TO_UDINT(sysTskTmdScanTime));
+
+(* Output offset *) 
+(*base_out:= MAX(0,MIN(CONST1000,OffsetOut));*)
+(* Memory optimization v1.6 *)
+base_out:= MIN(CONST1000,OffsetOut);
+base_out:= MAX(0,base_out);
+
+(* pid init *)
+IF NOT init_pid THEN
+
+	pi_u:= base_out;
+	iReal:=0.0;
+	
+END_IF;
+
+sample_counter := SEL(reset,sample_counter,0);
+
+IF measure_KO THEN
+
+		e := 0;
+
+ELSIF sample_counter=0 THEN
+
+	(* error = temperature -set point *)
+	e := TO_DINT(measure - setpoint);
+
+	(* Reverse controller, i.e. heating *)
+	IF reverse THEN
+	
+		e:=-e;
+	
+	END_IF;
+
+END_IF;
+
+
+(*
+
+
+   	Proportional Component
+
+	e is update every sample_counter samples 
+
+
+*)
+
+(* p := SEL( Pb = 0 OR reset, TO_INT(MAX(-32768,MIN(32767,(CONST1000*e)/TO_DINT(Pb) ))) , 0);*)
+(* Memory optimization v1.6 *)
+IF Pb = 0 OR reset THEN
+
+	p := 0;
+	
+ELSIF measure_KO THEN
+(* P is not updated when probe is broken *)
+
+ELSE
+	tmp_dint := (CONST1000*e)/TO_DINT(Pb);
+	tmp_dint := MIN(32767, tmp_dint);
+	tmp_dint := MAX(-32768,tmp_dint);
+	p := TO_INT(tmp_dint);	
+	
+END_IF;
+
+
+(*
+
+
+   Integral Component
+
+
+*)
+(* BpTi :=TO_REAL(Pb*Ti);
+TC_1K := 1000.0*TO_REAL(Tc_pid);*)
+(* Memory optimization v1.6 - v1.8 *)
+IF Ti<>0 AND Ti<SHL(Tc_pid,1) THEN
+	tmpReal1 :=2.0*TO_REAL(Pb)*TO_REAL(Tc_pid);
+ELSE
+	tmpReal1 :=TO_REAL(Pb)*TO_REAL(Ti);
+END_IF;
+tmpReal2 := 1000.0*TO_REAL(Tc_pid);
+
+(* Bumpless is applied one sample later in order to account for Pb,Ti runtime
+parameter modification *)
+
+IF Bumpless AND NOT AutoManual_old AND NOT reset THEN
+			
+	(* set manualout=i+p+offset *)
+	IF (ManualOut_old>=CONST1000	AND (p+base_out)>=CONST1000) OR
+		(ManualOut_old<=0 AND (p+base_out)<=0) 	THEN	
+	
+		iReal := 0.0;
+			
+	ELSE
+	
+		iReal := TO_REAL(ManualOut_old)-TO_REAL(p+base_out); 
+	
+	END_IF;	
+
+END_IF;	
+
+IF ((Ti = 0) OR (Pb = 0) OR reset ) THEN
+
+	(* reset *)	
+	i := 0;
+	iReal:= 0.0;
+
+ELSIF sample_counter=0 THEN
+
+	iReal := iReal + TO_REAL(e+e_1)/2.0*tmpReal2/tmpReal1; (* tmpReal2/tmpReal1 := 1000.0*TO_REAL(Tc_pid)/BpTi*)
+	(* iReal Saturation before converting to DINT *)
+	IF iReal > INTMAX THEN
+	
+		iReal := INTMAX;
+		
+	ELSIF iReal < INTMIN THEN	
+
+		iReal := INTMIN;
+
+	END_IF;
+
+	(* calculation *)	
+	i := TO_DINT( iReal );
+
+END_IF;
+
+
+(* P.I.D. *)
+IF sample_counter=0 THEN
+(* Output Saturation *)
+
+	(* tmp_dint := SEL(AutoManual,TO_DINT(ManualOut),i+TO_DINT(p)+TO_DINT(base_out));*)
+	(* Memory optimization v1.6 *)
+	IF AutoManual THEN
+		tmp_dint := TO_DINT(p);
+		tmp_dint := tmp_dint+TO_DINT(base_out);
+		tmp_dint := tmp_dint+i;
+	ELSE
+		tmp_dint := TO_DINT(ManualOut);
+	END_IF;
+
+	(* Output Saturation *)
+	IF (tmp_dint > CONST1000) THEN
+   		pi_u := CONST1000;
+	ELSIF (tmp_dint < 0) THEN
+   		pi_u := 0;
+	ELSE
+   		pi_u := TO_INT(tmp_dint);
+	END_IF;
+
+	tmp_dint := tmp_dint - TO_DINT(pi_u);
+	
+	IF Ti>0 AND (tmp_dint <> 0) THEN
+
+		IF (ARW<>0) THEN
+    	(* anti reset windup activeted: update integral component *)
+		
+			
+			IF (pi_u = CONST1000) OR (pi_u=0 AND iReal<-TO_REAL(base_out)) THEN
+				
+				(* iReal := iReal-(TO_REAL(tmp_dint))*TO_REAL(Tc_pid)/ABS(TO_REAL(ARW)); *)
+				(* Memory optimization v1.6 *)				
+				tmpReal1 := TO_REAL(tmp_dint);
+				tmpReal2 := TO_REAL(Tc_pid);
+				tmpReal1 := tmpReal1*tmpReal2;
+				IF ARW>0 THEN					
+					tmpReal2 := TO_REAL(MAX(Tc_pid,TO_UINT(ARW)));
+				ELSE	
+					tmpReal2 := TO_REAL(MAX(Tc_pid,TO_UINT(-ARW)));
+				END_IF;	
+				tmpReal1 := tmpReal1/tmpReal2;
+				iReal := iReal-tmpReal1; 
+				
+				tmpReal1 := -TO_REAL(base_out);
+				(* Added in version 1.9 *)
+				IF pi_u=0 THEN
+					iReal := MIN(iReal,tmpReal1);
+				ELSIF pi_u=CONST1000 THEN
+					iReal := MAX(iReal,tmpReal1);
+				END_IF;	
+				(* end update version 1.9 *)
+				i :=  TO_DINT( iReal );
+
+			END_IF;
+
+		END_IF;
+		(* Removed since version 1.9
+		IF (ARW>0) THEN
+			IF (tmp_dint > 0) THEN
+				Comment I>=0 when output is over 100% and ARW active
+				iReal:=MAX(iReal,-TO_REAL(base_out) ) ;
+				i :=  TO_DINT( iReal );
+			ELSIF (tmp_dint < 0) THEN
+				Comment: I=0 when output is lower 0% and ARW active
+				iReal:=0.0 ;
+				i :=  0;
+			
+			END_IF;	
+		END_IF;
+		*)
+	END_IF;
+
+
+	(*  P.I.D. output *)
+	outL := pi_u;
+
+END_IF;
+
+IF measure_KO AND NOT reset AND AutoManual THEN
+
+	outL := 0;
+
+END_IF;
+
+sample_counter := (sample_counter+1) MOD Update_sample;
+
+e_1 := e;
+init_pid := TRUE;
+AutoManual_old := AutoManual;
+ManualOut_old := ManualOut;
+
+END_FUNCTION_BLOCK
+
+
+FUNCTION_BLOCK PID_Light_Timed
+
+	{ DE:"PID procedure.
+
+Same as PID_Timed but with less I/O
+
+Integral part is calculated with Tustin method. Td is lower limited to 6*Tsample
+With bumpless I part is updated in order to match pid out with manual out.
+
+Bumpless		AutoManual	Reset	Out		Note
+F		F		F	ManualOut	P,I,D runs
+F		F		T	ManualOut	P,I,D = 0
+F		T		F	P+I+D+OffsetOut	Eventually limited by MaxVar
+F		T		T	OffsetOut		P,I,D = 0
+T		F		F	ManualOut	P,D runs; I=ManualOut-P-OffsetOut
+T		F		T	ManualOut	P,I,D = 0
+T		T		F	P+I+D+OffsetOut	Eventually limited by MaxVar
+T		T		T	OffsetOut		P,I,D = 0
+
+ARW input: Anti Reset Windup Time
+If ARW = 0 function is disabled
+If ARW <>0 its absolute value must be greater than Tsample
+ARW acts desaturating linearly I part when output is 100% or 0% 
+I part is desaturated, when output is 100%, up to -OffsetOut
+I part is desaturated, when output is 0% and I part lower than -OffsetOut, up to -OffsetOut
+
+Suggested values:
+ARW=-Ti/10 for PI
+ARW=-SQRT(TixTd) for PID
+
+
+NOTE:
+It must be used in Timed Task and a defined instance can be executed only once per cycle.	
+Warning: each PLC cycle the refresh is mandatory
+" }
+
+	VAR_INPUT
+	measure : INT; 	{ DE:"Measure to be controlled" }
+	setpoint : INT; 	{ DE:"Setpoint, same unit measure of measure" }
+	OffsetOut : INT; 	{ DE:"Fixed offset when pid works [0...1000]" }
+	reverse : BOOL; 	{ DE:"false=(p_pid increase with input)  true= (p_pid decrease with input)" }
+	Tsample : USINT := 1; 	{ DE:"Pid Output Update Period [sec/10] (default=1)" }
+	Pb : UINT; 	{ DE:"Proportional Band, same unit measure of in_pid" }
+	Ti : UINT; 	{ DE:"Integral Time: 0 disabled, 1...xxx [sec/10] >2xTsample" }
+	Td : UINT; 	{ DE:"Derivative Time 0 disabled 1...xxx [sec/10]" }
+	ARW : INT := -20; 	{ DE:"Anti reset windup Time: 0 disabled  [sec/10] See also block description" }
+	Bumpless : BOOL := TRUE; 	{ DE:"I part updated in order to match manual out (Ti must be >0)" }
+	AutoManual : BOOL := TRUE; 	{ DE:"if False Manual Control the output reaches manualOut" }
+	reset : BOOL; 	{ DE:"if TRUE the output reaches OffsetOut" }
+	ManualOut : INT; 	{ DE:"Pid Output with manual control [0...1000]" }
+	END_VAR
+
+	VAR_OUTPUT
+	outL : INT; 	{ DE:"Output forced to 0 in case of probe error and pid working" }
+	END_VAR
+
+	VAR_EXTERNAL
+	sysTskTmdScanTime : UINT; 	{ DE:"System Timed's Task Scan Time (ms)" }
+	END_VAR
+
+	VAR
+	tmpReal2 : REAL; 
+	tmpReal1 : REAL; 
+	tmpReal : REAL; 
+	iReal : REAL; 
+	dReal : REAL; 
+	tmp_dint2 : DINT; 
+	tmp_dint : DINT; 
+	i : DINT; 
+	en_1 : DINT; 
+	en_0 : DINT; 
+	e_1 : DINT; 
+	e : DINT; 
+	d : DINT; 
+	Update_sample : UINT; 
+	Tdp : UINT; 	{ DE:"Previous Td value" }
+	Tc_pid : UINT; 
+	sample_counter : UINT; 
+	tmp_int : INT; 
+	pi_u : INT; 
+	p : INT; 
+	ManualOut_old : INT; 
+	base_out : INT; 
+	measure_KO : BOOL; 
+	init_pid : BOOL; 
+	Dreset : BOOL; 
+	AutoManual_old : BOOL := TRUE; 	{ DE:"It is supposed that PID will start in auto mode" }
+	END_VAR
+
+	VAR CONSTANT
+	MININT : DINT := -32768; 
+	MAXINT : DINT := 32767; 
+	N : INT := 12; 
+	CONST1000 : INT := 1000; 
+	INTMAX : REAL := 1073741824.0; 
+	INTMIN : REAL := -1073741824.0; 
+	END_VAR
+
+	{ CODE:ST }(* Broken or not connected probe *)
+measure_KO := (measure<-32766);
+
+ManualOut := LIMIT(ManualOut,0,CONST1000);
+
+(* P.I.D. regulator *)
+Tc_pid:=TO_UINT(MAX(Tsample,1));
+
+Update_sample := TO_UINT(Tc_pid*100/TO_UDINT(sysTskTmdScanTime));
+
+(* Output offset *) 
+(*base_out:= MAX(0,MIN(CONST1000,OffsetOut));*)
+(* Memory optimization v1.6 *)
+base_out:= MIN(CONST1000,OffsetOut);
+base_out:= MAX(0,base_out);
+
+(* pid init *)
+IF NOT init_pid THEN
+
+	pi_u:= base_out;
+	iReal:=0.0;
+	Dreset := TRUE;
+	
+END_IF;
+
+sample_counter := SEL(reset,sample_counter,0);
+
+IF measure_KO THEN
+
+		e := 0;
+
+ELSIF sample_counter=0 THEN
+
+	(* error = temperature -set point *)
+	e := TO_DINT(measure - setpoint);
+
+	(* Reverse controller, i.e. heating *)
+	IF reverse THEN
+	
+		e:=-e;
+	
+	END_IF;
+	
+END_IF;
+
+
+(*
+
+
+   	Proportional Component
+
+	e is update every sample_counter samples 
+
+
+*)
+
+(* p := SEL( Pb = 0 OR reset, TO_INT(MAX(-32768,MIN(32767,(CONST1000*e)/TO_DINT(Pb) ))) , 0);*)
+(* Memory optimization v1.6 *)
+IF Pb = 0 OR reset THEN
+
+	p := 0;
+	
+ELSIF measure_KO THEN
+(* P is not updated when probe is broken *)
+
+ELSE
+	tmp_dint := (CONST1000*e)/TO_DINT(Pb);
+	tmp_dint := MIN(32767, tmp_dint);
+	tmp_dint := MAX(-32768,tmp_dint);
+	p := TO_INT(tmp_dint);	
+	
+END_IF;
+
+(*
+
+
+   Derivative Component
+
+
+*)
+IF sample_counter=0 THEN
+
+	(* calculation *)	
+	en_1 := en_0;
+	en_0 := SEL(measure_KO,e,en_0);
+	
+	(* Td/N>Tc_pid/2 : this must be true *)
+	(*tmp_dint := SHL(TO_DINT(Td),1);*)
+	(* Memory optimization v1.6 *)
+	tmp_dint := TO_DINT(Td);
+	tmp_dint := SHL(tmp_dint,1);
+	
+	tmp_dint2 := TO_DINT(Tc_pid)*N;
+	(* Up to version 1.8
+		IF (tmp_dint )<=(tmp_dint2) AND Td>0 THEN
+			tmp_dint := tmp_dint2;
+		END_IF;	
+		dReal:=TO_REAL(en_0-en_1)*( TO_REAL(tmp_dint*N)/(TO_REAL(tmp_dint+tmp_dint2)) ) + 
+				dReal * TO_REAL(tmp_dint-tmp_dint2)/TO_REAL(tmp_dint+tmp_dint2);	
+	*)		
+	IF (tmp_dint )<=(tmp_dint2) THEN
+		tmp_dint := TO_DINT(Td);
+		dReal:=TO_REAL(en_0-en_1)*( TO_REAL(tmp_dint*N)/(TO_REAL(tmp_dint+tmp_dint2)) ) + 
+				dReal * TO_REAL(tmp_dint)/TO_REAL(tmp_dint+tmp_dint2);	
+	ELSE
+		dReal:=TO_REAL(en_0-en_1)*( TO_REAL(tmp_dint*N)/(TO_REAL(tmp_dint+tmp_dint2)) ) + 
+				dReal * TO_REAL(tmp_dint-tmp_dint2)/TO_REAL(tmp_dint+tmp_dint2);	
+	END_IF;		
+		
+	
+END_IF;
+
+(* Dreset := SEL( Tdp <> Td , Dreset , TRUE);*)
+(* Memory optimization v1.6 *)
+Dreset:= Dreset OR (Pb = 0) OR (Tdp <> Td);
+IF Dreset THEN
+
+	(* reset *)	
+	d    := 0;
+	dReal := 0.0;
+	en_0 := e;
+	en_1 := en_0;
+
+ELSE
+
+	d := TO_DINT(1000.0*dReal/TO_REAL(Pb));
+	d := LIMIT(d,MININT,MAXINT);
+	
+END_IF;
+
+Tdp := Td;
+Dreset:=((Td = 0) OR measure_KO OR reset);
+
+(*
+
+
+   Integral Component
+
+
+*)
+(* BpTi :=TO_REAL(Pb*Ti);
+TC_1K := 1000.0*TO_REAL(Tc_pid);*)
+(* Memory optimization v1.6 - v1.8 *)
+IF Ti<>0 AND Ti<SHL(Tc_pid,1) THEN
+	tmpReal1 :=2.0*TO_REAL(Pb)*TO_REAL(Tc_pid);
+ELSE
+	tmpReal1 :=TO_REAL(Pb)*TO_REAL(Ti);
+END_IF;
+tmpReal2 := 1000.0*TO_REAL(Tc_pid);
+
+(* Bumpless is applied one sample later in order to account for Pb,Ti runtime
+parameter modification *)
+
+IF Bumpless AND NOT AutoManual_old AND NOT reset THEN
+			
+	(* set manualout=i+p+offset *)
+	IF (ManualOut_old>=CONST1000	AND (p+base_out)>=CONST1000) OR
+		(ManualOut_old<=0 AND (p+base_out)<=0) 	THEN	
+	
+		iReal := 0.0;
+			
+	ELSE
+	
+		iReal := TO_REAL(ManualOut_old)-TO_REAL(p+base_out); 
+	
+	END_IF;	
+
+END_IF;	
+
+IF ((Ti = 0) OR (Pb = 0) OR reset ) THEN
+
+	(* reset *)	
+	i := 0;
+	iReal:= 0.0;
+
+ELSIF sample_counter=0 THEN
+
+	iReal := iReal + TO_REAL(e+e_1)/2.0*tmpReal2/tmpReal1; (* tmpReal2/tmpReal1 := 1000.0*TO_REAL(Tc_pid)/BpTi*)
+	(* iReal Saturation before converting to DINT *)
+	IF iReal > INTMAX THEN
+	
+		iReal := INTMAX;
+		
+	ELSIF iReal < INTMIN THEN	
+
+		iReal := INTMIN;
+
+	END_IF;
+
+	(* calculation *)	
+	i := TO_DINT( iReal );
+
+END_IF;
+
+
+(* P.I.D. *)
+IF sample_counter=0 THEN
+(* Output Saturation *)
+
+	(* tmp_dint := SEL(AutoManual,TO_DINT(ManualOut),i+d+TO_DINT(p)+TO_DINT(base_out));*)
+	(* Memory optimization v1.6 *)
+	IF AutoManual THEN
+		tmp_dint := TO_DINT(p);
+		tmp_dint := tmp_dint+TO_DINT(base_out);
+		tmp_dint := tmp_dint+i+d;
+	ELSE
+		tmp_dint := TO_DINT(ManualOut);
+	END_IF;
+
+	(* Output Saturation *)
+	IF (tmp_dint > CONST1000) THEN
+   		pi_u := CONST1000;
+	ELSIF (tmp_dint < 0) THEN
+   		pi_u := 0;
+	ELSE
+   		pi_u := TO_INT(tmp_dint);
+	END_IF;
+
+	(* ARW based on output without D part... *)
+	tmp_dint := 0;
+	tmp_dint2 := (i+TO_DINT(p)+TO_DINT(base_out));
+	IF (tmp_dint2>CONST1000 AND pi_u = CONST1000) OR (tmp_dint2<0 AND pi_u = 0) THEN
+		tmp_dint := tmp_dint2 - TO_DINT(pi_u);
+	END_IF;
+	
+	IF Ti>0 AND (tmp_dint <> 0) THEN
+
+		IF (ARW<>0) THEN
+    	(* anti reset windup activeted: update integral component *)
+		
+			
+			IF (pi_u = CONST1000) OR (pi_u=0 AND iReal<-TO_REAL(base_out)) THEN
+				
+				(* iReal := iReal-(TO_REAL(tmp_dint))*TO_REAL(Tc_pid)/ABS(TO_REAL(ARW)); *)
+				(* Memory optimization v1.6 *)				
+				tmpReal1 := TO_REAL(tmp_dint);
+				tmpReal2 := TO_REAL(Tc_pid);
+				tmpReal1 := tmpReal1*tmpReal2;
+				IF ARW>0 THEN					
+					tmpReal2 := TO_REAL(MAX(Tc_pid,TO_UINT(ARW)));
+				ELSE	
+					tmpReal2 := TO_REAL(MAX(Tc_pid,TO_UINT(-ARW)));
+				END_IF;	
+				tmpReal1 := tmpReal1/tmpReal2;
+				iReal := iReal-tmpReal1; 
+				
+				tmpReal1 := -TO_REAL(base_out);
+				(* Added in version 1.9 *)
+				IF pi_u=0 THEN
+					iReal := MIN(iReal,tmpReal1);
+				ELSIF pi_u=CONST1000 THEN
+					iReal := MAX(iReal,tmpReal1);
+				END_IF;	
+				(* end update version 1.9 *)
+				i :=  TO_DINT( iReal );
+
+			END_IF;
+
+		END_IF;
+		(* Removed since version 1.9
+		IF (ARW>0) THEN
+			IF (tmp_dint > 0) THEN
+				Comment I>=0 when output is over 100% and ARW active
+				iReal:=MAX(iReal,-TO_REAL(base_out) ) ;
+				i :=  TO_DINT( iReal );
+			ELSIF (tmp_dint < 0) THEN
+				Comment: I=0 when output is lower 0% and ARW active
+				iReal:=0.0 ;
+				i :=  0;
+			
+			END_IF;	
+		END_IF;
+		*)
+	END_IF;
+
+
+
+	(*  P.I.D. output *)
+	outL := pi_u;
+
+END_IF;
+
+IF measure_KO AND NOT reset AND AutoManual THEN
+
+	outL := 0;
+
+END_IF;
+
+sample_counter := (sample_counter+1) MOD Update_sample;
+
+e_1 := e;
+init_pid := TRUE;
+AutoManual_old := AutoManual;
+ManualOut_old := ManualOut;
+
+END_FUNCTION_BLOCK
+
+
+FUNCTION_BLOCK PID_Timed
+
+	{ DE:"PID procedure.
+
+Integral part is calculated with Tustin method. Td is lower limited to 6*Tsample
+Dead zone: udz, ldz: error is 0 for measure between [setpoint-ldz;setpoint+udz] 
+and increases linearly outside this interval.
+With bumpless I part is updated in order to match P+offset part (limited [0,1000])+I 
+with manual out.
+
+Bumpless		AutoManual	Reset	Out		Note
+F		F		F	ManualOut	P,I,D runs
+F		F		T	ManualOut	P,I,D = 0
+F		T		F	P+I+D+OffsetOut	Eventually limited by MaxVar
+F		T		T	OffsetOut		P,I,D = 0
+T		F		F	ManualOut	P,D runs; I=ManualOut-P-OffsetOut
+T		F		T	ManualOut	P,I,D = 0
+T		T		F	P+I+D+OffsetOut	Eventually limited by MaxVar
+T		T		T	OffsetOut		P,I,D = 0
+
+ARW input: Anti Reset Windup Time
+If ARW = 0 function is disabled
+If ARW <>0 its absolute value must be greater than Tsample
+ARW acts desaturating linearly I part when output is 100% or 0% 
+I part is desaturated, when output is 100%, up to -OffsetOut
+I part is desaturated, when output is 0% and I part lower than -OffsetOut, up to -OffsetOut
+
+Suggested values:
+ARW=-Ti/10 for PI
+ARW=-SQRT(TixTd) for PID
+
+NOTE:
+It must be used in Timed Task and a defined instance can be executed only once per cycle.	
+Warning: each PLC cycle the refresh is mandatory
+" }
+
+	VAR_INPUT
+	measure : INT; 	{ DE:"Measure to be controlled" }
+	setpoint : INT; 	{ DE:"Setpoint, same unit measure of measure" }
+	OffsetOut : INT; 	{ DE:"Fixed offset when pid works [0...1000]" }
+	reverse : BOOL; 	{ DE:"false=(p_pid increase with input)  true= (p_pid decrease with input)" }
+	lowdeadzone : UINT; 	{ DE:"dead zone error, same unit measure of measure" }
+	updeadzone : UINT; 	{ DE:"dead zone error, same unit measure of measure" }
+	Tsample : USINT := 1; 	{ DE:"Pid Output Update Period [sec/10] (default=1)" }
+	Pb : UINT; 	{ DE:"Proportional Band, same unit measure of in_pid" }
+	Ti : UINT; 	{ DE:"Integral Time: 0 disabled, 1...xxx [sec/10] >2xTsample" }
+	Td : UINT; 	{ DE:"Derivative Time 0 disabled 1...xxx [sec/10]" }
+	ARW : INT := -20; 	{ DE:"Anti reset windup Time: 0 disabled  [sec/10] See also block description" }
+	MaxSpeed : USINT; 	{ DE:"Maximum out variation per second (0 disabled 1-100%/sec)" }
+	Bumpless : BOOL := TRUE; 	{ DE:"I part updated in order to match manual out (Ti must be >0)" }
+	AutoManual : BOOL := TRUE; 	{ DE:"if False Manual Control the output reaches manualOut" }
+	reset : BOOL; 	{ DE:"if TRUE the output reaches OffsetOut" }
+	ManualOut : INT; 	{ DE:"Pid Output with manual control [0...1000]" }
+	END_VAR
+
+	VAR_OUTPUT
+	outH : INT; 	{ DE:"Output saturated at 1000 in case of probe error and pid working" }
+	outP : INT; 	{ DE:"Output paused in case of probe error" }
+	outL : INT; 	{ DE:"Output forced to 0 in case of probe error and pid working" }
+	Prop : INT; 	{ DE:"Prop part Output [0...1000]  Always running if bumpless is True" }
+	Integ : INT; 	{ DE:"Integral part Output  [0...1000] Always running if bumpless is True" }
+	Deriv : INT; 	{ DE:"Derivative part Output [0...1000] Always running if bumpless is True" }
+	Error : INT; 	{ DE:"(measure-setpoint) minus dead zone control " }
+	END_VAR
+
+	VAR_EXTERNAL
+	sysTskTmdScanTime : UINT; 	{ DE:"System Timed's Task Scan Time (ms)" }
+	END_VAR
+
+	VAR
+	AutoManual_old : BOOL := TRUE; 	{ DE:"It is supposed that PID will start in auto mode" }
+	Dreset : BOOL; 
+	init_pid : BOOL; 
+	measure_KO : BOOL; 
+	base_out : INT; 
+	ManualOut_old : INT; 
+	p : INT; 
+	pi_u : INT; 
+	tmp_int : INT; 
+	sample_counter : UINT; 
+	Tc_pid : UINT; 
+	Tdp : UINT; 	{ DE:"Previous Td value" }
+	Update_sample : UINT; 
+	d : DINT; 
+	e : DINT; 
+	e_1 : DINT; 
+	en_0 : DINT; 
+	en_1 : DINT; 
+	i : DINT; 
+	tmp_dint : DINT; 
+	tmp_dint2 : DINT; 
+	dReal : REAL; 
+	iReal : REAL; 
+	tmpReal : REAL; 
+	tmpReal1 : REAL; 
+	tmpReal2 : REAL; 
+	END_VAR
+
+	VAR CONSTANT
+	CONST1000 : INT := 1000; 
+	N : INT := 12; 
+	MAXINT : DINT := 32767; 
+	MININT : DINT := -32768; 
+	INTMAX : REAL := 1073741824.0; 
+	INTMIN : REAL := -1073741824.0; 
+	END_VAR
+
+	{ CODE:ST }(* Broken or not connected probe *)
+measure_KO := (measure<-32766);
+
+ManualOut := LIMIT(ManualOut,0,CONST1000);
+
+(* P.I.D. regulator *)
+Tc_pid:=TO_UINT(MAX(Tsample,1));
+
+Update_sample := TO_UINT(Tc_pid*100/TO_UDINT(sysTskTmdScanTime));
+
+(* Output offset *) 
+(*base_out:= MAX(0,MIN(CONST1000,OffsetOut));*)
+(* Memory optimization v1.6 *)
+base_out:= MIN(CONST1000,OffsetOut);
+base_out:= MAX(0,base_out);
+
+(* pid init *)
+IF NOT init_pid THEN
+
+	pi_u:= base_out;
+	iReal:=0.0;
+	Dreset := TRUE;
+	
+END_IF;
+
+sample_counter := SEL(reset,sample_counter,0);
+
+IF measure_KO THEN
+
+		e := 0;
+
+ELSIF sample_counter=0 THEN
+
+	(* error = temperature -set point *)
+	e := TO_DINT(measure - setpoint);
+
+
+	(* dead zone control *)
+	IF e>0 THEN
+
+		e := MAX(0,e-TO_DINT(updeadzone));
+
+	ELSIF e<0 THEN
+
+		e := MIN(0,e+TO_DINT(lowdeadzone));
+
+	END_IF;
+
+	(* Reverse controller, i.e. heating *)
+	IF reverse THEN
+	
+		e:=-e;
+	
+	END_IF;
+
+
+END_IF;
+
+(*
+
+
+   	Proportional Component
+
+	e is update every sample_counter samples 
+
+
+*)
+(* p := SEL( Pb = 0 OR reset, TO_INT(MAX(-32768,MIN(32767,(CONST1000*e)/TO_DINT(Pb) ))) , 0);*)
+(* Memory optimization v1.6 *)
+IF Pb = 0 OR reset THEN
+
+	p := 0;
+	
+ELSIF measure_KO THEN
+(* P is not updated when probe is broken *)
+	
+ELSE
+	tmp_dint := (CONST1000*e)/TO_DINT(Pb);
+	tmp_dint := MIN(32767, tmp_dint);
+	tmp_dint := MAX(-32768,tmp_dint);
+	p := TO_INT(tmp_dint);	
+	
+END_IF;
+
+(*
+
+
+   Derivative Component
+
+
+*)
+
+IF sample_counter=0 THEN
+
+	(* calculation *)	
+	en_1 := en_0;
+	en_0 := SEL(measure_KO,e,en_0);
+
+	(* Td/N>Tc_pid/2 : this must be true *)
+	(*tmp_dint := SHL(TO_DINT(Td),1);*)
+	(* Memory optimization v1.6 *)
+	tmp_dint := TO_DINT(Td);
+	tmp_dint := SHL(tmp_dint,1);
+	
+	tmp_dint2 := TO_DINT(Tc_pid)*N;
+	(* Up to version 1.8
+		IF (tmp_dint )<=(tmp_dint2) AND Td>0 THEN
+			tmp_dint := tmp_dint2;
+		END_IF;	
+		dReal:=TO_REAL(en_0-en_1)*( TO_REAL(tmp_dint*N)/(TO_REAL(tmp_dint+tmp_dint2)) ) + 
+				dReal * TO_REAL(tmp_dint-tmp_dint2)/TO_REAL(tmp_dint+tmp_dint2);	
+	*)		
+	IF (tmp_dint )<=(tmp_dint2) THEN
+		tmp_dint := TO_DINT(Td);
+		dReal:=TO_REAL(en_0-en_1)*( TO_REAL(tmp_dint*N)/(TO_REAL(tmp_dint+tmp_dint2)) ) + 
+				dReal * TO_REAL(tmp_dint)/TO_REAL(tmp_dint+tmp_dint2);	
+	ELSE
+		dReal:=TO_REAL(en_0-en_1)*( TO_REAL(tmp_dint*N)/(TO_REAL(tmp_dint+tmp_dint2)) ) + 
+				dReal * TO_REAL(tmp_dint-tmp_dint2)/TO_REAL(tmp_dint+tmp_dint2);	
+	END_IF;	
+	
+END_IF;
+
+(* Dreset := SEL( Tdp <> Td , Dreset , TRUE);*)
+(* Memory optimization v1.6 *)
+Dreset:= Dreset OR (Pb = 0) OR (Tdp <> Td);
+IF Dreset THEN
+
+	(* reset *)	
+	d    := 0;
+	dReal := 0.0;
+	en_0 := e;
+	en_1 := en_0;
+	
+ELSE
+
+	d := TO_DINT(1000.0*dReal/TO_REAL(Pb));
+	d := LIMIT(d,MININT,MAXINT);
+	
+END_IF;
+Dreset:=((Td = 0) OR measure_KO OR reset);
+Tdp := Td;
+
+(*
+
+
+   Integral Component
+
+
+*)
+(* BpTi :=TO_REAL(Pb*Ti);
+TC_1K := 1000.0*TO_REAL(Tc_pid);*)
+(* Memory optimization v1.6 - v1.8 *)
+IF Ti<>0 AND Ti<SHL(Tc_pid,1) THEN
+	tmpReal1 :=2.0*TO_REAL(Pb)*TO_REAL(Tc_pid);
+ELSE
+	tmpReal1 :=TO_REAL(Pb)*TO_REAL(Ti);
+END_IF;
+tmpReal2 := 1000.0*TO_REAL(Tc_pid);
+
+(* Bumpless is applied one sample later in order to account for Pb,Ti runtime
+parameter modification *)
+
+IF Bumpless AND NOT AutoManual_old AND NOT reset THEN
+			
+	(* set manualout=i+p+offset *)
+	IF (ManualOut_old>=CONST1000	AND (p+base_out)>=CONST1000) OR
+		(ManualOut_old<=0 AND (p+base_out)<=0) 	THEN	
+	
+		iReal := 0.0;
+			
+	ELSE
+	
+		iReal := TO_REAL(ManualOut_old)-TO_REAL(p+base_out); 
+	
+	END_IF;	
+
+END_IF;	
+
+IF ((Ti = 0) OR (Pb = 0) OR reset ) THEN
+
+	(* reset *)	
+	i := 0;
+	iReal:= 0.0;
+
+ELSIF sample_counter=0 THEN
+
+	iReal := iReal + TO_REAL(e+e_1)/2.0*tmpReal2/tmpReal1; (* tmpReal2/tmpReal1 := 1000.0*TO_REAL(Tc_pid)/BpTi*)
+	(* iReal Saturation before converting to DINT *)
+	IF iReal > INTMAX THEN
+	
+		iReal := INTMAX;
+		
+	ELSIF iReal < INTMIN THEN	
+
+		iReal := INTMIN;
+
+	END_IF;
+	(* calculation *)	
+	
+	i := TO_DINT( iReal );
+
+END_IF;
+
+
+(* P.I.D. *)
+IF sample_counter=0 THEN
+(* Output Saturation *)
+
+	(* tmp_dint := SEL(AutoManual,TO_DINT(ManualOut),i+d+TO_DINT(p)+TO_DINT(base_out));*)
+	(* Memory optimization v1.6 *)
+	IF AutoManual THEN
+		tmp_dint := TO_DINT(p);
+		tmp_dint := tmp_dint+TO_DINT(base_out);
+		tmp_dint := tmp_dint+i+d;
+	ELSE
+		tmp_dint := TO_DINT(ManualOut);
+	END_IF;
+
+	tmp_int	:= TO_INT(TO_UINT(MaxSpeed)*Tc_pid);
+
+	(* Output Saturation *)
+	IF tmp_dint>TO_DINT(pi_u+tmp_int) AND NOT reset AND MaxSpeed>0 THEN (*and MaxSpeed>0*)
+		pi_u := MIN(CONST1000,pi_u+tmp_int);
+	ELSIF tmp_dint<TO_DINT(pi_u-tmp_int) AND NOT reset AND MaxSpeed>0 THEN (* and MaxSpeed>0*)
+		pi_u := MAX(0,pi_u-tmp_int);
+	ELSIF (tmp_dint > CONST1000) THEN
+   		pi_u := CONST1000;
+	ELSIF (tmp_dint < 0) THEN
+   		pi_u := 0;
+	ELSE
+   		pi_u := TO_INT(tmp_dint);
+	END_IF;
+
+	(* ARW based on output without D part... *)
+	tmp_dint := 0;
+	tmp_dint2 := (i+TO_DINT(p)+TO_DINT(base_out));
+	IF (tmp_dint2>CONST1000 AND pi_u = CONST1000) OR (tmp_dint2<0 AND pi_u = 0) THEN
+		tmp_dint := tmp_dint2 - TO_DINT(pi_u);
+	END_IF;
+	
+	IF Ti>0 AND (tmp_dint <> 0) THEN
+
+		IF (ARW<>0) THEN
+    	(* anti reset windup activeted: update integral component *)
+		
+			
+			IF (pi_u = CONST1000) OR (pi_u=0 AND iReal<-TO_REAL(base_out)) THEN
+				
+				(* iReal := iReal-(TO_REAL(tmp_dint))*TO_REAL(Tc_pid)/ABS(TO_REAL(ARW)); *)
+				(* Memory optimization v1.6 *)				
+				tmpReal1 := TO_REAL(tmp_dint);
+				tmpReal2 := TO_REAL(Tc_pid);
+				tmpReal1 := tmpReal1*tmpReal2;
+				IF ARW>0 THEN					
+					tmpReal2 := TO_REAL(MAX(Tc_pid,TO_UINT(ARW)));
+				ELSE	
+					tmpReal2 := TO_REAL(MAX(Tc_pid,TO_UINT(-ARW)));
+				END_IF;	
+				tmpReal1 := tmpReal1/tmpReal2;
+				iReal := iReal-tmpReal1; 
+				
+				tmpReal1 := -TO_REAL(base_out);
+				(* Added in version 1.9 *)
+				IF pi_u=0 THEN
+					iReal := MIN(iReal,tmpReal1);
+				ELSIF pi_u=CONST1000 THEN
+					iReal := MAX(iReal,tmpReal1);
+				END_IF;	
+				(* end update version 1.9 *)
+				i :=  TO_DINT( iReal );
+
+			END_IF;
+
+		END_IF;
+		(* Removed since version 1.9
+		IF (ARW>0) THEN
+			IF (tmp_dint > 0) THEN
+				Comment I>=0 when output is over 100% and ARW active
+				iReal:=MAX(iReal,-TO_REAL(base_out) ) ;
+				i :=  TO_DINT( iReal );
+			ELSIF (tmp_dint < 0) THEN
+				Comment: I=0 when output is lower 0% and ARW active
+				iReal:=0.0 ;
+				i :=  0;
+			
+			END_IF;	
+		END_IF;
+		*)
+	END_IF;
+
+
+
+	(*  P.I.D. output *)
+	outH := pi_u;
+	outP := outH ;
+	outL := outH ;
+
+END_IF;
+
+IF measure_KO AND NOT reset AND AutoManual THEN
+
+	outH := CONST1000;
+	outL := 0;
+
+END_IF;
+
+Prop := p;
+Integ := TO_INT(MIN(MAX(i,MININT),MAXINT));
+Deriv := TO_INT(MIN(MAX(d,MININT),MAXINT));
+
+Error := SEL(reverse,TO_INT(e),TO_INT(-e));
+
+sample_counter := (sample_counter+1) MOD Update_sample;
+
+e_1 := e;
+init_pid := TRUE;
+AutoManual_old := AutoManual;
+ManualOut_old := ManualOut;
+
+END_FUNCTION_BLOCK
+
+
+FUNCTION_BLOCK PWM_Timed
+
+	{ DE:"Pulse Width Modulation procedure.
+
+Duty cycle applied is updated at the end of the period or/and when Out is TRUE
+and Duty input requires to switch off the period.
+If period is equal to zero and Duty is greater then MinDuty Out will be TRUE.
+If period is equal to zero and Duty is  less then MinDuty Out will be FALSE.
+
+NOTE:
+It must be used in Timed Task and a defined instance can be executed only once per cycle.	
+Warning: each PLC cycle the refresh is mandatory" }
+
+	VAR_INPUT
+	Enable : BOOL; 	{ DE:"If FALSE out is always FALSE" }
+	Duty : INT; 	{ DE:"Duty cycle 0...1000" }
+	MinDuty : INT; 	{ DE:"Minimum On Duty cycle 0...1000" }
+	Period : INT; 	{ DE:"Period lenght [sec/10]" }
+	END_VAR
+
+	VAR_OUTPUT
+	Out : BOOL; 	{ DE:"PWM controled output" }
+	ActiveDuty : INT; 	{ DE:"Current Applied Duty Cycle" }
+	END_VAR
+
+	VAR_EXTERNAL
+	sysTskTmdScanTime : UINT; 	{ DE:"System Timed's Task Scan Time (ms)" }
+	END_VAR
+
+	VAR
+	Period_msec : UDINT; 	{ DE:"Time [msec]" }
+	Duty_msec : UDINT; 	{ DE:"Time [msec]" }
+	PWM_Timer : UDINT; 	{ DE:"Timer [msec]" }
+	END_VAR
+
+	VAR CONSTANT
+	Fiveh : INT := 500; 
+	ZERO : INT := 0; 
+	OneK : INT := 1000; 
+	END_VAR
+
+	{ CODE:ST }MinDuty := MAX(MIN(MinDuty,Fiveh),ZERO);
+
+	IF Period <= 0 OR NOT Enable THEN
+		
+		Period_msec := 0;
+		PWM_Timer := 0;
+		
+		IF NOT Enable OR Duty <= MinDuty THEN 
+		
+			Out := FALSE;	
+
+		ELSE
+		
+			Out := TRUE;
+			
+		END_IF;
+		ActiveDuty := SEL(Out,ZERO,OneK);
+	ELSE
+
+		Period_msec := TO_UDINT( Period * 100 );
+	
+		IF TO_INT(Duty*2)<=MinDuty AND NOT Out THEN
+			Duty_msec := 0;
+		ELSIF TO_INT(2*Duty) > TO_INT(-MinDuty+2000) THEN
+			Duty_msec := Period_msec;
+		ELSIF Duty > TO_INT(-MinDuty+OneK) THEN	
+			Duty_msec :=  Period_msec * TO_UDINT( -MinDuty+OneK ) / 1000; 
+		ELSE
+			Duty_msec :=  Period_msec * TO_UDINT( MAX(MinDuty,Duty) ) / 1000; 
+		END_IF;	
+		
+		IF PWM_Timer >= Period_msec THEN 
+		
+					
+			PWM_Timer := 0; 
+			
+		END_IF;	
+		
+		IF (PWM_Timer=0 OR Out) THEN
+
+			(* Once out is false is not updated untile next period *)		
+			Out := (PWM_Timer < Duty_msec);	
+			ActiveDuty := TO_INT(Duty_msec * 1000 / Period_msec);
+		END_IF;	
+
+		PWM_Timer :=  PWM_Timer + TO_UDINT(sysTskTmdScanTime); 
+		
+	END_IF;
+	
+
+
+
+
+
+
+END_FUNCTION_BLOCK
+
+
+FUNCTION_BLOCK PI_D_Light_Timed
+
+	{ DE:"PID procedure.
+
+Same as PI_D_Timed but with less I/O
+
+Integral part is calculated with Tustin method. 
+Derivative is applied measure instead to error.Td is lower limited to 6*Tsample
+With bumpless I part is updated in order to match pid out with manual out.
+
+Bumpless		AutoManual	Reset	Out		Note
+F		F		F	ManualOut	P,I,D runs
+F		F		T	ManualOut	P,I,D = 0
+F		T		F	P+I+D+OffsetOut	Eventually limited by MaxVar
+F		T		T	OffsetOut		P,I,D = 0
+T		F		F	ManualOut	P,D runs; I=ManualOut-P-OffsetOut
+T		F		T	ManualOut	P,I,D = 0
+T		T		F	P+I+D+OffsetOut	Eventually limited by MaxVar
+T		T		T	OffsetOut		P,I,D = 0
+
+ARW input: Anti Reset Windup Time
+If ARW = 0 function is disabled
+If ARW <>0 its absolute value must be greater than Tsample
+ARW acts desaturating linearly I part when output is 100% or 0% 
+I part is desaturated, when output is 100%, up to -OffsetOut
+I part is desaturated, when output is 0% and I part lower than -OffsetOut, up to -OffsetOut
+
+Suggested values:
+ARW=-Ti/10 for PI
+ARW=-SQRT(TixTd) for PID
+
+NOTE:
+It must be used in Timed Task and a defined instance can be executed only once per cycle.	
+Warning: each PLC cycle the refresh is mandatory
+" }
+
+	VAR_INPUT
+	measure : INT; 	{ DE:"Measure to be controlled" }
+	setpoint : INT; 	{ DE:"Setpoint, same unit measure of measure" }
+	OffsetOut : INT; 	{ DE:"Fixed offset when pid works [0...1000]" }
+	reverse : BOOL; 	{ DE:"false=(p_pid increase with input)  true= (p_pid decrease with input)" }
+	Tsample : USINT := 1; 	{ DE:"Pid Output Update Period [sec/10] (default=1)" }
+	Pb : UINT; 	{ DE:"Proportional Band, same unit measure of in_pid" }
+	Ti : UINT; 	{ DE:"Integral Time: 0 disabled, 1...xxx [sec/10] >2xTsample" }
+	Td : UINT; 	{ DE:"Derivative Time 0 disabled 1...xxx [sec/10]" }
+	ARW : INT := -20; 	{ DE:"Anti reset windup Time: 0 disabled  [sec/10] See also block description" }
+	Bumpless : BOOL := TRUE; 	{ DE:"I part updated in order to match manual out (Ti must be >0)" }
+	AutoManual : BOOL := TRUE; 	{ DE:"if False Manual Control the output reaches manualOut" }
+	reset : BOOL; 	{ DE:"if TRUE the output reaches OffsetOut" }
+	ManualOut : INT; 	{ DE:"Pid Output with manual control [0...1000]" }
+	END_VAR
+
+	VAR_OUTPUT
+	outL : INT; 	{ DE:"Output forced to 0 in case of probe error and pid working" }
+	END_VAR
+
+	VAR_EXTERNAL
+	sysTskTmdScanTime : UINT; 	{ DE:"System Timed's Task Scan Time (ms)" }
+	END_VAR
+
+	VAR
+	iReal : REAL; 
+	dReal : REAL; 
+	tmp_dint2 : DINT; 
+	tmp_dint : DINT; 
+	i : DINT; 
+	en_1 : DINT; 
+	en_0 : DINT; 
+	e_1 : DINT; 
+	e : DINT; 
+	d : DINT; 
+	Update_sample : UINT; 
+	Tdp : UINT; 	{ DE:"Previous Td value" }
+	Tc_pid : UINT; 
+	sample_counter : UINT; 
+	tmp_int : INT; 
+	pi_u : INT; 
+	p : INT; 
+	ManualOut_old : INT; 
+	base_out : INT; 
+	measure_KO : BOOL; 
+	init_pid : BOOL; 
+	Dreset : BOOL; 
+	AutoManual_old : BOOL := TRUE; 	{ DE:"It is supposed that PID will start in auto mode" }
+	tmpReal1 : REAL; 
+	tmpReal2 : REAL; 
+	INTMIN : REAL := -1073741824.0; 
+	END_VAR
+
+	VAR CONSTANT
+	MININT : DINT := -32768; 
+	MAXINT : DINT := 32767; 
+	N : INT := 12; 
+	CONST1000 : INT := 1000; 
+	INTMAX : REAL := 1073741824.0; 
+	END_VAR
+
+	{ CODE:ST }(* Broken or not connected probe *)
+measure_KO := (measure<-32766);
+
+ManualOut := LIMIT(ManualOut,0,CONST1000);
+		
+(* P.I.D. regulator *)
+Tc_pid:=TO_UINT(MAX(Tsample,1));
+
+Update_sample := TO_UINT(Tc_pid*100/TO_UDINT(sysTskTmdScanTime));
+
+(* Output offset *) 
+(*base_out:= MAX(0,MIN(CONST1000,OffsetOut));*)
+(* Memory optimization v1.6 *)
+base_out:= MIN(CONST1000,OffsetOut);
+base_out:= MAX(0,base_out);
+
+(* pid init *)
+IF NOT init_pid THEN
+
+	pi_u:= base_out;
+	iReal:=0.0;
+	Dreset := TRUE;
+
+END_IF;
+
+sample_counter := SEL(reset,sample_counter,0);
+
+IF measure_KO THEN
+
+		e := 0;
+
+ELSIF sample_counter=0 THEN
+
+	(* error = temperature -set point *)
+	e := TO_DINT(measure - setpoint);
+
+	(* Reverse controller, i.e. heating *)
+	IF reverse THEN
+	
+		e:=-e;
+	
+	END_IF;
+
+END_IF;
+
+(*
+
+
+   	Proportional Component
+
+	e is update every sample_counter samples 
+
+
+*)
+
+(* p := SEL( Pb = 0 OR reset, TO_INT(MAX(-32768,MIN(32767,(CONST1000*e)/TO_DINT(Pb) ))) , 0);*)
+(* Memory optimization v1.6 *)
+IF Pb = 0 OR reset THEN
+
+	p := 0;
+	
+ELSIF measure_KO THEN
+(* P is not updated when probe is broken *)
+
+ELSE
+	tmp_dint := (CONST1000*e)/TO_DINT(Pb);
+	tmp_dint := MIN(32767, tmp_dint);
+	tmp_dint := MAX(-32768,tmp_dint);
+	p := TO_INT(tmp_dint);	
+	
+END_IF;
+
+
+
+(*
+
+
+   Derivative Component
+
+
+*)
+IF sample_counter=0 THEN
+
+	(* calculation *)	
+	en_1 := en_0;
+	
+	(*tmp_dint := SEL(reverse,TO_DINT(measure),-TO_DINT(measure));*)
+	(* Memory optimization v1.6 *)
+	tmp_dint := TO_DINT(measure);
+	IF reverse THEN
+	
+		tmp_dint := -tmp_dint;
+	
+	END_IF;
+	
+	en_0 := SEL(measure_KO,tmp_dint,en_0);
+
+	(* Td/N>Tc_pid/2 : this must be true *)
+	(*tmp_dint := SHL(TO_DINT(Td),1);*)
+	(* Memory optimization v1.6 *)
+	tmp_dint := TO_DINT(Td);
+	tmp_dint := SHL(tmp_dint,1);
+	
+	tmp_dint2 := TO_DINT(Tc_pid)*N;
+	(* Up to version 1.8
+		IF (tmp_dint )<=(tmp_dint2) AND Td>0 THEN
+			tmp_dint := tmp_dint2;
+		END_IF;	
+		dReal:=TO_REAL(en_0-en_1)*( TO_REAL(tmp_dint*N)/(TO_REAL(tmp_dint+tmp_dint2)) ) + 
+				dReal * TO_REAL(tmp_dint-tmp_dint2)/TO_REAL(tmp_dint+tmp_dint2);	
+	*)		
+	IF (tmp_dint )<=(tmp_dint2) THEN
+		tmp_dint := TO_DINT(Td);
+		dReal:=TO_REAL(en_0-en_1)*( TO_REAL(tmp_dint*N)/(TO_REAL(tmp_dint+tmp_dint2)) ) + 
+				dReal * TO_REAL(tmp_dint)/TO_REAL(tmp_dint+tmp_dint2);	
+	ELSE
+		dReal:=TO_REAL(en_0-en_1)*( TO_REAL(tmp_dint*N)/(TO_REAL(tmp_dint+tmp_dint2)) ) + 
+				dReal * TO_REAL(tmp_dint-tmp_dint2)/TO_REAL(tmp_dint+tmp_dint2);	
+	END_IF;			
+	
+END_IF;
+
+(* Dreset := SEL( Tdp <> Td , Dreset , TRUE);*)
+(* Memory optimization v1.6 *)
+Dreset:= Dreset OR (Pb = 0) OR (Tdp <> Td);
+IF Dreset THEN
+
+	(* reset *)	
+	d    := 0;
+	dReal := 0.0;
+
+	(*tmp_dint := SEL(reverse,TO_DINT(measure),-TO_DINT(measure));*)
+	(* Memory optimization v1.6 *)
+	en_0 := TO_DINT(measure);
+	IF reverse THEN
+	
+		en_0 := -en_0;
+	
+	END_IF;
+	(*en_0 := tmp_dint;*)
+
+	en_1 := en_0;
+
+ELSE
+
+	d := TO_DINT(1000.0*dReal/TO_REAL(Pb));
+	d := LIMIT(d,MININT,MAXINT);
+	
+	
+END_IF;
+
+Tdp := Td;
+Dreset:=((Td = 0) OR measure_KO OR reset);
+
+(*
+
+
+   Integral Component
+
+
+*)
+
+(* BpTi :=TO_REAL(Pb*Ti);
+TC_1K := 1000.0*TO_REAL(Tc_pid);*)
+(* Memory optimization v1.6 - v1.8 *)
+IF Ti<>0 AND Ti<SHL(Tc_pid,1) THEN
+	tmpReal1 :=2.0*TO_REAL(Pb)*TO_REAL(Tc_pid);
+ELSE
+	tmpReal1 :=TO_REAL(Pb)*TO_REAL(Ti);
+END_IF;
+tmpReal2 := 1000.0*TO_REAL(Tc_pid);
+
+
+(* Bumpless is applied one sample later in order to account for Pb,Ti runtime
+parameter modification *)
+
+IF Bumpless AND NOT AutoManual_old AND NOT reset THEN
+			
+	(* set manualout=i+p+offset *)
+	IF (ManualOut_old>=CONST1000	AND (p+base_out)>=CONST1000) OR
+		(ManualOut_old<=0 AND (p+base_out)<=0) 	THEN	
+	
+		iReal := 0.0;
+			
+	ELSE
+	
+		iReal := TO_REAL(ManualOut_old)-TO_REAL(p+base_out); 
+	
+	END_IF;	
+
+END_IF;	
+
+IF ((Ti = 0) OR (Pb = 0) OR reset ) THEN
+
+	(* reset *)	
+	i := 0;
+	iReal:= 0.0;
+
+ELSIF sample_counter=0 THEN
+
+	iReal := iReal + TO_REAL(e+e_1)/2.0*tmpReal2/tmpReal1; (* tmpReal2/tmpReal1 := 1000.0*TO_REAL(Tc_pid)/BpTi*)
+	(* iReal Saturation before converting to DINT *)
+	IF iReal > INTMAX THEN
+	
+		iReal := INTMAX;
+		
+	ELSIF iReal < INTMIN THEN	
+
+		iReal := INTMIN;
+
+	END_IF;
+
+	(* calculation *)	
+	i := TO_DINT( iReal );
+
+END_IF;
+
+
+(* P.I.D. *)
+IF sample_counter=0 THEN
+(* Output Saturation *)
+
+	(* tmp_dint := SEL(AutoManual,TO_DINT(ManualOut),i+d+TO_DINT(p)+TO_DINT(base_out));*)
+	(* Memory optimization v1.6 *)
+	IF AutoManual THEN
+		tmp_dint := TO_DINT(p);
+		tmp_dint := tmp_dint+TO_DINT(base_out);
+		tmp_dint := tmp_dint+i+d;
+	ELSE
+		tmp_dint := TO_DINT(ManualOut);
+	END_IF;
+
+	(* Output Saturation *)
+	IF (tmp_dint > CONST1000) THEN
+   		pi_u := CONST1000;
+	ELSIF (tmp_dint < 0) THEN
+   		pi_u := 0;
+	ELSE
+   		pi_u := TO_INT(tmp_dint);
+	END_IF;
+
+	(* ARW based on output without D part... *)
+	tmp_dint := 0;
+	tmp_dint2 := (i+TO_DINT(p)+TO_DINT(base_out));
+	IF (tmp_dint2>CONST1000 AND pi_u = CONST1000) OR (tmp_dint2<0 AND pi_u = 0) THEN
+		tmp_dint := tmp_dint2 - TO_DINT(pi_u);
+	END_IF;
+	
+	IF Ti>0 AND (tmp_dint <> 0) THEN
+
+		IF (ARW<>0) THEN
+    	(* anti reset windup activeted: update integral component *)
+		
+			
+			IF (pi_u = CONST1000) OR (pi_u=0 AND iReal<-TO_REAL(base_out)) THEN
+				
+				(* iReal := iReal-(TO_REAL(tmp_dint))*TO_REAL(Tc_pid)/ABS(TO_REAL(ARW)); *)
+				(* Memory optimization v1.6 *)				
+				tmpReal1 := TO_REAL(tmp_dint);
+				tmpReal2 := TO_REAL(Tc_pid);
+				tmpReal1 := tmpReal1*tmpReal2;
+				IF ARW>0 THEN					
+					tmpReal2 := TO_REAL(MAX(Tc_pid,TO_UINT(ARW)));
+				ELSE	
+					tmpReal2 := TO_REAL(MAX(Tc_pid,TO_UINT(-ARW)));
+				END_IF;	
+				tmpReal1 := tmpReal1/tmpReal2;
+				iReal := iReal-tmpReal1; 
+				
+				tmpReal1 := -TO_REAL(base_out);
+				(* Added in version 1.9 *)
+				IF pi_u=0 THEN
+					iReal := MIN(iReal,tmpReal1);
+				ELSIF pi_u=CONST1000 THEN
+					iReal := MAX(iReal,tmpReal1);
+				END_IF;	
+				(* end update version 1.9 *)
+				i :=  TO_DINT( iReal );
+
+			END_IF;
+
+		END_IF;
+		(* Removed since version 1.9
+		IF (ARW>0) THEN
+			IF (tmp_dint > 0) THEN
+				Comment I>=0 when output is over 100% and ARW active
+				iReal:=MAX(iReal,-TO_REAL(base_out) ) ;
+				i :=  TO_DINT( iReal );
+			ELSIF (tmp_dint < 0) THEN
+				Comment: I=0 when output is lower 0% and ARW active
+				iReal:=0.0 ;
+				i :=  0;
+			
+			END_IF;	
+		END_IF;
+		*)
+	END_IF;
+
+
+	(*  P.I.D. output *)
+	outL := pi_u;
+
+END_IF;
+
+IF measure_KO AND NOT reset AND AutoManual THEN
+
+	outL := 0;
+
+END_IF;
+
+sample_counter := (sample_counter+1) MOD Update_sample;
+
+e_1 := e;
+init_pid := TRUE;
+AutoManual_old := AutoManual;
+ManualOut_old := ManualOut;
+
+
+END_FUNCTION_BLOCK
+
+
+FUNCTION_BLOCK PI_D_Timed
+
+	{ DE:"PI-D procedure.
+
+Integral part is calculated with Tustin method. 
+Derivative is applied measure instead to error.Td is lower limited to 6*Tsample
+Dead zone: udz, ldz: error is 0 for measure between [setpoint-ldz;setpoint+udz] 
+and increases linearly outside this interval.
+With bumpless I part is updated in order to match P+offset part (limited [0,1000])+I 
+with manual out.
+
+Bumpless		AutoManual	Reset	Out		Note
+F		F		F	ManualOut	P,I,D runs
+F		F		T	ManualOut	P,I,D = 0
+F		T		F	P+I+D+OffsetOut	Eventually limited by MaxVar
+F		T		T	OffsetOut		P,I,D = 0
+T		F		F	ManualOut	P,D runs; I=ManualOut-P-OffsetOut
+T		F		T	ManualOut	P,I,D = 0
+T		T		F	P+I+D+OffsetOut	Eventually limited by MaxVar
+T		T		T	OffsetOut		P,I,D = 0
+
+ARW input: Anti Reset Windup Time
+If ARW = 0 function is disabled
+If ARW <>0 its absolute value must be greater than Tsample
+ARW acts desaturating linearly I part when output is 100% or 0% 
+I part is desaturated, when output is 100%, up to -OffsetOut
+I part is desaturated, when output is 0% and I part lower than -OffsetOut, up to -OffsetOut
+
+Suggested values:
+ARW=-Ti/10 for PI
+ARW=-SQRT(TixTd) for PID
+
+NOTE:
+It must be used in Timed Task and a defined instance can be executed only once per cycle.	
+Warning: each PLC cycle the refresh is mandatory
+" }
+
+	VAR_INPUT
+	measure : INT; 	{ DE:"Measure to be controlled" }
+	setpoint : INT; 	{ DE:"Setpoint, same unit measure of measure" }
+	OffsetOut : INT; 	{ DE:"Fixed offset when pid works [0...1000]" }
+	reverse : BOOL; 	{ DE:"false=(p_pid increase with input)  true= (p_pid decrease with input)" }
+	lowdeadzone : UINT; 	{ DE:"dead zone error, same unit measure of measure" }
+	updeadzone : UINT; 	{ DE:"dead zone error, same unit measure of measure" }
+	Tsample : USINT := 1; 	{ DE:"Pid Output Update Period [sec/10] (default=1)" }
+	Pb : UINT; 	{ DE:"Proportional Band, same unit measure of in_pid" }
+	Ti : UINT; 	{ DE:"Integral Time: 0 disabled, 1...xxx [sec/10] >2xTsample" }
+	Td : UINT; 	{ DE:"Derivative Time 0 disabled 1...xxx [sec/10]" }
+	ARW : INT := -20; 	{ DE:"Anti reset windup Time: 0 disabled  [sec/10] See also block description" }
+	MaxSpeed : USINT; 	{ DE:"Maximum out variation per second (0 disabled 1-100%/sec)" }
+	Bumpless : BOOL := TRUE; 	{ DE:"I part updated in order to match manual out (Ti must be >0)" }
+	AutoManual : BOOL := TRUE; 	{ DE:"if False Manual Control the output reaches manualOut" }
+	reset : BOOL; 	{ DE:"if TRUE the output reaches OffsetOut" }
+	ManualOut : INT; 	{ DE:"Pid Output with manual control [0...1000]" }
+	END_VAR
+
+	VAR_OUTPUT
+	outH : INT; 	{ DE:"Output saturated at 1000 in case of probe error and pid working" }
+	outP : INT; 	{ DE:"Output paused in case of probe error" }
+	outL : INT; 	{ DE:"Output forced to 0 in case of probe error and pid working" }
+	Prop : INT; 	{ DE:"Prop part Output [0...1000] Always running if bumpless is True" }
+	Integ : INT; 	{ DE:"Integral part Output  [0...1000] Always running if bumpless is True" }
+	Deriv : INT; 	{ DE:"Derivative part Output [0...1000] Always running if bumpless is True" }
+	Error : INT; 	{ DE:"(measure-setpoint) minus dead zone control " }
+	END_VAR
+
+	VAR_EXTERNAL
+	sysTskTmdScanTime : UINT; 	{ DE:"System Timed's Task Scan Time (ms)" }
+	END_VAR
+
+	VAR
+	AutoManual_old : BOOL := TRUE; 	{ DE:"It is supposed that PID will start in auto mode" }
+	Dreset : BOOL; 
+	init_pid : BOOL; 
+	measure_KO : BOOL; 
+	base_out : INT; 
+	ManualOut_old : INT; 
+	p : INT; 
+	pi_u : INT; 
+	tmp_int : INT; 
+	sample_counter : UINT; 
+	Tc_pid : UINT; 
+	Tdp : UINT; 	{ DE:"Previous Td value" }
+	Update_sample : UINT; 
+	d : DINT; 
+	e : DINT; 
+	e_1 : DINT; 
+	en_0 : DINT; 
+	en_1 : DINT; 
+	i : DINT; 
+	tmp_dint : DINT; 
+	tmp_dint2 : DINT; 
+	dReal : REAL; 
+	iReal : REAL; 
+	tmpReal : REAL; 
+	tmpReal1 : REAL; 
+	tmpReal2 : REAL; 
+	INTMIN : REAL := -1073741824.0; 
+	END_VAR
+
+	VAR CONSTANT
+	CONST1000 : INT := 1000; 
+	N : INT := 12; 
+	MAXINT : DINT := 32767; 
+	MININT : DINT := -32768; 
+	INTMAX : REAL := 1073741824.0; 
+	END_VAR
+
+	{ CODE:ST }(* Broken or not connected probe *)
+measure_KO := (measure<-32766);
+
+ManualOut := LIMIT(ManualOut,0,CONST1000);
+
+(* P.I.D. regulator *)
+Tc_pid:=TO_UINT(MAX(Tsample,1));
+
+Update_sample := TO_UINT(Tc_pid*100/TO_UDINT(sysTskTmdScanTime));
+
+(* Output offset *) 
+(*base_out:= MAX(0,MIN(CONST1000,OffsetOut));*)
+(* Memory optimization v1.6 *)
+base_out:= MIN(CONST1000,OffsetOut);
+base_out:= MAX(0,base_out);
+
+(* pid init *)
+IF NOT init_pid THEN
+
+	pi_u:= base_out;
+	iReal:=0.0;
+	Dreset := TRUE;
+	
+END_IF;
+
+sample_counter := SEL(reset,sample_counter,0);
+
+IF measure_KO THEN
+
+		e := 0;
+
+ELSIF sample_counter=0 THEN
+
+	(* error = temperature -set point *)
+	e := TO_DINT(measure - setpoint);
+
+
+	(* dead zone control *)
+	IF e>0 THEN
+
+		e := MAX(0,e-TO_DINT(updeadzone));
+
+	ELSIF e<0 THEN
+
+		e := MIN(0,e+TO_DINT(lowdeadzone));
+
+	END_IF;
+
+	(* Reverse controller, i.e. heating *)
+	IF reverse THEN
+	
+		e:=-e;
+	
+	END_IF;
+
+END_IF;
+
+
+(*
+
+
+   	Proportional Component
+
+	e is update every sample_counter samples 
+
+
+*)
+
+(* p := SEL( Pb = 0 OR reset, TO_INT(MAX(-32768,MIN(32767,(CONST1000*e)/TO_DINT(Pb) ))) , 0);*)
+(* Memory optimization v1.6 *)
+IF Pb = 0 OR reset THEN
+
+	p := 0;
+	
+ELSIF measure_KO THEN
+(* P is not updated when probe is broken *)
+
+ELSE
+	tmp_dint := (CONST1000*e)/TO_DINT(Pb);
+	tmp_dint := MIN(32767, tmp_dint);
+	tmp_dint := MAX(-32768,tmp_dint);
+	p := TO_INT(tmp_dint);	
+	
+END_IF;
+
+
+(*
+
+
+   Derivative Component
+
+
+*)
+
+IF sample_counter=0 THEN
+
+	(* calculation *)	
+	en_1 := en_0;
+	tmp_dint := SEL(reverse,TO_DINT(measure),-TO_DINT(measure));
+	en_0 := SEL(measure_KO,tmp_dint,en_0);
+
+	(* Td/N>Tc_pid/2 : this must be true *)
+	(*tmp_dint := SHL(TO_DINT(Td),1);*)
+	(* Memory optimization v1.6 *)
+	tmp_dint := TO_DINT(Td);
+	tmp_dint := SHL(tmp_dint,1);
+	
+	tmp_dint2 := TO_DINT(Tc_pid)*N;
+	(* Up to version 1.8
+		IF (tmp_dint )<=(tmp_dint2) AND Td>0 THEN
+			tmp_dint := tmp_dint2;
+		END_IF;	
+		dReal:=TO_REAL(en_0-en_1)*( TO_REAL(tmp_dint*N)/(TO_REAL(tmp_dint+tmp_dint2)) ) + 
+				dReal * TO_REAL(tmp_dint-tmp_dint2)/TO_REAL(tmp_dint+tmp_dint2);	
+	*)		
+	IF (tmp_dint )<=(tmp_dint2) THEN
+		tmp_dint := TO_DINT(Td);
+		dReal:=TO_REAL(en_0-en_1)*( TO_REAL(tmp_dint*N)/(TO_REAL(tmp_dint+tmp_dint2)) ) + 
+				dReal * TO_REAL(tmp_dint)/TO_REAL(tmp_dint+tmp_dint2);	
+	ELSE
+		dReal:=TO_REAL(en_0-en_1)*( TO_REAL(tmp_dint*N)/(TO_REAL(tmp_dint+tmp_dint2)) ) + 
+				dReal * TO_REAL(tmp_dint-tmp_dint2)/TO_REAL(tmp_dint+tmp_dint2);	
+	END_IF;		
+		
+	
+END_IF;
+
+(* Dreset := SEL( Tdp <> Td , Dreset , TRUE);*)
+(* Memory optimization v1.6 *)
+Dreset:= Dreset OR (Pb = 0) OR (Tdp <> Td);
+IF Dreset THEN
+
+	(* reset *)	
+	d    := 0;
+	dReal := 0.0;
+
+	(*tmp_dint := SEL(reverse,TO_DINT(measure),-TO_DINT(measure));*)
+	(* Memory optimization v1.6 *)
+	en_0 := TO_DINT(measure);
+	IF reverse THEN
+	
+		en_0 := -en_0;
+	
+	END_IF;
+	(*en_0 := tmp_dint;*)
+	
+	en_1 := en_0;
+
+ELSE
+
+	d := TO_DINT(1000.0*dReal/TO_REAL(Pb));
+	d := LIMIT(d,MININT,MAXINT);
+	
+	
+END_IF;
+
+Tdp := Td;
+Dreset:=((Td = 0) OR measure_KO OR reset);
+
+(*
+
+
+   Integral Component
+
+
+*)
+(* BpTi :=TO_REAL(Pb*Ti);
+TC_1K := 1000.0*TO_REAL(Tc_pid);*)
+(* Memory optimization v1.6 - v1.8 *)
+IF Ti<>0 AND Ti<SHL(Tc_pid,1) THEN
+	tmpReal1 :=2.0*TO_REAL(Pb)*TO_REAL(Tc_pid);
+ELSE
+	tmpReal1 :=TO_REAL(Pb)*TO_REAL(Ti);
+END_IF;
+tmpReal2 := 1000.0*TO_REAL(Tc_pid);
+
+(* Bumpless is applied one sample later in order to account for Pb,Ti runtime
+parameter modification *)
+
+IF Bumpless AND NOT AutoManual_old AND NOT reset THEN
+			
+	(* set manualout=i+p+offset *)
+	IF (ManualOut_old>=CONST1000	AND (p+base_out)>=CONST1000) OR
+		(ManualOut_old<=0 AND (p+base_out)<=0) 	THEN	
+	
+		iReal := 0.0;
+			
+	ELSE
+	
+		iReal := TO_REAL(ManualOut_old)-TO_REAL(p+base_out); 
+	
+	END_IF;	
+
+END_IF;	
+
+IF ((Ti = 0) OR (Pb = 0) OR reset ) THEN
+
+	(* reset *)	
+	i := 0;
+	iReal:= 0.0;
+
+ELSIF sample_counter=0 THEN
+
+	iReal := iReal + TO_REAL(e+e_1)/2.0*tmpReal2/tmpReal1; (* tmpReal2/tmpReal1 := 1000.0*TO_REAL(Tc_pid)/BpTi*)
+	(* iReal Saturation before converting to DINT *)
+	IF iReal > INTMAX THEN
+	
+		iReal := INTMAX;
+		
+	ELSIF iReal < INTMIN THEN	
+
+		iReal := INTMIN;
+
+	END_IF;
+
+	(* calculation *)	
+	i := TO_DINT( iReal );
+
+END_IF;
+
+
+(* P.I.D. *)
+IF sample_counter=0 THEN
+(* Output Saturation *)
+
+	(* tmp_dint := SEL(AutoManual,TO_DINT(ManualOut),i+d+TO_DINT(p)+TO_DINT(base_out));*)
+	(* Memory optimization v1.6 *)
+	IF AutoManual THEN
+		tmp_dint := TO_DINT(p);
+		tmp_dint := tmp_dint+TO_DINT(base_out);
+		tmp_dint := tmp_dint+i+d;
+	ELSE
+		tmp_dint := TO_DINT(ManualOut);
+	END_IF;
+	
+	tmp_int	:= TO_INT(TO_UINT(MaxSpeed)*Tc_pid);
+
+	(* Output Saturation *)
+	IF tmp_dint>TO_DINT(pi_u+tmp_int) AND NOT reset AND MaxSpeed>0 THEN (*and MaxSpeed>0*)
+		pi_u := MIN(CONST1000,pi_u+tmp_int);
+	ELSIF tmp_dint<TO_DINT(pi_u-tmp_int) AND NOT reset AND MaxSpeed>0 THEN (* and MaxSpeed>0*)
+		pi_u := MAX(0,pi_u-tmp_int);
+	ELSIF (tmp_dint > CONST1000) THEN
+   		pi_u := CONST1000;
+	ELSIF (tmp_dint < 0) THEN
+   		pi_u := 0;
+	ELSE
+   		pi_u := TO_INT(tmp_dint);
+	END_IF;
+
+	(* ARW based on output without D part... *)
+	tmp_dint := 0;
+	tmp_dint2 := (i+TO_DINT(p)+TO_DINT(base_out));
+	IF (tmp_dint2>CONST1000 AND pi_u = CONST1000) OR (tmp_dint2<0 AND pi_u = 0) THEN
+		tmp_dint := tmp_dint2 - TO_DINT(pi_u);
+	END_IF;
+	
+	IF Ti>0 AND (tmp_dint <> 0) THEN
+
+		IF (ARW<>0) THEN
+    	(* anti reset windup activeted: update integral component *)
+		
+			
+			IF (pi_u = CONST1000) OR (pi_u=0 AND iReal<-TO_REAL(base_out)) THEN
+				
+				(* iReal := iReal-(TO_REAL(tmp_dint))*TO_REAL(Tc_pid)/ABS(TO_REAL(ARW)); *)
+				(* Memory optimization v1.6 *)				
+				tmpReal1 := TO_REAL(tmp_dint);
+				tmpReal2 := TO_REAL(Tc_pid);
+				tmpReal1 := tmpReal1*tmpReal2;
+				IF ARW>0 THEN					
+					tmpReal2 := TO_REAL(MAX(Tc_pid,TO_UINT(ARW)));
+				ELSE	
+					tmpReal2 := TO_REAL(MAX(Tc_pid,TO_UINT(-ARW)));
+				END_IF;	
+				tmpReal1 := tmpReal1/tmpReal2;
+				iReal := iReal-tmpReal1; 
+				
+				tmpReal1 := -TO_REAL(base_out);
+				(* Added in version 1.9 *)
+				IF pi_u=0 THEN
+					iReal := MIN(iReal,tmpReal1);
+				ELSIF pi_u=CONST1000 THEN
+					iReal := MAX(iReal,tmpReal1);
+				END_IF;	
+				(* end update version 1.9 *)
+				i :=  TO_DINT( iReal );
+
+			END_IF;
+
+		END_IF;
+		(* Removed since version 1.9
+		IF (ARW>0) THEN
+			IF (tmp_dint > 0) THEN
+				Comment I>=0 when output is over 100% and ARW active
+				iReal:=MAX(iReal,-TO_REAL(base_out) ) ;
+				i :=  TO_DINT( iReal );
+			ELSIF (tmp_dint < 0) THEN
+				Comment: I=0 when output is lower 0% and ARW active
+				iReal:=0.0 ;
+				i :=  0;
+			
+			END_IF;	
+		END_IF;
+		*)
+	END_IF;
+
+
+
+	(*  P.I.D. output *)
+	outH := pi_u;
+	outP := outH ;
+	outL := outH ;
+
+END_IF;
+
+IF measure_KO AND NOT reset AND AutoManual THEN
+
+	outH := CONST1000;
+	outL := 0;
+
+END_IF;
+
+Prop := p;
+Integ := TO_INT(MIN(MAX(i,MININT),MAXINT));
+Deriv := TO_INT(MIN(MAX(d,MININT),MAXINT));
+
+Error := SEL(reverse,TO_INT(e),TO_INT(-e));
+
+sample_counter := (sample_counter+1) MOD Update_sample;
+
+e_1 := e;
+init_pid := TRUE;
+AutoManual_old := AutoManual;
+ManualOut_old := ManualOut;
+
+END_FUNCTION_BLOCK
+

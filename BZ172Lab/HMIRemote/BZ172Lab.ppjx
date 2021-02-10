@@ -15,6 +15,7 @@
 			<lib link="false">display.plclib</lib>
 			<lib link="false">CanOpen_IEC .pll</lib>
 			<lib link="false">Redmond2017.plclib</lib>
+			<lib link="false">PIDregulators_v1_9.pll</lib>
 		</libraries>
 		<aux/>
 	</sources>
