@@ -18,16 +18,6 @@ VAR_GLOBAL
 	$PagNumber : UINT;
 	$waitRefresh : BOOL;
 
-	{G:"TempSyncByCAN_vars"}
-	fbTempSyncByCAN : DrawTempSyncByCAN;
-	fbRefrTempSyncByCAN : RefrTempSyncByCAN;
-	fbTempSyncByCANEdit_7 : EditBox01 := (x1:=18, y1:=8, x2:=47, y2:=15, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, pVar:=16#00230C00, order:=1, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#0000000C, pCanSel:=1);
-	fbTempSyncByCANEdit_8 : EditBox01 := (wHnd:=1, x1:=18, y1:=24, x2:=47, y2:=31, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, pVar:=16#00230F00, order:=2, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#0000000C, pCanSel:=1);
-	fbTempSyncByCANEdit_9 : EditBox01 := (wHnd:=2, x1:=18, y1:=40, x2:=47, y2:=47, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, pVar:=16#00231200, order:=3, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#0000000C, pCanSel:=1);
-	fbTempSyncByCANEdit_10 : EditBox01 := (wHnd:=3, x1:=84, y1:=24, x2:=113, y2:=31, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, pVar:=16#002AD100, order:=4, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#0000000C, pCanSel:=1);
-	fbTempSyncByCANEdit_11 : EditBox01 := (wHnd:=4, x1:=84, y1:=8, x2:=113, y2:=15, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, pVar:=16#002AD000, order:=5, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#0000000C, pCanSel:=1);
-	fbTempSyncByCANEdit_12 : EditBox01 := (wHnd:=5, x1:=84, y1:=40, x2:=113, y2:=47, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, pVar:=16#002AD200, order:=6, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#0000000C, pCanSel:=1);
-
 	{G:"ModeSelection_vars"}
 	fbModeSelection : DrawModeSelection;
 	fbRefrModeSelection : RefrModeSelection;
@@ -36,6 +26,15 @@ VAR_GLOBAL
 	fbModeSelectionEdit_2 : EditBox01 := (wHnd:=8, y1:=24, x2:=127, y2:=39, pFont:=?EWP2_8x16, bckCol:=16777215, pVar:=16#00231300, order:=3, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, enumId:=2, format:=16#00000014, pCanSel:=1);
 	fbModeSelectionEdit_3 : EditBox01 := (wHnd:=9, x1:=60, y1:=48, x2:=125, y2:=55, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00400000, order:=4, pVisVar:=1, bckSelCol:=16777215, refr:=TRUE, type:=tyInt, enumId:=3, pVarMax:=2, format:=16#00014014, pCanSel:=1);
 	ModeSelection_tmpBOOL : BOOL;
+
+	{G:"DbgPage_vars"}
+	fbDbgPage : DrawDbgPage;
+	fbRefrDbgPage : RefrDbgPage;
+	fbDbgPageEdit_1 : EditBox01 := (wHnd:=10, x1:=6, y1:=8, x2:=35, y2:=15, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00400E00, order:=1, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, enumId:=4, pVarMax:=2, format:=16#0001400C, pCanSel:=1);
+	fbDbgPageEdit_2 : EditBox01 := (wHnd:=11, x1:=6, y1:=24, x2:=35, y2:=31, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00400F00, order:=2, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, pVarMin:=150, pVarMax:=300, format:=16#0001400C, pCanSel:=1);
+	fbDbgPageEdit_3 : EditBox01 := (wHnd:=12, x1:=6, y1:=40, x2:=35, y2:=47, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00401000, order:=3, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, pVarMin:=20, pVarMax:=200, format:=16#0001400C, pCanSel:=1);
+	fbDbgPageEdit_4 : EditBox01 := (wHnd:=13, x1:=48, y1:=8, x2:=77, y2:=15, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00401100, order:=4, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, pVarMin:=150, pVarMax:=300, format:=16#0001400C, pCanSel:=1);
+	fbDbgPageEdit_5 : EditBox01 := (wHnd:=14, x1:=48, y1:=24, x2:=77, y2:=31, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00287800, order:=5, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, pVarMax:=1000, format:=16#0001400C, pCanSel:=1);
 
 END_VAR
 
@@ -635,7 +634,7 @@ VAR_GLOBAL CONSTANT
 
 	(*** Enumeratives: ***)
 	kbEnumIdxBaseLanguage : UDINT := 0;
-	kbResEnums : ARRAY[ 0..132 ] OF BYTE :=
+	kbResEnums : ARRAY[ 0..170 ] OF BYTE :=
 	(*** Language: BaseLanguage ***)
 	(*** Enum ID ***) 16#01,
 	(* 0 *) 16#00, 16#00, 16#00, 16#00, 
@@ -660,6 +659,14 @@ VAR_GLOBAL CONSTANT
 	(* ON *) 16#4F, 16#4E, 16#00, 
 	(* 2 *) 16#02, 16#00, 16#00, 16#00, 
 	(* MAINTENANCE *) 16#4D, 16#41, 16#49, 16#4E, 16#54, 16#45, 16#4E, 16#41, 16#4E, 16#43, 16#45, 16#00, 
+	(* End of enum *) 16#CD, 16#CD, 16#CD, 16#CD, 16#CD, 16#CD, 16#CD, 16#CD, 
+	(*** Enum ID ***) 16#04,
+	(* 0 *) 16#00, 16#00, 16#00, 16#00, 
+	(* Inrow *) 16#49, 16#6E, 16#72, 16#6F, 16#77, 16#00, 
+	(* 1 *) 16#01, 16#00, 16#00, 16#00, 
+	(* HACS *) 16#48, 16#41, 16#43, 16#53, 16#00, 
+	(* 2 *) 16#02, 16#00, 16#00, 16#00, 
+	(* FIXED *) 16#46, 16#49, 16#58, 16#45, 16#44, 16#00, 
 	(* End of enum *) 16#CD, 16#CD, 16#CD, 16#CD, 16#CD, 16#CD, 16#CD, 16#CD, 
 	(* End of language *) 16#CD, 16#CD, 16#CD, 16#CD ;
 	{G:"Parameters"}
@@ -721,9 +728,9 @@ PROGRAM PageDraw
 	(* Declaring the system attributes of windows *)
 	res := Video_SetWndSysProps( ?EWP2_6x8, 16777215, 0 );
 
-	(* *** INITIALIZING THE OBJECTS OF PAGE 'TempSyncByCAN' *** *)
-
 	(* *** INITIALIZING THE OBJECTS OF PAGE 'ModeSelection' *** *)
+
+	(* *** INITIALIZING THE OBJECTS OF PAGE 'DbgPage' *** *)
 
 	(* Init the set elements *)
 	guiCallStack[ giStackPtr ] := 0;
@@ -803,7 +810,7 @@ FUNCTION_BLOCK DrawModeSelection
 	fbModeSelectionEdit_1 : EditBox01;
 	fbModeSelectionEdit_2 : EditBox01;
 	fbModeSelectionEdit_3 : EditBox01;
-	fbTempSyncByCAN : DrawTempSyncByCAN;
+	fbDbgPage : DrawDbgPage;
 	$waitRefresh : BOOL;
 	END_VAR
 
@@ -945,7 +952,7 @@ FUNCTION_BLOCK DrawModeSelection
 					12:	(* Key: Right - Action: OpenPage *)
 						res := Video_Lock( res );
 						giStackPtr := giStackPtr + 1;
-						fbTempSyncByCAN();
+						fbDbgPage();
 
 
 						(* Locking the video and decrementing stack page *)
@@ -1021,7 +1028,7 @@ FUNCTION_BLOCK DrawModeSelection
 
 	END_FUNCTION_BLOCK
 
-FUNCTION_BLOCK DrawTempSyncByCAN
+FUNCTION_BLOCK DrawDbgPage
 
 	VAR_OUTPUT
 	uiOutVar : UINT;
@@ -1030,12 +1037,11 @@ FUNCTION_BLOCK DrawTempSyncByCAN
 	VAR_EXTERNAL
 	guiCallStack : ARRAY[ 0..9 ] OF UINT;
 	giStackPtr : INT;
-	fbTempSyncByCANEdit_7 : EditBox01;
-	fbTempSyncByCANEdit_8 : EditBox01;
-	fbTempSyncByCANEdit_9 : EditBox01;
-	fbTempSyncByCANEdit_10 : EditBox01;
-	fbTempSyncByCANEdit_11 : EditBox01;
-	fbTempSyncByCANEdit_12 : EditBox01;
+	fbDbgPageEdit_1 : EditBox01;
+	fbDbgPageEdit_2 : EditBox01;
+	fbDbgPageEdit_3 : EditBox01;
+	fbDbgPageEdit_4 : EditBox01;
+	fbDbgPageEdit_5 : EditBox01;
 	$waitRefresh : BOOL;
 	END_VAR
 
@@ -1068,7 +1074,7 @@ FUNCTION_BLOCK DrawTempSyncByCAN
 	{CODE:ST}
 
 	(* Writing this page's ID to the top of the callstack *)
-	guiCallStack[ giStackPtr ] := 16#01;
+	guiCallStack[ giStackPtr ] := 16#02;
 
 	(* Flag of waiting for refresh task *)
 	$waitRefresh := TRUE;
@@ -1110,31 +1116,28 @@ FUNCTION_BLOCK DrawTempSyncByCAN
 		IF bMapsReset THEN
 
 			(* Resetting all maps *)
-			res := Video_ResetMaps( 16#02 );
+			res := Video_ResetMaps( 16#03 );
 
 			(* *** DRAW PAGE CONTROLS *** *)
 
 			(* *** PAGE SECTION *** *)
 
 			(* *** DRAW CONTROLS *** *)
-			fbTempSyncByCANEdit_7.accMode := kACS_INIT;
-			fbTempSyncByCANEdit_7();
-			fbTempSyncByCANEdit_7.accMode := kACS_PRINT;
-			fbTempSyncByCANEdit_8.accMode := kACS_INIT;
-			fbTempSyncByCANEdit_8();
-			fbTempSyncByCANEdit_8.accMode := kACS_PRINT;
-			fbTempSyncByCANEdit_9.accMode := kACS_INIT;
-			fbTempSyncByCANEdit_9();
-			fbTempSyncByCANEdit_9.accMode := kACS_PRINT;
-			fbTempSyncByCANEdit_10.accMode := kACS_INIT;
-			fbTempSyncByCANEdit_10();
-			fbTempSyncByCANEdit_10.accMode := kACS_PRINT;
-			fbTempSyncByCANEdit_11.accMode := kACS_INIT;
-			fbTempSyncByCANEdit_11();
-			fbTempSyncByCANEdit_11.accMode := kACS_PRINT;
-			fbTempSyncByCANEdit_12.accMode := kACS_INIT;
-			fbTempSyncByCANEdit_12();
-			fbTempSyncByCANEdit_12.accMode := kACS_PRINT;
+			fbDbgPageEdit_1.accMode := kACS_INIT;
+			fbDbgPageEdit_1();
+			fbDbgPageEdit_1.accMode := kACS_PRINT;
+			fbDbgPageEdit_2.accMode := kACS_INIT;
+			fbDbgPageEdit_2();
+			fbDbgPageEdit_2.accMode := kACS_PRINT;
+			fbDbgPageEdit_3.accMode := kACS_INIT;
+			fbDbgPageEdit_3();
+			fbDbgPageEdit_3.accMode := kACS_PRINT;
+			fbDbgPageEdit_4.accMode := kACS_INIT;
+			fbDbgPageEdit_4();
+			fbDbgPageEdit_4.accMode := kACS_PRINT;
+			fbDbgPageEdit_5.accMode := kACS_INIT;
+			fbDbgPageEdit_5();
+			fbDbgPageEdit_5.accMode := kACS_PRINT;
 
 			(* Select the first selectable control *)
 			iNextSel := Video_FirstLastEdit( TRUE, FALSE );
@@ -1181,7 +1184,7 @@ FUNCTION_BLOCK DrawTempSyncByCAN
 
 						CASE iNextSel OF
 
-							0,1,2,3,4,5:
+							10,11,12,13,14:
 								(* Entering the edit mode *)
 								res := Video_EnterEdit( TO_UINT( iNextSel ) );
 
@@ -1252,7 +1255,7 @@ FUNCTION_BLOCK RefrModeSelection
 	fbModeSelectionEdit_1 : EditBox01;
 	fbModeSelectionEdit_2 : EditBox01;
 	fbModeSelectionEdit_3 : EditBox01;
-	fbRefrTempSyncByCAN : RefrTempSyncByCAN;
+	fbRefrDbgPage : RefrDbgPage;
 	$waitRefresh : BOOL;
 	END_VAR
 
@@ -1310,8 +1313,8 @@ FUNCTION_BLOCK RefrModeSelection
 		(* *** MANAGING CHILD WINDOWS AND ALARM MESSAGES *** *)
 		IF pagID <> 16#00 THEN
 			CASE pagID OF
-				16#01:
-					fbRefrTempSyncByCAN();
+				16#02:
+					fbRefrDbgPage();
 
 			END_CASE;
 
@@ -1326,17 +1329,16 @@ FUNCTION_BLOCK RefrModeSelection
 
 END_FUNCTION_BLOCK
 
-FUNCTION_BLOCK RefrTempSyncByCAN
+FUNCTION_BLOCK RefrDbgPage
 
 	VAR_EXTERNAL
 	guiCallStack : ARRAY[ 0..9 ] OF UINT;
 	giStackPtr : INT;
-	fbTempSyncByCANEdit_7 : EditBox01;
-	fbTempSyncByCANEdit_8 : EditBox01;
-	fbTempSyncByCANEdit_9 : EditBox01;
-	fbTempSyncByCANEdit_10 : EditBox01;
-	fbTempSyncByCANEdit_11 : EditBox01;
-	fbTempSyncByCANEdit_12 : EditBox01;
+	fbDbgPageEdit_1 : EditBox01;
+	fbDbgPageEdit_2 : EditBox01;
+	fbDbgPageEdit_3 : EditBox01;
+	fbDbgPageEdit_4 : EditBox01;
+	fbDbgPageEdit_5 : EditBox01;
 	$waitRefresh : BOOL;
 	END_VAR
 
@@ -1362,18 +1364,27 @@ FUNCTION_BLOCK RefrTempSyncByCAN
 		(* Testing if page has changed *)
 		pagID := guiCallStack[ giStackPtr ];
 
-		IF pagID = 16#01 THEN
+		IF pagID = 16#02 THEN
 
 			(* the refresh task is arrived *)
 			$waitRefresh := FALSE;
 
 			(* *** REFRESH PAGE CONTROLS *** *)
-			fbTempSyncByCANEdit_7();
-			fbTempSyncByCANEdit_8();
-			fbTempSyncByCANEdit_9();
-			fbTempSyncByCANEdit_10();
-			fbTempSyncByCANEdit_11();
-			fbTempSyncByCANEdit_12();
+			IF fbDbgPageEdit_1.accMode <> kACS_MODIFY THEN
+				fbDbgPageEdit_1();
+			END_IF;
+			IF fbDbgPageEdit_2.accMode <> kACS_MODIFY THEN
+				fbDbgPageEdit_2();
+			END_IF;
+			IF fbDbgPageEdit_3.accMode <> kACS_MODIFY THEN
+				fbDbgPageEdit_3();
+			END_IF;
+			IF fbDbgPageEdit_4.accMode <> kACS_MODIFY THEN
+				fbDbgPageEdit_4();
+			END_IF;
+			IF fbDbgPageEdit_5.accMode <> kACS_MODIFY THEN
+				fbDbgPageEdit_5();
+			END_IF;
 
 			(* *** REFRESHING BACKGROUND ITEMS *** *)
 			(* Cursor across the call stack *)
@@ -1390,7 +1401,7 @@ FUNCTION_BLOCK RefrTempSyncByCAN
 		(* Suspending the task *)
 		res := Video_Sleep( 50 );
 
-	UNTIL pagID <> 16#01
+	UNTIL pagID <> 16#02
 	END_REPEAT;
 
 END_FUNCTION_BLOCK
