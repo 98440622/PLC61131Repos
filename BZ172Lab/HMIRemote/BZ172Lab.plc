@@ -35,6 +35,8 @@ VAR_GLOBAL
 	fbDbgPageEdit_3 : EditBox01 := (wHnd:=12, x1:=6, y1:=40, x2:=35, y2:=47, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00401000, order:=3, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, pVarMin:=20, pVarMax:=200, format:=16#0001400C, pCanSel:=1);
 	fbDbgPageEdit_4 : EditBox01 := (wHnd:=13, x1:=48, y1:=8, x2:=77, y2:=15, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00401100, order:=4, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, pVarMin:=150, pVarMax:=300, format:=16#0001400C, pCanSel:=1);
 	fbDbgPageEdit_5 : EditBox01 := (wHnd:=14, x1:=48, y1:=24, x2:=77, y2:=31, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00287800, order:=5, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, pVarMax:=1000, format:=16#0001400C, pCanSel:=1);
+	fbDbgPageEdit_6 : EditBox01 := (wHnd:=15, x1:=90, y1:=8, x2:=119, y2:=15, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00287B00, order:=6, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, pVarMax:=1000, format:=16#0001400C, pCanSel:=1);
+	fbDbgPageEdit_7 : EditBox01 := (wHnd:=16, x1:=90, y1:=24, x2:=119, y2:=31, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00287C00, order:=7, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, pVarMax:=1000, format:=16#0001400C, pCanSel:=1);
 
 END_VAR
 
@@ -1042,6 +1044,8 @@ FUNCTION_BLOCK DrawDbgPage
 	fbDbgPageEdit_3 : EditBox01;
 	fbDbgPageEdit_4 : EditBox01;
 	fbDbgPageEdit_5 : EditBox01;
+	fbDbgPageEdit_6 : EditBox01;
+	fbDbgPageEdit_7 : EditBox01;
 	$waitRefresh : BOOL;
 	END_VAR
 
@@ -1138,6 +1142,12 @@ FUNCTION_BLOCK DrawDbgPage
 			fbDbgPageEdit_5.accMode := kACS_INIT;
 			fbDbgPageEdit_5();
 			fbDbgPageEdit_5.accMode := kACS_PRINT;
+			fbDbgPageEdit_6.accMode := kACS_INIT;
+			fbDbgPageEdit_6();
+			fbDbgPageEdit_6.accMode := kACS_PRINT;
+			fbDbgPageEdit_7.accMode := kACS_INIT;
+			fbDbgPageEdit_7();
+			fbDbgPageEdit_7.accMode := kACS_PRINT;
 
 			(* Select the first selectable control *)
 			iNextSel := Video_FirstLastEdit( TRUE, FALSE );
@@ -1184,7 +1194,7 @@ FUNCTION_BLOCK DrawDbgPage
 
 						CASE iNextSel OF
 
-							10,11,12,13,14:
+							10,11,12,13,14,15,16:
 								(* Entering the edit mode *)
 								res := Video_EnterEdit( TO_UINT( iNextSel ) );
 
@@ -1339,6 +1349,8 @@ FUNCTION_BLOCK RefrDbgPage
 	fbDbgPageEdit_3 : EditBox01;
 	fbDbgPageEdit_4 : EditBox01;
 	fbDbgPageEdit_5 : EditBox01;
+	fbDbgPageEdit_6 : EditBox01;
+	fbDbgPageEdit_7 : EditBox01;
 	$waitRefresh : BOOL;
 	END_VAR
 
@@ -1384,6 +1396,12 @@ FUNCTION_BLOCK RefrDbgPage
 			END_IF;
 			IF fbDbgPageEdit_5.accMode <> kACS_MODIFY THEN
 				fbDbgPageEdit_5();
+			END_IF;
+			IF fbDbgPageEdit_6.accMode <> kACS_MODIFY THEN
+				fbDbgPageEdit_6();
+			END_IF;
+			IF fbDbgPageEdit_7.accMode <> kACS_MODIFY THEN
+				fbDbgPageEdit_7();
 			END_IF;
 
 			(* *** REFRESHING BACKGROUND ITEMS *** *)

@@ -26,9 +26,12 @@
 					<var name="DACs" type="BZDAQChannel" dim0="6"/>
 					<var name="ACTs" type="BZAnalogActuator" dim0="6"/>
 					<var name="EvapFans" type="BZECFanEBM" dim0="6"/>
+					<var name="Exv" type="BZEEV"/>
+					<var name="Compressor" type="BZVariableSpeedCompressor"/>
 					<var name="ACUnit" type="bzAisleACUnit"/>
 					<var name="TachoMeter" type="BZCarelUXPB000100111"/>
 					<var name="OutdoorUnit" type="BZCSCB1"/>
+					<var name="EEVDriver" type="BZEliwellEVD"/>
 				</group>
 			</globalVars>
 			<retainVars>
@@ -691,18 +694,16 @@ IBZDAQChannel_new := TRUE;
 ]]>
 					</sourceCode>
 				</function>
-				<function name="IBZAnalogActuator_new" version="1.0.0" creationDate="1612504245" lastModifiedDate="1612834522">
+				<function name="IBZAnalogActuator_new" version="1.0.0" creationDate="1612504245" lastModifiedDate="1613005492">
 					<returnValue>BOOL</returnValue>
 					<vars>
 						<inputVars>
 							<var name="me" type="@BZAnalogActuator"/>
-							<var name="dac" type="@BZDAQChannel"/>
 						</inputVars>
 					</vars>
 					<iecDeclaration active="FALSE"/>
 					<sourceCode type="ST">
 						<![CDATA[
-@me.m_DAC		:= dac;
 @me.m_Range.Max	:= 100.0;
 @me.m_Range.Min	:= 0.0;
 @me.m_Runhours	:= 0;
@@ -713,19 +714,24 @@ IBZAnalogActuator_new := TRUE;
 ]]>
 					</sourceCode>
 				</function>
-				<function name="IBZECFanEBM_new" version="1.0.0" creationDate="1612506311" lastModifiedDate="1612509313">
+				<function name="IBZECFanEBM_new" version="1.0.0" creationDate="1612506311" lastModifiedDate="1613025970">
 					<returnValue>BOOL</returnValue>
 					<vars>
 						<inputVars>
 							<var name="me" type="@BZECFanEBM"/>
-							<var name="act" type="@BZAnalogActuator"/>
+							<var name="daq" type="@BZDAQChannel"/>
 						</inputVars>
+						<localVars>
+							<var name="res" type="BOOL"/>
+						</localVars>
 					</vars>
 					<iecDeclaration active="FALSE"/>
 					<sourceCode type="ST">
 						<![CDATA[
 // properties
-@me.m_actuator := act;
+@me.m_daq_chnl := daq;
+
+res := IBZAnalogActuator_new(?(@me.m_parent));
 
 // 'this' for members
 @me.run.me := me;
@@ -1174,6 +1180,82 @@ IBZFault_AirfilterRunhourAlarm_new := TRUE;
 ]]>
 					</sourceCode>
 				</function>
+				<function name="IBZEEV_new" version="1.0.0" creationDate="1613025902" lastModifiedDate="1613030181">
+					<returnValue>BOOL</returnValue>
+					<vars>
+						<inputVars>
+							<var name="me" type="@BZEEV"/>
+							<var name="max_steps" type="UINT"/>
+						</inputVars>
+						<localVars>
+							<var name="res" type="BOOL"/>
+						</localVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<sourceCode type="ST">
+						<![CDATA[
+@me.MAXSteps := max_steps;
+
+res := IBZAnalogActuator_new(?(@me.m_parent));
+
+@me.run.me := me;
+
+IBZEEV_new := TRUE;
+
+]]>
+					</sourceCode>
+				</function>
+				<function name="IBZEliwellEVD_new" version="1.0.0" creationDate="1613029868" lastModifiedDate="1613032519">
+					<returnValue>BOOL</returnValue>
+					<vars>
+						<inputVars>
+							<var name="me" type="@BZEliwellEVD"/>
+							<var name="id" type="USINT"/>
+							<var name="eev" type="@BZEEV"/>
+						</inputVars>
+						<localVars>
+							<var name="res" type="BOOL"/>
+						</localVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<sourceCode type="ST">
+						<![CDATA[
+res := IBZMBDevice_new(?(@me.parent), id, 'BZEliwellEVD');
+
+// register map
+
+@me.m_eev := eev;
+
+IBZEliwellEVD_new := TRUE;
+
+]]>
+					</sourceCode>
+				</function>
+				<function name="IBZVariableSpeedCompressor_new" version="1.0.0" creationDate="1613032945" lastModifiedDate="1613053871">
+					<returnValue>BOOL</returnValue>
+					<vars>
+						<inputVars>
+							<var name="me" type="@BZVariableSpeedCompressor"/>
+							<var name="max_spd_hz" type="UINT"/>
+						</inputVars>
+						<localVars>
+							<var name="res" type="BOOL"/>
+						</localVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<sourceCode type="ST">
+						<![CDATA[
+@me.MAXSpeedHz := max_spd_hz;
+
+res := IBZAnalogActuator_new(?(@me.m_parent));
+
+@me.run.me := me;
+
+
+IBZVariableSpeedCompressor_new := TRUE;
+]]>
+					</sourceCode>
+				</function>
 			</functions>
 			<functionBlocks>
 				<functionBlock name="bzAisleACUnit_groupTemperatures" version="1.0.0" creationDate="1611891178" lastModifiedDate="1612017544">
@@ -1230,7 +1312,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="bzAisleACUnit_run" version="1.0.0" creationDate="1611906522" lastModifiedDate="1612947947">
+				<functionBlock name="bzAisleACUnit_run" version="1.0.0" creationDate="1611906522" lastModifiedDate="1613053913">
 					<vars>
 						<inputVars>
 							<var name="me" type="@bzAisleACUnit"/>
@@ -1251,6 +1333,8 @@ end_if;
 							<var name="PIDAlarm" type="UINT"/>
 							<var name="PIDAlert" type="UINT"/>
 							<var name="EvapFanPidCtrl" type="PID_Timed"/>
+							<var name="ptrEXV" type="@BZEEV"/>
+							<var name="ptrCOMP" type="@BZVariableSpeedCompressor"/>
 						</localVars>
 						<localConsts>
 							<const name="NUMBER_OF_EVAP_FANS" type="INT">
@@ -1354,6 +1438,12 @@ elsif (@me.m_unit_status = BZ_MAINTENANCE) then
 		
 		ptrINTtmp := @me.CondPumpManOutPtr;
 		@ptrINTtmp := 0;
+		
+		ptrINTtmp := @me.EEVManOutPtr;
+		@ptrINTtmp := 0;
+		
+		ptrINTtmp := @me.CompressorManOutPtr;
+		@ptrINTtmp := 0;
 	elsif (@me.m_unit_maintenance_timeout_counter_u16 = 0) then
 		@me.m_unit_status := BZ_OFF;
 		
@@ -1364,6 +1454,12 @@ elsif (@me.m_unit_status = BZ_MAINTENANCE) then
 		@ptrINTtmp := 0;
 		
 		ptrINTtmp := @me.CondPumpManOutPtr;
+		@ptrINTtmp := 0;
+		
+		ptrINTtmp := @me.EEVManOutPtr;
+		@ptrINTtmp := 0;
+		
+		ptrINTtmp := @me.CompressorManOutPtr;
 		@ptrINTtmp := 0;
 		
 		res := sysWriteParINT(@me.m_configurations.unit_mode_cmd_adr, 0);
@@ -1500,18 +1596,85 @@ end_if;
 
 for i := 0 to NUMBER_OF_EVAP_FANS - 1 do
 	ptrEvapFan := @me.EvapFans[i];
-	ptrEvapFanAct := @ptrEvapFan.m_actuator;
-	@ptrEvapFanAct.m_Output := evap_fan_cmd;
+	@ptrEvapFan.m_parent.m_Command := evap_fan_cmd;
 end_for;
 
 //
 // EEV
 //
+ptrEXV := @me.EXV;
+if (@me.m_unit_status = BZ_ON) then
+	/*	
+	EvapFanPidCtrl.Tsample := 1; // DON'T CHANGE IT!
+	EvapFanPidCtrl.lowdeadzone := 0;
+	EvapFanPidCtrl.updeadzone := 0;
+	EvapFanPidCtrl.reverse := FALSE;
+	EvapFanPidCtrl.ARW := 1;
+	EvapFanPidCtrl.Bumpless := TRUE;
+	EvapFanPidCtrl.MaxSpeed := 0;
+	EvapFanPidCtrl.reset := FALSE;
+	
+	EvapFanPidCtrl.measure	 	:= TO_INT(@me.groupRackAirSensors.High * 10.0);
+	EvapFanPidCtrl.setpoint		:= @me.m_configurations.m_bzCoolSetpointCfg;
+	EvapFanPidCtrl.AutoManual 	:= TRUE;
+	EvapFanPidCtrl.Pb 			:= TO_UINT(50.0);
+	EvapFanPidCtrl.Ti 			:= TO_UINT(50.0);
+	EvapFanPidCtrl.Td 			:= TO_UINT(0.0);
+	
+	if (@me.m_evap_fan_PID_timer_counter_u16 = 0) then
+		
+		EvapFanPidCtrl();
+		evap_fan_cmd := TO_REAL(EvapFanPidCtrl.outH) / 10.0;
+		
+		@me.m_evap_fan_PID_timer_counter_u16 := 1;
+	else;
+	end_if;
+	*/
+elsif (@me.m_unit_status = BZ_MAINTENANCE) then
+	ptrINTtmp := @me.EEVManOutPtr;
+	@ptrEXV.m_parent.m_Command := TO_REAL(@ptrINTtmp) / 10.0;
+else
+	@ptrEXV.m_parent.m_Command := 0.0;
+end_if;
+
 
 //
 // Compressor
 //
-
+ptrCOMP := @me.Compressor;
+if (@me.m_unit_status = BZ_ON) then
+	/*	
+	EvapFanPidCtrl.Tsample := 1; // DON'T CHANGE IT!
+	EvapFanPidCtrl.lowdeadzone := 0;
+	EvapFanPidCtrl.updeadzone := 0;
+	EvapFanPidCtrl.reverse := FALSE;
+	EvapFanPidCtrl.ARW := 1;
+	EvapFanPidCtrl.Bumpless := TRUE;
+	EvapFanPidCtrl.MaxSpeed := 0;
+	EvapFanPidCtrl.reset := FALSE;
+	
+	EvapFanPidCtrl.measure	 	:= TO_INT(@me.groupRackAirSensors.High * 10.0);
+	EvapFanPidCtrl.setpoint		:= @me.m_configurations.m_bzCoolSetpointCfg;
+	EvapFanPidCtrl.AutoManual 	:= TRUE;
+	EvapFanPidCtrl.Pb 			:= TO_UINT(50.0);
+	EvapFanPidCtrl.Ti 			:= TO_UINT(50.0);
+	EvapFanPidCtrl.Td 			:= TO_UINT(0.0);
+	
+	if (@me.m_evap_fan_PID_timer_counter_u16 = 0) then
+		
+		EvapFanPidCtrl();
+		evap_fan_cmd := TO_REAL(EvapFanPidCtrl.outH) / 10.0;
+		
+		@me.m_evap_fan_PID_timer_counter_u16 := 1;
+	else;
+	end_if;
+	*/
+elsif (@me.m_unit_status = BZ_MAINTENANCE) then
+	ptrINTtmp := @me.CompressorManOutPtr;
+	@ptrCOMP.m_parent.m_Command := TO_REAL(@ptrINTtmp) / 10.0;
+else
+	@ptrCOMP.m_parent.m_Command := 0.0;
+end_if;
 
 //
 // Condenser fan
@@ -1573,12 +1736,25 @@ ptrRelayTmp	:= @me.SolenoidValveRelay;
 @ptrRelayTmp.run();
 
 //
-// update fan output
+// update evaporator fans
 //
 for i := 0 to NUMBER_OF_EVAP_FANS - 1 do
 	ptrEvapFan := @me.EvapFans[i];
 	@ptrEvapFan.run();
 end_for;
+
+
+//
+// eev
+//
+ptrExv := @me.EXV;
+@ptrExv.run();
+
+//
+// compressor
+//
+ptrCOMP := @me.Compressor;
+@ptrCOMP.run();
 ]]>
 					</sourceCode>
 				</functionBlock>
@@ -1684,7 +1860,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="bzAisleACUnit_poll" version="1.0.0" creationDate="1612339446" lastModifiedDate="1612339958">
+				<functionBlock name="bzAisleACUnit_poll" version="1.0.0" creationDate="1612339446" lastModifiedDate="1613031685">
 					<vars>
 						<inputVars>
 							<var name="me" type="@bzAisleACUnit"/>
@@ -1693,6 +1869,7 @@ end_if;
 							<var name="ptrFanTachoModule" type="@BZCarelUXPB000100111"/>
 							<var name="ptrOutdoorModule" type="@BZCSCB1"/>
 							<var name="reg_vals" type="INT" dim0="100"/>
+							<var name="ptrEEVDriverModule" type="@BZEliwellEVD"/>
 						</localVars>
 					</vars>
 					<iecDeclaration active="FALSE"/>
@@ -1714,6 +1891,9 @@ ptrOutdoorModule := @me.OutdoorModbule;
 @ptrOutdoorModule.parent.read.regs := reg_vals;
 @ptrOutdoorModule.parent.read();
 
+ptrEEVDriverModule := @me.EVDController;
+// TODO : read the specified registers
+//@ptrEEVDriverModule.parent.read();
 ]]>
 					</sourceCode>
 				</functionBlock>
@@ -1804,7 +1984,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="BZECFanEBM_run" version="1.0.0" creationDate="1612508970" lastModifiedDate="1612512049">
+				<functionBlock name="BZECFanEBM_run" version="1.0.0" creationDate="1612508970" lastModifiedDate="1613025352">
 					<vars>
 						<inputVars>
 							<var name="me" type="@BZECFanEBM"/>
@@ -1820,11 +2000,26 @@ end_if;
 					<methods/>
 					<sourceCode type="ST">
 						<![CDATA[
-ptrAct := @me.m_actuator;
-ptrDAC := @ptrAct.m_DAC;
-ptrHW := @ptrDAC.m_ptrHWValue;
 
-@ptrHW := TO_INT(@ptrAct.m_Output * 10.0);
+
+if (@me.m_parent.m_Status = ACT_OFF) then
+	if (@me.m_parent.m_Command > 0) then
+		@me.m_parent.m_Status := ACT_RUNNING;
+	else;
+	end_if;
+elsif (@me.m_parent.m_Status = ACT_RUNNING) then
+	if (@me.m_parent.m_Command = 0) then
+		@me.m_parent.m_Status := ACT_OFF;
+	else;
+	end_if;
+else;
+end_if;
+
+@me.m_parent.m_Output := @me.m_parent.m_Command;
+
+ptrDAC := @me.m_daq_chnl;
+ptrHW := @ptrDAC.m_ptrHWValue;
+@ptrHW := TO_INT(@me.m_parent.m_Output * 10.0);
 ]]>
 					</sourceCode>
 				</functionBlock>
@@ -2519,9 +2714,68 @@ end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
+				<functionBlock name="BZEEV_run" version="1.0.0" creationDate="1613026043" lastModifiedDate="1613033399">
+					<vars>
+						<inputVars>
+							<var name="me" type="@BZEEV"/>
+						</inputVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<interfaces/>
+					<methods/>
+					<sourceCode type="ST">
+						<![CDATA[
+if (@me.m_parent.m_Status = ACT_OFF) then
+	if (@me.m_parent.m_Command > 0) then
+		@me.m_parent.m_Status := ACT_RUNNING;
+	else;
+	end_if;
+elsif (@me.m_parent.m_Status = ACT_RUNNING) then
+	if (@me.m_parent.m_Command = 0) then
+		@me.m_parent.m_Status := ACT_OFF;
+	else;
+	end_if;
+else;
+end_if;
+
+// TODO : Steps should updated by MBDevice and Command is the input to EVD controller
+@me.Steps := TO_UINT(TO_REAL(@me.MAXSteps) * @me.m_parent.m_Command / 100.0); // THIS IS FOR SIMULATION ONLY
+]]>
+					</sourceCode>
+				</functionBlock>
+				<functionBlock name="BZVariableSpeedCompressor_run" version="1.0.0" creationDate="1613033015" lastModifiedDate="1613033360">
+					<vars>
+						<inputVars>
+							<var name="me" type="@BZVariableSpeedCompressor"/>
+						</inputVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<interfaces/>
+					<methods/>
+					<sourceCode type="ST">
+						<![CDATA[
+if (@me.m_parent.m_Status = ACT_OFF) then
+	if (@me.m_parent.m_Command > 0) then
+		@me.m_parent.m_Status := ACT_RUNNING;
+	else;
+	end_if;
+elsif (@me.m_parent.m_Status = ACT_RUNNING) then
+	if (@me.m_parent.m_Command = 0) then
+		@me.m_parent.m_Status := ACT_OFF;
+	else;
+	end_if;
+else;
+end_if;
+
+// TODO : Steps should updated by MBDevice and Command is the input to EVD controller
+@me.Frequence := TO_UINT(TO_REAL(@me.MAXSpeedHz) * @me.m_parent.m_Command / 100.0); // THIS IS FOR SIMULATION ONLY
+
+]]>
+					</sourceCode>
+				</functionBlock>
 			</functionBlocks>
 			<programs>
-				<program name="main" version="1.0.0" creationDate="0" lastModifiedDate="1612934975">
+				<program name="main" version="1.0.0" creationDate="0" lastModifiedDate="1613054030">
 					<vars>
 						<localVars>
 							<var name="i" type="INT"/>
@@ -2590,6 +2844,8 @@ ACUnit.m_configurations.m_bzSupplyAirSetpointCfg					:= bzSupplyAirSetpointCfg;
 ACUnit.EvapFanManOutPtr					:= ?bzManualFanSpeed;
 ACUnit.CondPumpManOutPtr				:= ?bzManualCondensatePump;
 ACUnit.SolenoidValveManOutPtr			:= ?bzManualSolenoidValve;
+ACUnit.EEVManOutPtr						:= ?bzManualEEV;
+ACUnit.CompressorManOutPtr				:= ?bzManualCompressor;
 
 /******************************************************************************************************
 
@@ -2748,7 +3004,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</program>
-				<program name="init" version="1.0.0" creationDate="1611809132" lastModifiedDate="1612833865">
+				<program name="init" version="1.0.0" creationDate="1611809132" lastModifiedDate="1613033914">
 					<vars>
 						<localVars>
 							<var name="res" type="BOOL"/>
@@ -2822,7 +3078,7 @@ ptrHWAIs[4] := ?HW_AI_05;
 ptrHWAIs[5] := ?HW_AI_06;
 ptrHWAIs[6] := ?HW_AI_07;
 
-// AOs
+// DAQ - AOs
 res := IBZDAQChannel_new(?DACs[0], ?HW_AO_01, BZ_DAC_VOL);
 res := IBZDAQChannel_new(?DACs[1], ?HW_AO_02, BZ_DAC_VOL);
 res := IBZDAQChannel_new(?DACs[2], ?HW_AO_03, BZ_DAC_CUR);
@@ -2834,14 +3090,6 @@ res := IBZDAQChannel_new(?DACs[5], ?HW_AO_06, BZ_DAC_VOL);
 //
 // create hardware components
 //
-
-// Actuators
-res := IBZAnalogActuator_new(?ACTs[0], ?DACs[0]);
-res := IBZAnalogActuator_new(?ACTs[1], ?DACs[1]);
-res := IBZAnalogActuator_new(?ACTs[2], ?DACs[2]);
-res := IBZAnalogActuator_new(?ACTs[3], ?DACs[3]);
-res := IBZAnalogActuator_new(?ACTs[4], ?DACs[4]);
-res := IBZAnalogActuator_new(?ACTs[5], ?DACs[5]);
 
 // NTC probes
 for i := 0 to NUMBER_OF_TEMPERATURE_SENSORS - 1 do
@@ -2869,19 +3117,28 @@ res := IBZRelay_new(?Relays[4], ?HW_DO_05, BZRelay_CLOSE);
 res := IBZRelay_new(?Relays[5], ?HW_DO_06, BZRelay_CLOSE);
 
 // Evaporator Fans
-res := IBZECFanEBM_new(?EvapFans[0], ?ACTs[0]);
-res := IBZECFanEBM_new(?EvapFans[1], ?ACTs[0]);
-res := IBZECFanEBM_new(?EvapFans[2], ?ACTs[0]);
-res := IBZECFanEBM_new(?EvapFans[3], ?ACTs[1]);
-res := IBZECFanEBM_new(?EvapFans[4], ?ACTs[1]);
-res := IBZECFanEBM_new(?EvapFans[5], ?ACTs[1]);
- 
+res := IBZECFanEBM_new(?EvapFans[0], ?DACs[0]);
+res := IBZECFanEBM_new(?EvapFans[1], ?DACs[0]);
+res := IBZECFanEBM_new(?EvapFans[2], ?DACs[0]);
+res := IBZECFanEBM_new(?EvapFans[3], ?DACs[1]);
+res := IBZECFanEBM_new(?EvapFans[4], ?DACs[1]);
+res := IBZECFanEBM_new(?EvapFans[5], ?DACs[1]);
 
-// Tacho meter
-res := IBZCarelUXPB000100111_new(?TachoMeter, 3);
+// EEV
+res := IBZEEV_new(?Exv, 4800);
+
+// Compressor
+res := IBZVariableSpeedCompressor_new(?Compressor, 100);
+ 
 
 // Outdoor unit
 res := IBZCSCB1_new(?OutdoorUnit, 7);	//TODO : CSCB address should be 1
+
+// EVD controller
+res := IBZEliwellEVD_new(?EEVDriver, 2, ?Exv);
+
+// Tacho meter
+res := IBZCarelUXPB000100111_new(?TachoMeter, 3);
 
 
 /**
@@ -2931,10 +3188,16 @@ for i := 0 to NUMBER_OF_EVAP_FANS - 1 do
 	ACUnit.EvapFans[i] := ?EvapFans[i];
 end_for;
 
-// Expansion boards
-ACUnit.FanTachoModule := ?TachoMeter;
+// EEV
+ACUnit.EXV := ?Exv;
 
-ACUnit.OutdoorModbule := ?OutdoorUnit;
+// Compressor
+ACUnit.Compressor := ?Compressor;
+
+// Expansion boards
+ACUnit.FanTachoModule 	:= ?TachoMeter;
+ACUnit.OutdoorModbule 	:= ?OutdoorUnit;
+ACUnit.EVDController	:= ?EEVDriver;
  
 ]]>
 					</sourceCode>
@@ -3176,6 +3439,9 @@ of the actual position.</descr>
 						<var name="EvapFans" type="@BZECFanEBM" dim0="6">
 							<descr>6 EC fans from EBM to provide airflow through evaporator coil</descr>
 						</var>
+						<var name="EXV" type="@BZEEV">
+							<descr>EEV for evaporator coil</descr>
+						</var>
 						<var name="EvapFanManOutPtr" type="@INT">
 							<descr>Link to bzManualFanSpeed</descr>
 						</var>
@@ -3185,11 +3451,23 @@ of the actual position.</descr>
 						<var name="SolenoidValveManOutPtr" type="@INT">
 							<descr>Link to bzManualSolenoidValve</descr>
 						</var>
+						<var name="EEVManOutPtr" type="@INT">
+							<descr>Link bzManualEEV</descr>
+						</var>
+						<var name="CompressorManOutPtr" type="@INT">
+							<descr>Link bzManualCompressor</descr>
+						</var>
 						<var name="FanTachoModule" type="@BZCarelUXPB000100111">
 							<descr>Fan speed feedback measurement module by modbus RTU</descr>
 						</var>
 						<var name="OutdoorModbule" type="@BZCSCB1">
 							<descr>Outdoor control module by modbus RTU</descr>
+						</var>
+						<var name="EVDController" type="@BZEliwellEVD">
+							<descr>EVD controller to drive EEV</descr>
+						</var>
+						<var name="Compressor" type="@BZVariableSpeedCompressor">
+							<descr>The engine of a DX type cooler</descr>
 						</var>
 						<var name="m_configurations" type="bzAisleACUnitCfg">
 							<descr>Unit configurable variables</descr>
@@ -3334,11 +3612,11 @@ of the actual position.</descr>
 					<title>BZActuator</title>
 					<descr>An actuator is regarded as an analog type of output that has a configurable output range.</descr>
 					<vars>
-						<var name="m_DAC" type="@BZDAQChannel"/>
 						<var name="m_Output" type="REAL"/>
 						<var name="m_Range" type="BZRealRange"/>
 						<var name="m_Runhours" type="UINT"/>
 						<var name="m_Status" type="BZActuatorStatus"/>
+						<var name="m_Command" type="REAL"/>
 					</vars>
 				</struct>
 				<struct name="BZDAQChannel" version="1.0.0">
@@ -3357,13 +3635,14 @@ of the actual position.</descr>
 					<title>EBM EC fan</title>
 					<descr>EBM EC fan controlled by 10vdc with pulse feedback for tacho.</descr>
 					<vars>
-						<var name="m_actuator" type="@BZAnalogActuator"/>
+						<var name="m_parent" type="BZAnalogActuator"/>
 						<var name="Tacho" type="UINT">
 							<descr>RPM</descr>
 						</var>
 						<var name="run" type="BZECFanEBM_run">
 							<descr>'run' member function</descr>
 						</var>
+						<var name="m_daq_chnl" type="@BZDAQChannel"/>
 					</vars>
 				</struct>
 				<struct name="BZFault" version="1.0.0">
@@ -3444,6 +3723,44 @@ of the actual position.</descr>
 						<var name="m_bzCoolSetpointCfg" type="INT"/>
 						<var name="m_bzDeltaTSetpointCfg" type="INT"/>
 						<var name="m_bzSupplyAirSetpointCfg" type="INT"/>
+					</vars>
+				</struct>
+				<struct name="BZEEV" version="1.0.0">
+					<title>BZEEV</title>
+					<descr>The electronic expansion valve is normally driven by a step motor and 
+a small controller is commonly used to drive it for PLC application. So 
+this type supposed to be an abstract class to define the EEV object is
+the final version for application.</descr>
+					<vars>
+						<var name="m_parent" type="BZAnalogActuator"/>
+						<var name="Steps" type="UINT">
+							<descr>Max steps is 65535, is there such exaggerated EEV in the world?</descr>
+						</var>
+						<var name="run" type="BZEEV_run">
+							<descr>Public method of run the main state machine of the object</descr>
+						</var>
+						<var name="MAXSteps" type="UINT">
+							<descr>The max steps of a specific EEV</descr>
+						</var>
+					</vars>
+				</struct>
+				<struct name="BZEliwellEVD" version="1.0.0">
+					<title>Eliwell EVD Driver</title>
+					<descr>EVD controller from Eliwell.</descr>
+					<vars>
+						<var name="parent" type="BZMBDevice"/>
+						<var name="m_eev" type="@BZEEV"/>
+					</vars>
+				</struct>
+				<struct name="BZVariableSpeedCompressor" version="1.0.0">
+					<title>Variable Speed Compressor</title>
+					<descr>A variable speed compressor is generally driven by a VFD 
+which is commonly regarded as a MBDevice also.</descr>
+					<vars>
+						<var name="m_parent" type="BZAnalogActuator"/>
+						<var name="Frequence" type="UINT"/>
+						<var name="run" type="BZVariableSpeedCompressor_run"/>
+						<var name="MAXSpeedHz" type="UINT"/>
 					</vars>
 				</struct>
 			</structs>
@@ -58829,19 +59146,23 @@ END_FUNCTION_BLOCK
 		{G:"Status_variables"}
 	bzManualSolenoidValve AT %MW110.38 : INT := 0;  {DE:"Solenoid valve manual control"}
 		{G:"Status_variables"}
-	BZCANMailbox1 AT %MW110.39 : INT;  {DE:"TBC"}
+	bzManualEEV AT %MW110.39 : INT := 0;  {DE:"EEV manual control"}
 		{G:"Status_variables"}
-	BZCANMailbox2 AT %MW110.40 : INT;  {DE:"TBC"}
+	bzManualCompressor AT %MW110.40 : INT := 0;  {DE:"Compressor manual control"}
 		{G:"Status_variables"}
-	BZCANMailbox3 AT %MW110.41 : INT;  {DE:"TBC"}
+	BZCANMailbox1 AT %MW110.41 : INT;  {DE:"TBC"}
 		{G:"Status_variables"}
-	BZIsRealMode AT %MW110.42 : BOOL := 1;  {DE:"Controller is working on real mode."}
+	BZCANMailbox2 AT %MW110.42 : INT;  {DE:"TBC"}
 		{G:"Status_variables"}
-	bzCondensatePumpRunhourWarning AT %MW110.43 : INT;  {DE:"Condensate pump run-hour warning"}
+	BZCANMailbox3 AT %MW110.43 : INT;  {DE:"TBC"}
 		{G:"Status_variables"}
-	bzSolenoidValveRunhourWarning AT %MW110.44 : INT;  {DE:"Solenoid valve run-hour warning"}
+	BZIsRealMode AT %MW110.44 : BOOL := 1;  {DE:"Controller is working on real mode."}
 		{G:"Status_variables"}
-	bzAirfilterRunhourAlarm AT %MW110.45 : INT;  {DE:"Airfilter lifecycle alarm"}
+	bzCondensatePumpRunhourWarning AT %MW110.45 : INT;  {DE:"Condensate pump run-hour warning"}
+		{G:"Status_variables"}
+	bzSolenoidValveRunhourWarning AT %MW110.46 : INT;  {DE:"Solenoid valve run-hour warning"}
+		{G:"Status_variables"}
+	bzAirfilterRunhourAlarm AT %MW110.47 : INT;  {DE:"Airfilter lifecycle alarm"}
 		{G:"IO_Mapping"}
 	HW_AI_01 AT %IW1.0 : INT;  {DE:"AIL1 analogue input"}
 		{G:"IO_Mapping"}
@@ -58933,8 +59254,8 @@ END_FUNCTION_BLOCK
 				<![CDATA[(* Automatically generated, do not edit! *)
 
 VAR_GLOBAL CONSTANT
-$$ParDB : ARRAY[ 0..2195 ] OF USINT; { HIDDEN:ON } { INIT:"BZ172Lab.PLK+0" }
-$$ParDBLength  : DWORD := 61; { HIDDEN:ON }
+$$ParDB : ARRAY[ 0..2267 ] OF USINT; { HIDDEN:ON } { INIT:"BZ172Lab.PLK+0" }
+$$ParDBLength  : DWORD := 63; { HIDDEN:ON }
 END_VAR
 
 PROGRAM InitParDB WITH Serv;
@@ -58947,7 +59268,7 @@ PROGRAM InitParDB
 		dummyCrc32: UDINT;
 	END_VAR
 
-	dummyCrc32 := 2828423204;
+	dummyCrc32 := 873072062;
 
 	warningsKiller := sysDBase_SetExtTable( ADR( $$ParDB ), $$ParDBLength );
 
@@ -58975,7 +59296,7 @@ END_PROGRAM
 			</src>
 		</aux>
 		<workspace>
-			<root name="BZ172Lab" nextID="16437">
+			<root name="BZ172Lab" nextID="18066">
 				<GlobalVars name="Global_vars" id="11"/>
 				<Pou name="main" id="2"/>
 				<folder id="16" name="BZoops172">
@@ -59014,6 +59335,8 @@ END_PROGRAM
 							<Definition name="BZCSCB1" id="3014"/>
 							<Pou name="IBZCSCB1_new" id="3026"/>
 							<Pou name="BZMBDevice_read" id="3271"/>
+							<Definition name="BZEliwellEVD" id="17091"/>
+							<Pou name="IBZEliwellEVD_new" id="17093"/>
 						</folder>
 						<folder name="BZSwitch" id="4428">
 							<Definition name="BZSwitch" id="4429"/>
@@ -59043,6 +59366,16 @@ END_PROGRAM
 						<folder name="BZFault" id="6517">
 							<Definition name="BZFault" id="6518"/>
 							<Pou name="IBZFault_new" id="6537"/>
+						</folder>
+						<folder name="BZEEV" id="17041">
+							<Definition name="BZEEV" id="17043"/>
+							<Pou name="IBZEEV_new" id="17063"/>
+							<Pou name="BZEEV_run" id="17073"/>
+						</folder>
+						<folder name="BZVariableSpeedCompressor" id="17042">
+							<Definition name="BZVariableSpeedCompressor" id="17375"/>
+							<Pou name="IBZVariableSpeedCompressor_new" id="17376"/>
+							<Pou name="BZVariableSpeedCompressor_run" id="17379"/>
 						</folder>
 					</folder>
 					<folder name="Types" id="37">
@@ -60623,6 +60956,60 @@ END_PROGRAM
 								<clientType>0</clientType>
 							</param>
 							<param>
+								<ipa>5038</ipa>
+								<address>10363</address>
+								<name>bzManualEEV</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value>0</value>
+								<min>0</min>
+								<max>1000</max>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um>.1%</um>
+								<description>EEV manual control</description>
+								<note>0-1000</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.39</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>5039</ipa>
+								<address>10364</address>
+								<name>bzManualCompressor</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value>0</value>
+								<min>0</min>
+								<max>1000</max>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um>.1%</um>
+								<description>Compressor manual control</description>
+								<note>0-1000</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.40</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
 								<ipa>5000</ipa>
 								<address>10960</address>
 								<name>BZCANMailbox1</name>
@@ -60643,7 +61030,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW110.39</dataBlock>
+								<dataBlock>MW110.41</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -60670,7 +61057,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW110.40</dataBlock>
+								<dataBlock>MW110.42</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -60697,7 +61084,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW110.41</dataBlock>
+								<dataBlock>MW110.43</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -60724,7 +61111,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW110.42</dataBlock>
+								<dataBlock>MW110.44</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -60751,7 +61138,7 @@ END_PROGRAM
 								<readonly>1</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW110.43</dataBlock>
+								<dataBlock>MW110.45</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -60778,7 +61165,7 @@ END_PROGRAM
 								<readonly>1</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW110.44</dataBlock>
+								<dataBlock>MW110.46</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -60805,7 +61192,7 @@ END_PROGRAM
 								<readonly>1</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW110.45</dataBlock>
+								<dataBlock>MW110.47</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -61932,6 +62319,8 @@ END_PROGRAM
 								<value ipa="5003" subidx="0">0</value>
 								<value ipa="5023" subidx="0">0</value>
 								<value ipa="5031" subidx="0">0</value>
+								<value ipa="5038" subidx="0">0</value>
+								<value ipa="5039" subidx="0">0</value>
 								<value ipa="5000" subidx="0">0</value>
 								<value ipa="5001" subidx="0">0</value>
 								<value ipa="5002" subidx="0">0</value>

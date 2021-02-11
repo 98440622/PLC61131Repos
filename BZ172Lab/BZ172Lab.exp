@@ -61,13 +61,15 @@ bzPanFullAlarm AT %MW110.35 : INT;	{ DE:"Pan full." }
 bzManualFanSpeed AT %MW110.36 : INT := 0;	{ DE:"Evaporator fan manual speed output" }
 bzManualCondensatePump AT %MW110.37 : INT := 0;	{ DE:"Condensate pump manual control output" }
 bzManualSolenoidValve AT %MW110.38 : INT := 0;	{ DE:"Solenoid valve manual control" }
-BZCANMailbox1 AT %MW110.39 : INT;	{ DE:"TBC" }
-BZCANMailbox2 AT %MW110.40 : INT;	{ DE:"TBC" }
-BZCANMailbox3 AT %MW110.41 : INT;	{ DE:"TBC" }
-BZIsRealMode AT %MW110.42 : BOOL := 1;	{ DE:"Controller is working on real mode." }
-bzCondensatePumpRunhourWarning AT %MW110.43 : INT;	{ DE:"Condensate pump run-hour warning" }
-bzSolenoidValveRunhourWarning AT %MW110.44 : INT;	{ DE:"Solenoid valve run-hour warning" }
-bzAirfilterRunhourAlarm AT %MW110.45 : INT;	{ DE:"Airfilter lifecycle alarm" }
+bzManualEEV AT %MW110.39 : INT := 0;	{ DE:"EEV manual control" }
+bzManualCompressor AT %MW110.40 : INT := 0;	{ DE:"Compressor manual control" }
+BZCANMailbox1 AT %MW110.41 : INT;	{ DE:"TBC" }
+BZCANMailbox2 AT %MW110.42 : INT;	{ DE:"TBC" }
+BZCANMailbox3 AT %MW110.43 : INT;	{ DE:"TBC" }
+BZIsRealMode AT %MW110.44 : BOOL := 1;	{ DE:"Controller is working on real mode." }
+bzCondensatePumpRunhourWarning AT %MW110.45 : INT;	{ DE:"Condensate pump run-hour warning" }
+bzSolenoidValveRunhourWarning AT %MW110.46 : INT;	{ DE:"Solenoid valve run-hour warning" }
+bzAirfilterRunhourAlarm AT %MW110.47 : INT;	{ DE:"Airfilter lifecycle alarm" }
 	{G:"IO_Mapping"}
 HW_AI_01 AT %IW1.0 : INT;	{ DE:"AIL1 analogue input" }
 HW_AI_02 AT %IW1.1 : INT;	{ DE:"AIL2 analogue input" }
