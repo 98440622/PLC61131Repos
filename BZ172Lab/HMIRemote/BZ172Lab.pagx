@@ -23,6 +23,10 @@
 					<VAL id="1">HACS</VAL>
 					<VAL id="2">FIXED</VAL>
 				</ENUM>
+				<ENUM id="5" name="emRelayStatus" descr="emRelayStatus">
+					<VAL id="0">OPENED</VAL>
+					<VAL id="1">CLOSED</VAL>
+				</ENUM>
 			</ENUMS>
 			<STRINGTABLE>
 				<VAL id="STR_UNIT_OFF">OFF</VAL>
@@ -579,7 +583,7 @@ END_PROGRAM
 						<STYLE>Flat</STYLE>
 						<BORDCOL type="RGBColor">0</BORDCOL>
 						<BORDPTS>1</BORDPTS>
-						<XPOS>6</XPOS>
+						<XPOS>48</XPOS>
 						<YPOS>8</YPOS>
 						<XDIM>30</XDIM>
 						<YDIM>8</YDIM>
@@ -694,7 +698,7 @@ END_PROGRAM
 						<BORDCOL type="RGBColor">0</BORDCOL>
 						<BORDPTS>1</BORDPTS>
 						<XPOS>48</XPOS>
-						<YPOS>8</YPOS>
+						<YPOS>24</YPOS>
 						<XDIM>30</XDIM>
 						<YDIM>8</YDIM>
 						<NUMCHAR>5</NUMCHAR>
@@ -732,7 +736,7 @@ END_PROGRAM
 						<BORDCOL type="RGBColor">0</BORDCOL>
 						<BORDPTS>1</BORDPTS>
 						<XPOS>48</XPOS>
-						<YPOS>24</YPOS>
+						<YPOS>40</YPOS>
 						<XDIM>30</XDIM>
 						<YDIM>8</YDIM>
 						<NUMCHAR>5</NUMCHAR>
@@ -780,14 +784,14 @@ END_PROGRAM
 						<ACCESS>RW</ACCESS>
 						<DESC/>
 						<ZORDER>6</ZORDER>
-						<VAR type="INT">@LocalParameters.bzManualEEV</VAR>
+						<VAR type="INT">@LocalParameters.bzCompressorCommand</VAR>
 						<TYPE>INT</TYPE>
 						<REFRESH>TRUE</REFRESH>
 						<VISIBLE>TRUE</VISIBLE>
 						<SELECT>TRUE</SELECT>
 						<LABEL/>
-						<VARMIN>0</VARMIN>
-						<VARMAX>1000</VARMAX>
+						<VARMIN>*</VARMIN>
+						<VARMAX>*</VARMAX>
 						<EVENTS>
 							<EVENT name="BeforeUpdate"/>
 							<EVENT name="AfterUpdate"/>
@@ -818,14 +822,90 @@ END_PROGRAM
 						<ACCESS>RW</ACCESS>
 						<DESC/>
 						<ZORDER>7</ZORDER>
-						<VAR type="INT">@LocalParameters.bzManualCompressor</VAR>
+						<VAR type="INT">@LocalParameters.bzEXVCommand</VAR>
+						<TYPE>INT</TYPE>
+						<REFRESH>TRUE</REFRESH>
+						<VISIBLE>TRUE</VISIBLE>
+						<SELECT>TRUE</SELECT>
+						<LABEL/>
+						<VARMIN>*</VARMIN>
+						<VARMAX>*</VARMAX>
+						<EVENTS>
+							<EVENT name="BeforeUpdate"/>
+							<EVENT name="AfterUpdate"/>
+							<EVENT name="OnGotFocus"/>
+							<EVENT name="OnLostFocus"/>
+							<EVENT name="OnClick"/>
+							<EVENT name="OnEnter"/>
+							<EVENT name="OnChange"/>
+						</EVENTS>
+					</EDIT>
+					<EDIT name="Edit_8">
+						<FONT>EWP2_6x8</FONT>
+						<COLOR type="RGBColor">0</COLOR>
+						<BCKCOLOR type="RGBColor">16777215</BCKCOLOR>
+						<SELBCK type="RGBColor">0</SELBCK>
+						<SELCOL type="RGBColor">16777215</SELCOL>
+						<STYLE>Flat</STYLE>
+						<BORDCOL type="RGBColor">0</BORDCOL>
+						<BORDPTS>1</BORDPTS>
+						<XPOS>90</XPOS>
+						<YPOS>40</YPOS>
+						<XDIM>30</XDIM>
+						<YDIM>8</YDIM>
+						<NUMCHAR>5</NUMCHAR>
+						<ORDER>8</ORDER>
+						<FORMAT>emRelayStatus</FORMAT>
+						<ALIGN>Right</ALIGN>
+						<ACCESS>RW</ACCESS>
+						<DESC/>
+						<ZORDER>8</ZORDER>
+						<VAR type="INT">@LocalParameters.bzLiquidValveCommand</VAR>
+						<TYPE>INT</TYPE>
+						<REFRESH>TRUE</REFRESH>
+						<VISIBLE>TRUE</VISIBLE>
+						<SELECT>TRUE</SELECT>
+						<LABEL/>
+						<VARMIN>*</VARMIN>
+						<VARMAX>*</VARMAX>
+						<EVENTS>
+							<EVENT name="BeforeUpdate"/>
+							<EVENT name="AfterUpdate"/>
+							<EVENT name="OnGotFocus"/>
+							<EVENT name="OnLostFocus"/>
+							<EVENT name="OnClick"/>
+							<EVENT name="OnEnter"/>
+							<EVENT name="OnChange"/>
+						</EVENTS>
+					</EDIT>
+					<EDIT name="Edit_9">
+						<FONT>EWP2_6x8</FONT>
+						<COLOR type="RGBColor">0</COLOR>
+						<BCKCOLOR type="RGBColor">16777215</BCKCOLOR>
+						<SELBCK type="RGBColor">0</SELBCK>
+						<SELCOL type="RGBColor">16777215</SELCOL>
+						<STYLE>Flat</STYLE>
+						<BORDCOL type="RGBColor">0</BORDCOL>
+						<BORDPTS>1</BORDPTS>
+						<XPOS>6</XPOS>
+						<YPOS>8</YPOS>
+						<XDIM>30</XDIM>
+						<YDIM>8</YDIM>
+						<NUMCHAR>5</NUMCHAR>
+						<ORDER>9</ORDER>
+						<FORMAT>emUnitMode</FORMAT>
+						<ALIGN>Right</ALIGN>
+						<ACCESS>RW</ACCESS>
+						<DESC/>
+						<ZORDER>9</ZORDER>
+						<VAR type="INT">@LocalParameters.bzUnitModeCfg</VAR>
 						<TYPE>INT</TYPE>
 						<REFRESH>TRUE</REFRESH>
 						<VISIBLE>TRUE</VISIBLE>
 						<SELECT>TRUE</SELECT>
 						<LABEL/>
 						<VARMIN>0</VARMIN>
-						<VARMAX>1000</VARMAX>
+						<VARMAX>2</VARMAX>
 						<EVENTS>
 							<EVENT name="BeforeUpdate"/>
 							<EVENT name="AfterUpdate"/>

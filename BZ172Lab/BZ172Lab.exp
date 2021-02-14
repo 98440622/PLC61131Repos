@@ -29,6 +29,16 @@ bzSolenoidValveRunhourLog AT %MW101.19 : UINT;	{ DE:"Solenoid valve run-hour" }
 bzSolenoidValveRunhourThresholdCfg AT %MW101.20 : UINT;	{ DE:"Solenoid valve run-hour threshold" }
 bzAirfilterRunhourLog AT %MW101.21 : UINT;	{ DE:"Airfilter run-hour" }
 bzAirfilterRunhourThresholdCfg AT %MW101.22 : UINT;	{ DE:"Airfilter run-hour threshold" }
+bzMinimumEvaporatorFanSpeedCfg AT %MW101.23 : INT;	{ DE:"Minimum evaproator fan speed setting" }
+bzMaximumEvaporatorFanSpeedCfg AT %MW101.24 : INT;	{ DE:"Maximum evaporator fan speed setting" }
+bzMinimumEEVOpeningCfg AT %MW101.25 : INT;	{ DE:"Minimum EXV opening" }
+bzEEVPreOpeningCfg AT %MW101.26 : INT;	{ DE:"Pre-opening of EXV" }
+bzEvapSuperheatSetpointCfg AT %MW101.27 : INT;	{ DE:"Evaporator superheat set point" }
+bzMinimumCompressorCommandCfg AT %MW101.28 : INT;	{ DE:"Minimum compressor command speed in percentage" }
+bzCompressorPumpdownCommandCfg AT %MW101.29 : INT;	{ DE:"The constant speed when the compressor is running pump down" }
+bzCompressorPumpdownTimeoutCfg AT %MW101.30 : INT;	{ DE:"Pumpdown timeout" }
+bzCompressorPumpdownThreshold AT %MW101.31 : INT;	{ DE:"The minimal pressure to end up pump down process compulsively" }
+bzMinimalSupplyAirTemperatureCfg AT %MW101.32 : INT;	{ DE:"The minimal supply air temperature to keep the compressor running" }
 	{G:"Status_variables"}
 bzBIOSVersion AT %MW110.0 : STRING[ 8 ];	{ DE:"M172 BIOS version" }
 bzAppVersion AT %MW110.5 : STRING[ 8 ];	{ DE:"Application version by a string type format of xx.xx.xx" }
@@ -70,6 +80,14 @@ BZIsRealMode AT %MW110.44 : BOOL := 1;	{ DE:"Controller is working on real mode.
 bzCondensatePumpRunhourWarning AT %MW110.45 : INT;	{ DE:"Condensate pump run-hour warning" }
 bzSolenoidValveRunhourWarning AT %MW110.46 : INT;	{ DE:"Solenoid valve run-hour warning" }
 bzAirfilterRunhourAlarm AT %MW110.47 : INT;	{ DE:"Airfilter lifecycle alarm" }
+bzEvaporatorCoilPressure AT %MW110.48 : INT;	{ DE:"The refrigerant pressure from the outlet side of evaporator coil" }
+bzEvaporatorFanCommand AT %MW110.49 : INT;	{ DE:"Evaporator fan commanded speed" }
+bzEXVCommand AT %MW110.50 : INT;	{ DE:"EXV commanded opening" }
+bzCompressorCommand AT %MW110.51 : INT;	{ DE:"Compressor commanded speed" }
+bzLiquidValveCommand AT %MW110.52 : INT;	{ DE:"Liquid valve command" }
+bzEvaporatorFanFeedback AT %MW110.53 : INT;	{ DE:"Average RPM of all the fans" }
+bzEXVFeedback AT %MW110.54 : INT;	{ DE:"Number of steps" }
+bzCompressorFeedback AT %MW110.55 : INT;	{ DE:"Compressor speed by VFD frequence" }
 	{G:"IO_Mapping"}
 HW_AI_01 AT %IW1.0 : INT;	{ DE:"AIL1 analogue input" }
 HW_AI_02 AT %IW1.1 : INT;	{ DE:"AIL2 analogue input" }

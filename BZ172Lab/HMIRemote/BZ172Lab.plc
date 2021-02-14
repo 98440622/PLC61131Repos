@@ -23,20 +23,22 @@ VAR_GLOBAL
 	fbRefrModeSelection : RefrModeSelection;
 	fbModeSelectionString_4 : Static01 := (wHnd:=6, x:=6, y:=48, pFont:=?EWP2_6x8, bckCol:=16777215, pString:=?kStr00001, pVisVar:=1, format:=16#0020, bordPts:=0, selForeCol:=16777215, pRefrVar:=0, pSelVar:=0, numChars:=0);
 	fbModeSelectionEdit_1 : EditBox01 := (wHnd:=7, x2:=127, y2:=15, pFont:=?EWP2_8x16, bckCol:=16777215, rw:=TRUE, pVar:=16#00368700, order:=2, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyBool, enumId:=1, format:=16#00000014);
-	fbModeSelectionEdit_2 : EditBox01 := (wHnd:=8, y1:=24, x2:=127, y2:=39, pFont:=?EWP2_8x16, bckCol:=16777215, pVar:=16#00231300, order:=3, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, enumId:=2, format:=16#00000014, pCanSel:=1);
+	fbModeSelectionEdit_2 : EditBox01 := (wHnd:=8, y1:=24, x2:=127, y2:=39, pFont:=?EWP2_8x16, bckCol:=16777215, pVar:=16#00231400, order:=3, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, enumId:=2, format:=16#00000014, pCanSel:=1);
 	fbModeSelectionEdit_3 : EditBox01 := (wHnd:=9, x1:=60, y1:=48, x2:=125, y2:=55, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00400000, order:=4, pVisVar:=1, bckSelCol:=16777215, refr:=TRUE, type:=tyInt, enumId:=3, pVarMax:=2, format:=16#00014014, pCanSel:=1);
 	ModeSelection_tmpBOOL : BOOL;
 
 	{G:"DbgPage_vars"}
 	fbDbgPage : DrawDbgPage;
 	fbRefrDbgPage : RefrDbgPage;
-	fbDbgPageEdit_1 : EditBox01 := (wHnd:=10, x1:=6, y1:=8, x2:=35, y2:=15, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00400E00, order:=1, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, enumId:=4, pVarMax:=2, format:=16#0001400C, pCanSel:=1);
+	fbDbgPageEdit_1 : EditBox01 := (wHnd:=10, x1:=48, y1:=8, x2:=77, y2:=15, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00400E00, order:=1, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, enumId:=4, pVarMax:=2, format:=16#0001400C, pCanSel:=1);
 	fbDbgPageEdit_2 : EditBox01 := (wHnd:=11, x1:=6, y1:=24, x2:=35, y2:=31, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00400F00, order:=2, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, pVarMin:=150, pVarMax:=300, format:=16#0001400C, pCanSel:=1);
 	fbDbgPageEdit_3 : EditBox01 := (wHnd:=12, x1:=6, y1:=40, x2:=35, y2:=47, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00401000, order:=3, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, pVarMin:=20, pVarMax:=200, format:=16#0001400C, pCanSel:=1);
-	fbDbgPageEdit_4 : EditBox01 := (wHnd:=13, x1:=48, y1:=8, x2:=77, y2:=15, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00401100, order:=4, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, pVarMin:=150, pVarMax:=300, format:=16#0001400C, pCanSel:=1);
-	fbDbgPageEdit_5 : EditBox01 := (wHnd:=14, x1:=48, y1:=24, x2:=77, y2:=31, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00287800, order:=5, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, pVarMax:=1000, format:=16#0001400C, pCanSel:=1);
-	fbDbgPageEdit_6 : EditBox01 := (wHnd:=15, x1:=90, y1:=8, x2:=119, y2:=15, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00287B00, order:=6, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, pVarMax:=1000, format:=16#0001400C, pCanSel:=1);
-	fbDbgPageEdit_7 : EditBox01 := (wHnd:=16, x1:=90, y1:=24, x2:=119, y2:=31, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00287C00, order:=7, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, pVarMax:=1000, format:=16#0001400C, pCanSel:=1);
+	fbDbgPageEdit_4 : EditBox01 := (wHnd:=13, x1:=48, y1:=24, x2:=77, y2:=31, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00401100, order:=4, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, pVarMin:=150, pVarMax:=300, format:=16#0001400C, pCanSel:=1);
+	fbDbgPageEdit_5 : EditBox01 := (wHnd:=14, x1:=48, y1:=40, x2:=77, y2:=47, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00287800, order:=5, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, pVarMax:=1000, format:=16#0001400C, pCanSel:=1);
+	fbDbgPageEdit_6 : EditBox01 := (wHnd:=15, x1:=90, y1:=8, x2:=119, y2:=15, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00231700, order:=6, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#0000000C, pCanSel:=1);
+	fbDbgPageEdit_7 : EditBox01 := (wHnd:=16, x1:=90, y1:=24, x2:=119, y2:=31, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00231600, order:=7, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#0000000C, pCanSel:=1);
+	fbDbgPageEdit_8 : EditBox01 := (wHnd:=17, x1:=90, y1:=40, x2:=119, y2:=47, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00231800, order:=8, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, enumId:=5, format:=16#0000000C, pCanSel:=1);
+	fbDbgPageEdit_9 : EditBox01 := (wHnd:=18, x1:=6, y1:=8, x2:=35, y2:=15, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00400000, order:=9, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, enumId:=3, pVarMax:=2, format:=16#0001400C, pCanSel:=1);
 
 END_VAR
 
@@ -636,7 +638,7 @@ VAR_GLOBAL CONSTANT
 
 	(*** Enumeratives: ***)
 	kbEnumIdxBaseLanguage : UDINT := 0;
-	kbResEnums : ARRAY[ 0..170 ] OF BYTE :=
+	kbResEnums : ARRAY[ 0..201 ] OF BYTE :=
 	(*** Language: BaseLanguage ***)
 	(*** Enum ID ***) 16#01,
 	(* 0 *) 16#00, 16#00, 16#00, 16#00, 
@@ -669,6 +671,12 @@ VAR_GLOBAL CONSTANT
 	(* HACS *) 16#48, 16#41, 16#43, 16#53, 16#00, 
 	(* 2 *) 16#02, 16#00, 16#00, 16#00, 
 	(* FIXED *) 16#46, 16#49, 16#58, 16#45, 16#44, 16#00, 
+	(* End of enum *) 16#CD, 16#CD, 16#CD, 16#CD, 16#CD, 16#CD, 16#CD, 16#CD, 
+	(*** Enum ID ***) 16#05,
+	(* 0 *) 16#00, 16#00, 16#00, 16#00, 
+	(* OPENED *) 16#4F, 16#50, 16#45, 16#4E, 16#45, 16#44, 16#00, 
+	(* 1 *) 16#01, 16#00, 16#00, 16#00, 
+	(* CLOSED *) 16#43, 16#4C, 16#4F, 16#53, 16#45, 16#44, 16#00, 
 	(* End of enum *) 16#CD, 16#CD, 16#CD, 16#CD, 16#CD, 16#CD, 16#CD, 16#CD, 
 	(* End of language *) 16#CD, 16#CD, 16#CD, 16#CD ;
 	{G:"Parameters"}
@@ -1046,6 +1054,8 @@ FUNCTION_BLOCK DrawDbgPage
 	fbDbgPageEdit_5 : EditBox01;
 	fbDbgPageEdit_6 : EditBox01;
 	fbDbgPageEdit_7 : EditBox01;
+	fbDbgPageEdit_8 : EditBox01;
+	fbDbgPageEdit_9 : EditBox01;
 	$waitRefresh : BOOL;
 	END_VAR
 
@@ -1148,6 +1158,12 @@ FUNCTION_BLOCK DrawDbgPage
 			fbDbgPageEdit_7.accMode := kACS_INIT;
 			fbDbgPageEdit_7();
 			fbDbgPageEdit_7.accMode := kACS_PRINT;
+			fbDbgPageEdit_8.accMode := kACS_INIT;
+			fbDbgPageEdit_8();
+			fbDbgPageEdit_8.accMode := kACS_PRINT;
+			fbDbgPageEdit_9.accMode := kACS_INIT;
+			fbDbgPageEdit_9();
+			fbDbgPageEdit_9.accMode := kACS_PRINT;
 
 			(* Select the first selectable control *)
 			iNextSel := Video_FirstLastEdit( TRUE, FALSE );
@@ -1194,7 +1210,7 @@ FUNCTION_BLOCK DrawDbgPage
 
 						CASE iNextSel OF
 
-							10,11,12,13,14,15,16:
+							10,11,12,13,14,15,16,17,18:
 								(* Entering the edit mode *)
 								res := Video_EnterEdit( TO_UINT( iNextSel ) );
 
@@ -1351,6 +1367,8 @@ FUNCTION_BLOCK RefrDbgPage
 	fbDbgPageEdit_5 : EditBox01;
 	fbDbgPageEdit_6 : EditBox01;
 	fbDbgPageEdit_7 : EditBox01;
+	fbDbgPageEdit_8 : EditBox01;
+	fbDbgPageEdit_9 : EditBox01;
 	$waitRefresh : BOOL;
 	END_VAR
 
@@ -1402,6 +1420,12 @@ FUNCTION_BLOCK RefrDbgPage
 			END_IF;
 			IF fbDbgPageEdit_7.accMode <> kACS_MODIFY THEN
 				fbDbgPageEdit_7();
+			END_IF;
+			IF fbDbgPageEdit_8.accMode <> kACS_MODIFY THEN
+				fbDbgPageEdit_8();
+			END_IF;
+			IF fbDbgPageEdit_9.accMode <> kACS_MODIFY THEN
+				fbDbgPageEdit_9();
 			END_IF;
 
 			(* *** REFRESHING BACKGROUND ITEMS *** *)
