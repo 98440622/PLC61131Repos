@@ -39,6 +39,15 @@ bzCompressorPumpdownCommandCfg AT %MW101.29 : INT;	{ DE:"The constant speed when
 bzCompressorPumpdownTimeoutCfg AT %MW101.30 : INT;	{ DE:"Pumpdown timeout" }
 bzCompressorPumpdownThreshold AT %MW101.31 : INT;	{ DE:"The minimal pressure to end up pump down process compulsively" }
 bzMinimalSupplyAirTemperatureCfg AT %MW101.32 : INT;	{ DE:"The minimal supply air temperature to keep the compressor running" }
+bzEvaporatorFanPIDKpCfg AT %MW101.33 : INT;	{ DE:"<copy>" }
+bzCompressorPIDKpCfg AT %MW101.34 : INT;	{ DE:"<copy>" }
+bzEEVPIDKpCfg AT %MW101.35 : INT;	{ DE:"<copy>" }
+bzEvaporatorFanPIDTiCfg AT %MW101.36 : INT;	{ DE:"<copy>" }
+bzCompressorPIDTiCfg AT %MW101.37 : INT;	{ DE:"<copy>" }
+bzEEVPIDTiCfg AT %MW101.38 : INT;	{ DE:"<copy>" }
+bzEvaporatorFanPIDTdCfg AT %MW101.39 : INT;	{ DE:"<copy>" }
+bzCompressorPIDTdCfg AT %MW101.40 : INT;	{ DE:"<copy>" }
+bzEEVPIDTdCfg AT %MW101.41 : INT;	{ DE:"<copy>" }
 	{G:"Status_variables"}
 bzBIOSVersion AT %MW110.0 : STRING[ 8 ];	{ DE:"M172 BIOS version" }
 bzAppVersion AT %MW110.5 : STRING[ 8 ];	{ DE:"Application version by a string type format of xx.xx.xx" }
