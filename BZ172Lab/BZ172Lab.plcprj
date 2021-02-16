@@ -2685,13 +2685,15 @@ end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="bzAisleACUnit_controlEXV" version="1.0.0" creationDate="1613212825" lastModifiedDate="1613386001">
+				<functionBlock name="bzAisleACUnit_controlEXV" version="1.0.0" creationDate="1613212825" lastModifiedDate="1613440580">
 					<vars>
 						<inputVars>
 							<var name="me" type="@bzAisleACUnit"/>
+							<var name="isSuperheatAvailable" type="BOOL"/>
 						</inputVars>
 						<outputVars>
 							<var name="sm" type="bzAisleACUnitEEVSM"/>
+							<var name="Superheat" type="REAL"/>
 						</outputVars>
 						<localVars>
 							<var name="EXVPid" type="PIDAdvanced"/>
@@ -2700,6 +2702,8 @@ end_if;
 							<var name="ptrTmp" type="@BZTemperatureSensor"/>
 							<var name="alarm" type="UINT"/>
 							<var name="alert" type="UINT"/>
+							<var name="ptrINTpress" type="@BZPressureTransmitterBy20mA"/>
+							<var name="getSaturationTemperature" type="Press2Temp"/>
 						</localVars>
 					</vars>
 					<iecDeclaration active="FALSE"/>
@@ -2711,7 +2715,22 @@ end_if;
 //
 // eev state machine
 //
-ptrEXV := @me.EXV;
+ptrEXV 		:= @me.EXV;
+ptrINTtmp 	:= @me.EvapCoilTempSensor;
+ptrINTpress	:= @me.EvapCoilPressureSensor;
+
+getSaturationTemperature.xEn			:= TRUE;
+getSaturationTemperature.iPress			:= TO_INT(@ptrINTpress.Value * 100.0);
+getSaturationTemperature.usiRefType		:= 4;	// 410A
+getSaturationTemperature.usiRefState	:= 1;
+getSaturationTemperature();
+Superheat 								:= TO_REAL(getSaturationTemperature.iTemp) / 10.0;
+if (Superheat > -20.0 and Superheat < 40.0) then
+	IsSuperheatAvailable := TRUE;
+else
+	IsSuperheatAvailable := FALSE;
+end_if;	
+
 
 EXVPid.rHighLimit 	:= 100.0;
 EXVPid.rLowLimit 	:= TO_REAL(@me.m_configurations.m_bzMinimumEEVOpeningCfg) / 10.0;
@@ -2747,14 +2766,15 @@ else
 		elsif (@me.controlCompressor.sm = bzCompOFF) then
 			sm := bzEEV_IDLE;
 		else
-			EXVPid.xManualMode 	:= FALSE;
-			EXVPid.rDeadband	:= 0.0;
-
-			ptrTmp := @me.EvapCoilTempSensor;
-			@ptrTmp.read.as_type := enCelcius;
-			@ptrTmp.read();
-			EXVPid.rPv 		:= @ptrTmp.read.value; // TODO : pressure should be involved! 
-			EXVPid.rSetp 	:= TO_REAL(@me.m_configurations.m_bzEvapSuperheatSetpointCfg) / 10.0;
+			if (isSuperheatAvailable) then
+				EXVPid.xManualMode 	:= FALSE;
+				EXVPid.rDeadband	:= TO_REAL(@me.m_configurations.m_bzEvapSuperheatDeadbandCfg) / 10.0;
+				EXVPid.rPv 			:= Superheat; 
+				EXVPid.rSetp 		:= TO_REAL(@me.m_configurations.m_bzEvapSuperheatSetpointCfg) / 10.0;
+			else
+				EXVPid.xManualMode	:= TRUE;
+				EXVPid.rManualValue	:= 50.0;
+			end_if;
 		end_if;	
 	elsif (sm = bzEEV_PUMPDOWN) then
 		if (@me.controlCompressor.sm = bzCompOFF) then
@@ -2913,7 +2933,7 @@ ptrCOMP := @me.Compressor;
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="BZPressureTransmitterBy20mA_update" version="1.0.0" creationDate="1613262824" lastModifiedDate="1613280095">
+				<functionBlock name="BZPressureTransmitterBy20mA_update" version="1.0.0" creationDate="1613262824" lastModifiedDate="1613441380">
 					<vars>
 						<inputVars>
 							<var name="me" type="@BZPressureTransmitterBy20mA"/>
@@ -2936,7 +2956,7 @@ ptrCOMP := @me.Compressor;
 
 ptrINT := @me.m_ptrHWValue;
 
-if (IBZComputeY(0, 4.0, 1000.0, 20.0, TO_REAL(@ptrINT), ?current)) then
+if (IBZComputeY(0.0, 4.0, 1000.0, 20.0, TO_REAL(@ptrINT), ?current)) then
 	if (IBZComputeY(4.0, 0.0, 20.0, (@me.m_range.High), current, ?pressure)) then
 		@me.Value := pressure;
 	else
@@ -3053,7 +3073,7 @@ end_for;
 				</functionBlock>
 			</functionBlocks>
 			<programs>
-				<program name="main" version="1.0.0" creationDate="0" lastModifiedDate="1613380243">
+				<program name="main" version="1.0.0" creationDate="0" lastModifiedDate="1613440346">
 					<vars>
 						<localVars>
 							<var name="i" type="INT"/>
@@ -3067,6 +3087,7 @@ end_for;
 							<var name="ptrEvapFan" type="@BZECFanEBM"/>
 							<var name="ptrExv" type="@BZEEV"/>
 							<var name="ptrComp" type="@BZVariableSpeedCompressor"/>
+							<var name="ptrTmp" type="@BZTemperatureSensor"/>
 						</localVars>
 					</vars>
 					<iecDeclaration active="FALSE"/>
@@ -3141,7 +3162,7 @@ ACUnit.m_configurations.m_bzEvaporatorFanPIDTdCfg					:= bzEvaporatorFanPIDTdCfg
 ACUnit.m_configurations.m_bzEEVPIDKpCfg								:= bzEEVPIDKpCfg;
 ACUnit.m_configurations.m_bzEEVPIDTiCfg								:= bzEEVPIDTiCfg;
 ACUnit.m_configurations.m_bzEEVPIDTdCfg								:= bzEEVPIDTdCfg;
-
+ACUnit.m_configurations.m_bzEvapSuperheatDeadbandCfg				:= bzEvapSuperheatDeadbandCfg;
 
 
 ACUnit.EvapFanManOutPtr					:= ?bzManualFanSpeed;
@@ -3190,7 +3211,10 @@ bzSATg := TO_INT(ACUnit.groupSupplyAirSensors.Mean 	* 10.0);
 bzRCTh := TO_INT(ACUnit.groupRackAirSensors.High 	* 10.0);
 
 ptrPressureSensor := ACUnit.EvapCoilPressureSensor;
-bzEvaporatorCoilPressure := TO_INT(@ptrPressureSensor.Value * 100.0);
+ptrTmp := ACUnit.EvapCoilTempSensor;
+bzEvaporatorCoilPressure 		:= TO_INT(@ptrPressureSensor.Value * 100.0);
+bzEvaporatorCoilTemperature		:= TO_INT(@ptrTmp.m_fValue * 10.0);
+bzEvaporatorCoilSuperheat 		:= TO_INT(ACUnit.controlEXV.Superheat * 10.0);
 
 
 //ptrEvapFan
@@ -4083,6 +4107,7 @@ of the actual position.</descr>
 						<var name="m_bzEEVPIDKpCfg" type="INT"/>
 						<var name="m_bzEEVPIDTiCfg" type="INT"/>
 						<var name="m_bzEEVPIDTdCfg" type="INT"/>
+						<var name="m_bzEvapSuperheatDeadbandCfg" type="INT"/>
 					</vars>
 				</struct>
 				<struct name="BZEEV" version="1.0.0">
@@ -57437,6 +57462,8 @@ ui16_random := TO_UINT(ui16_random_copy or (ui16_random_tmp and 16#00FF));
 	bzCompressorPIDTdCfg AT %MW101.40 : INT;  {DE:"<copy>"}
 		{G:"EEPROM_Parameters"}
 	bzEEVPIDTdCfg AT %MW101.41 : INT;  {DE:"<copy>"}
+		{G:"EEPROM_Parameters"}
+	bzEvapSuperheatDeadbandCfg AT %MW101.42 : INT;  {DE:"Evaporator coil superheat control deadband"}
 		{G:"Status_variables"}
 	bzBIOSVersion AT %MW110.0 : STRING[ 8 ];  {DE:"M172 BIOS version"}
 		{G:"Status_variables"}
@@ -57533,6 +57560,10 @@ ui16_random := TO_UINT(ui16_random_copy or (ui16_random_tmp and 16#00FF));
 	bzEXVFeedback AT %MW110.54 : INT;  {DE:"Number of steps"}
 		{G:"Status_variables"}
 	bzCompressorFeedback AT %MW110.55 : INT;  {DE:"Compressor speed by VFD frequence"}
+		{G:"Status_variables"}
+	bzEvaporatorCoilSuperheat AT %MW110.56 : INT;  {DE:"Superheat calculated by pressure and temperature from the outlet side of evaporator coil"}
+		{G:"Status_variables"}
+	bzEvaporatorCoilTemperature AT %MW110.57 : INT;  {DE:"Refrigerant temperature on the outlet side of the evaporator coil"}
 		{G:"IO_Mapping"}
 	HW_AI_01 AT %IW1.0 : INT;  {DE:"AIL1 analogue input"}
 		{G:"IO_Mapping"}
@@ -57624,8 +57655,8 @@ ui16_random := TO_UINT(ui16_random_copy or (ui16_random_tmp and 16#00FF));
 				<![CDATA[(* Automatically generated, do not edit! *)
 
 VAR_GLOBAL CONSTANT
-$$ParDB : ARRAY[ 0..3239 ] OF USINT; { HIDDEN:ON } { INIT:"BZ172Lab.PLK+0" }
-$$ParDBLength  : DWORD := 90; { HIDDEN:ON }
+$$ParDB : ARRAY[ 0..3347 ] OF USINT; { HIDDEN:ON } { INIT:"BZ172Lab.PLK+0" }
+$$ParDBLength  : DWORD := 93; { HIDDEN:ON }
 END_VAR
 
 PROGRAM InitParDB WITH Serv;
@@ -57638,7 +57669,7 @@ PROGRAM InitParDB
 		dummyCrc32: UDINT;
 	END_VAR
 
-	dummyCrc32 := 2526552754;
+	dummyCrc32 := 3396824428;
 
 	warningsKiller := sysDBase_SetExtTable( ADR( $$ParDB ), $$ParDBLength );
 
@@ -57666,7 +57697,7 @@ END_PROGRAM
 			</src>
 		</aux>
 		<workspace>
-			<root name="BZ172Lab" nextID="24600">
+			<root name="BZ172Lab" nextID="25678">
 				<GlobalVars name="Global_vars" id="11"/>
 				<Pou name="main" id="2"/>
 				<folder id="16" name="BZoops172">
@@ -59012,6 +59043,33 @@ END_PROGRAM
 								<visibility>0</visibility>
 								<clientType>0</clientType>
 							</param>
+							<param>
+								<ipa>42</ipa>
+								<address>16425</address>
+								<name>bzEvapSuperheatDeadbandCfg</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value>10</value>
+								<min>0</min>
+								<max>300</max>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um>.1°C</um>
+								<description>Evaporator coil superheat control deadband</description>
+								<note/>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW101.42</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
 						</params>
 						<paramsRO>
 							<param>
@@ -60310,6 +60368,60 @@ END_PROGRAM
 								<visibility>0</visibility>
 								<clientType>0</clientType>
 							</param>
+							<param>
+								<ipa>5048</ipa>
+								<address>8988</address>
+								<name>bzEvaporatorCoilSuperheat</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value/>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um>.1°C</um>
+								<description>Superheat calculated by pressure and temperature from the outlet side of evaporator coil</description>
+								<note/>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>1</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.56</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>5049</ipa>
+								<address>8989</address>
+								<name>bzEvaporatorCoilTemperature</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value/>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um>.1°C</um>
+								<description>Refrigerant temperature on the outlet side of the evaporator coil</description>
+								<note/>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>1</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.57</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
 						</paramsRO>
 						<enums nextID="1"/>
 						<menus/>
@@ -61419,6 +61531,7 @@ END_PROGRAM
 								<value ipa="39" subidx="0">0</value>
 								<value ipa="40" subidx="0">0</value>
 								<value ipa="41" subidx="0">0</value>
+								<value ipa="42" subidx="0">10</value>
 								<value ipa="5012" subidx="0"/>
 								<value ipa="5010" subidx="0"/>
 								<value ipa="5005" subidx="0">303</value>
@@ -61467,6 +61580,8 @@ END_PROGRAM
 								<value ipa="5045" subidx="0">0</value>
 								<value ipa="5046" subidx="0">0</value>
 								<value ipa="5047" subidx="0">0</value>
+								<value ipa="5048" subidx="0">0</value>
+								<value ipa="5049" subidx="0">0</value>
 							</values>
 							<commDisabled>0</commDisabled>
 							<downloadVolume>0</downloadVolume>

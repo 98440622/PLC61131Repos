@@ -48,6 +48,7 @@ bzEEVPIDTiCfg AT %MW101.38 : INT;	{ DE:"<copy>" }
 bzEvaporatorFanPIDTdCfg AT %MW101.39 : INT;	{ DE:"<copy>" }
 bzCompressorPIDTdCfg AT %MW101.40 : INT;	{ DE:"<copy>" }
 bzEEVPIDTdCfg AT %MW101.41 : INT;	{ DE:"<copy>" }
+bzEvapSuperheatDeadbandCfg AT %MW101.42 : INT;	{ DE:"Evaporator coil superheat control deadband" }
 	{G:"Status_variables"}
 bzBIOSVersion AT %MW110.0 : STRING[ 8 ];	{ DE:"M172 BIOS version" }
 bzAppVersion AT %MW110.5 : STRING[ 8 ];	{ DE:"Application version by a string type format of xx.xx.xx" }
@@ -97,6 +98,8 @@ bzLiquidValveCommand AT %MW110.52 : INT;	{ DE:"Liquid valve command" }
 bzEvaporatorFanFeedback AT %MW110.53 : INT;	{ DE:"Average RPM of all the fans" }
 bzEXVFeedback AT %MW110.54 : INT;	{ DE:"Number of steps" }
 bzCompressorFeedback AT %MW110.55 : INT;	{ DE:"Compressor speed by VFD frequence" }
+bzEvaporatorCoilSuperheat AT %MW110.56 : INT;	{ DE:"Superheat calculated by pressure and temperature from the outlet side of evaporator coil" }
+bzEvaporatorCoilTemperature AT %MW110.57 : INT;	{ DE:"Refrigerant temperature on the outlet side of the evaporator coil" }
 	{G:"IO_Mapping"}
 HW_AI_01 AT %IW1.0 : INT;	{ DE:"AIL1 analogue input" }
 HW_AI_02 AT %IW1.1 : INT;	{ DE:"AIL2 analogue input" }
