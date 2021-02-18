@@ -7,60 +7,60 @@
         VAR_GLOBAL
 	{G:"EEPROM_Parameters"}
 bzUnitModeCfg AT %MW101.0 : INT;	{ DE:"Unit mode" }
-bzUnitMaintenanceTimeoutCfg AT %MW101.1 : UINT;	{ DE:"Unit maintenance timeout in minute" }
-bzUnitStartupDelayCfg AT %MW101.2 : UINT;	{ DE:"Unit startup delay timeout in second" }
-bzHighReturnTemperatureThresholdCfg AT %MW101.3 : INT;	{ DE:"High return air temperature threshold" }
-bzHighReturnTemperatureTimeoutCfg AT %MW101.4 : INT;	{ DE:"High return air temperature warning forgiven time" }
-bzHighSupplyTemperatureThresholdCfg AT %MW101.5 : INT;	{ DE:"High supply air temperature threshold" }
-bzHighSupplyTemperatureTimeoutCfg AT %MW101.6 : INT;	{ DE:"High supply air temperature warning forgiven time" }
-BZSwitchReversedCfg AT %MW101.7 : INT;	{ DE:"BZSwitch status logic configuration" }
-bzUnitStatusRelayCfg AT %MW101.8 : INT;	{ DE:"Output of relay of unit status indication configuration" }
-bzMajorAlarmRelayCfg AT %MW101.9 : INT;	{ DE:"Output of relay of unit major alarm indication configuration" }
-bzCondensatePumpDelay2OffCfg AT %MW101.10 : INT;	{ DE:"Condensate pump off delay timeout in second" }
-bzCondensatePumpRunhourLog AT %MW101.11 : UINT;	{ DE:"Condensate pump runhour" }
-bzCondensatePumpRunhourThresholdCfg AT %MW101.12 : UINT;	{ DE:"Condensate pump runhour threshold" }
-bzHighRackinletTemperatureThresholdCfg AT %MW101.13 : INT;	{ DE:"High rackinlet air temperature threshold" }
-bzHighRackinletTemperatureTimeoutCfg AT %MW101.14 : INT;	{ DE:"High rackinlet air temperature warning forgiven time" }
-bzEvaporatorFanStrategyCfg AT %MW101.15 : INT;	{ DE:"Evaporator fan control strategy" }
-bzCoolSetpointCfg AT %MW101.16 : INT;	{ DE:"Cool setpoint" }
-bzDeltaTSetpointCfg AT %MW101.17 : INT;	{ DE:"Differential between return air temperature and supply air temperature setpoint" }
-bzSupplyAirSetpointCfg AT %MW101.18 : INT;	{ DE:"Supply air temperature setpoint" }
-bzSolenoidValveRunhourLog AT %MW101.19 : UINT;	{ DE:"Solenoid valve run-hour" }
-bzSolenoidValveRunhourThresholdCfg AT %MW101.20 : UINT;	{ DE:"Solenoid valve run-hour threshold" }
-bzAirfilterRunhourLog AT %MW101.21 : UINT;	{ DE:"Airfilter run-hour" }
-bzAirfilterRunhourThresholdCfg AT %MW101.22 : UINT;	{ DE:"Airfilter run-hour threshold" }
-bzMinimumEvaporatorFanSpeedCfg AT %MW101.23 : INT;	{ DE:"Minimum evaproator fan speed setting" }
-bzMaximumEvaporatorFanSpeedCfg AT %MW101.24 : INT;	{ DE:"Maximum evaporator fan speed setting" }
-bzMinimumEEVOpeningCfg AT %MW101.25 : INT;	{ DE:"Minimum EXV opening" }
-bzEEVPreOpeningCfg AT %MW101.26 : INT;	{ DE:"Pre-opening of EXV" }
-bzEvapSuperheatSetpointCfg AT %MW101.27 : INT;	{ DE:"Evaporator superheat set point" }
-bzMinimumCompressorCommandCfg AT %MW101.28 : INT;	{ DE:"Minimum compressor command speed in percentage" }
-bzCompressorPumpdownCommandCfg AT %MW101.29 : INT;	{ DE:"The constant speed when the compressor is running pump down" }
-bzCompressorPumpdownTimeoutCfg AT %MW101.30 : INT;	{ DE:"Pumpdown timeout" }
-bzCompressorPumpdownThreshold AT %MW101.31 : INT;	{ DE:"The minimal pressure to end up pump down process compulsively" }
-bzMinimalSupplyAirTemperatureCfg AT %MW101.32 : INT;	{ DE:"The minimal supply air temperature to keep the compressor running" }
-bzEvaporatorFanPIDKpCfg AT %MW101.33 : INT;	{ DE:"<copy>" }
-bzCompressorPIDKpCfg AT %MW101.34 : INT;	{ DE:"<copy>" }
-bzEEVPIDKpCfg AT %MW101.35 : INT;	{ DE:"<copy>" }
-bzEvaporatorFanPIDTiCfg AT %MW101.36 : INT;	{ DE:"<copy>" }
-bzCompressorPIDTiCfg AT %MW101.37 : INT;	{ DE:"<copy>" }
-bzEEVPIDTiCfg AT %MW101.38 : INT;	{ DE:"<copy>" }
-bzEvaporatorFanPIDTdCfg AT %MW101.39 : INT;	{ DE:"<copy>" }
-bzCompressorPIDTdCfg AT %MW101.40 : INT;	{ DE:"<copy>" }
-bzEEVPIDTdCfg AT %MW101.41 : INT;	{ DE:"<copy>" }
-bzEvapSuperheatDeadbandCfg AT %MW101.42 : INT;	{ DE:"Evaporator coil superheat control deadband" }
+bzCoolSetpointCfg AT %MW101.1 : INT;	{ DE:"Cool setpoint" }
+bzDeltaTSetpointCfg AT %MW101.2 : INT;	{ DE:"Differential between return air temperature and supply air temperature setpoint" }
+bzSupplyAirSetpointCfg AT %MW101.3 : INT;	{ DE:"Supply air temperature setpoint" }
+bzUnitMaintenanceTimeoutCfg AT %MW101.4 : UINT;	{ DE:"Unit maintenance timeout in minute" }
+bzUnitStartupDelayCfg AT %MW101.5 : UINT;	{ DE:"Unit startup delay timeout in second" }
+bzHighReturnTemperatureThresholdCfg AT %MW101.6 : INT;	{ DE:"High return air temperature threshold" }
+bzHighReturnTemperatureTimeoutCfg AT %MW101.7 : INT;	{ DE:"High return air temperature warning forgiven time" }
+bzHighSupplyTemperatureThresholdCfg AT %MW101.8 : INT;	{ DE:"High supply air temperature threshold" }
+bzHighSupplyTemperatureTimeoutCfg AT %MW101.9 : INT;	{ DE:"High supply air temperature warning forgiven time" }
+bzUnitStatusRelayCfg AT %MW101.10 : INT;	{ DE:"Output of relay of unit status indication configuration" }
+bzMajorAlarmRelayCfg AT %MW101.11 : INT;	{ DE:"Output of relay of unit major alarm indication configuration" }
+bzCondensatePumpDelay2OffCfg AT %MW101.12 : INT;	{ DE:"Condensate pump off delay timeout in second" }
+bzCondensatePumpRunhourLog AT %MW101.13 : UINT;	{ DE:"Condensate pump runhour" }
+bzCondensatePumpRunhourThresholdCfg AT %MW101.14 : UINT;	{ DE:"Condensate pump runhour threshold" }
+bzHighRackinletTemperatureThresholdCfg AT %MW101.15 : INT;	{ DE:"High rackinlet air temperature threshold" }
+bzHighRackinletTemperatureTimeoutCfg AT %MW101.16 : INT;	{ DE:"High rackinlet air temperature warning forgiven time" }
+bzEvaporatorFanStrategyCfg AT %MW101.17 : INT;	{ DE:"Evaporator fan control strategy" }
+bzSolenoidValveRunhourLog AT %MW101.18 : UINT;	{ DE:"Solenoid valve run-hour" }
+bzSolenoidValveRunhourThresholdCfg AT %MW101.19 : UINT;	{ DE:"Solenoid valve run-hour threshold" }
+bzAirfilterRunhourLog AT %MW101.20 : UINT;	{ DE:"Airfilter run-hour" }
+bzAirfilterRunhourThresholdCfg AT %MW101.21 : UINT;	{ DE:"Airfilter run-hour threshold" }
+bzMinimumEvaporatorFanSpeedCfg AT %MW101.22 : INT;	{ DE:"Minimum evaproator fan speed setting" }
+bzMaximumEvaporatorFanSpeedCfg AT %MW101.23 : INT;	{ DE:"Maximum evaporator fan speed setting" }
+bzMinimumEEVOpeningCfg AT %MW101.24 : INT;	{ DE:"Minimum EXV opening" }
+bzEEVPreOpeningCfg AT %MW101.25 : INT;	{ DE:"Pre-opening of EXV" }
+bzEvapSuperheatSetpointCfg AT %MW101.26 : INT;	{ DE:"Evaporator superheat set point" }
+bzMinimumCompressorCommandCfg AT %MW101.27 : INT;	{ DE:"Minimum compressor command speed in percentage" }
+bzCompressorPumpdownCommandCfg AT %MW101.28 : INT;	{ DE:"The constant speed when the compressor is running pump down" }
+bzCompressorPumpdownTimeoutCfg AT %MW101.29 : INT;	{ DE:"Pumpdown timeout" }
+bzCompressorPumpdownThreshold AT %MW101.30 : INT;	{ DE:"The minimal pressure to end up pump down process compulsively" }
+bzMinimalSupplyAirTemperatureCfg AT %MW101.31 : INT;	{ DE:"The minimal supply air temperature to keep the compressor running" }
+bzEvaporatorFanPIDKpCfg AT %MW101.32 : INT;	{ DE:"Proportional gain for evaporator fan control" }
+bzCompressorPIDKpCfg AT %MW101.33 : INT;	{ DE:"Proportional gain for compressor control" }
+bzEEVPIDKpCfg AT %MW101.34 : INT;	{ DE:"Proportional gain for EEV control" }
+bzEvaporatorFanPIDTiCfg AT %MW101.35 : UINT;	{ DE:"<copy>" }
+bzCompressorPIDTiCfg AT %MW101.36 : UINT;	{ DE:"<copy>" }
+bzEEVPIDTiCfg AT %MW101.37 : UINT;	{ DE:"<copy>" }
+bzEvaporatorFanPIDTdCfg AT %MW101.38 : UINT;	{ DE:"<copy>" }
+bzCompressorPIDTdCfg AT %MW101.39 : UINT;	{ DE:"<copy>" }
+bzEEVPIDTdCfg AT %MW101.40 : UINT;	{ DE:"<copy>" }
+bzEvapSuperheatDeadbandCfg AT %MW101.41 : INT;	{ DE:"Evaporator coil superheat control deadband" }
+BZSwitchReversedCfg AT %MW101.42 : INT;	{ DE:"BZSwitch status logic configuration" }
 	{G:"Status_variables"}
 bzBIOSVersion AT %MW110.0 : STRING[ 8 ];	{ DE:"M172 BIOS version" }
 bzAppVersion AT %MW110.5 : STRING[ 8 ];	{ DE:"Application version by a string type format of xx.xx.xx" }
-bzRATu AT %MW110.10 : INT;	{ DE:"Upper return air temperature" }
-bzRATl AT %MW110.11 : INT;	{ DE:"Lower return air temperature" }
-bzRATg AT %MW110.12 : INT;	{ DE:"Average measurement of the return air temperature" }
-bzSATu AT %MW110.13 : INT;	{ DE:"Upper supply air temperature" }
-bzSATl AT %MW110.14 : INT;	{ DE:"Lower supply air temperature" }
-bzSATg AT %MW110.15 : INT;	{ DE:"Average measurement of the supply air temperature" }
-bzRCT1 AT %MW110.16 : INT;	{ DE:"Rack inlet air temperature 1" }
-bzRCT2 AT %MW110.17 : INT;	{ DE:"Rack inlet air temperature 2" }
-bzRCTh AT %MW110.18 : INT;	{ DE:"Max rack inlet air temperature of the two probes supposed to be located right in front of the rack" }
+bzUpperReturnAirTemperature AT %MW110.10 : INT;	{ DE:"Upper return air temperature" }
+bzLowerReturnAirTemperature AT %MW110.11 : INT;	{ DE:"Lower return air temperature" }
+bzAverageReturnAirTemperature AT %MW110.12 : INT;	{ DE:"Average measurement of the return air temperature" }
+bzUpperSupplyAirTemperature AT %MW110.13 : INT;	{ DE:"Upper supply air temperature" }
+bzLowerSupplyAirTemperature AT %MW110.14 : INT;	{ DE:"Lower supply air temperature" }
+bzAverageSupplyAirTemperature AT %MW110.15 : INT;	{ DE:"Average measurement of the supply air temperature" }
+bzRackInletAirTemperatureAlfa AT %MW110.16 : INT;	{ DE:"Rack inlet air temperature 1" }
+bzRackInletAirTemperatureBravo AT %MW110.17 : INT;	{ DE:"Rack inlet air temperature 2" }
+bzMaxRackInletAirTemperature AT %MW110.18 : INT;	{ DE:"Max rack inlet air temperature of the two probes supposed to be located right in front of the rack" }
 bzUnitStatus AT %MW110.19 : INT;	{ DE:"Unit status" }
 bzWarningBase AT %MW110.20 : INT;	{ DE:"Warning code base" }
 bzHighReturnTemperatureWarning AT %MW110.21 : INT;	{ DE:"High return air temperature warning" }

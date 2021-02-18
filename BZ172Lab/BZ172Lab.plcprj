@@ -1375,7 +1375,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="bzAisleACUnit_run" version="1.0.0" creationDate="1611906522" lastModifiedDate="1613311167">
+				<functionBlock name="bzAisleACUnit_run" version="1.0.0" creationDate="1611906522" lastModifiedDate="1613614786">
 					<vars>
 						<inputVars>
 							<var name="me" type="@bzAisleACUnit"/>
@@ -1454,12 +1454,12 @@ if (@me.m_unit_status = BZ_OFF) then
 
 	ptrSwitchTmp := @me.RemoteShutdownSwitch;
 
-	if (@me.m_configurations.unit_mode_cmd = 1 and @ptrSwitchTmp.Status = BZSwitchOPEN) then
-		@me.m_unit_startup_delay_counter_u16 := @me.m_configurations.unit_startup_delay_timeout;
+	if (@me.m_configurations.m_bzUnitModeCfg = 1 and @ptrSwitchTmp.Status = BZSwitchOPEN) then
+		@me.m_unit_startup_delay_counter_u16 := @me.m_configurations.m_bzUnitStartupDelayCfg;
 		
 		@me.m_unit_status := BZ_STARTUP_DELAY;
-	elsif (@me.m_configurations.unit_mode_cmd = 2) then
-		@me.m_unit_maintenance_timeout_counter_u16 := @me.m_configurations.unit_maintenance_timeout;
+	elsif (@me.m_configurations.m_bzUnitModeCfg = 2) then
+		@me.m_unit_maintenance_timeout_counter_u16 := @me.m_configurations.m_bzUnitMaintenanceTimeoutCfg;
 	
 		@me.m_unit_status := BZ_MAINTENANCE;
 	else;
@@ -1467,7 +1467,7 @@ if (@me.m_unit_status = BZ_OFF) then
 	
 elsif (@me.m_unit_status = BZ_STARTUP_DELAY) then
 	
-	if (@me.m_configurations.unit_mode_cmd = 0) then
+	if (@me.m_configurations.m_bzUnitModeCfg = 0) then
 		@me.m_unit_status := BZ_OFF;
 	else
 		if (@me.m_unit_startup_delay_counter_u16 = 0) then
@@ -1482,14 +1482,14 @@ elsif (@me.m_unit_status = BZ_ON) then
 	
 	if (@ptrSwitchTmp.Status = BZSwitchCLOSE) then
 		@me.m_unit_status := BZ_OFF;
-	elsif (@me.m_configurations.unit_mode_cmd = 0) then
+	elsif (@me.m_configurations.m_bzUnitModeCfg = 0) then
 		@me.m_unit_status := BZ_OFF;	
 	else;
 	end_if;
 
 elsif (@me.m_unit_status = BZ_MAINTENANCE) then
 
-	if (@me.m_configurations.unit_mode_cmd = 0) then
+	if (@me.m_configurations.m_bzUnitModeCfg = 0) then
 		@me.m_unit_status := BZ_OFF;
 		
 		ptrINTtmp := @me.EvapFanManOutPtr;
@@ -1568,7 +1568,7 @@ else
 	ptrSwitchTmp := @me.LowerPanSwitch;
 	if (@ptrSwitchTmp.Status = BZSwitchCLOSE) then
 		// keep timer on
-		@me.m_cond_pump_off_delay_counter_u16 := TO_UINT(@me.m_configurations.cond_pump_off_delay_timeout);
+		@me.m_cond_pump_off_delay_counter_u16 := TO_UINT(@me.m_configurations.m_bzCondensatePumpDelay2OffCfg);
 		
 		// turn on condensate pump
 		@ptrRelayTmp.m_output := BZRelay_CLOSE;
@@ -1982,7 +1982,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="bzAisleACUnitFault_evaulate" version="1.0.0" creationDate="1612683126" lastModifiedDate="1612931590">
+				<functionBlock name="bzAisleACUnitFault_evaulate" version="1.0.0" creationDate="1612683126" lastModifiedDate="1613620086">
 					<vars>
 						<inputVars>
 							<var name="me" type="@bzAisleACUnitFault"/>
@@ -2007,13 +2007,49 @@ end_if;
 //
 // Unit maintenance mode
 //
+@me.NumberOfWarningsDetected := 0;
+
 @me.UnitMaintenanceWarning_evaluator();
+if (@me.UnitMaintenanceWarning_evaluator.parent.IsPresent) then
+	@me.NumberOfWarningsDetected := @me.NumberOfWarningsDetected + 1;
+else;
+end_if;
+
 @me.NoneOfRackinletTemperatureWarning_evaluator();
+if (@me.NoneOfRackinletTemperatureWarning_evaluator.parent.IsPresent) then
+	@me.NumberOfWarningsDetected := @me.NumberOfWarningsDetected + 1;
+else;
+end_if;
+
 @me.HighRackinletTemperatureWarning_evaluator();
+if (@me.HighRackinletTemperatureWarning_evaluator.parent.IsPresent) then
+	@me.NumberOfWarningsDetected := @me.NumberOfWarningsDetected + 1;
+else;
+end_if;
+
 @me.HighReturnTemperatureWarning_evaluator();
+if (@me.HighReturnTemperatureWarning_evaluator.parent.IsPresent) then
+	@me.NumberOfWarningsDetected := @me.NumberOfWarningsDetected + 1;
+else;
+end_if;
+
 @me.HighSupplyTemperatureWarning_evaluator();
+if (@me.HighSupplyTemperatureWarning_evaluator.parent.IsPresent) then
+	@me.NumberOfWarningsDetected := @me.NumberOfWarningsDetected + 1;
+else;
+end_if;
+
 @me.CondensatePumpRunhourWarning_evaluator();
+if (@me.CondensatePumpRunhourWarning_evaluator.parent.IsPresent) then
+	@me.NumberOfWarningsDetected := @me.NumberOfWarningsDetected + 1;
+else;
+end_if;
+
 @me.SolenoidValveRunhourWarning_evaluator();
+if (@me.SolenoidValveRunhourWarning_evaluator.parent.IsPresent) then
+	@me.NumberOfWarningsDetected := @me.NumberOfWarningsDetected + 1;
+else;
+end_if;
 
 /*****************************************************************************
 		             _                   _____    __  __       
@@ -2446,7 +2482,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="BZFault_HighRackinletTemperatureWarning" version="1.0.0" creationDate="1612663089" lastModifiedDate="1612858912">
+				<functionBlock name="BZFault_HighRackinletTemperatureWarning" version="1.0.0" creationDate="1612663089" lastModifiedDate="1613614969">
 					<vars>
 						<inputVars>
 							<var name="me" type="@bzAisleACUnit"/>
@@ -2462,7 +2498,7 @@ end_if;
 					<sourceCode type="ST">
 						<![CDATA[
 // DO WHAT YOU WANT TO DO, HIAHIA...
-if (TO_INT(@me.groupRackAirSensors.High * 10.0) < @me.m_configurations.m_bzHighRackinletTemperatureThresholdCfg) then
+if (@me.groupRackAirSensors.High < @me.m_configurations.m_bzHighRackinletTemperatureThresholdCfg) then
 	@me.m_high_rackinlet_temp_timeout_counter_u16 := TO_UINT(@me.m_configurations.m_bzHighRackinletTemperatureTimeoutCfg);
 else;
 end_if;
@@ -2475,7 +2511,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="BZFault_HighReturnTemperatureWarning" version="1.0.0" creationDate="1612663089" lastModifiedDate="1612861854">
+				<functionBlock name="BZFault_HighReturnTemperatureWarning" version="1.0.0" creationDate="1612663089" lastModifiedDate="1613615143">
 					<vars>
 						<inputVars>
 							<var name="me" type="@bzAisleACUnit"/>
@@ -2499,7 +2535,7 @@ end_if;
 
 
 // DO WHAT YOU WANT TO DO, HIAHIA...
-if (TO_INT(@me.groupReturnAirSensors.Mean * 10.0) < @me.m_configurations.m_bzHighReturnTemperatureThresholdCfg) then
+if (@me.groupReturnAirSensors.Mean < @me.m_configurations.m_bzHighReturnTemperatureThresholdCfg) then
 	@me.m_high_return_temp_timeout_counter_u16 := TO_UINT(@me.m_configurations.m_bzHighReturnTemperatureTimeoutCfg);
 else;
 end_if;
@@ -2512,7 +2548,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="BZFault_HighSupplyTemperatureWarning" version="1.0.0" creationDate="1612663089" lastModifiedDate="1613398015">
+				<functionBlock name="BZFault_HighSupplyTemperatureWarning" version="1.0.0" creationDate="1612663089" lastModifiedDate="1613615469">
 					<vars>
 						<inputVars>
 							<var name="me" type="@bzAisleACUnit"/>
@@ -2531,8 +2567,8 @@ end_if;
 
 // DO WHAT YOU WANT TO DO, HIAHIA...
 ptrComp := @me.Compressor;
-if (@ptrComp.m_parent.m_Command = 100.0 and @ptrComp.ActFrequence = @ptrComp.MAXSpeedHz) then
-	if (TO_INT(@me.groupSupplyAirSensors.Mean * 10.0) < @me.m_configurations.m_bzHighSupplyTemperatureThresholdCfg) then
+if (@ptrComp.m_parent.m_Command > 95.0 and @ptrComp.ActFrequence > TO_UINT(TO_REAL(@ptrComp.MAXSpeedHz) * 0.95)) then
+	if (@me.groupSupplyAirSensors.Mean < @me.m_configurations.m_bzHighSupplyTemperatureThresholdCfg) then
 		@me.m_high_supply_temp_timeout_counter_u16 := TO_UINT(@me.m_configurations.m_bzHighSupplyTemperatureTimeoutCfg);
 	else;
 	end_if;
@@ -2685,7 +2721,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="bzAisleACUnit_controlEXV" version="1.0.0" creationDate="1613212825" lastModifiedDate="1613440580">
+				<functionBlock name="bzAisleACUnit_controlEXV" version="1.0.0" creationDate="1613212825" lastModifiedDate="1613632204">
 					<vars>
 						<inputVars>
 							<var name="me" type="@bzAisleACUnit"/>
@@ -2733,11 +2769,11 @@ end_if;
 
 
 EXVPid.rHighLimit 	:= 100.0;
-EXVPid.rLowLimit 	:= TO_REAL(@me.m_configurations.m_bzMinimumEEVOpeningCfg) / 10.0;
+EXVPid.rLowLimit 	:= @me.m_configurations.m_bzMinimumEEVOpeningCfg;
 
-EXVPid.rKp 		:= 0.0 - TO_REAL(@me.m_configurations.m_bzEEVPIDKpCfg);
-EXVPid.uiTi 	:= TO_UINT(@me.m_configurations.m_bzEEVPIDTiCfg);
-EXVPid.uiTd 	:= TO_UINT(@me.m_configurations.m_bzEEVPIDTdCfg);
+EXVPid.rKp 		:= 0.0 - @me.m_configurations.m_bzEEVPIDKpCfg;
+EXVPid.uiTi 	:= @me.m_configurations.m_bzEEVPIDTiCfg;
+EXVPid.uiTd 	:= @me.m_configurations.m_bzEEVPIDTdCfg;
 
 if (@me.m_unit_status = BZ_MAINTENANCE) then
 	ptrINTtmp := @me.EEVManOutPtr;
@@ -2749,11 +2785,11 @@ else
 		if (@me.controlCompressor.sm = bzCompPRESTART) then
 			sm := bzEEV_PREOPEN;
 		else
-			EXVPid.rManualValue	:= TO_REAL(@me.m_configurations.m_bzEEVPreOpeningCfg) / 10.0;
+			EXVPid.rManualValue	:= @me.m_configurations.m_bzEEVPreOpeningCfg;
 			EXVPid.xManualMode	:= TRUE;
 		end_if;
 	elsif (sm = bzEEV_PREOPEN) then
-		EXVPid.rManualValue	:= TO_REAL(@me.m_configurations.m_bzEEVPreOpeningCfg) / 10.0;
+		EXVPid.rManualValue	:= @me.m_configurations.m_bzEEVPreOpeningCfg;
 		EXVPid.xManualMode	:= TRUE;
 		if (IBZEEV_isAtPosition(ptrEXV, @ptrEXV.ReqSteps)) then
 			sm := bzEEV_AUTO;
@@ -2768,9 +2804,9 @@ else
 		else
 			if (isSuperheatAvailable) then
 				EXVPid.xManualMode 	:= FALSE;
-				EXVPid.rDeadband	:= TO_REAL(@me.m_configurations.m_bzEvapSuperheatDeadbandCfg) / 10.0;
+				EXVPid.rDeadband	:= @me.m_configurations.m_bzEvapSuperheatDeadbandCfg;
 				EXVPid.rPv 			:= Superheat; 
-				EXVPid.rSetp 		:= TO_REAL(@me.m_configurations.m_bzEvapSuperheatSetpointCfg) / 10.0;
+				EXVPid.rSetp 		:= @me.m_configurations.m_bzEvapSuperheatSetpointCfg;
 			else
 				EXVPid.xManualMode	:= TRUE;
 				EXVPid.rManualValue	:= 50.0;
@@ -2814,7 +2850,7 @@ ptrExv := @me.EXV;
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="bzAisleACUnit_controlCompressor" version="1.0.0" creationDate="1613214040" lastModifiedDate="1613397054">
+				<functionBlock name="bzAisleACUnit_controlCompressor" version="1.0.0" creationDate="1613214040" lastModifiedDate="1613632127">
 					<vars>
 						<inputVars>
 							<var name="me" type="@bzAisleACUnit"/>
@@ -2858,7 +2894,7 @@ if (@me.m_unit_status = BZ_MAINTENANCE) then
 else
 	if (sm = bzCompOFF) then
 		if (@me.m_unit_status = BZ_ON) then
-			if (@me.groupSupplyAirSensors.Mean > (TO_REAL(@me.m_configurations.m_bzSupplyAirSetpointCfg) / 10.0)) then
+			if (@me.groupSupplyAirSensors.Mean > @me.m_configurations.m_bzSupplyAirSetpointCfg) then
 				if (@me.groupReturnAirSensors.IsAvailable and @me.groupReturnAirSensors.Mean > 20.0) then
 					sm := bzCompPRESTART;
 				else
@@ -2887,13 +2923,13 @@ else
 			CompPid.xManualMode 	:= FALSE;
 			CompPid.rDeadband		:= 0.0;
 			CompPid.rHighLimit 		:= 100.0;
-			CompPid.rLowLimit 		:= TO_REAL(@me.m_configurations.m_bzMinimumCompressorCommandCfg) / 10.0;
+			CompPid.rLowLimit 		:= @me.m_configurations.m_bzMinimumCompressorCommandCfg;
 			
-			CompPid.rKp 			:= 0.0 - TO_REAL(@me.m_configurations.m_bzCompressorPIDKpCfg);
-			CompPid.uiTi 			:= TO_UINT(@me.m_configurations.m_bzCompressorPIDTiCfg);
-			CompPid.uiTd 			:= TO_UINT(@me.m_configurations.m_bzCompressorPIDTiCfg);
+			CompPid.rKp 			:= 0.0 - @me.m_configurations.m_bzCompressorPIDKpCfg;
+			CompPid.uiTi 			:= @me.m_configurations.m_bzCompressorPIDTiCfg;
+			CompPid.uiTd 			:= @me.m_configurations.m_bzCompressorPIDTiCfg;
 			CompPid.rPv 			:= @me.groupSupplyAirSensors.Mean; 
-			CompPid.rSetp 			:= TO_REAL(@me.m_configurations.m_bzSupplyAirSetpointCfg) / 10.0;
+			CompPid.rSetp 			:= @me.m_configurations.m_bzSupplyAirSetpointCfg;
 		end_if;
 	elsif (sm = bzCompPUMPDOWN) then
 		//if (pressure > threshold or timeout) then
@@ -2969,7 +3005,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="bzAisleACUnit_controlEvaporatorFan" version="1.0.0" creationDate="1613307802" lastModifiedDate="1613385917">
+				<functionBlock name="bzAisleACUnit_controlEvaporatorFan" version="1.0.0" creationDate="1613307802" lastModifiedDate="1613635681">
 					<vars>
 						<inputVars>
 							<var name="me" type="@bzAisleACUnit"/>
@@ -2977,7 +3013,6 @@ end_if;
 						<localVars>
 							<var name="EvapFanPid" type="PIDAdvanced"/>
 							<var name="ptrINTtmp" type="@INT"/>
-							<var name="evap_fan_cmd" type="REAL"/>
 							<var name="alarm" type="UINT"/>
 							<var name="alert" type="UINT"/>
 							<var name="i" type="INT"/>
@@ -2989,55 +3024,63 @@ end_if;
 					<methods/>
 					<sourceCode type="ST">
 						<![CDATA[EvapFanPid.rDeadband	:= 0.0;
-EvapFanPid.rHighLimit 	:= TO_REAL(@me.m_configurations.m_bzMaximumEvaporatorFanSpeedCfg) / 10.0;
-EvapFanPid.rLowLimit 	:= TO_REAL(@me.m_configurations.m_bzMinimumEvaporatorFanSpeedCfg) / 10.0;
-EvapFanPid.rKp 			:= 0.0 - TO_REAL(@me.m_configurations.m_bzEvaporatorFanPIDKpCfg);
-EvapFanPid.uiTi 		:= TO_UINT(@me.m_configurations.m_bzEvaporatorFanPIDTiCfg);
-EvapFanPid.uiTd 		:= TO_UINT(@me.m_configurations.m_bzEvaporatorFanPIDTdCfg);
+EvapFanPid.rHighLimit 	:= @me.m_configurations.m_bzMaximumEvaporatorFanSpeedCfg;
+EvapFanPid.rLowLimit 	:= @me.m_configurations.m_bzMinimumEvaporatorFanSpeedCfg;
+EvapFanPid.rKp 			:= 0.0 - @me.m_configurations.m_bzEvaporatorFanPIDKpCfg;
+EvapFanPid.uiTi 		:= @me.m_configurations.m_bzEvaporatorFanPIDTiCfg;
+EvapFanPid.uiTd 		:= @me.m_configurations.m_bzEvaporatorFanPIDTdCfg;
 //
 // Evaporator fans
 //
 if (@me.m_unit_status = BZ_ON) then
 	
-		
 	// Fan control strategies : 
 	//	0:InRow_CACS;
 	//	1:HACS_RACS;
 	//	2:CONSTANT_SPD
-	if (@me.m_configurations.m_bzEvaporatorFanStrategyCfg = 0) then		
+	if (@me.m_configurations.m_bzEvaporatorFanStrategyCfg = bzInRow_CACS) then		
 		if (@me.groupRackAirSensors.High < -60.0 or @me.groupRackAirSensors.High > 120.0) then
 			EvapFanPid.xManualMode 	:= TRUE;
 			EvapFanPid.rManualValue	:= EvapFanPid.rHighLimit;
 		else
 			EvapFanPid.xManualMode	:= FALSE;
 			EvapFanPid.rPv 			:= @me.groupRackAirSensors.High;
-			EvapFanPid.rSetp 		:= TO_REAL(@me.m_configurations.m_bzCoolSetpointCfg) / 10.0;
+			EvapFanPid.rSetp 		:= @me.m_configurations.m_bzCoolSetpointCfg;
 		end_if;
 		
-	elsif (@me.m_configurations.m_bzEvaporatorFanStrategyCfg = 1) then
+	elsif (@me.m_configurations.m_bzEvaporatorFanStrategyCfg = bzHACS_RACS) then
 		if (@me.groupReturnAirSensors.Mean < -60.0 or @me.groupReturnAirSensors.Mean > 120.0) then
 			EvapFanPid.xManualMode 	:= TRUE;
 			EvapFanPid.rManualValue	:= EvapFanPid.rLowLimit;
 		else
 			EvapFanPid.xManualMode	:= FALSE;
 			EvapFanPid.rPv 			:= @me.groupReturnAirSensors.Mean;
-			EvapFanPid.rSetp 		:= TO_REAL(@me.m_configurations.m_bzSupplyAirSetpointCfg + @me.m_configurations.m_bzDeltaTSetpointCfg) / 10.0;
+			EvapFanPid.rSetp 		:= @me.m_configurations.m_bzSupplyAirSetpointCfg + @me.m_configurations.m_bzDeltaTSetpointCfg;
 		end_if;
 		
-	elsif (@me.m_configurations.m_bzEvaporatorFanStrategyCfg = 2) then
+	elsif (@me.m_configurations.m_bzEvaporatorFanStrategyCfg = bzCONSTANT_SPD) then
 		ptrINTtmp := @me.EvapFanManOutPtr;
 		
 		EvapFanPid.xManualMode 	:= TRUE;
 		EvapFanPid.rManualValue := TO_REAL(@ptrINTtmp) / 10.0;
 	else
-		// comfortable breeze
-		evap_fan_cmd := 100.0;
+		// If someone insisted on testing me with a wrong input, hope a comfortable breeze could clear your mind! 
+		EvapFanPid.xManualMode 	:= TRUE;
+		EvapFanPid.rManualValue := 100.0;
+	end_if;
+	
+	if (@me.BZFault_evaluators.PanFullAlarm_evaluator.parent.IsPresent) then
+		EvapFanPid.xManualMode 	:= TRUE;
+		EvapFanPid.rLowLimit	:= 0.0;
+		EvapFanPid.rManualValue := 0.0;
+	else;
 	end_if;
 	
 elsif (@me.m_unit_status = BZ_MAINTENANCE) then
 	ptrINTtmp := @me.EvapFanManOutPtr;
 	
 	EvapFanPid.xManualMode 	:= TRUE;
+	EvapFanPid.rLowLimit	:= 0.0;
 	EvapFanPid.rManualValue := TO_REAL(@ptrINTtmp) / 10.0;	
 elsif (@me.m_unit_status = BZ_OFF) then
 	EvapFanPid.xManualMode 	:= TRUE;
@@ -3054,8 +3097,6 @@ end_if;
 
 EvapFanPid();
 
-evap_fan_cmd := EvapFanPid.rAnalog;
-
 alarm := EvapFanPid.uiAlarmID;
 alert := EvapFanPid.uiAlertID;	
 if (alarm <> 0 or alert <> 0) then
@@ -3066,14 +3107,14 @@ end_if;
 
 for i := 0 to NUMBER_OF_EVAP_FANS - 1 do
 	ptrEvapFan := @me.EvapFans[i];
-	@ptrEvapFan.m_parent.m_Command := evap_fan_cmd;
+	@ptrEvapFan.m_parent.m_Command := EvapFanPid.rAnalog;
 end_for;
 ]]>
 					</sourceCode>
 				</functionBlock>
 			</functionBlocks>
 			<programs>
-				<program name="main" version="1.0.0" creationDate="0" lastModifiedDate="1613440346">
+				<program name="main" version="1.0.0" creationDate="0" lastModifiedDate="1613632196">
 					<vars>
 						<localVars>
 							<var name="i" type="INT"/>
@@ -3124,45 +3165,45 @@ end_if;
  *****************************************************************************************************/
 
 // read configurations
-ACUnit.m_configurations.unit_mode_cmd 								:= bzUnitModeCfg;
+ACUnit.m_configurations.m_bzUnitModeCfg								:= bzUnitModeCfg;
 ACUnit.m_configurations.unit_mode_cmd_adr							:= ADR(bzUnitModeCfg);
 
-ACUnit.m_configurations.unit_maintenance_timeout					:= bzUnitMaintenanceTimeoutCfg;
-ACUnit.m_configurations.unit_startup_delay_timeout 					:= bzUnitStartupDelayCfg;
-ACUnit.m_configurations.cond_pump_off_delay_timeout					:= bzCondensatePumpDelay2OffCfg;
+ACUnit.m_configurations.m_bzUnitMaintenanceTimeoutCfg				:= bzUnitMaintenanceTimeoutCfg;
+ACUnit.m_configurations.m_bzUnitStartupDelayCfg 					:= bzUnitStartupDelayCfg;
+ACUnit.m_configurations.m_bzCondensatePumpDelay2OffCfg				:= bzCondensatePumpDelay2OffCfg;
 ACUnit.m_configurations.m_bzCondensatePumpRunhourThresholdCfg		:= bzCondensatePumpRunhourThresholdCfg;
-ACUnit.m_configurations.m_bzHighRackinletTemperatureThresholdCfg	:= bzHighRackinletTemperatureThresholdCfg;
+ACUnit.m_configurations.m_bzHighRackinletTemperatureThresholdCfg	:= TO_REAL(bzHighRackinletTemperatureThresholdCfg) / 10.0;
 ACUnit.m_configurations.m_bzHighRackinletTemperatureTimeoutCfg		:= bzHighRackinletTemperatureTimeoutCfg;
-ACUnit.m_configurations.m_bzHighReturnTemperatureThresholdCfg		:= bzHighReturnTemperatureThresholdCfg;
+ACUnit.m_configurations.m_bzHighReturnTemperatureThresholdCfg		:= TO_REAL(bzHighReturnTemperatureThresholdCfg) / 10.0;
 ACUnit.m_configurations.m_bzHighReturnTemperatureTimeoutCfg			:= bzHighReturnTemperatureTimeoutCfg;
-ACUnit.m_configurations.m_bzHighSupplyTemperatureThresholdCfg		:= bzHighSupplyTemperatureThresholdCfg;
+ACUnit.m_configurations.m_bzHighSupplyTemperatureThresholdCfg		:= TO_REAL(bzHighSupplyTemperatureThresholdCfg) / 10.0;
 ACUnit.m_configurations.m_bzHighSupplyTemperatureTimeoutCfg			:= bzHighSupplyTemperatureTimeoutCfg;
 ACUnit.m_configurations.m_bzSolenoidValveRunhourThresholdCfg		:= bzSolenoidValveRunhourThresholdCfg;
 ACUnit.m_configurations.m_bzAirfilterRunhourThresholdCfg			:= bzAirfilterRunhourThresholdCfg;
 ACUnit.m_configurations.m_bzEvaporatorFanStrategyCfg				:= bzEvaporatorFanStrategyCfg;
-ACUnit.m_configurations.m_bzCoolSetpointCfg							:= bzCoolSetpointCfg;
-ACUnit.m_configurations.m_bzDeltaTSetpointCfg						:= bzDeltaTSetpointCfg;
-ACUnit.m_configurations.m_bzSupplyAirSetpointCfg					:= bzSupplyAirSetpointCfg;
-ACUnit.m_configurations.m_bzMaximumEvaporatorFanSpeedCfg			:= bzMaximumEvaporatorFanSpeedCfg;
-ACUnit.m_configurations.m_bzMinimumEvaporatorFanSpeedCfg			:= bzMinimumEvaporatorFanSpeedCfg;
-ACUnit.m_configurations.m_bzEEVPreOpeningCfg						:= bzEEVPreOpeningCfg;
-ACUnit.m_configurations.m_bzMinimumEEVOpeningCfg					:= bzMinimumEEVOpeningCfg;
-ACUnit.m_configurations.m_bzEvapSuperheatSetpointCfg				:= bzEvapSuperheatSetpointCfg;
-ACUnit.m_configurations.m_bzMinimumCompressorCommandCfg				:= bzMinimumCompressorCommandCfg;
-ACUnit.m_configurations.m_bzCompressorPumpdownCommandCfg			:= bzCompressorPumpdownCommandCfg;
+ACUnit.m_configurations.m_bzCoolSetpointCfg							:= TO_REAL(bzCoolSetpointCfg) / 10.0;
+ACUnit.m_configurations.m_bzDeltaTSetpointCfg						:= TO_REAL(bzDeltaTSetpointCfg) / 10.0;
+ACUnit.m_configurations.m_bzSupplyAirSetpointCfg					:= TO_REAL(bzSupplyAirSetpointCfg) / 10.0;
+ACUnit.m_configurations.m_bzMaximumEvaporatorFanSpeedCfg			:= TO_REAL(bzMaximumEvaporatorFanSpeedCfg) / 10.0;
+ACUnit.m_configurations.m_bzMinimumEvaporatorFanSpeedCfg			:= TO_REAL(bzMinimumEvaporatorFanSpeedCfg) / 10.0;
+ACUnit.m_configurations.m_bzEEVPreOpeningCfg						:= TO_REAL(bzEEVPreOpeningCfg) / 10.0;
+ACUnit.m_configurations.m_bzMinimumEEVOpeningCfg					:= TO_REAL(bzMinimumEEVOpeningCfg) / 10.0;
+ACUnit.m_configurations.m_bzEvapSuperheatSetpointCfg				:= TO_REAL(bzEvapSuperheatSetpointCfg) / 10.0;
+ACUnit.m_configurations.m_bzMinimumCompressorCommandCfg				:= TO_REAL(bzMinimumCompressorCommandCfg) / 10.0;
+ACUnit.m_configurations.m_bzCompressorPumpdownCommandCfg			:= TO_REAL(bzCompressorPumpdownCommandCfg) / 10.0;
 ACUnit.m_configurations.m_bzCompressorPumpdownTimeoutCfg			:= bzCompressorPumpdownTimeoutCfg;
-ACUnit.m_configurations.m_bzCompressorPumpdownThreshold 			:= bzCompressorPumpdownThreshold;
-ACUnit.m_configurations.m_bzMinimalSupplyAirTemperatureCfg			:= bzMinimalSupplyAirTemperatureCfg;
-ACUnit.m_configurations.m_bzCompressorPIDKpCfg						:= bzCompressorPIDKpCfg;
+ACUnit.m_configurations.m_bzCompressorPumpdownThreshold 			:= TO_REAL(bzCompressorPumpdownThreshold) / 100.0;
+ACUnit.m_configurations.m_bzMinimalSupplyAirTemperatureCfg			:= TO_REAL(bzMinimalSupplyAirTemperatureCfg) / 10.0;
+ACUnit.m_configurations.m_bzCompressorPIDKpCfg						:= TO_REAL(bzCompressorPIDKpCfg) / 100.0;
 ACUnit.m_configurations.m_bzCompressorPIDTiCfg						:= bzCompressorPIDTiCfg;
 ACUnit.m_configurations.m_bzCompressorPIDTdCfg						:= bzCompressorPIDTdCfg;
-ACUnit.m_configurations.m_bzEvaporatorFanPIDKpCfg					:= bzEvaporatorFanPIDKpCfg;
+ACUnit.m_configurations.m_bzEvaporatorFanPIDKpCfg					:= TO_REAL(bzEvaporatorFanPIDKpCfg) / 100.0;
 ACUnit.m_configurations.m_bzEvaporatorFanPIDTiCfg					:= bzEvaporatorFanPIDTiCfg;
 ACUnit.m_configurations.m_bzEvaporatorFanPIDTdCfg					:= bzEvaporatorFanPIDTdCfg;
-ACUnit.m_configurations.m_bzEEVPIDKpCfg								:= bzEEVPIDKpCfg;
+ACUnit.m_configurations.m_bzEEVPIDKpCfg								:= TO_REAL(bzEEVPIDKpCfg) / 100.0;
 ACUnit.m_configurations.m_bzEEVPIDTiCfg								:= bzEEVPIDTiCfg;
 ACUnit.m_configurations.m_bzEEVPIDTdCfg								:= bzEEVPIDTdCfg;
-ACUnit.m_configurations.m_bzEvapSuperheatDeadbandCfg				:= bzEvapSuperheatDeadbandCfg;
+ACUnit.m_configurations.m_bzEvapSuperheatDeadbandCfg				:= TO_REAL(bzEvapSuperheatDeadbandCfg) / 10.0;
 
 
 ACUnit.EvapFanManOutPtr					:= ?bzManualFanSpeed;
@@ -3199,16 +3240,18 @@ end_if;
  *****************************************************************************************************/
 
 // Update modbus registers
-bzRATu := TO_INT(IBZTemperatureSensor_read(ACUnit.groupReturnAirSensors.Sensors[0], 	enCelcius) * 10);
-bzRATl := TO_INT(IBZTemperatureSensor_read(ACUnit.groupReturnAirSensors.Sensors[1], 	enCelcius) * 10);
-bzSATu := TO_INT(IBZTemperatureSensor_read(ACUnit.groupSupplyAirSensors.Sensors[0], 	enCelcius) * 10);
-bzSATl := TO_INT(IBZTemperatureSensor_read(ACUnit.groupSupplyAirSensors.Sensors[1], 	enCelcius) * 10);
-bzRCT1 := TO_INT(IBZTemperatureSensor_read(ACUnit.groupRackAirSensors.Sensors[0],		enCelcius) * 10);
-bzRCT2 := TO_INT(IBZTemperatureSensor_read(ACUnit.groupRackAirSensors.Sensors[1], 		enCelcius) * 10);
+bzUpperReturnAirTemperature 	:= TO_INT(IBZTemperatureSensor_read(ACUnit.groupReturnAirSensors.Sensors[0], 	enCelcius) * 10);
+bzLowerReturnAirTemperature 	:= TO_INT(IBZTemperatureSensor_read(ACUnit.groupReturnAirSensors.Sensors[1], 	enCelcius) * 10);
+bzAverageReturnAirTemperature 	:= TO_INT(ACUnit.groupReturnAirSensors.Mean 	* 10.0);
 
-bzRATg := TO_INT(ACUnit.groupReturnAirSensors.Mean 	* 10.0);
-bzSATg := TO_INT(ACUnit.groupSupplyAirSensors.Mean 	* 10.0);
-bzRCTh := TO_INT(ACUnit.groupRackAirSensors.High 	* 10.0);
+bzUpperSupplyAirTemperature 	:= TO_INT(IBZTemperatureSensor_read(ACUnit.groupSupplyAirSensors.Sensors[0], 	enCelcius) * 10);
+bzLowerSupplyAirTemperature 	:= TO_INT(IBZTemperatureSensor_read(ACUnit.groupSupplyAirSensors.Sensors[1], 	enCelcius) * 10);
+bzAverageSupplyAirTemperature 	:= TO_INT(ACUnit.groupSupplyAirSensors.Mean 	* 10.0);
+
+bzRackInletAirTemperatureAlfa 	:= TO_INT(IBZTemperatureSensor_read(ACUnit.groupRackAirSensors.Sensors[0],		enCelcius) * 10);
+bzRackInletAirTemperatureBravo	:= TO_INT(IBZTemperatureSensor_read(ACUnit.groupRackAirSensors.Sensors[1], 		enCelcius) * 10);
+bzMaxRackInletAirTemperature 	:= TO_INT(ACUnit.groupRackAirSensors.High 	* 10.0);
+
 
 ptrPressureSensor := ACUnit.EvapCoilPressureSensor;
 ptrTmp := ACUnit.EvapCoilTempSensor;
@@ -3218,7 +3261,8 @@ bzEvaporatorCoilSuperheat 		:= TO_INT(ACUnit.controlEXV.Superheat * 10.0);
 
 
 //ptrEvapFan
-//bzEvaporatorFanCommand 	:= ;
+ptrEvapFan := ACUnit.EvapFans[0];	// All the fans should share a same command
+bzEvaporatorFanCommand 	:= TO_INT(@ptrEvapFan.m_parent.m_Command * 10.0);
 //bzEvaporatorFanFeedback	:=;
 
 ptrExv := ACUnit.EXV;
@@ -3560,7 +3604,7 @@ ACUnit.EVDController	:= ?EEVDriver;
 ]]>
 					</sourceCode>
 				</program>
-				<program name="task_100ms" version="1.0.0" creationDate="1612412940" lastModifiedDate="1613117391">
+				<program name="task_100ms" version="1.0.0" creationDate="1612412940" lastModifiedDate="1613620175">
 					<vars>
 						<localVars>
 							<var name="second_counter" type="INT"/>
@@ -3570,6 +3614,8 @@ ACUnit.EVDController	:= ?EEVDriver;
 							<var name="is_green_led_on" type="USINT">
 								<initValue>0</initValue>
 							</var>
+							<var name="is_yellow_led_on" type="USINT"/>
+							<var name="is_red_led_on" type="USINT"/>
 						</localVars>
 					</vars>
 					<iecDeclaration active="FALSE"/>
@@ -3584,6 +3630,28 @@ if second_counter >= 10 then
 		is_green_led_on := 1;
 	else
 		is_green_led_on := 0;
+	end_if;
+	
+	sysLocalLeds[1] := is_red_led_on;
+	if(ACUnit.BZFault_evaluators.NumberOfAlarmDetected > 0) then
+		if (is_red_led_on = 0) then
+			is_red_led_on := 1;
+		else
+			is_red_led_on := 0;
+		end_if;
+	else
+		is_red_led_on := 0;
+	end_if;	
+	
+	sysLocalLeds[2] := is_yellow_led_on;
+	if(ACUnit.BZFault_evaluators.NumberOfWarningsDetected > 0) then
+		if (is_yellow_led_on = 0) then
+			is_yellow_led_on := 1;
+		else
+			is_yellow_led_on := 0;
+		end_if;
+	else
+		is_yellow_led_on := 0;
 	end_if;
 	
 	ACUnit.on1s();
@@ -4035,6 +4103,7 @@ of the actual position.</descr>
 					<title>bzAisleACUnit Fault</title>
 					<descr>TBC</descr>
 					<vars>
+						<var name="NumberOfWarningsDetected" type="INT"/>
 						<var name="NumberOfAlarmDetected" type="INT"/>
 						<var name="UnitMaintenanceWarning_evaluator" type="BZFault_UnitMaintenanceWarning"/>
 						<var name="NoneOfRackinletTemperatureWarning_evaluator" type="BZFault_NoneOfRackinletTemperatureWarning"/>
@@ -4060,54 +4129,44 @@ of the actual position.</descr>
 					<title>AisleAC Unit</title>
 					<descr>A type of an air conditioner unit built from a project called AisleAC which is regarded as replacedment of ACRD100, but who knows how long it can survive.</descr>
 					<vars>
-						<var name="unit_mode_cmd" type="INT">
-							<descr>Link to bzUnitModeCfg</descr>
-						</var>
-						<var name="unit_mode_cmd_adr" type="UDINT">
-							<descr>Link to bzUnitModeCfg</descr>
-						</var>
-						<var name="unit_startup_delay_timeout" type="UINT">
-							<descr>Link to bzUnitStartupDelayCfg</descr>
-						</var>
-						<var name="unit_maintenance_timeout" type="UINT">
-							<descr>Link to bzUnitMaintenanceTimeoutCfg</descr>
-						</var>
-						<var name="cond_pump_off_delay_timeout" type="INT">
-							<descr>Link to bzCondensatePumpDelay2OffCfg</descr>
-						</var>
-						<var name="m_bzHighRackinletTemperatureThresholdCfg" type="INT"/>
+						<var name="m_bzUnitModeCfg" type="INT"/>
+						<var name="unit_mode_cmd_adr" type="UDINT"/>
+						<var name="m_bzUnitStartupDelayCfg" type="UINT"/>
+						<var name="m_bzUnitMaintenanceTimeoutCfg" type="UINT"/>
+						<var name="m_bzCondensatePumpDelay2OffCfg" type="INT"/>
+						<var name="m_bzHighRackinletTemperatureThresholdCfg" type="REAL"/>
 						<var name="m_bzHighRackinletTemperatureTimeoutCfg" type="INT"/>
-						<var name="m_bzHighReturnTemperatureThresholdCfg" type="INT"/>
+						<var name="m_bzHighReturnTemperatureThresholdCfg" type="REAL"/>
 						<var name="m_bzHighReturnTemperatureTimeoutCfg" type="INT"/>
-						<var name="m_bzHighSupplyTemperatureThresholdCfg" type="INT"/>
+						<var name="m_bzHighSupplyTemperatureThresholdCfg" type="REAL"/>
 						<var name="m_bzHighSupplyTemperatureTimeoutCfg" type="INT"/>
 						<var name="m_bzCondensatePumpRunhourThresholdCfg" type="UINT"/>
 						<var name="m_bzSolenoidValveRunhourThresholdCfg" type="UINT"/>
 						<var name="m_bzAirfilterRunhourThresholdCfg" type="UINT"/>
 						<var name="m_bzEvaporatorFanStrategyCfg" type="INT"/>
-						<var name="m_bzCoolSetpointCfg" type="INT"/>
-						<var name="m_bzDeltaTSetpointCfg" type="INT"/>
-						<var name="m_bzSupplyAirSetpointCfg" type="INT"/>
-						<var name="m_bzMinimumEvaporatorFanSpeedCfg" type="INT"/>
-						<var name="m_bzMaximumEvaporatorFanSpeedCfg" type="INT"/>
-						<var name="m_bzMinimumEEVOpeningCfg" type="INT"/>
-						<var name="m_bzEEVPreOpeningCfg" type="INT"/>
-						<var name="m_bzEvapSuperheatSetpointCfg" type="INT"/>
-						<var name="m_bzMinimumCompressorCommandCfg" type="INT"/>
-						<var name="m_bzCompressorPumpdownCommandCfg" type="INT"/>
+						<var name="m_bzCoolSetpointCfg" type="REAL"/>
+						<var name="m_bzDeltaTSetpointCfg" type="REAL"/>
+						<var name="m_bzSupplyAirSetpointCfg" type="REAL"/>
+						<var name="m_bzMinimumEvaporatorFanSpeedCfg" type="REAL"/>
+						<var name="m_bzMaximumEvaporatorFanSpeedCfg" type="REAL"/>
+						<var name="m_bzMinimumEEVOpeningCfg" type="REAL"/>
+						<var name="m_bzEEVPreOpeningCfg" type="REAL"/>
+						<var name="m_bzEvapSuperheatSetpointCfg" type="REAL"/>
+						<var name="m_bzMinimumCompressorCommandCfg" type="REAL"/>
+						<var name="m_bzCompressorPumpdownCommandCfg" type="REAL"/>
 						<var name="m_bzCompressorPumpdownTimeoutCfg" type="INT"/>
-						<var name="m_bzCompressorPumpdownThreshold" type="INT"/>
-						<var name="m_bzMinimalSupplyAirTemperatureCfg" type="INT"/>
-						<var name="m_bzEvaporatorFanPIDKpCfg" type="INT"/>
-						<var name="m_bzEvaporatorFanPIDTiCfg" type="INT"/>
-						<var name="m_bzEvaporatorFanPIDTdCfg" type="INT"/>
-						<var name="m_bzCompressorPIDKpCfg" type="INT"/>
-						<var name="m_bzCompressorPIDTiCfg" type="INT"/>
-						<var name="m_bzCompressorPIDTdCfg" type="INT"/>
-						<var name="m_bzEEVPIDKpCfg" type="INT"/>
-						<var name="m_bzEEVPIDTiCfg" type="INT"/>
-						<var name="m_bzEEVPIDTdCfg" type="INT"/>
-						<var name="m_bzEvapSuperheatDeadbandCfg" type="INT"/>
+						<var name="m_bzCompressorPumpdownThreshold" type="REAL"/>
+						<var name="m_bzMinimalSupplyAirTemperatureCfg" type="REAL"/>
+						<var name="m_bzEvaporatorFanPIDKpCfg" type="REAL"/>
+						<var name="m_bzEvaporatorFanPIDTiCfg" type="UINT"/>
+						<var name="m_bzEvaporatorFanPIDTdCfg" type="UINT"/>
+						<var name="m_bzCompressorPIDKpCfg" type="REAL"/>
+						<var name="m_bzCompressorPIDTiCfg" type="UINT"/>
+						<var name="m_bzCompressorPIDTdCfg" type="UINT"/>
+						<var name="m_bzEEVPIDKpCfg" type="REAL"/>
+						<var name="m_bzEEVPIDTiCfg" type="UINT"/>
+						<var name="m_bzEEVPIDTdCfg" type="UINT"/>
+						<var name="m_bzEvapSuperheatDeadbandCfg" type="REAL"/>
 					</vars>
 				</struct>
 				<struct name="BZEEV" version="1.0.0">
@@ -57381,111 +57440,111 @@ ui16_random := TO_UINT(ui16_random_copy or (ui16_random_tmp and 16#00FF));
 		{G:"EEPROM_Parameters"}
 	bzUnitModeCfg AT %MW101.0 : INT;  {DE:"Unit mode"}
 		{G:"EEPROM_Parameters"}
-	bzUnitMaintenanceTimeoutCfg AT %MW101.1 : UINT;  {DE:"Unit maintenance timeout in minute"}
+	bzCoolSetpointCfg AT %MW101.1 : INT;  {DE:"Cool setpoint"}
 		{G:"EEPROM_Parameters"}
-	bzUnitStartupDelayCfg AT %MW101.2 : UINT;  {DE:"Unit startup delay timeout in second"}
+	bzDeltaTSetpointCfg AT %MW101.2 : INT;  {DE:"Differential between return air temperature and supply air temperature setpoint"}
 		{G:"EEPROM_Parameters"}
-	bzHighReturnTemperatureThresholdCfg AT %MW101.3 : INT;  {DE:"High return air temperature threshold"}
+	bzSupplyAirSetpointCfg AT %MW101.3 : INT;  {DE:"Supply air temperature setpoint"}
 		{G:"EEPROM_Parameters"}
-	bzHighReturnTemperatureTimeoutCfg AT %MW101.4 : INT;  {DE:"High return air temperature warning forgiven time"}
+	bzUnitMaintenanceTimeoutCfg AT %MW101.4 : UINT;  {DE:"Unit maintenance timeout in minute"}
 		{G:"EEPROM_Parameters"}
-	bzHighSupplyTemperatureThresholdCfg AT %MW101.5 : INT;  {DE:"High supply air temperature threshold"}
+	bzUnitStartupDelayCfg AT %MW101.5 : UINT;  {DE:"Unit startup delay timeout in second"}
 		{G:"EEPROM_Parameters"}
-	bzHighSupplyTemperatureTimeoutCfg AT %MW101.6 : INT;  {DE:"High supply air temperature warning forgiven time"}
+	bzHighReturnTemperatureThresholdCfg AT %MW101.6 : INT;  {DE:"High return air temperature threshold"}
 		{G:"EEPROM_Parameters"}
-	BZSwitchReversedCfg AT %MW101.7 : INT;  {DE:"BZSwitch status logic configuration"}
+	bzHighReturnTemperatureTimeoutCfg AT %MW101.7 : INT;  {DE:"High return air temperature warning forgiven time"}
 		{G:"EEPROM_Parameters"}
-	bzUnitStatusRelayCfg AT %MW101.8 : INT;  {DE:"Output of relay of unit status indication configuration"}
+	bzHighSupplyTemperatureThresholdCfg AT %MW101.8 : INT;  {DE:"High supply air temperature threshold"}
 		{G:"EEPROM_Parameters"}
-	bzMajorAlarmRelayCfg AT %MW101.9 : INT;  {DE:"Output of relay of unit major alarm indication configuration"}
+	bzHighSupplyTemperatureTimeoutCfg AT %MW101.9 : INT;  {DE:"High supply air temperature warning forgiven time"}
 		{G:"EEPROM_Parameters"}
-	bzCondensatePumpDelay2OffCfg AT %MW101.10 : INT;  {DE:"Condensate pump off delay timeout in second"}
+	bzUnitStatusRelayCfg AT %MW101.10 : INT;  {DE:"Output of relay of unit status indication configuration"}
 		{G:"EEPROM_Parameters"}
-	bzCondensatePumpRunhourLog AT %MW101.11 : UINT;  {DE:"Condensate pump runhour"}
+	bzMajorAlarmRelayCfg AT %MW101.11 : INT;  {DE:"Output of relay of unit major alarm indication configuration"}
 		{G:"EEPROM_Parameters"}
-	bzCondensatePumpRunhourThresholdCfg AT %MW101.12 : UINT;  {DE:"Condensate pump runhour threshold"}
+	bzCondensatePumpDelay2OffCfg AT %MW101.12 : INT;  {DE:"Condensate pump off delay timeout in second"}
 		{G:"EEPROM_Parameters"}
-	bzHighRackinletTemperatureThresholdCfg AT %MW101.13 : INT;  {DE:"High rackinlet air temperature threshold"}
+	bzCondensatePumpRunhourLog AT %MW101.13 : UINT;  {DE:"Condensate pump runhour"}
 		{G:"EEPROM_Parameters"}
-	bzHighRackinletTemperatureTimeoutCfg AT %MW101.14 : INT;  {DE:"High rackinlet air temperature warning forgiven time"}
+	bzCondensatePumpRunhourThresholdCfg AT %MW101.14 : UINT;  {DE:"Condensate pump runhour threshold"}
 		{G:"EEPROM_Parameters"}
-	bzEvaporatorFanStrategyCfg AT %MW101.15 : INT;  {DE:"Evaporator fan control strategy"}
+	bzHighRackinletTemperatureThresholdCfg AT %MW101.15 : INT;  {DE:"High rackinlet air temperature threshold"}
 		{G:"EEPROM_Parameters"}
-	bzCoolSetpointCfg AT %MW101.16 : INT;  {DE:"Cool setpoint"}
+	bzHighRackinletTemperatureTimeoutCfg AT %MW101.16 : INT;  {DE:"High rackinlet air temperature warning forgiven time"}
 		{G:"EEPROM_Parameters"}
-	bzDeltaTSetpointCfg AT %MW101.17 : INT;  {DE:"Differential between return air temperature and supply air temperature setpoint"}
+	bzEvaporatorFanStrategyCfg AT %MW101.17 : INT;  {DE:"Evaporator fan control strategy"}
 		{G:"EEPROM_Parameters"}
-	bzSupplyAirSetpointCfg AT %MW101.18 : INT;  {DE:"Supply air temperature setpoint"}
+	bzSolenoidValveRunhourLog AT %MW101.18 : UINT;  {DE:"Solenoid valve run-hour"}
 		{G:"EEPROM_Parameters"}
-	bzSolenoidValveRunhourLog AT %MW101.19 : UINT;  {DE:"Solenoid valve run-hour"}
+	bzSolenoidValveRunhourThresholdCfg AT %MW101.19 : UINT;  {DE:"Solenoid valve run-hour threshold"}
 		{G:"EEPROM_Parameters"}
-	bzSolenoidValveRunhourThresholdCfg AT %MW101.20 : UINT;  {DE:"Solenoid valve run-hour threshold"}
+	bzAirfilterRunhourLog AT %MW101.20 : UINT;  {DE:"Airfilter run-hour"}
 		{G:"EEPROM_Parameters"}
-	bzAirfilterRunhourLog AT %MW101.21 : UINT;  {DE:"Airfilter run-hour"}
+	bzAirfilterRunhourThresholdCfg AT %MW101.21 : UINT;  {DE:"Airfilter run-hour threshold"}
 		{G:"EEPROM_Parameters"}
-	bzAirfilterRunhourThresholdCfg AT %MW101.22 : UINT;  {DE:"Airfilter run-hour threshold"}
+	bzMinimumEvaporatorFanSpeedCfg AT %MW101.22 : INT;  {DE:"Minimum evaproator fan speed setting"}
 		{G:"EEPROM_Parameters"}
-	bzMinimumEvaporatorFanSpeedCfg AT %MW101.23 : INT;  {DE:"Minimum evaproator fan speed setting"}
+	bzMaximumEvaporatorFanSpeedCfg AT %MW101.23 : INT;  {DE:"Maximum evaporator fan speed setting"}
 		{G:"EEPROM_Parameters"}
-	bzMaximumEvaporatorFanSpeedCfg AT %MW101.24 : INT;  {DE:"Maximum evaporator fan speed setting"}
+	bzMinimumEEVOpeningCfg AT %MW101.24 : INT;  {DE:"Minimum EXV opening"}
 		{G:"EEPROM_Parameters"}
-	bzMinimumEEVOpeningCfg AT %MW101.25 : INT;  {DE:"Minimum EXV opening"}
+	bzEEVPreOpeningCfg AT %MW101.25 : INT;  {DE:"Pre-opening of EXV"}
 		{G:"EEPROM_Parameters"}
-	bzEEVPreOpeningCfg AT %MW101.26 : INT;  {DE:"Pre-opening of EXV"}
+	bzEvapSuperheatSetpointCfg AT %MW101.26 : INT;  {DE:"Evaporator superheat set point"}
 		{G:"EEPROM_Parameters"}
-	bzEvapSuperheatSetpointCfg AT %MW101.27 : INT;  {DE:"Evaporator superheat set point"}
+	bzMinimumCompressorCommandCfg AT %MW101.27 : INT;  {DE:"Minimum compressor command speed in percentage"}
 		{G:"EEPROM_Parameters"}
-	bzMinimumCompressorCommandCfg AT %MW101.28 : INT;  {DE:"Minimum compressor command speed in percentage"}
+	bzCompressorPumpdownCommandCfg AT %MW101.28 : INT;  {DE:"The constant speed when the compressor is running pump down"}
 		{G:"EEPROM_Parameters"}
-	bzCompressorPumpdownCommandCfg AT %MW101.29 : INT;  {DE:"The constant speed when the compressor is running pump down"}
+	bzCompressorPumpdownTimeoutCfg AT %MW101.29 : INT;  {DE:"Pumpdown timeout"}
 		{G:"EEPROM_Parameters"}
-	bzCompressorPumpdownTimeoutCfg AT %MW101.30 : INT;  {DE:"Pumpdown timeout"}
+	bzCompressorPumpdownThreshold AT %MW101.30 : INT;  {DE:"The minimal pressure to end up pump down process compulsively"}
 		{G:"EEPROM_Parameters"}
-	bzCompressorPumpdownThreshold AT %MW101.31 : INT;  {DE:"The minimal pressure to end up pump down process compulsively"}
+	bzMinimalSupplyAirTemperatureCfg AT %MW101.31 : INT;  {DE:"The minimal supply air temperature to keep the compressor running"}
 		{G:"EEPROM_Parameters"}
-	bzMinimalSupplyAirTemperatureCfg AT %MW101.32 : INT;  {DE:"The minimal supply air temperature to keep the compressor running"}
+	bzEvaporatorFanPIDKpCfg AT %MW101.32 : INT;  {DE:"Proportional gain for evaporator fan control"}
 		{G:"EEPROM_Parameters"}
-	bzEvaporatorFanPIDKpCfg AT %MW101.33 : INT;  {DE:"<copy>"}
+	bzCompressorPIDKpCfg AT %MW101.33 : INT;  {DE:"Proportional gain for compressor control"}
 		{G:"EEPROM_Parameters"}
-	bzCompressorPIDKpCfg AT %MW101.34 : INT;  {DE:"<copy>"}
+	bzEEVPIDKpCfg AT %MW101.34 : INT;  {DE:"Proportional gain for EEV control"}
 		{G:"EEPROM_Parameters"}
-	bzEEVPIDKpCfg AT %MW101.35 : INT;  {DE:"<copy>"}
+	bzEvaporatorFanPIDTiCfg AT %MW101.35 : UINT;  {DE:"<copy>"}
 		{G:"EEPROM_Parameters"}
-	bzEvaporatorFanPIDTiCfg AT %MW101.36 : INT;  {DE:"<copy>"}
+	bzCompressorPIDTiCfg AT %MW101.36 : UINT;  {DE:"<copy>"}
 		{G:"EEPROM_Parameters"}
-	bzCompressorPIDTiCfg AT %MW101.37 : INT;  {DE:"<copy>"}
+	bzEEVPIDTiCfg AT %MW101.37 : UINT;  {DE:"<copy>"}
 		{G:"EEPROM_Parameters"}
-	bzEEVPIDTiCfg AT %MW101.38 : INT;  {DE:"<copy>"}
+	bzEvaporatorFanPIDTdCfg AT %MW101.38 : UINT;  {DE:"<copy>"}
 		{G:"EEPROM_Parameters"}
-	bzEvaporatorFanPIDTdCfg AT %MW101.39 : INT;  {DE:"<copy>"}
+	bzCompressorPIDTdCfg AT %MW101.39 : UINT;  {DE:"<copy>"}
 		{G:"EEPROM_Parameters"}
-	bzCompressorPIDTdCfg AT %MW101.40 : INT;  {DE:"<copy>"}
+	bzEEVPIDTdCfg AT %MW101.40 : UINT;  {DE:"<copy>"}
 		{G:"EEPROM_Parameters"}
-	bzEEVPIDTdCfg AT %MW101.41 : INT;  {DE:"<copy>"}
+	bzEvapSuperheatDeadbandCfg AT %MW101.41 : INT;  {DE:"Evaporator coil superheat control deadband"}
 		{G:"EEPROM_Parameters"}
-	bzEvapSuperheatDeadbandCfg AT %MW101.42 : INT;  {DE:"Evaporator coil superheat control deadband"}
+	BZSwitchReversedCfg AT %MW101.42 : INT;  {DE:"BZSwitch status logic configuration"}
 		{G:"Status_variables"}
 	bzBIOSVersion AT %MW110.0 : STRING[ 8 ];  {DE:"M172 BIOS version"}
 		{G:"Status_variables"}
 	bzAppVersion AT %MW110.5 : STRING[ 8 ];  {DE:"Application version by a string type format of xx.xx.xx"}
 		{G:"Status_variables"}
-	bzRATu AT %MW110.10 : INT;  {DE:"Upper return air temperature"}
+	bzUpperReturnAirTemperature AT %MW110.10 : INT;  {DE:"Upper return air temperature"}
 		{G:"Status_variables"}
-	bzRATl AT %MW110.11 : INT;  {DE:"Lower return air temperature"}
+	bzLowerReturnAirTemperature AT %MW110.11 : INT;  {DE:"Lower return air temperature"}
 		{G:"Status_variables"}
-	bzRATg AT %MW110.12 : INT;  {DE:"Average measurement of the return air temperature"}
+	bzAverageReturnAirTemperature AT %MW110.12 : INT;  {DE:"Average measurement of the return air temperature"}
 		{G:"Status_variables"}
-	bzSATu AT %MW110.13 : INT;  {DE:"Upper supply air temperature"}
+	bzUpperSupplyAirTemperature AT %MW110.13 : INT;  {DE:"Upper supply air temperature"}
 		{G:"Status_variables"}
-	bzSATl AT %MW110.14 : INT;  {DE:"Lower supply air temperature"}
+	bzLowerSupplyAirTemperature AT %MW110.14 : INT;  {DE:"Lower supply air temperature"}
 		{G:"Status_variables"}
-	bzSATg AT %MW110.15 : INT;  {DE:"Average measurement of the supply air temperature"}
+	bzAverageSupplyAirTemperature AT %MW110.15 : INT;  {DE:"Average measurement of the supply air temperature"}
 		{G:"Status_variables"}
-	bzRCT1 AT %MW110.16 : INT;  {DE:"Rack inlet air temperature 1"}
+	bzRackInletAirTemperatureAlfa AT %MW110.16 : INT;  {DE:"Rack inlet air temperature 1"}
 		{G:"Status_variables"}
-	bzRCT2 AT %MW110.17 : INT;  {DE:"Rack inlet air temperature 2"}
+	bzRackInletAirTemperatureBravo AT %MW110.17 : INT;  {DE:"Rack inlet air temperature 2"}
 		{G:"Status_variables"}
-	bzRCTh AT %MW110.18 : INT;  {DE:"Max rack inlet air temperature of the two probes supposed to be located right in front of the rack"}
+	bzMaxRackInletAirTemperature AT %MW110.18 : INT;  {DE:"Max rack inlet air temperature of the two probes supposed to be located right in front of the rack"}
 		{G:"Status_variables"}
 	bzUnitStatus AT %MW110.19 : INT;  {DE:"Unit status"}
 		{G:"Status_variables"}
@@ -57669,7 +57728,7 @@ PROGRAM InitParDB
 		dummyCrc32: UDINT;
 	END_VAR
 
-	dummyCrc32 := 3396824428;
+	dummyCrc32 := 500217262;
 
 	warningsKiller := sysDBase_SetExtTable( ADR( $$ParDB ), $$ParDBLength );
 
@@ -57697,7 +57756,7 @@ END_PROGRAM
 			</src>
 		</aux>
 		<workspace>
-			<root name="BZ172Lab" nextID="25678">
+			<root name="BZ172Lab" nextID="28330">
 				<GlobalVars name="Global_vars" id="11"/>
 				<Pou name="main" id="2"/>
 				<folder id="16" name="BZoops172">
@@ -57937,413 +57996,8 @@ END_PROGRAM
 								<clientType>0</clientType>
 							</param>
 							<param>
-								<ipa>1</ipa>
-								<address>16385</address>
-								<name>bzUnitMaintenanceTimeoutCfg</name>
-								<typepar>2</typepar>
-								<typetarg>UINT</typetarg>
-								<value>10</value>
-								<min>5</min>
-								<max>10080</max>
-								<ipamin/>
-								<ipamax/>
-								<scale>1</scale>
-								<offs>0</offs>
-								<um>min</um>
-								<description>Unit maintenance timeout in minute</description>
-								<note>When the timeout is expired, maintenance mode is terminated compulsively</note>
-								<form/>
-								<accesslevel>3</accesslevel>
-								<readonly>0</readonly>
-								<shortname/>
-								<size>31</size>
-								<dataBlock>MW101.1</dataBlock>
-								<label/>
-								<translation/>
-								<visibility>0</visibility>
-								<clientType>0</clientType>
-							</param>
-							<param>
-								<ipa>2</ipa>
-								<address>16386</address>
-								<name>bzUnitStartupDelayCfg</name>
-								<typepar>0</typepar>
-								<typetarg>UINT</typetarg>
-								<value>0</value>
-								<min>0</min>
-								<max>300</max>
-								<ipamin/>
-								<ipamax/>
-								<scale>1</scale>
-								<offs>0</offs>
-								<um>sec</um>
-								<description>Unit startup delay timeout in second</description>
-								<note>If none zero is set, the unit will be trully turned on after the timeout is expired</note>
-								<form/>
-								<accesslevel>3</accesslevel>
-								<readonly>0</readonly>
-								<shortname/>
-								<size>31</size>
-								<dataBlock>MW101.2</dataBlock>
-								<label/>
-								<translation/>
-								<visibility>0</visibility>
-								<clientType>0</clientType>
-							</param>
-							<param>
-								<ipa>11</ipa>
-								<address>16394</address>
-								<name>bzHighReturnTemperatureThresholdCfg</name>
-								<typepar>0</typepar>
-								<typetarg>INT</typetarg>
-								<value>450</value>
-								<min>350</min>
-								<max>550</max>
-								<ipamin/>
-								<ipamax/>
-								<scale>1</scale>
-								<offs>0</offs>
-								<um>.1°C</um>
-								<description>High return air temperature threshold</description>
-								<note>When the average return temperature is above this value for a while, a warning will be raised</note>
-								<form/>
-								<accesslevel>3</accesslevel>
-								<readonly>0</readonly>
-								<shortname/>
-								<size>31</size>
-								<dataBlock>MW101.3</dataBlock>
-								<label/>
-								<translation/>
-								<visibility>0</visibility>
-								<clientType>0</clientType>
-							</param>
-							<param>
-								<ipa>12</ipa>
-								<address>16395</address>
-								<name>bzHighReturnTemperatureTimeoutCfg</name>
-								<typepar>0</typepar>
-								<typetarg>INT</typetarg>
-								<value>10</value>
-								<min>3</min>
-								<max>60</max>
-								<ipamin/>
-								<ipamax/>
-								<scale>1</scale>
-								<offs>0</offs>
-								<um>min</um>
-								<description>High return air temperature warning forgiven time</description>
-								<note>This is that a while for the high RAT warning</note>
-								<form/>
-								<accesslevel>3</accesslevel>
-								<readonly>0</readonly>
-								<shortname/>
-								<size>31</size>
-								<dataBlock>MW101.4</dataBlock>
-								<label/>
-								<translation/>
-								<visibility>0</visibility>
-								<clientType>0</clientType>
-							</param>
-							<param>
-								<ipa>13</ipa>
-								<address>16396</address>
-								<name>bzHighSupplyTemperatureThresholdCfg</name>
-								<typepar>0</typepar>
-								<typetarg>INT</typetarg>
-								<value>300</value>
-								<min>250</min>
-								<max>450</max>
-								<ipamin/>
-								<ipamax/>
-								<scale>1</scale>
-								<offs>0</offs>
-								<um>.1°C</um>
-								<description>High supply air temperature threshold</description>
-								<note>When the average supply temperature is above this value for a while, a warning will be raised</note>
-								<form/>
-								<accesslevel>3</accesslevel>
-								<readonly>0</readonly>
-								<shortname/>
-								<size>31</size>
-								<dataBlock>MW101.5</dataBlock>
-								<label/>
-								<translation/>
-								<visibility>0</visibility>
-								<clientType>0</clientType>
-							</param>
-							<param>
-								<ipa>14</ipa>
-								<address>16397</address>
-								<name>bzHighSupplyTemperatureTimeoutCfg</name>
-								<typepar>0</typepar>
-								<typetarg>INT</typetarg>
-								<value>10</value>
-								<min>3</min>
-								<max>60</max>
-								<ipamin/>
-								<ipamax/>
-								<scale>1</scale>
-								<offs>0</offs>
-								<um>min</um>
-								<description>High supply air temperature warning forgiven time</description>
-								<note>This is that a while for the high SAT warning</note>
-								<form/>
-								<accesslevel>3</accesslevel>
-								<readonly>0</readonly>
-								<shortname/>
-								<size>31</size>
-								<dataBlock>MW101.6</dataBlock>
-								<label/>
-								<translation/>
-								<visibility>0</visibility>
-								<clientType>0</clientType>
-							</param>
-							<param>
-								<ipa>3</ipa>
-								<address>18431</address>
-								<name>BZSwitchReversedCfg</name>
-								<typepar>0</typepar>
-								<typetarg>INT</typetarg>
-								<value>0</value>
-								<min>0</min>
-								<max>1</max>
-								<ipamin/>
-								<ipamax/>
-								<scale>1</scale>
-								<offs>0</offs>
-								<um/>
-								<description>BZSwitch status logic configuration</description>
-								<note>0:FALSE;1:TRUE</note>
-								<form/>
-								<accesslevel>3</accesslevel>
-								<readonly>0</readonly>
-								<shortname/>
-								<size>31</size>
-								<dataBlock>MW101.7</dataBlock>
-								<label/>
-								<translation/>
-								<visibility>0</visibility>
-								<clientType>0</clientType>
-							</param>
-							<param>
-								<ipa>4</ipa>
-								<address>16387</address>
-								<name>bzUnitStatusRelayCfg</name>
-								<typepar>0</typepar>
-								<typetarg>INT</typetarg>
-								<value>1</value>
-								<min>0</min>
-								<max>1</max>
-								<ipamin/>
-								<ipamax/>
-								<scale>1</scale>
-								<offs>0</offs>
-								<um/>
-								<description>Output of relay of unit status indication configuration</description>
-								<note>0:Open;1:Close</note>
-								<form/>
-								<accesslevel>3</accesslevel>
-								<readonly>0</readonly>
-								<shortname/>
-								<size>31</size>
-								<dataBlock>MW101.8</dataBlock>
-								<label/>
-								<translation/>
-								<visibility>0</visibility>
-								<clientType>0</clientType>
-							</param>
-							<param>
-								<ipa>5</ipa>
-								<address>16388</address>
-								<name>bzMajorAlarmRelayCfg</name>
-								<typepar>0</typepar>
-								<typetarg>INT</typetarg>
-								<value>1</value>
-								<min>0</min>
-								<max>1</max>
-								<ipamin/>
-								<ipamax/>
-								<scale>1</scale>
-								<offs>0</offs>
-								<um/>
-								<description>Output of relay of unit major alarm indication configuration</description>
-								<note>0:Open;1:Close</note>
-								<form/>
-								<accesslevel>3</accesslevel>
-								<readonly>0</readonly>
-								<shortname/>
-								<size>31</size>
-								<dataBlock>MW101.9</dataBlock>
-								<label/>
-								<translation/>
-								<visibility>0</visibility>
-								<clientType>0</clientType>
-							</param>
-							<param>
-								<ipa>6</ipa>
-								<address>16389</address>
-								<name>bzCondensatePumpDelay2OffCfg</name>
-								<typepar>0</typepar>
-								<typetarg>INT</typetarg>
-								<value>30</value>
-								<min>10</min>
-								<max>600</max>
-								<ipamin/>
-								<ipamax/>
-								<scale>1</scale>
-								<offs>0</offs>
-								<um>sec</um>
-								<description>Condensate pump off delay timeout in second</description>
-								<note>When condensate pump is about to stop, a few moment delay is needed</note>
-								<form/>
-								<accesslevel>3</accesslevel>
-								<readonly>0</readonly>
-								<shortname/>
-								<size>31</size>
-								<dataBlock>MW101.10</dataBlock>
-								<label/>
-								<translation/>
-								<visibility>0</visibility>
-								<clientType>0</clientType>
-							</param>
-							<param>
-								<ipa>7</ipa>
-								<address>16390</address>
-								<name>bzCondensatePumpRunhourLog</name>
-								<typepar>2</typepar>
-								<typetarg>UINT</typetarg>
-								<value>0</value>
-								<min>0</min>
-								<max>65535</max>
-								<ipamin/>
-								<ipamax/>
-								<scale>1</scale>
-								<offs>0</offs>
-								<um>hour</um>
-								<description>Condensate pump runhour</description>
-								<note>Resolution is one hour</note>
-								<form/>
-								<accesslevel>3</accesslevel>
-								<readonly>0</readonly>
-								<shortname/>
-								<size>31</size>
-								<dataBlock>MW101.11</dataBlock>
-								<label/>
-								<translation/>
-								<visibility>0</visibility>
-								<clientType>0</clientType>
-							</param>
-							<param>
-								<ipa>8</ipa>
-								<address>16391</address>
-								<name>bzCondensatePumpRunhourThresholdCfg</name>
-								<typepar>2</typepar>
-								<typetarg>UINT</typetarg>
-								<value>20208</value>
-								<min>8736</min>
-								<max>65535</max>
-								<ipamin/>
-								<ipamax/>
-								<scale>1</scale>
-								<offs>0</offs>
-								<um>hour</um>
-								<description>Condensate pump runhour threshold</description>
-								<note>Threshold for a runhour warning</note>
-								<form/>
-								<accesslevel>3</accesslevel>
-								<readonly>0</readonly>
-								<shortname/>
-								<size>31</size>
-								<dataBlock>MW101.12</dataBlock>
-								<label/>
-								<translation/>
-								<visibility>0</visibility>
-								<clientType>0</clientType>
-							</param>
-							<param>
-								<ipa>9</ipa>
-								<address>16392</address>
-								<name>bzHighRackinletTemperatureThresholdCfg</name>
-								<typepar>0</typepar>
-								<typetarg>INT</typetarg>
-								<value>450</value>
-								<min>250</min>
-								<max>550</max>
-								<ipamin/>
-								<ipamax/>
-								<scale>1</scale>
-								<offs>0</offs>
-								<um>.1°C</um>
-								<description>High rackinlet air temperature threshold</description>
-								<note>When the highest rackinlet temperature is above this value for a while, a warning will be raised</note>
-								<form/>
-								<accesslevel>3</accesslevel>
-								<readonly>0</readonly>
-								<shortname/>
-								<size>31</size>
-								<dataBlock>MW101.13</dataBlock>
-								<label/>
-								<translation/>
-								<visibility>0</visibility>
-								<clientType>0</clientType>
-							</param>
-							<param>
-								<ipa>10</ipa>
-								<address>16393</address>
-								<name>bzHighRackinletTemperatureTimeoutCfg</name>
-								<typepar>0</typepar>
-								<typetarg>INT</typetarg>
-								<value>10</value>
-								<min>3</min>
-								<max>60</max>
-								<ipamin/>
-								<ipamax/>
-								<scale>1</scale>
-								<offs>0</offs>
-								<um>min</um>
-								<description>High rackinlet air temperature warning forgiven time</description>
-								<note>This is that a while for the high RAC warning</note>
-								<form/>
-								<accesslevel>3</accesslevel>
-								<readonly>0</readonly>
-								<shortname/>
-								<size>31</size>
-								<dataBlock>MW101.14</dataBlock>
-								<label/>
-								<translation/>
-								<visibility>0</visibility>
-								<clientType>0</clientType>
-							</param>
-							<param>
-								<ipa>15</ipa>
-								<address>16398</address>
-								<name>bzEvaporatorFanStrategyCfg</name>
-								<typepar>0</typepar>
-								<typetarg>INT</typetarg>
-								<value>0</value>
-								<min>0</min>
-								<max>2</max>
-								<ipamin/>
-								<ipamax/>
-								<scale>1</scale>
-								<offs>0</offs>
-								<um/>
-								<description>Evaporator fan control strategy</description>
-								<note>0:InRow_CACS;1:HACS_RACS;2:CONSTANT_SPD</note>
-								<form/>
-								<accesslevel>3</accesslevel>
-								<readonly>0</readonly>
-								<shortname/>
-								<size>31</size>
-								<dataBlock>MW101.15</dataBlock>
-								<label/>
-								<translation/>
-								<visibility>0</visibility>
-								<clientType>0</clientType>
-							</param>
-							<param>
 								<ipa>16</ipa>
-								<address>16399</address>
+								<address>16385</address>
 								<name>bzCoolSetpointCfg</name>
 								<typepar>0</typepar>
 								<typetarg>INT</typetarg>
@@ -58362,7 +58016,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW101.16</dataBlock>
+								<dataBlock>MW101.1</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -58370,7 +58024,7 @@ END_PROGRAM
 							</param>
 							<param>
 								<ipa>17</ipa>
-								<address>16400</address>
+								<address>16386</address>
 								<name>bzDeltaTSetpointCfg</name>
 								<typepar>0</typepar>
 								<typetarg>INT</typetarg>
@@ -58389,7 +58043,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW101.17</dataBlock>
+								<dataBlock>MW101.2</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -58397,7 +58051,7 @@ END_PROGRAM
 							</param>
 							<param>
 								<ipa>18</ipa>
-								<address>16401</address>
+								<address>16387</address>
 								<name>bzSupplyAirSetpointCfg</name>
 								<typepar>0</typepar>
 								<typetarg>INT</typetarg>
@@ -58416,7 +58070,385 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW101.18</dataBlock>
+								<dataBlock>MW101.3</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>1</ipa>
+								<address>16388</address>
+								<name>bzUnitMaintenanceTimeoutCfg</name>
+								<typepar>2</typepar>
+								<typetarg>UINT</typetarg>
+								<value>10</value>
+								<min>5</min>
+								<max>10080</max>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um>min</um>
+								<description>Unit maintenance timeout in minute</description>
+								<note>When the timeout is expired, maintenance mode is terminated compulsively</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW101.4</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>2</ipa>
+								<address>16389</address>
+								<name>bzUnitStartupDelayCfg</name>
+								<typepar>0</typepar>
+								<typetarg>UINT</typetarg>
+								<value>0</value>
+								<min>0</min>
+								<max>300</max>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um>sec</um>
+								<description>Unit startup delay timeout in second</description>
+								<note>If none zero is set, the unit will be trully turned on after the timeout is expired</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW101.5</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>11</ipa>
+								<address>16390</address>
+								<name>bzHighReturnTemperatureThresholdCfg</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value>450</value>
+								<min>350</min>
+								<max>550</max>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um>.1°C</um>
+								<description>High return air temperature threshold</description>
+								<note>When the average return temperature is above this value for a while, a warning will be raised</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW101.6</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>12</ipa>
+								<address>16391</address>
+								<name>bzHighReturnTemperatureTimeoutCfg</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value>10</value>
+								<min>3</min>
+								<max>60</max>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um>min</um>
+								<description>High return air temperature warning forgiven time</description>
+								<note>This is that a while for the high RAT warning</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW101.7</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>13</ipa>
+								<address>16392</address>
+								<name>bzHighSupplyTemperatureThresholdCfg</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value>300</value>
+								<min>250</min>
+								<max>450</max>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um>.1°C</um>
+								<description>High supply air temperature threshold</description>
+								<note>When the average supply temperature is above this value for a while, a warning will be raised</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW101.8</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>14</ipa>
+								<address>16393</address>
+								<name>bzHighSupplyTemperatureTimeoutCfg</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value>10</value>
+								<min>3</min>
+								<max>60</max>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um>min</um>
+								<description>High supply air temperature warning forgiven time</description>
+								<note>This is that a while for the high SAT warning</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW101.9</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>4</ipa>
+								<address>16394</address>
+								<name>bzUnitStatusRelayCfg</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value>1</value>
+								<min>0</min>
+								<max>1</max>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description>Output of relay of unit status indication configuration</description>
+								<note>0:Open;1:Close</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW101.10</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>5</ipa>
+								<address>16395</address>
+								<name>bzMajorAlarmRelayCfg</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value>1</value>
+								<min>0</min>
+								<max>1</max>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description>Output of relay of unit major alarm indication configuration</description>
+								<note>0:Open;1:Close</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW101.11</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>6</ipa>
+								<address>16396</address>
+								<name>bzCondensatePumpDelay2OffCfg</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value>30</value>
+								<min>10</min>
+								<max>600</max>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um>sec</um>
+								<description>Condensate pump off delay timeout in second</description>
+								<note>When condensate pump is about to stop, a few moment delay is needed</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW101.12</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>7</ipa>
+								<address>16397</address>
+								<name>bzCondensatePumpRunhourLog</name>
+								<typepar>2</typepar>
+								<typetarg>UINT</typetarg>
+								<value>0</value>
+								<min>0</min>
+								<max>65535</max>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um>hour</um>
+								<description>Condensate pump runhour</description>
+								<note>Resolution is one hour</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW101.13</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>8</ipa>
+								<address>16398</address>
+								<name>bzCondensatePumpRunhourThresholdCfg</name>
+								<typepar>2</typepar>
+								<typetarg>UINT</typetarg>
+								<value>20208</value>
+								<min>8736</min>
+								<max>65535</max>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um>hour</um>
+								<description>Condensate pump runhour threshold</description>
+								<note>Threshold for a runhour warning</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW101.14</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>9</ipa>
+								<address>16399</address>
+								<name>bzHighRackinletTemperatureThresholdCfg</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value>450</value>
+								<min>250</min>
+								<max>550</max>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um>.1°C</um>
+								<description>High rackinlet air temperature threshold</description>
+								<note>When the highest rackinlet temperature is above this value for a while, a warning will be raised</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW101.15</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>10</ipa>
+								<address>16400</address>
+								<name>bzHighRackinletTemperatureTimeoutCfg</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value>10</value>
+								<min>3</min>
+								<max>60</max>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um>min</um>
+								<description>High rackinlet air temperature warning forgiven time</description>
+								<note>This is that a while for the high RAC warning</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW101.16</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>15</ipa>
+								<address>16401</address>
+								<name>bzEvaporatorFanStrategyCfg</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value>0</value>
+								<min>0</min>
+								<max>2</max>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description>Evaporator fan control strategy</description>
+								<note>0:InRow_CACS;1:HACS_RACS;2:CONSTANT_SPD</note>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW101.17</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -58443,7 +58475,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW101.19</dataBlock>
+								<dataBlock>MW101.18</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -58470,7 +58502,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW101.20</dataBlock>
+								<dataBlock>MW101.19</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -58497,7 +58529,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW101.21</dataBlock>
+								<dataBlock>MW101.20</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -58524,7 +58556,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW101.22</dataBlock>
+								<dataBlock>MW101.21</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -58551,7 +58583,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW101.23</dataBlock>
+								<dataBlock>MW101.22</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -58578,7 +58610,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW101.24</dataBlock>
+								<dataBlock>MW101.23</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -58605,7 +58637,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW101.25</dataBlock>
+								<dataBlock>MW101.24</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -58632,7 +58664,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW101.26</dataBlock>
+								<dataBlock>MW101.25</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -58659,7 +58691,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW101.27</dataBlock>
+								<dataBlock>MW101.26</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -58686,7 +58718,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW101.28</dataBlock>
+								<dataBlock>MW101.27</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -58713,7 +58745,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW101.29</dataBlock>
+								<dataBlock>MW101.28</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -58740,7 +58772,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW101.30</dataBlock>
+								<dataBlock>MW101.29</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -58767,7 +58799,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW101.31</dataBlock>
+								<dataBlock>MW101.30</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -58794,7 +58826,7 @@ END_PROGRAM
 								<readonly>0</readonly>
 								<shortname/>
 								<size>31</size>
-								<dataBlock>MW101.32</dataBlock>
+								<dataBlock>MW101.31</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -58806,16 +58838,43 @@ END_PROGRAM
 								<name>bzEvaporatorFanPIDKpCfg</name>
 								<typepar>0</typepar>
 								<typetarg>INT</typetarg>
-								<value>10</value>
-								<min>1</min>
-								<max>300</max>
+								<value>1000</value>
+								<min>100</min>
+								<max>30000</max>
 								<ipamin/>
 								<ipamax/>
 								<scale>1</scale>
 								<offs>0</offs>
-								<um/>
-								<description>&lt;copy&gt;</description>
-								<note>&lt;copy&gt;</note>
+								<um>0.01</um>
+								<description>Proportional gain for evaporator fan control</description>
+								<note/>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW101.32</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>34</ipa>
+								<address>16417</address>
+								<name>bzCompressorPIDKpCfg</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value>1000</value>
+								<min>100</min>
+								<max>30000</max>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um>0.01</um>
+								<description>Proportional gain for compressor control</description>
+								<note/>
 								<form/>
 								<accesslevel>3</accesslevel>
 								<readonly>0</readonly>
@@ -58828,21 +58887,21 @@ END_PROGRAM
 								<clientType>0</clientType>
 							</param>
 							<param>
-								<ipa>34</ipa>
-								<address>16417</address>
-								<name>bzCompressorPIDKpCfg</name>
+								<ipa>35</ipa>
+								<address>16418</address>
+								<name>bzEEVPIDKpCfg</name>
 								<typepar>0</typepar>
 								<typetarg>INT</typetarg>
-								<value>10</value>
-								<min>1</min>
-								<max>300</max>
+								<value>1000</value>
+								<min>100</min>
+								<max>30000</max>
 								<ipamin/>
 								<ipamax/>
 								<scale>1</scale>
 								<offs>0</offs>
-								<um/>
-								<description>&lt;copy&gt;</description>
-								<note>&lt;copy&gt;</note>
+								<um>0.01</um>
+								<description>Proportional gain for EEV control</description>
+								<note/>
 								<form/>
 								<accesslevel>3</accesslevel>
 								<readonly>0</readonly>
@@ -58855,19 +58914,19 @@ END_PROGRAM
 								<clientType>0</clientType>
 							</param>
 							<param>
-								<ipa>35</ipa>
-								<address>16418</address>
-								<name>bzEEVPIDKpCfg</name>
-								<typepar>0</typepar>
-								<typetarg>INT</typetarg>
-								<value>10</value>
-								<min>1</min>
-								<max>300</max>
+								<ipa>36</ipa>
+								<address>16419</address>
+								<name>bzEvaporatorFanPIDTiCfg</name>
+								<typepar>2</typepar>
+								<typetarg>UINT</typetarg>
+								<value>200</value>
+								<min>0</min>
+								<max>6000</max>
 								<ipamin/>
 								<ipamax/>
 								<scale>1</scale>
 								<offs>0</offs>
-								<um/>
+								<um>.1s</um>
 								<description>&lt;copy&gt;</description>
 								<note>&lt;copy&gt;</note>
 								<form/>
@@ -58882,12 +58941,12 @@ END_PROGRAM
 								<clientType>0</clientType>
 							</param>
 							<param>
-								<ipa>36</ipa>
-								<address>16419</address>
-								<name>bzEvaporatorFanPIDTiCfg</name>
-								<typepar>0</typepar>
-								<typetarg>INT</typetarg>
-								<value>200</value>
+								<ipa>37</ipa>
+								<address>16420</address>
+								<name>bzCompressorPIDTiCfg</name>
+								<typepar>2</typepar>
+								<typetarg>UINT</typetarg>
+								<value>600</value>
 								<min>0</min>
 								<max>6000</max>
 								<ipamin/>
@@ -58909,12 +58968,12 @@ END_PROGRAM
 								<clientType>0</clientType>
 							</param>
 							<param>
-								<ipa>37</ipa>
-								<address>16420</address>
-								<name>bzCompressorPIDTiCfg</name>
-								<typepar>0</typepar>
-								<typetarg>INT</typetarg>
-								<value>600</value>
+								<ipa>38</ipa>
+								<address>16421</address>
+								<name>bzEEVPIDTiCfg</name>
+								<typepar>2</typepar>
+								<typetarg>UINT</typetarg>
+								<value>300</value>
 								<min>0</min>
 								<max>6000</max>
 								<ipamin/>
@@ -58936,12 +58995,12 @@ END_PROGRAM
 								<clientType>0</clientType>
 							</param>
 							<param>
-								<ipa>38</ipa>
-								<address>16421</address>
-								<name>bzEEVPIDTiCfg</name>
-								<typepar>0</typepar>
-								<typetarg>INT</typetarg>
-								<value>300</value>
+								<ipa>39</ipa>
+								<address>16422</address>
+								<name>bzEvaporatorFanPIDTdCfg</name>
+								<typepar>2</typepar>
+								<typetarg>UINT</typetarg>
+								<value>0</value>
 								<min>0</min>
 								<max>6000</max>
 								<ipamin/>
@@ -58963,11 +59022,11 @@ END_PROGRAM
 								<clientType>0</clientType>
 							</param>
 							<param>
-								<ipa>39</ipa>
-								<address>16422</address>
-								<name>bzEvaporatorFanPIDTdCfg</name>
-								<typepar>0</typepar>
-								<typetarg>INT</typetarg>
+								<ipa>40</ipa>
+								<address>16423</address>
+								<name>bzCompressorPIDTdCfg</name>
+								<typepar>2</typepar>
+								<typetarg>UINT</typetarg>
 								<value>0</value>
 								<min>0</min>
 								<max>6000</max>
@@ -58990,11 +59049,11 @@ END_PROGRAM
 								<clientType>0</clientType>
 							</param>
 							<param>
-								<ipa>40</ipa>
-								<address>16423</address>
-								<name>bzCompressorPIDTdCfg</name>
-								<typepar>0</typepar>
-								<typetarg>INT</typetarg>
+								<ipa>41</ipa>
+								<address>16424</address>
+								<name>bzEEVPIDTdCfg</name>
+								<typepar>2</typepar>
+								<typetarg>UINT</typetarg>
 								<value>0</value>
 								<min>0</min>
 								<max>6000</max>
@@ -59017,33 +59076,6 @@ END_PROGRAM
 								<clientType>0</clientType>
 							</param>
 							<param>
-								<ipa>41</ipa>
-								<address>16424</address>
-								<name>bzEEVPIDTdCfg</name>
-								<typepar>0</typepar>
-								<typetarg>INT</typetarg>
-								<value>0</value>
-								<min>0</min>
-								<max>6000</max>
-								<ipamin/>
-								<ipamax/>
-								<scale>1</scale>
-								<offs>0</offs>
-								<um>.1s</um>
-								<description>&lt;copy&gt;</description>
-								<note>&lt;copy&gt;</note>
-								<form/>
-								<accesslevel>3</accesslevel>
-								<readonly>0</readonly>
-								<shortname/>
-								<size>31</size>
-								<dataBlock>MW101.41</dataBlock>
-								<label/>
-								<translation/>
-								<visibility>0</visibility>
-								<clientType>0</clientType>
-							</param>
-							<param>
 								<ipa>42</ipa>
 								<address>16425</address>
 								<name>bzEvapSuperheatDeadbandCfg</name>
@@ -59059,6 +59091,33 @@ END_PROGRAM
 								<um>.1°C</um>
 								<description>Evaporator coil superheat control deadband</description>
 								<note/>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>0</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW101.41</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>3</ipa>
+								<address>18431</address>
+								<name>BZSwitchReversedCfg</name>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
+								<value>0</value>
+								<min>0</min>
+								<max>1</max>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um/>
+								<description>BZSwitch status logic configuration</description>
+								<note>0:FALSE;1:TRUE</note>
 								<form/>
 								<accesslevel>3</accesslevel>
 								<readonly>0</readonly>
@@ -59112,7 +59171,7 @@ END_PROGRAM
 								<ipamax/>
 								<scale>1</scale>
 								<offs>0</offs>
-								<um>0</um>
+								<um/>
 								<description>Application version by a string type format of xx.xx.xx</description>
 								<note/>
 								<form/>
@@ -59129,7 +59188,7 @@ END_PROGRAM
 							<param>
 								<ipa>5005</ipa>
 								<address>8970</address>
-								<name>bzRATu</name>
+								<name>bzUpperReturnAirTemperature</name>
 								<typepar>0</typepar>
 								<typetarg>INT</typetarg>
 								<value/>
@@ -59139,7 +59198,7 @@ END_PROGRAM
 								<ipamax/>
 								<scale>1</scale>
 								<offs>0</offs>
-								<um/>
+								<um>.1°C</um>
 								<description>Upper return air temperature</description>
 								<note/>
 								<form/>
@@ -59156,7 +59215,7 @@ END_PROGRAM
 							<param>
 								<ipa>5007</ipa>
 								<address>8971</address>
-								<name>bzRATl</name>
+								<name>bzLowerReturnAirTemperature</name>
 								<typepar>0</typepar>
 								<typetarg>INT</typetarg>
 								<value/>
@@ -59166,7 +59225,7 @@ END_PROGRAM
 								<ipamax/>
 								<scale>1</scale>
 								<offs>0</offs>
-								<um/>
+								<um>.1°C</um>
 								<description>Lower return air temperature</description>
 								<note/>
 								<form/>
@@ -59183,7 +59242,7 @@ END_PROGRAM
 							<param>
 								<ipa>5011</ipa>
 								<address>8972</address>
-								<name>bzRATg</name>
+								<name>bzAverageReturnAirTemperature</name>
 								<typepar>0</typepar>
 								<typetarg>INT</typetarg>
 								<value/>
@@ -59193,7 +59252,7 @@ END_PROGRAM
 								<ipamax/>
 								<scale>1</scale>
 								<offs>0</offs>
-								<um/>
+								<um>.1°C</um>
 								<description>Average measurement of the return air temperature</description>
 								<note/>
 								<form/>
@@ -59210,7 +59269,7 @@ END_PROGRAM
 							<param>
 								<ipa>5013</ipa>
 								<address>8973</address>
-								<name>bzSATu</name>
+								<name>bzUpperSupplyAirTemperature</name>
 								<typepar>0</typepar>
 								<typetarg>INT</typetarg>
 								<value/>
@@ -59220,7 +59279,7 @@ END_PROGRAM
 								<ipamax/>
 								<scale>1</scale>
 								<offs>0</offs>
-								<um/>
+								<um>.1°C</um>
 								<description>Upper supply air temperature</description>
 								<note/>
 								<form/>
@@ -59237,7 +59296,7 @@ END_PROGRAM
 							<param>
 								<ipa>5014</ipa>
 								<address>8974</address>
-								<name>bzSATl</name>
+								<name>bzLowerSupplyAirTemperature</name>
 								<typepar>0</typepar>
 								<typetarg>INT</typetarg>
 								<value/>
@@ -59247,7 +59306,7 @@ END_PROGRAM
 								<ipamax/>
 								<scale>1</scale>
 								<offs>0</offs>
-								<um/>
+								<um>.1°C</um>
 								<description>Lower supply air temperature</description>
 								<note/>
 								<form/>
@@ -59264,7 +59323,7 @@ END_PROGRAM
 							<param>
 								<ipa>5015</ipa>
 								<address>8975</address>
-								<name>bzSATg</name>
+								<name>bzAverageSupplyAirTemperature</name>
 								<typepar>0</typepar>
 								<typetarg>INT</typetarg>
 								<value/>
@@ -59274,7 +59333,7 @@ END_PROGRAM
 								<ipamax/>
 								<scale>1</scale>
 								<offs>0</offs>
-								<um/>
+								<um>.1°C</um>
 								<description>Average measurement of the supply air temperature</description>
 								<note/>
 								<form/>
@@ -59291,7 +59350,7 @@ END_PROGRAM
 							<param>
 								<ipa>5016</ipa>
 								<address>8976</address>
-								<name>bzRCT1</name>
+								<name>bzRackInletAirTemperatureAlfa</name>
 								<typepar>0</typepar>
 								<typetarg>INT</typetarg>
 								<value/>
@@ -59301,7 +59360,7 @@ END_PROGRAM
 								<ipamax/>
 								<scale>1</scale>
 								<offs>0</offs>
-								<um/>
+								<um>.1°C</um>
 								<description>Rack inlet air temperature 1</description>
 								<note/>
 								<form/>
@@ -59318,7 +59377,7 @@ END_PROGRAM
 							<param>
 								<ipa>5017</ipa>
 								<address>8977</address>
-								<name>bzRCT2</name>
+								<name>bzRackInletAirTemperatureBravo</name>
 								<typepar>0</typepar>
 								<typetarg>INT</typetarg>
 								<value/>
@@ -59328,7 +59387,7 @@ END_PROGRAM
 								<ipamax/>
 								<scale>1</scale>
 								<offs>0</offs>
-								<um/>
+								<um>.1°C</um>
 								<description>Rack inlet air temperature 2</description>
 								<note/>
 								<form/>
@@ -59345,7 +59404,7 @@ END_PROGRAM
 							<param>
 								<ipa>5018</ipa>
 								<address>8978</address>
-								<name>bzRCTh</name>
+								<name>bzMaxRackInletAirTemperature</name>
 								<typepar>0</typepar>
 								<typetarg>INT</typetarg>
 								<value/>
@@ -59355,7 +59414,7 @@ END_PROGRAM
 								<ipamax/>
 								<scale>1</scale>
 								<offs>0</offs>
-								<um/>
+								<um>.1°C</um>
 								<description>Max rack inlet air temperature of the two probes supposed to be located right in front of the rack</description>
 								<note/>
 								<form/>
@@ -61034,7 +61093,7 @@ END_PROGRAM
 							<commstring>Modbus:1,1000#COM:1,38400,E,8,1</commstring>
 							<values stopNodeParsing="true">
 								<value ipa="10000" subidx="0">0</value>
-								<value ipa="10001" subidx="0">1031</value>
+								<value ipa="10001" subidx="0">2055</value>
 								<value ipa="10002" subidx="0">1</value>
 								<value ipa="10003" subidx="0">0</value>
 								<value ipa="10004" subidx="0">2</value>
@@ -61490,13 +61549,15 @@ END_PROGRAM
 								<value ipa="50003" subidx="0">0</value>
 								<value ipa="50004" subidx="0">0</value>
 								<value ipa="0" subidx="0">0</value>
+								<value ipa="16" subidx="0">180</value>
+								<value ipa="17" subidx="0">100</value>
+								<value ipa="18" subidx="0">180</value>
 								<value ipa="1" subidx="0">10</value>
 								<value ipa="2" subidx="0">0</value>
 								<value ipa="11" subidx="0">450</value>
 								<value ipa="12" subidx="0">10</value>
 								<value ipa="13" subidx="0">300</value>
 								<value ipa="14" subidx="0">10</value>
-								<value ipa="3" subidx="0">0</value>
 								<value ipa="4" subidx="0">1</value>
 								<value ipa="5" subidx="0">1</value>
 								<value ipa="6" subidx="0">30</value>
@@ -61505,9 +61566,6 @@ END_PROGRAM
 								<value ipa="9" subidx="0">450</value>
 								<value ipa="10" subidx="0">10</value>
 								<value ipa="15" subidx="0">0</value>
-								<value ipa="16" subidx="0">180</value>
-								<value ipa="17" subidx="0">100</value>
-								<value ipa="18" subidx="0">180</value>
 								<value ipa="19" subidx="0">0</value>
 								<value ipa="20" subidx="0">20208</value>
 								<value ipa="21" subidx="0">0</value>
@@ -61522,9 +61580,9 @@ END_PROGRAM
 								<value ipa="30" subidx="0">30</value>
 								<value ipa="31" subidx="0">738</value>
 								<value ipa="32" subidx="0">125</value>
-								<value ipa="33" subidx="0">10</value>
-								<value ipa="34" subidx="0">10</value>
-								<value ipa="35" subidx="0">10</value>
+								<value ipa="33" subidx="0">1000</value>
+								<value ipa="34" subidx="0">1000</value>
+								<value ipa="35" subidx="0">1000</value>
 								<value ipa="36" subidx="0">200</value>
 								<value ipa="37" subidx="0">600</value>
 								<value ipa="38" subidx="0">300</value>
@@ -61532,6 +61590,7 @@ END_PROGRAM
 								<value ipa="40" subidx="0">0</value>
 								<value ipa="41" subidx="0">0</value>
 								<value ipa="42" subidx="0">10</value>
+								<value ipa="3" subidx="0">0</value>
 								<value ipa="5012" subidx="0"/>
 								<value ipa="5010" subidx="0"/>
 								<value ipa="5005" subidx="0">303</value>
