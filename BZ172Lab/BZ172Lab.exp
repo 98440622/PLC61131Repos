@@ -41,12 +41,12 @@ bzMinimalSupplyAirTemperatureCfg AT %MW101.31 : INT;	{ DE:"The minimal supply ai
 bzEvaporatorFanPIDKpCfg AT %MW101.32 : INT;	{ DE:"Proportional gain for evaporator fan control" }
 bzCompressorPIDKpCfg AT %MW101.33 : INT;	{ DE:"Proportional gain for compressor control" }
 bzEEVPIDKpCfg AT %MW101.34 : INT;	{ DE:"Proportional gain for EEV control" }
-bzEvaporatorFanPIDTiCfg AT %MW101.35 : UINT;	{ DE:"<copy>" }
-bzCompressorPIDTiCfg AT %MW101.36 : UINT;	{ DE:"<copy>" }
-bzEEVPIDTiCfg AT %MW101.37 : UINT;	{ DE:"<copy>" }
-bzEvaporatorFanPIDTdCfg AT %MW101.38 : UINT;	{ DE:"<copy>" }
-bzCompressorPIDTdCfg AT %MW101.39 : UINT;	{ DE:"<copy>" }
-bzEEVPIDTdCfg AT %MW101.40 : UINT;	{ DE:"<copy>" }
+bzEvaporatorFanPIDTiCfg AT %MW101.35 : UINT;	{ DE:"Integral time for evaporator fan control" }
+bzCompressorPIDTiCfg AT %MW101.36 : UINT;	{ DE:"Integral time for compressor control" }
+bzEEVPIDTiCfg AT %MW101.37 : UINT;	{ DE:"Integral time for EEV control" }
+bzEvaporatorFanPIDTdCfg AT %MW101.38 : UINT;	{ DE:"Derivative dumping time for evaporator fan control" }
+bzCompressorPIDTdCfg AT %MW101.39 : UINT;	{ DE:"Derivative dumping time for compressor control" }
+bzEEVPIDTdCfg AT %MW101.40 : UINT;	{ DE:"Derivative dumping time for EEV control" }
 bzEvapSuperheatDeadbandCfg AT %MW101.41 : INT;	{ DE:"Evaporator coil superheat control deadband" }
 BZSwitchReversedCfg AT %MW101.42 : INT;	{ DE:"BZSwitch status logic configuration" }
 	{G:"Status_variables"}
@@ -86,7 +86,7 @@ bzManualCompressor AT %MW110.40 : INT := 0;	{ DE:"Compressor manual control" }
 BZCANMailbox1 AT %MW110.41 : INT;	{ DE:"TBC" }
 BZCANMailbox2 AT %MW110.42 : INT;	{ DE:"TBC" }
 BZCANMailbox3 AT %MW110.43 : INT;	{ DE:"TBC" }
-BZIsRealMode AT %MW110.44 : BOOL := 1;	{ DE:"Controller is working on real mode." }
+BZIsRealMode AT %MW110.44 : INT := 1;	{ DE:"Controller is working on real mode." }
 bzCondensatePumpRunhourWarning AT %MW110.45 : INT;	{ DE:"Condensate pump run-hour warning" }
 bzSolenoidValveRunhourWarning AT %MW110.46 : INT;	{ DE:"Solenoid valve run-hour warning" }
 bzAirfilterRunhourAlarm AT %MW110.47 : INT;	{ DE:"Airfilter lifecycle alarm" }
@@ -95,11 +95,19 @@ bzEvaporatorFanCommand AT %MW110.49 : INT;	{ DE:"Evaporator fan commanded speed"
 bzEXVCommand AT %MW110.50 : INT;	{ DE:"EXV commanded opening" }
 bzCompressorCommand AT %MW110.51 : INT;	{ DE:"Compressor commanded speed" }
 bzLiquidValveCommand AT %MW110.52 : INT;	{ DE:"Liquid valve command" }
-bzEvaporatorFanFeedback AT %MW110.53 : INT;	{ DE:"Average RPM of all the fans" }
+bzEvaporatorFanFeedback AT %MW110.53 : UINT;	{ DE:"Average RPM of all the fans" }
 bzEXVFeedback AT %MW110.54 : INT;	{ DE:"Number of steps" }
 bzCompressorFeedback AT %MW110.55 : INT;	{ DE:"Compressor speed by VFD frequence" }
 bzEvaporatorCoilSuperheat AT %MW110.56 : INT;	{ DE:"Superheat calculated by pressure and temperature from the outlet side of evaporator coil" }
 bzEvaporatorCoilTemperature AT %MW110.57 : INT;	{ DE:"Refrigerant temperature on the outlet side of the evaporator coil" }
+bzEvaporatorFanSpeed1 AT %MW110.58 : UINT;	{ DE:"Evaporator fan 1 speed" }
+bzEvaporatorFanSpeed2 AT %MW110.59 : UINT;	{ DE:"Evaporator fan 2 speed" }
+bzEvaporatorFanSpeed3 AT %MW110.60 : UINT;	{ DE:"Evaporator fan 3 speed" }
+bzEvaporatorFanSpeed4 AT %MW110.61 : UINT;	{ DE:"Evaporator fan 4 speed" }
+bzEvaporatorFanSpeed5 AT %MW110.62 : UINT;	{ DE:"Evaporator fan 5 speed" }
+bzEvaporatorFanSpeed6 AT %MW110.63 : UINT;	{ DE:"Evaporator fan 6 speed" }
+bzEvaporatorFanSpeed7 AT %MW110.64 : UINT;	{ DE:"Evaporator fan 7 speed" }
+bzEvaporatorFanSpeed8 AT %MW110.65 : UINT;	{ DE:"Evaporator fan 8 speed" }
 	{G:"IO_Mapping"}
 HW_AI_01 AT %IW1.0 : INT;	{ DE:"AIL1 analogue input" }
 HW_AI_02 AT %IW1.1 : INT;	{ DE:"AIL2 analogue input" }

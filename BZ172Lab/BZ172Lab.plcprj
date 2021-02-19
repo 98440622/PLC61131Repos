@@ -465,7 +465,7 @@ IbzAisleACUnit_new := TRUE;
 ]]>
 					</sourceCode>
 				</function>
-				<function name="IBZMBDevice_new" version="1.0.0" creationDate="1612238910" lastModifiedDate="1612338530">
+				<function name="IBZMBDevice_new" version="1.0.0" creationDate="1612238910" lastModifiedDate="1613709478">
 					<returnValue>BOOL</returnValue>
 					<vars>
 						<inputVars>
@@ -479,19 +479,20 @@ IbzAisleACUnit_new := TRUE;
 						<![CDATA[//
 // initialize properties
 //
-@me.Id := id;
-@me.Name := name;
-
+@me.Id 					:= id;
+@me.Name 				:= name;
+@me.Status				:= MBD_OFFLINE;
+@me.NbrOfCommFailure	:= 0;
+@me.MaxNbrOfCommFailure	:= 10;
 //
 // initialize 'this' for methods
 //
-@me.read.me := me;
 
 IBZMBDevice_new := TRUE;
 ]]>
 					</sourceCode>
 				</function>
-				<function name="IBZCarelUXPB000100111_new" version="1.0.0" creationDate="1612242687" lastModifiedDate="1612246348">
+				<function name="IBZCarelUXPB000100111_new" version="1.0.0" creationDate="1612242687" lastModifiedDate="1613710705">
 					<returnValue>BOOL</returnValue>
 					<vars>
 						<inputVars>
@@ -500,6 +501,7 @@ IBZMBDevice_new := TRUE;
 						</inputVars>
 						<localVars>
 							<var name="res" type="BOOL"/>
+							<var name="i" type="INT"/>
 						</localVars>
 					</vars>
 					<iecDeclaration active="FALSE"/>
@@ -507,19 +509,21 @@ IBZMBDevice_new := TRUE;
 						<![CDATA[
 res := IBZMBDevice_new(?(@me.parent), id, 'BZCarelUXPB000100111');
 
-@me.parent.NumberOfHoldingRegisters := TO_USINT(2);
-@me.parent.HoldingRegisterAddresses[0] := TO_UINT(28);
-@me.parent.HoldingRegisterAddresses[1] := TO_UINT(29);
+for i := 0 to 7 do
+	@me.frequencies[i] := TO_UINT(0);
+end_for;
+
+res := IBZVariableByMBRegisters_new(?(@me.freqBlocks), 9, 8, BZMBInputRegister);
 
 IBZCarelUXPB000100111_new := TRUE;
 ]]>
 					</sourceCode>
 				</function>
-				<function name="IBZCSCB1_new" version="1.0.0" creationDate="1612252094" lastModifiedDate="1612252514">
+				<function name="IBZCSCB1_new" version="1.0.0" creationDate="1612252094" lastModifiedDate="1613714484">
 					<returnValue>BOOL</returnValue>
 					<vars>
 						<inputVars>
-							<var name="me" type="@BZCarelUXPB000100111"/>
+							<var name="me" type="@BZCSCB1"/>
 							<var name="id" type="USINT"/>
 						</inputVars>
 						<localVars>
@@ -531,17 +535,7 @@ IBZCarelUXPB000100111_new := TRUE;
 						<![CDATA[
 res := IBZMBDevice_new(?(@me.parent), id, 'BZCSCB1');
 
-// TODO : Use another 'me' to simulate CSCB temporarily
-@me.parent.NumberOfHoldingRegisters := TO_USINT(9);
-@me.parent.HoldingRegisterAddresses[0] := TO_UINT(8970);
-@me.parent.HoldingRegisterAddresses[1] := TO_UINT(8971);
-@me.parent.HoldingRegisterAddresses[2] := TO_UINT(8972);
-@me.parent.HoldingRegisterAddresses[3] := TO_UINT(8973);
-@me.parent.HoldingRegisterAddresses[4] := TO_UINT(8974);
-@me.parent.HoldingRegisterAddresses[5] := TO_UINT(8975);
-@me.parent.HoldingRegisterAddresses[6] := TO_UINT(8976);
-@me.parent.HoldingRegisterAddresses[7] := TO_UINT(8977);
-@me.parent.HoldingRegisterAddresses[8] := TO_UINT(8978);
+res := IBZVariableByMBRegisters_new(?(@me.placeholderBlk), 8970, 9, BZMBHoldingRegister);
 
 IBZCSCB1_new := TRUE;
 ]]>
@@ -698,7 +692,7 @@ IBZDAQChannel_new := TRUE;
 ]]>
 					</sourceCode>
 				</function>
-				<function name="IBZAnalogActuator_new" version="1.0.0" creationDate="1612504245" lastModifiedDate="1613279317">
+				<function name="IBZAnalogActuator_new" version="1.0.0" creationDate="1612504245" lastModifiedDate="1613696396">
 					<returnValue>BOOL</returnValue>
 					<vars>
 						<inputVars>
@@ -711,14 +705,15 @@ IBZDAQChannel_new := TRUE;
 @me.m_Range.High:= 100.0;
 @me.m_Range.Low	:= 0.0;
 @me.m_Runhours	:= 0;
-@me.m_Status	:= ACT_OFF;
+@me.m_Status	:= ACT_INITIALISING;
+@me.m_Output	:= 0.0;
 
 IBZAnalogActuator_new := TRUE;
 
 ]]>
 					</sourceCode>
 				</function>
-				<function name="IBZECFanEBM_new" version="1.0.0" creationDate="1612506311" lastModifiedDate="1613025970">
+				<function name="IBZECFanEBM_new" version="1.0.0" creationDate="1612506311" lastModifiedDate="1613711440">
 					<returnValue>BOOL</returnValue>
 					<vars>
 						<inputVars>
@@ -736,6 +731,8 @@ IBZAnalogActuator_new := TRUE;
 @me.m_daq_chnl := daq;
 
 res := IBZAnalogActuator_new(?(@me.m_parent));
+
+@me.m_plus_per_round := 6; // The number of pulse per round is 6 by default.
 
 // 'this' for members
 @me.run.me := me;
@@ -1315,6 +1312,169 @@ IBZPressureTransmitterBy20mA_new := TRUE;
 ]]>
 					</sourceCode>
 				</function>
+				<function name="IBZVariableByMBRegisters_new" version="1.0.0" creationDate="1613701900" lastModifiedDate="1613703814">
+					<returnValue>BOOL</returnValue>
+					<vars>
+						<inputVars>
+							<var name="me" type="@BZVariableByMBRegisters"/>
+							<var name="addr" type="UINT"/>
+							<var name="nbr" type="UINT"/>
+							<var name="type" type="BZModbusRegisterTypeE"/>
+						</inputVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<sourceCode type="ST">
+						<![CDATA[
+@me.StartAddr	:= addr;
+@me.NbrOfRegs	:= nbr;
+@me.TypeOfReg	:= type;
+
+IBZVariableByMBRegisters_new := TRUE;
+]]>
+					</sourceCode>
+				</function>
+				<function name="IBZCarelUXPB000100111_readFrequencies" version="1.0.0" creationDate="1613703135" lastModifiedDate="1613708536">
+					<returnValue>BOOL</returnValue>
+					<vars>
+						<inputVars>
+							<var name="me" type="@BZCarelUXPB000100111"/>
+						</inputVars>
+						<localVars>
+							<var name="res" type="BOOL"/>
+							<var name="regs" type="INT" dim0="100"/>
+							<var name="i" type="INT"/>
+						</localVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<sourceCode type="ST">
+						<![CDATA[
+
+res := IBZMBDevice_poll(?(@me.parent), @me.freqBlocks.TypeOfReg, @me.freqBlocks.StartAddr, @me.freqBlocks.NbrOfRegs, ?regs, TRUE);
+
+
+if (res) then
+	for i := 0 to 7 do
+		@me.frequencies[i] := TO_UINT(regs[i]);
+	end_for;
+else
+end_if;
+
+
+IBZCarelUXPB000100111_readFrequencies := res;
+]]>
+					</sourceCode>
+				</function>
+				<function name="IBZMBDevice_poll" version="1.0.0" creationDate="1613704167" lastModifiedDate="1613709303">
+					<returnValue>BOOL</returnValue>
+					<vars>
+						<inputVars>
+							<var name="me" type="@BZMBDevice"/>
+							<var name="type" type="BZModbusRegisterTypeE"/>
+							<var name="addr" type="UINT"/>
+							<var name="nbr" type="UINT"/>
+							<var name="regs" type="@INT"/>
+							<var name="is_read" type="BOOL"/>
+						</inputVars>
+						<localVars>
+							<var name="rtn" type="BOOL"/>
+							<var name="res" type="UINT"/>
+						</localVars>
+						<localConsts>
+							<const name="TIMEOUT" type="UINT">
+								<initValue>100</initValue>
+							</const>
+						</localConsts>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<sourceCode type="ST">
+						<![CDATA[
+
+
+rtn := TRUE;
+
+if (type = BZMBCoil) then 
+	;//sysMbMRTU_FC01
+elsif (type = BZMBDiscreteInput) then
+	;//sysMbMRTU_FC02
+elsif (type = BZMBInputRegister) then
+	res := sysMbMRTU_FC04(@me.Id, addr, nbr, regs, TIMEOUT);
+elsif (type = BZMBHoldingRegister) then
+	if (is_read) then
+		res := sysMbMRTU_FC03(@me.Id, addr, nbr, regs, TIMEOUT);
+	else
+		res := sysMbMRTU_FC16(@me.Id, addr, nbr, regs, TIMEOUT);
+	end_if;
+else 
+	rtn := FALSE;
+end_if;
+
+if (rtn) then
+	if (res > 0) then
+		if (res = TO_UINT(16) and @me.NbrOfCommFailure < @me.MaxNbrOfCommFailure) then
+			@me.NbrOfCommFailure := @me.NbrOfCommFailure + 1;
+		else;
+		end_if;
+		
+		rtn := FALSE;
+	else
+		@me.NbrOfCommFailure := 0;
+	end_if;
+else ;
+end_if;
+
+if (@me.NbrOfCommFailure = @me.MaxNbrOfCommFailure) then
+	@me.Status := MBD_OFFLINE;
+else
+	@me.Status := MBD_ONLINE;
+end_if;
+
+
+IBZMBDevice_poll := rtn;
+]]>
+					</sourceCode>
+				</function>
+				<function name="IBZECFanEBM_updateRPM" version="1.0.0" creationDate="1613710048" lastModifiedDate="1613711499">
+					<returnValue>BOOL</returnValue>
+					<vars>
+						<inputVars>
+							<var name="me" type="@BZECFanEBM"/>
+							<var name="freq" type="UINT">
+								<descr>Frequence in Hz</descr>
+							</var>
+						</inputVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<sourceCode type="ST">
+						<![CDATA[
+@me.Tacho := TO_UINT((TO_REAL(freq) * 60.0) / TO_REAL(@me.m_plus_per_round));
+
+IBZECFanEBM_updateRPM := TRUE;
+
+
+]]>
+					</sourceCode>
+				</function>
+				<function name="IBZCSCB1_getStatus" version="1.0.0" creationDate="1613713994" lastModifiedDate="1613714077">
+					<returnValue>BOOL</returnValue>
+					<vars>
+						<inputVars>
+							<var name="me" type="@BZCSCB1"/>
+						</inputVars>
+						<localVars>
+							<var name="res" type="BOOL"/>
+							<var name="regs" type="INT" dim0="100"/>
+						</localVars>
+					</vars>
+					<iecDeclaration active="FALSE"/>
+					<sourceCode type="ST">
+						<![CDATA[
+
+res := IBZMBDevice_poll(?(@me.parent), @me.placeholderBlk.TypeOfReg, @me.placeholderBlk.StartAddr, @me.placeholderBlk.NbrOfRegs, ?regs, TRUE);
+
+IBZCSCB1_getStatus := res;
+]]>
+					</sourceCode>
+				</function>
 			</functions>
 			<functionBlocks>
 				<functionBlock name="bzAisleACUnit_groupTemperatures" version="1.0.0" creationDate="1611891178" lastModifiedDate="1613396982">
@@ -1719,62 +1879,7 @@ value := IBZTemperatureSensor_read(me, as_type);
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="BZMBDevice_read" version="1.0.0" creationDate="1612336253" lastModifiedDate="1612338004">
-					<vars>
-						<inoutVars>
-							<var name="regs" type="INT" dim0="100"/>
-						</inoutVars>
-						<inputVars>
-							<var name="me" type="@BZMBDevice"/>
-							<var name="addr" type="UINT"/>
-							<var name="nbr" type="UINT"/>
-							<var name="type" type="BZModbusRegisterTypeE"/>
-						</inputVars>
-						<outputVars>
-							<var name="rtn" type="BOOL"/>
-						</outputVars>
-						<localVars>
-							<var name="res" type="UINT"/>
-						</localVars>
-						<localConsts>
-							<const name="TIMEOUT" type="UINT">
-								<initValue>100</initValue>
-							</const>
-						</localConsts>
-					</vars>
-					<iecDeclaration active="FALSE"/>
-					<interfaces/>
-					<methods/>
-					<sourceCode type="ST">
-						<![CDATA[
-rtn := TRUE;
-
-if (type = BZMBCoil) then 
-	;//sysMbMRTU_FC01
-elsif (type = BZMBDiscreteInput) then
-	;//sysMbMRTU_FC02
-elsif (type = BZMBInputRegister) then
-	;//sysMbMRTU_FC04
-elsif (type = BZMBHoldingRegister) then
-	res := sysMbMRTU_FC03(@me.Id, addr, nbr, ?regs, TIMEOUT);
-else 
-	rtn := FALSE;
-end_if;
-
-if (rtn) then
-	if (res > 0) then
-		rtn := FALSE;
-	else ;
-	end_if;
-else ;
-end_if;
-
-
-
-]]>
-					</sourceCode>
-				</functionBlock>
-				<functionBlock name="bzAisleACUnit_poll" version="1.0.0" creationDate="1612339446" lastModifiedDate="1613031685">
+				<functionBlock name="bzAisleACUnit_poll" version="1.0.0" creationDate="1612339446" lastModifiedDate="1613714143">
 					<vars>
 						<inputVars>
 							<var name="me" type="@bzAisleACUnit"/>
@@ -1784,6 +1889,9 @@ end_if;
 							<var name="ptrOutdoorModule" type="@BZCSCB1"/>
 							<var name="reg_vals" type="INT" dim0="100"/>
 							<var name="ptrEEVDriverModule" type="@BZEliwellEVD"/>
+							<var name="res" type="BOOL"/>
+							<var name="i" type="INT"/>
+							<var name="ptrFan" type="@BZECFanEBM"/>
 						</localVars>
 					</vars>
 					<iecDeclaration active="FALSE"/>
@@ -1792,22 +1900,16 @@ end_if;
 					<sourceCode type="ST">
 						<![CDATA[
 ptrFanTachoModule := @me.FanTachoModule;
-@ptrFanTachoModule.parent.read.type := BZMBHoldingRegister;
-@ptrFanTachoModule.parent.read.addr := @ptrFanTachoModule.parent.HoldingRegisterAddresses[0];
-@ptrFanTachoModule.parent.read.nbr := @ptrFanTachoModule.parent.NumberOfHoldingRegisters;
-@ptrFanTachoModule.parent.read.regs := reg_vals;
-@ptrFanTachoModule.parent.read();
+res := IBZCarelUXPB000100111_readFrequencies(ptrFanTachoModule);
+for i := 0 to @me.NumberOfEvapFans - 1 do
+	ptrFan := @me.EvapFans[i];
+	res := IBZECFanEBM_updateRPM(ptrFan, @ptrFanTachoModule.frequencies[i]);
+end_for;
 
 ptrOutdoorModule := @me.OutdoorModbule;
-@ptrOutdoorModule.parent.read.type := BZMBHoldingRegister;
-@ptrOutdoorModule.parent.read.addr := @ptrOutdoorModule.parent.HoldingRegisterAddresses[0];
-@ptrOutdoorModule.parent.read.nbr := @ptrOutdoorModule.parent.NumberOfHoldingRegisters;
-@ptrOutdoorModule.parent.read.regs := reg_vals;
-@ptrOutdoorModule.parent.read();
+res := IBZCSCB1_getStatus(ptrOutdoorModule);
 
 ptrEEVDriverModule := @me.EVDController;
-// TODO : read the specified registers
-//@ptrEEVDriverModule.parent.read();
 ]]>
 					</sourceCode>
 				</functionBlock>
@@ -1895,7 +1997,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="BZECFanEBM_run" version="1.0.0" creationDate="1612508970" lastModifiedDate="1613308672">
+				<functionBlock name="BZECFanEBM_run" version="1.0.0" creationDate="1612508970" lastModifiedDate="1613697552">
 					<vars>
 						<inputVars>
 							<var name="me" type="@BZECFanEBM"/>
@@ -1912,8 +2014,9 @@ end_if;
 					<sourceCode type="ST">
 						<![CDATA[
 
-
-if (@me.m_parent.m_Status = ACT_OFF) then
+if (@me.m_parent.m_Status = ACT_INITIALISING) then
+	@me.m_parent.m_Status := ACT_OFF;
+elsif (@me.m_parent.m_Status = ACT_OFF) then
 	if (@me.m_parent.m_Command > 0.0) then
 		@me.m_parent.m_Status := ACT_RUNNING;
 	else;
@@ -2660,7 +2763,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="BZEEV_run" version="1.0.0" creationDate="1613026043" lastModifiedDate="1613308629">
+				<functionBlock name="BZEEV_run" version="1.0.0" creationDate="1613026043" lastModifiedDate="1613697104">
 					<vars>
 						<inputVars>
 							<var name="me" type="@BZEEV"/>
@@ -2671,7 +2774,9 @@ end_if;
 					<methods/>
 					<sourceCode type="ST">
 						<![CDATA[
-if (@me.m_parent.m_Status = ACT_OFF) then
+if (@me.m_parent.m_Status = ACT_INITIALISING) then
+	@me.m_parent.m_Status := ACT_OFF;
+elsif (@me.m_parent.m_Status = ACT_OFF) then
 	if (@me.m_parent.m_Command > 0.0) then
 		@me.m_parent.m_Status := ACT_RUNNING;
 	else;
@@ -2690,7 +2795,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</functionBlock>
-				<functionBlock name="BZVariableSpeedCompressor_run" version="1.0.0" creationDate="1613033015" lastModifiedDate="1613308776">
+				<functionBlock name="BZVariableSpeedCompressor_run" version="1.0.0" creationDate="1613033015" lastModifiedDate="1613697162">
 					<vars>
 						<inputVars>
 							<var name="me" type="@BZVariableSpeedCompressor"/>
@@ -2701,7 +2806,9 @@ end_if;
 					<methods/>
 					<sourceCode type="ST">
 						<![CDATA[
-if (@me.m_parent.m_Status = ACT_OFF) then
+if (@me.m_parent.m_Status = ACT_INITIALISING) then
+	@me.m_parent.m_Status := ACT_OFF;
+elsif (@me.m_parent.m_Status = ACT_OFF) then
 	if (@me.m_parent.m_Command > 0.0) then
 		@me.m_parent.m_Status := ACT_RUNNING;
 	else;
@@ -3114,7 +3221,7 @@ end_for;
 				</functionBlock>
 			</functionBlocks>
 			<programs>
-				<program name="main" version="1.0.0" creationDate="0" lastModifiedDate="1613632196">
+				<program name="main" version="1.0.0" creationDate="0" lastModifiedDate="1613712870">
 					<vars>
 						<localVars>
 							<var name="i" type="INT"/>
@@ -3129,6 +3236,7 @@ end_for;
 							<var name="ptrExv" type="@BZEEV"/>
 							<var name="ptrComp" type="@BZVariableSpeedCompressor"/>
 							<var name="ptrTmp" type="@BZTemperatureSensor"/>
+							<var name="rTmp" type="REAL"/>
 						</localVars>
 					</vars>
 					<iecDeclaration active="FALSE"/>
@@ -3263,7 +3371,18 @@ bzEvaporatorCoilSuperheat 		:= TO_INT(ACUnit.controlEXV.Superheat * 10.0);
 //ptrEvapFan
 ptrEvapFan := ACUnit.EvapFans[0];	// All the fans should share a same command
 bzEvaporatorFanCommand 	:= TO_INT(@ptrEvapFan.m_parent.m_Command * 10.0);
-//bzEvaporatorFanFeedback	:=;
+rTmp := 0.0;
+for i := 0 to ACUnit.NumberOfEvapFans - 1 do
+	ptrEvapFan := ACUnit.EvapFans[i];
+	rTmp := rTmp + TO_REAL(@ptrEvapFan.Tacho);
+end_for;
+bzEvaporatorFanFeedback	:= TO_UINT(rTmp / ACUnit.NumberOfEvapFans);
+ptrEvapFan := ACUnit.EvapFans[0]; bzEvaporatorFanSpeed1 := @ptrEvapFan.Tacho; 
+ptrEvapFan := ACUnit.EvapFans[1]; bzEvaporatorFanSpeed2 := @ptrEvapFan.Tacho; 
+ptrEvapFan := ACUnit.EvapFans[2]; bzEvaporatorFanSpeed3 := @ptrEvapFan.Tacho; 
+ptrEvapFan := ACUnit.EvapFans[3]; bzEvaporatorFanSpeed4 := @ptrEvapFan.Tacho; 
+ptrEvapFan := ACUnit.EvapFans[4]; bzEvaporatorFanSpeed5 := @ptrEvapFan.Tacho; 
+ptrEvapFan := ACUnit.EvapFans[5]; bzEvaporatorFanSpeed6 := @ptrEvapFan.Tacho; 
 
 ptrExv := ACUnit.EXV;
 bzEXVCommand 			:= TO_INT(@ptrExv.m_parent.m_Command * 10.0);
@@ -3395,7 +3514,7 @@ end_if;
 ]]>
 					</sourceCode>
 				</program>
-				<program name="init" version="1.0.0" creationDate="1611809132" lastModifiedDate="1613386057">
+				<program name="init" version="1.0.0" creationDate="1611809132" lastModifiedDate="1613711273">
 					<vars>
 						<localVars>
 							<var name="res" type="BOOL"/>
@@ -3586,9 +3705,12 @@ ACUnit.CondensatePumpRelay			:= ?Relays[4];
 ACUnit.SolenoidValveRelay			:= ?Relays[5];
 
 // Evaporator fans
+ACUnit.NumberOfEvapFans := 0;
 for i := 0 to NUMBER_OF_EVAP_FANS - 1 do
 	ACUnit.EvapFans[i] := ?EvapFans[i];
+	ACUnit.NumberOfEvapFans := ACUnit.NumberOfEvapFans + 1;
 end_for;
+
 
 // EEV
 ACUnit.EXV := ?Exv;
@@ -3868,6 +3990,9 @@ of the actual position.</descr>
 						<var name="EvapFans" type="@BZECFanEBM" dim0="6">
 							<descr>6 EC fans from EBM to provide airflow through evaporator coil</descr>
 						</var>
+						<var name="NumberOfEvapFans" type="INT">
+							<descr>Number of indoor fans installed</descr>
+						</var>
 						<var name="EXV" type="@BZEEV">
 							<descr>EEV for evaporator coil</descr>
 						</var>
@@ -3949,7 +4074,9 @@ of the actual position.</descr>
 						<var name="controlCompressor" type="bzAisleACUnit_controlCompressor">
 							<descr>Method for compressor control</descr>
 						</var>
-						<var name="controlEvaporatorFan" type="bzAisleACUnit_controlEvaporatorFan"/>
+						<var name="controlEvaporatorFan" type="bzAisleACUnit_controlEvaporatorFan">
+							<descr>Method for evaporator fan control</descr>
+						</var>
 					</vars>
 				</struct>
 				<struct name="BZMBDevice" version="1.0.0">
@@ -3964,32 +4091,14 @@ of the actual position.</descr>
 							<descr>Name of the device</descr>
 							<initValue>'BZMBDeviceNoname'</initValue>
 						</var>
-						<var name="NumberOfHoldingRegisters" type="UINT">
-							<descr>Number of holding registers</descr>
+						<var name="Status" type="BZMBDeviceStatus">
+							<descr>Current status of device</descr>
 						</var>
-						<var name="HoldingRegisterAddresses" type="UINT" dim0="32">
-							<descr>Addresses of holding registers</descr>
+						<var name="NbrOfCommFailure" type="INT">
+							<descr>Number of times of polling register failure</descr>
 						</var>
-						<var name="NumberOfInputRegisters" type="UINT">
-							<descr>Number of input registers</descr>
-						</var>
-						<var name="InputRegisters" type="UINT" dim0="32">
-							<descr>Input registers</descr>
-						</var>
-						<var name="NumberOfCoils" type="UINT">
-							<descr>Number of coil type registers</descr>
-						</var>
-						<var name="Coils" type="BOOL" dim0="32">
-							<descr>Coil registers</descr>
-						</var>
-						<var name="NumberOfDiscreteInputs" type="UINT">
-							<descr>Number of discrete input registers</descr>
-						</var>
-						<var name="DiscreteInputs" type="BOOL" dim0="32">
-							<descr>Discrete input registers</descr>
-						</var>
-						<var name="read" type="BZMBDevice_read">
-							<descr>Method to read registers</descr>
+						<var name="MaxNbrOfCommFailure" type="INT">
+							<descr>If number of times of polling failure exceeded the threshold, you should know what's going on there</descr>
 						</var>
 					</vars>
 				</struct>
@@ -4000,6 +4109,12 @@ of the actual position.</descr>
 						<var name="parent" type="BZMBDevice">
 							<descr>Base class</descr>
 						</var>
+						<var name="frequencies" type="UINT" dim0="8">
+							<descr>Instant frequencies of the total 16 channels by Hz</descr>
+						</var>
+						<var name="freqBlocks" type="BZVariableByMBRegisters">
+							<descr>Registers map to present the frequencies</descr>
+						</var>
 					</vars>
 				</struct>
 				<struct name="BZCSCB1" version="1.0.0">
@@ -4009,6 +4124,7 @@ of the actual position.</descr>
 						<var name="parent" type="BZMBDevice">
 							<descr>Base class</descr>
 						</var>
+						<var name="placeholderBlk" type="BZVariableByMBRegisters"/>
 					</vars>
 				</struct>
 				<struct name="BZSwitch" version="1.0.0">
@@ -4076,6 +4192,9 @@ of the actual position.</descr>
 							<descr>'run' member function</descr>
 						</var>
 						<var name="m_daq_chnl" type="@BZDAQChannel"/>
+						<var name="m_plus_per_round" type="UINT">
+							<descr>Refer to the spec of the fan</descr>
+						</var>
 					</vars>
 				</struct>
 				<struct name="BZFault" version="1.0.0">
@@ -4227,6 +4346,15 @@ which is commonly regarded as a MBDevice also.</descr>
 						<var name="m_range" type="BZRealRange"/>
 					</vars>
 				</struct>
+				<struct name="BZVariableByMBRegisters" version="1.0.0">
+					<title>BZVariable by MB Registers</title>
+					<descr>The way to describe a variable by multiple Modbus registers.</descr>
+					<vars>
+						<var name="StartAddr" type="UINT"/>
+						<var name="NbrOfRegs" type="UINT"/>
+						<var name="TypeOfReg" type="BZModbusRegisterTypeE"/>
+					</vars>
+				</struct>
 			</structs>
 			<typedefs/>
 			<enums>
@@ -4271,6 +4399,10 @@ which is commonly regarded as a MBDevice also.</descr>
 						<element name="ACT_STOPPING">
 							<descr>RUNNING to OFF or IDLE</descr>
 							<value>4</value>
+						</element>
+						<element name="ACT_INITIALISING">
+							<descr>Preparation work</descr>
+							<value>5</value>
 						</element>
 					</elements>
 				</enum>
@@ -4456,6 +4588,18 @@ a statemachine is necessary to simplify the design.</descr>
 						<element name="bzEEV_PUMPDOWN">
 							<descr>Move to fully closed position gradually when the compressor is running for pump down</descr>
 							<value>3</value>
+						</element>
+					</elements>
+				</enum>
+				<enum name="BZMBDeviceStatus" version="1.0.0">
+					<title>BZMBDevice Status</title>
+					<descr>Generally there should be two statuses for a device on Modbus, online and offline.</descr>
+					<elements>
+						<element name="MBD_OFFLINE">
+							<value>0</value>
+						</element>
+						<element name="MBD_ONLINE">
+							<value>1</value>
 						</element>
 					</elements>
 				</enum>
@@ -57508,17 +57652,17 @@ ui16_random := TO_UINT(ui16_random_copy or (ui16_random_tmp and 16#00FF));
 		{G:"EEPROM_Parameters"}
 	bzEEVPIDKpCfg AT %MW101.34 : INT;  {DE:"Proportional gain for EEV control"}
 		{G:"EEPROM_Parameters"}
-	bzEvaporatorFanPIDTiCfg AT %MW101.35 : UINT;  {DE:"<copy>"}
+	bzEvaporatorFanPIDTiCfg AT %MW101.35 : UINT;  {DE:"Integral time for evaporator fan control"}
 		{G:"EEPROM_Parameters"}
-	bzCompressorPIDTiCfg AT %MW101.36 : UINT;  {DE:"<copy>"}
+	bzCompressorPIDTiCfg AT %MW101.36 : UINT;  {DE:"Integral time for compressor control"}
 		{G:"EEPROM_Parameters"}
-	bzEEVPIDTiCfg AT %MW101.37 : UINT;  {DE:"<copy>"}
+	bzEEVPIDTiCfg AT %MW101.37 : UINT;  {DE:"Integral time for EEV control"}
 		{G:"EEPROM_Parameters"}
-	bzEvaporatorFanPIDTdCfg AT %MW101.38 : UINT;  {DE:"<copy>"}
+	bzEvaporatorFanPIDTdCfg AT %MW101.38 : UINT;  {DE:"Derivative dumping time for evaporator fan control"}
 		{G:"EEPROM_Parameters"}
-	bzCompressorPIDTdCfg AT %MW101.39 : UINT;  {DE:"<copy>"}
+	bzCompressorPIDTdCfg AT %MW101.39 : UINT;  {DE:"Derivative dumping time for compressor control"}
 		{G:"EEPROM_Parameters"}
-	bzEEVPIDTdCfg AT %MW101.40 : UINT;  {DE:"<copy>"}
+	bzEEVPIDTdCfg AT %MW101.40 : UINT;  {DE:"Derivative dumping time for EEV control"}
 		{G:"EEPROM_Parameters"}
 	bzEvapSuperheatDeadbandCfg AT %MW101.41 : INT;  {DE:"Evaporator coil superheat control deadband"}
 		{G:"EEPROM_Parameters"}
@@ -57596,7 +57740,7 @@ ui16_random := TO_UINT(ui16_random_copy or (ui16_random_tmp and 16#00FF));
 		{G:"Status_variables"}
 	BZCANMailbox3 AT %MW110.43 : INT;  {DE:"TBC"}
 		{G:"Status_variables"}
-	BZIsRealMode AT %MW110.44 : BOOL := 1;  {DE:"Controller is working on real mode."}
+	BZIsRealMode AT %MW110.44 : INT := 1;  {DE:"Controller is working on real mode."}
 		{G:"Status_variables"}
 	bzCondensatePumpRunhourWarning AT %MW110.45 : INT;  {DE:"Condensate pump run-hour warning"}
 		{G:"Status_variables"}
@@ -57614,7 +57758,7 @@ ui16_random := TO_UINT(ui16_random_copy or (ui16_random_tmp and 16#00FF));
 		{G:"Status_variables"}
 	bzLiquidValveCommand AT %MW110.52 : INT;  {DE:"Liquid valve command"}
 		{G:"Status_variables"}
-	bzEvaporatorFanFeedback AT %MW110.53 : INT;  {DE:"Average RPM of all the fans"}
+	bzEvaporatorFanFeedback AT %MW110.53 : UINT;  {DE:"Average RPM of all the fans"}
 		{G:"Status_variables"}
 	bzEXVFeedback AT %MW110.54 : INT;  {DE:"Number of steps"}
 		{G:"Status_variables"}
@@ -57623,6 +57767,22 @@ ui16_random := TO_UINT(ui16_random_copy or (ui16_random_tmp and 16#00FF));
 	bzEvaporatorCoilSuperheat AT %MW110.56 : INT;  {DE:"Superheat calculated by pressure and temperature from the outlet side of evaporator coil"}
 		{G:"Status_variables"}
 	bzEvaporatorCoilTemperature AT %MW110.57 : INT;  {DE:"Refrigerant temperature on the outlet side of the evaporator coil"}
+		{G:"Status_variables"}
+	bzEvaporatorFanSpeed1 AT %MW110.58 : UINT;  {DE:"Evaporator fan 1 speed"}
+		{G:"Status_variables"}
+	bzEvaporatorFanSpeed2 AT %MW110.59 : UINT;  {DE:"Evaporator fan 2 speed"}
+		{G:"Status_variables"}
+	bzEvaporatorFanSpeed3 AT %MW110.60 : UINT;  {DE:"Evaporator fan 3 speed"}
+		{G:"Status_variables"}
+	bzEvaporatorFanSpeed4 AT %MW110.61 : UINT;  {DE:"Evaporator fan 4 speed"}
+		{G:"Status_variables"}
+	bzEvaporatorFanSpeed5 AT %MW110.62 : UINT;  {DE:"Evaporator fan 5 speed"}
+		{G:"Status_variables"}
+	bzEvaporatorFanSpeed6 AT %MW110.63 : UINT;  {DE:"Evaporator fan 6 speed"}
+		{G:"Status_variables"}
+	bzEvaporatorFanSpeed7 AT %MW110.64 : UINT;  {DE:"Evaporator fan 7 speed"}
+		{G:"Status_variables"}
+	bzEvaporatorFanSpeed8 AT %MW110.65 : UINT;  {DE:"Evaporator fan 8 speed"}
 		{G:"IO_Mapping"}
 	HW_AI_01 AT %IW1.0 : INT;  {DE:"AIL1 analogue input"}
 		{G:"IO_Mapping"}
@@ -57714,8 +57874,8 @@ ui16_random := TO_UINT(ui16_random_copy or (ui16_random_tmp and 16#00FF));
 				<![CDATA[(* Automatically generated, do not edit! *)
 
 VAR_GLOBAL CONSTANT
-$$ParDB : ARRAY[ 0..3347 ] OF USINT; { HIDDEN:ON } { INIT:"BZ172Lab.PLK+0" }
-$$ParDBLength  : DWORD := 93; { HIDDEN:ON }
+$$ParDB : ARRAY[ 0..3635 ] OF USINT; { HIDDEN:ON } { INIT:"BZ172Lab.PLK+0" }
+$$ParDBLength  : DWORD := 101; { HIDDEN:ON }
 END_VAR
 
 PROGRAM InitParDB WITH Serv;
@@ -57728,7 +57888,7 @@ PROGRAM InitParDB
 		dummyCrc32: UDINT;
 	END_VAR
 
-	dummyCrc32 := 500217262;
+	dummyCrc32 := 936691775;
 
 	warningsKiller := sysDBase_SetExtTable( ADR( $$ParDB ), $$ParDBLength );
 
@@ -57756,7 +57916,7 @@ END_PROGRAM
 			</src>
 		</aux>
 		<workspace>
-			<root name="BZ172Lab" nextID="28330">
+			<root name="BZ172Lab" nextID="29362">
 				<GlobalVars name="Global_vars" id="11"/>
 				<Pou name="main" id="2"/>
 				<folder id="16" name="BZoops172">
@@ -57790,13 +57950,19 @@ END_PROGRAM
 						<folder name="BZMBDevice" id="2882">
 							<Definition name="BZMBDevice" id="2883"/>
 							<Pou name="IBZMBDevice_new" id="2894"/>
-							<Definition name="BZCarelUXPB000100111" id="2907"/>
-							<Pou name="IBZCarelUXPB000100111_new" id="2908"/>
-							<Definition name="BZCSCB1" id="3014"/>
-							<Pou name="IBZCSCB1_new" id="3026"/>
-							<Pou name="BZMBDevice_read" id="3271"/>
-							<Definition name="BZEliwellEVD" id="17091"/>
-							<Pou name="IBZEliwellEVD_new" id="17093"/>
+							<Definition name="BZVariableByMBRegisters" id="28757"/>
+							<Pou name="IBZVariableByMBRegisters_new" id="28765"/>
+							<folder name="Inheritance" id="28862">
+								<Definition name="BZCarelUXPB000100111" id="2907"/>
+								<Definition name="BZCSCB1" id="3014"/>
+								<Definition name="BZEliwellEVD" id="17091"/>
+								<Pou name="IBZCarelUXPB000100111_new" id="2908"/>
+								<Pou name="IBZEliwellEVD_new" id="17093"/>
+								<Pou name="IBZCSCB1_new" id="3026"/>
+								<Pou name="IBZCarelUXPB000100111_readFrequencies" id="28863"/>
+								<Pou name="IBZCSCB1_getStatus" id="29296"/>
+							</folder>
+							<Pou name="IBZMBDevice_poll" id="28931"/>
 						</folder>
 						<folder name="BZSwitch" id="4428">
 							<Definition name="BZSwitch" id="4429"/>
@@ -57822,6 +57988,7 @@ END_PROGRAM
 							<Definition name="BZECFanEBM" id="5373"/>
 							<Pou name="IBZECFanEBM_new" id="5374"/>
 							<Pou name="BZECFanEBM_run" id="5466"/>
+							<Pou name="IBZECFanEBM_updateRPM" id="29103"/>
 						</folder>
 						<folder name="BZFault" id="6517">
 							<Definition name="BZFault" id="6518"/>
@@ -57858,6 +58025,7 @@ END_PROGRAM
 						<Definition name="BZDAQChannelTypeE" id="5227"/>
 						<Definition name="BZFaultLevelE" id="6519"/>
 						<Definition name="BZPressureUnitE" id="22279"/>
+						<Definition name="BZMBDeviceStatus" id="28573"/>
 					</folder>
 					<folder name="Utilities" id="41">
 						<Pou name="IBZComputeY" id="42"/>
@@ -58927,8 +59095,8 @@ END_PROGRAM
 								<scale>1</scale>
 								<offs>0</offs>
 								<um>.1s</um>
-								<description>&lt;copy&gt;</description>
-								<note>&lt;copy&gt;</note>
+								<description>Integral time for evaporator fan control</description>
+								<note/>
 								<form/>
 								<accesslevel>3</accesslevel>
 								<readonly>0</readonly>
@@ -58954,8 +59122,8 @@ END_PROGRAM
 								<scale>1</scale>
 								<offs>0</offs>
 								<um>.1s</um>
-								<description>&lt;copy&gt;</description>
-								<note>&lt;copy&gt;</note>
+								<description>Integral time for compressor control</description>
+								<note/>
 								<form/>
 								<accesslevel>3</accesslevel>
 								<readonly>0</readonly>
@@ -58981,8 +59149,8 @@ END_PROGRAM
 								<scale>1</scale>
 								<offs>0</offs>
 								<um>.1s</um>
-								<description>&lt;copy&gt;</description>
-								<note>&lt;copy&gt;</note>
+								<description>Integral time for EEV control</description>
+								<note/>
 								<form/>
 								<accesslevel>3</accesslevel>
 								<readonly>0</readonly>
@@ -59008,8 +59176,8 @@ END_PROGRAM
 								<scale>1</scale>
 								<offs>0</offs>
 								<um>.1s</um>
-								<description>&lt;copy&gt;</description>
-								<note>&lt;copy&gt;</note>
+								<description>Derivative dumping time for evaporator fan control</description>
+								<note/>
 								<form/>
 								<accesslevel>3</accesslevel>
 								<readonly>0</readonly>
@@ -59035,8 +59203,8 @@ END_PROGRAM
 								<scale>1</scale>
 								<offs>0</offs>
 								<um>.1s</um>
-								<description>&lt;copy&gt;</description>
-								<note>&lt;copy&gt;</note>
+								<description>Derivative dumping time for compressor control</description>
+								<note/>
 								<form/>
 								<accesslevel>3</accesslevel>
 								<readonly>0</readonly>
@@ -59062,8 +59230,8 @@ END_PROGRAM
 								<scale>1</scale>
 								<offs>0</offs>
 								<um>.1s</um>
-								<description>&lt;copy&gt;</description>
-								<note>&lt;copy&gt;</note>
+								<description>Derivative dumping time for EEV control</description>
+								<note/>
 								<form/>
 								<accesslevel>3</accesslevel>
 								<readonly>0</readonly>
@@ -60107,18 +60275,18 @@ END_PROGRAM
 								<ipa>5006</ipa>
 								<address>13959</address>
 								<name>BZIsRealMode</name>
-								<typepar>5</typepar>
-								<typetarg>BOOL</typetarg>
+								<typepar>0</typepar>
+								<typetarg>INT</typetarg>
 								<value>1</value>
-								<min/>
-								<max/>
+								<min>0</min>
+								<max>1</max>
 								<ipamin/>
 								<ipamax/>
 								<scale>1</scale>
 								<offs>0</offs>
 								<um/>
 								<description>Controller is working on real mode.</description>
-								<note/>
+								<note>0:FALSE;1:TRUE</note>
 								<form/>
 								<accesslevel>3</accesslevel>
 								<readonly>0</readonly>
@@ -60350,8 +60518,8 @@ END_PROGRAM
 								<ipa>5045</ipa>
 								<address>8985</address>
 								<name>bzEvaporatorFanFeedback</name>
-								<typepar>0</typepar>
-								<typetarg>INT</typetarg>
+								<typepar>2</typepar>
+								<typetarg>UINT</typetarg>
 								<value/>
 								<min/>
 								<max/>
@@ -60476,6 +60644,222 @@ END_PROGRAM
 								<shortname/>
 								<size>31</size>
 								<dataBlock>MW110.57</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>5050</ipa>
+								<address>8990</address>
+								<name>bzEvaporatorFanSpeed1</name>
+								<typepar>2</typepar>
+								<typetarg>UINT</typetarg>
+								<value/>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um>RPM</um>
+								<description>Evaporator fan 1 speed</description>
+								<note/>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>1</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.58</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>5051</ipa>
+								<address>8991</address>
+								<name>bzEvaporatorFanSpeed2</name>
+								<typepar>2</typepar>
+								<typetarg>UINT</typetarg>
+								<value/>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um>RPM</um>
+								<description>Evaporator fan 2 speed</description>
+								<note/>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>1</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.59</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>5052</ipa>
+								<address>8992</address>
+								<name>bzEvaporatorFanSpeed3</name>
+								<typepar>2</typepar>
+								<typetarg>UINT</typetarg>
+								<value/>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um>RPM</um>
+								<description>Evaporator fan 3 speed</description>
+								<note/>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>1</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.60</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>5053</ipa>
+								<address>8993</address>
+								<name>bzEvaporatorFanSpeed4</name>
+								<typepar>2</typepar>
+								<typetarg>UINT</typetarg>
+								<value/>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um>RPM</um>
+								<description>Evaporator fan 4 speed</description>
+								<note/>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>1</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.61</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>5054</ipa>
+								<address>8994</address>
+								<name>bzEvaporatorFanSpeed5</name>
+								<typepar>2</typepar>
+								<typetarg>UINT</typetarg>
+								<value/>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um>RPM</um>
+								<description>Evaporator fan 5 speed</description>
+								<note/>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>1</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.62</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>5055</ipa>
+								<address>8995</address>
+								<name>bzEvaporatorFanSpeed6</name>
+								<typepar>2</typepar>
+								<typetarg>UINT</typetarg>
+								<value/>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um>RPM</um>
+								<description>Evaporator fan 6 speed</description>
+								<note/>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>1</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.63</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>5056</ipa>
+								<address>8996</address>
+								<name>bzEvaporatorFanSpeed7</name>
+								<typepar>2</typepar>
+								<typetarg>UINT</typetarg>
+								<value/>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um>RPM</um>
+								<description>Evaporator fan 7 speed</description>
+								<note/>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>1</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.64</dataBlock>
+								<label/>
+								<translation/>
+								<visibility>0</visibility>
+								<clientType>0</clientType>
+							</param>
+							<param>
+								<ipa>5057</ipa>
+								<address>8997</address>
+								<name>bzEvaporatorFanSpeed8</name>
+								<typepar>2</typepar>
+								<typetarg>UINT</typetarg>
+								<value/>
+								<min/>
+								<max/>
+								<ipamin/>
+								<ipamax/>
+								<scale>1</scale>
+								<offs>0</offs>
+								<um>RPM</um>
+								<description>Evaporator fan 8 speed</description>
+								<note/>
+								<form/>
+								<accesslevel>3</accesslevel>
+								<readonly>1</readonly>
+								<shortname/>
+								<size>31</size>
+								<dataBlock>MW110.65</dataBlock>
 								<label/>
 								<translation/>
 								<visibility>0</visibility>
@@ -61165,19 +61549,19 @@ END_PROGRAM
 								<value ipa="10069" subidx="0">0</value>
 								<value ipa="10070" subidx="0">30</value>
 								<value ipa="10071" subidx="0">10</value>
-								<value ipa="10072" subidx="0">0</value>
-								<value ipa="10073" subidx="0">0</value>
-								<value ipa="10074" subidx="0">0</value>
-								<value ipa="10075" subidx="0">0</value>
-								<value ipa="10076" subidx="0">0</value>
-								<value ipa="10077" subidx="0">0</value>
-								<value ipa="10078" subidx="0">0</value>
-								<value ipa="10079" subidx="0">0</value>
+								<value ipa="10072" subidx="0">227</value>
+								<value ipa="10073" subidx="0">-32768</value>
+								<value ipa="10074" subidx="0">234</value>
+								<value ipa="10075" subidx="0">-32768</value>
+								<value ipa="10076" subidx="0">225</value>
+								<value ipa="10077" subidx="0">-32768</value>
+								<value ipa="10078" subidx="0">-32768</value>
+								<value ipa="10079" subidx="0">-32768</value>
 								<value ipa="10080" subidx="0">-32768</value>
 								<value ipa="10081" subidx="0">-32768</value>
 								<value ipa="10082" subidx="0">1</value>
 								<value ipa="10083" subidx="0">0</value>
-								<value ipa="10084" subidx="0">1</value>
+								<value ipa="10084" subidx="0">0</value>
 								<value ipa="10085" subidx="0">0</value>
 								<value ipa="10086" subidx="0">0</value>
 								<value ipa="10087" subidx="0">0</value>
@@ -61189,8 +61573,8 @@ END_PROGRAM
 								<value ipa="10093" subidx="0">0</value>
 								<value ipa="10094" subidx="0">0</value>
 								<value ipa="10095" subidx="0">0</value>
-								<value ipa="10096" subidx="0">1</value>
-								<value ipa="10097" subidx="0">0</value>
+								<value ipa="10096" subidx="0">0</value>
+								<value ipa="10097" subidx="0">1</value>
 								<value ipa="10098" subidx="0">0</value>
 								<value ipa="10099" subidx="0">0</value>
 								<value ipa="10100" subidx="0">0</value>
@@ -61201,10 +61585,10 @@ END_PROGRAM
 								<value ipa="10105" subidx="0">0</value>
 								<value ipa="10106" subidx="0">0</value>
 								<value ipa="10107" subidx="0">0</value>
-								<value ipa="10108" subidx="0">50</value>
-								<value ipa="10109" subidx="0">50</value>
+								<value ipa="10108" subidx="0">0</value>
+								<value ipa="10109" subidx="0">0</value>
 								<value ipa="10110" subidx="0">0</value>
-								<value ipa="10111" subidx="0">0</value>
+								<value ipa="10111" subidx="0">50</value>
 								<value ipa="10112" subidx="0">0</value>
 								<value ipa="10113" subidx="0">0</value>
 								<value ipa="10114" subidx="0">0</value>
@@ -61641,6 +62025,14 @@ END_PROGRAM
 								<value ipa="5047" subidx="0">0</value>
 								<value ipa="5048" subidx="0">0</value>
 								<value ipa="5049" subidx="0">0</value>
+								<value ipa="5050" subidx="0">0</value>
+								<value ipa="5051" subidx="0">0</value>
+								<value ipa="5052" subidx="0">0</value>
+								<value ipa="5053" subidx="0">0</value>
+								<value ipa="5054" subidx="0">0</value>
+								<value ipa="5055" subidx="0">0</value>
+								<value ipa="5056" subidx="0">0</value>
+								<value ipa="5057" subidx="0">0</value>
 							</values>
 							<commDisabled>0</commDisabled>
 							<downloadVolume>0</downloadVolume>
