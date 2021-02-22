@@ -4852,7 +4852,7 @@ a statemachine is necessary to simplify the design.</descr>
 			<subranges/>
 			<interfaces/>
 		</main>
-		<target id="M172P_596p10" name="BZ172Lab.tgt" fullXml="false">
+		<target id="M172P_596p10" name="msk596p10.tgt" fullXml="false">
 			<![CDATA[(************************************************************************)
 (*                                                                      *)
 (*	Description: Definition of target variables and functions       *)
@@ -7177,7 +7177,7 @@ END_FUNCTION
 
 ]]>
 		</target>
-		<targetXML name="BZ172Lab.tgtx" fullXml="true">
+		<targetXML name="freeadvance.tgtx" fullXml="true">
 			<target>
 				<resources>
 					<resource name="EWAD" processor="ARMv7M">
@@ -58492,7 +58492,7 @@ END_PROGRAM
 			</src>
 		</aux>
 		<workspace>
-			<root name="BZ172Lab" nextID="30665">
+			<root name="BZ172Lab" nextID="30897">
 				<GlobalVars name="Global_vars" id="11"/>
 				<Pou name="main" id="2"/>
 				<folder id="16" name="BZoops172">

@@ -18,47 +18,89 @@ VAR_GLOBAL
 	$PagNumber : UINT;
 	$waitRefresh : BOOL;
 
-	{G:"ModeSelection_vars"}
-	fbModeSelection : DrawModeSelection;
-	fbRefrModeSelection : RefrModeSelection;
-	fbModeSelectionEdit_1 : EditBox01 := (wHnd:=6, y1:=16, x2:=127, y2:=31, pFont:=?EWP2_8x16, bckCol:=16777215, rw:=TRUE, pVar:=16#00368700, order:=2, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, enumId:=1, format:=16#00000014);
-	fbModeSelectionEdit_2 : EditBox01 := (wHnd:=7, y1:=32, x2:=127, y2:=47, pFont:=?EWP2_8x16, bckCol:=16777215, pVar:=16#00231400, order:=3, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, enumId:=2, format:=16#00000014, pCanSel:=1);
-	fbModeSelectionEdit_3 : EditBox01 := (wHnd:=8, x1:=6, y1:=48, x2:=59, y2:=55, pFont:=?EWP2_6x8, bckCol:=16777215, rw:=TRUE, pVar:=16#00230000, order:=4, pVisVar:=1, bckSelCol:=16777215, refr:=TRUE, type:=tyString, format:=16#09000014, pCanSel:=1);
-	fbModeSelectionEdit_4 : EditBox01 := (wHnd:=9, x1:=66, y1:=48, x2:=119, y2:=55, pFont:=?EWP2_6x8, bckCol:=16777215, rw:=TRUE, pVar:=16#00230500, order:=5, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyString, format:=16#0900000C, pCanSel:=1);
-	ModeSelection_tmpBOOL : BOOL;
+	{G:"Compressor_vars"}
+	fbCompressor : DrawCompressor;
+	fbRefrCompressor : RefrCompressor;
+	fbCompressorString_8 : Static01 := (x:=84, y:=16, pFont:=?EWP2_6x8, bckCol:=16777215, pString:=?kStr00001, pVisVar:=1, format:=16#0020, bordPts:=0, selForeCol:=16777215, pRefrVar:=0, pSelVar:=0, numChars:=0);
+	fbCompressorString_9 : Static01 := (wHnd:=1, x:=84, y:=24, pFont:=?EWP2_6x8, bckCol:=16777215, pString:=?kStr00002, pVisVar:=1, format:=16#0020, bordPts:=0, selForeCol:=16777215, pRefrVar:=0, pSelVar:=0, numChars:=0);
+	fbCompressorString_10 : Static01 := (wHnd:=2, x:=84, y:=32, pFont:=?EWP2_6x8, bckCol:=16777215, pString:=?kStr00003, pVisVar:=1, format:=16#0020, bordPts:=0, selForeCol:=16777215, pRefrVar:=0, pSelVar:=0, numChars:=0);
+	fbCompressorString_11 : Static01 := (wHnd:=3, x:=84, y:=40, pFont:=?EWP2_6x8, bckCol:=16777215, pString:=?kStr00004, pVisVar:=1, format:=16#0020, bordPts:=0, selForeCol:=16777215, pRefrVar:=0, pSelVar:=0, numChars:=0);
+	fbCompressorString_12 : Static01 := (wHnd:=4, x:=84, y:=48, pFont:=?EWP2_6x8, bckCol:=16777215, pString:=?kStr00005, pVisVar:=1, format:=16#0020, bordPts:=0, selForeCol:=16777215, pRefrVar:=0, pSelVar:=0, numChars:=0);
+	fbCompressorEdit_1 : EditBox01 := (wHnd:=5, x1:=6, y1:=24, x2:=35, y2:=31, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00400300, order:=1, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, pVarMin:=150, pVarMax:=300, format:=16#0001400C, pCanSel:=1);
+	fbCompressorEdit_2 : EditBox01 := (wHnd:=6, x1:=6, y1:=40, x2:=35, y2:=47, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00287C00, order:=2, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, pVarMax:=1000, format:=16#0001400C, pCanSel:=1);
+	fbCompressorEdit_3 : EditBox01 := (wHnd:=7, x1:=48, y1:=16, x2:=77, y2:=23, pFont:=?EWP2_6x8, bckCol:=16777215, pVar:=16#00230F00, order:=3, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#0000000C, pCanSel:=1);
+	fbCompressorEdit_4 : EditBox01 := (wHnd:=8, x1:=48, y1:=24, x2:=77, y2:=31, pFont:=?EWP2_6x8, bckCol:=16777215, pVar:=16#00231700, order:=4, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#0000000C, pCanSel:=1);
+	fbCompressorEdit_5 : EditBox01 := (wHnd:=9, x1:=48, y1:=32, x2:=77, y2:=39, pFont:=?EWP2_6x8, bckCol:=16777215, pVar:=16#00231B00, order:=5, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#0000000C, pCanSel:=1);
+	fbCompressorEdit_6 : EditBox01 := (wHnd:=10, x1:=48, y1:=40, x2:=77, y2:=47, pFont:=?EWP2_6x8, bckCol:=16777215, pVar:=16#00231800, order:=6, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, enumId:=5, format:=16#0000000C, pCanSel:=1);
+	fbCompressorEdit_7 : EditBox01 := (wHnd:=11, x1:=48, y1:=48, x2:=77, y2:=55, pFont:=?EWP2_6x8, bckCol:=16777215, pVar:=16#00231600, order:=7, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#0000000C, pCanSel:=1);
 
-	{G:"DbgPage_vars"}
-	fbDbgPage : DrawDbgPage;
-	fbRefrDbgPage : RefrDbgPage;
-	fbDbgPageEdit_1 : EditBox01 := (wHnd:=10, x1:=48, y1:=8, x2:=77, y2:=15, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00401100, order:=9, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, enumId:=4, pVarMax:=2, format:=16#0001400C, pCanSel:=1);
-	fbDbgPageEdit_2 : EditBox01 := (wHnd:=11, x1:=6, y1:=24, x2:=35, y2:=31, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00400100, order:=2, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, pVarMin:=150, pVarMax:=300, format:=16#0001400C, pCanSel:=1);
-	fbDbgPageEdit_3 : EditBox01 := (wHnd:=12, x1:=6, y1:=40, x2:=35, y2:=47, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00400200, order:=3, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, pVarMin:=20, pVarMax:=200, format:=16#0001400C, pCanSel:=1);
-	fbDbgPageEdit_4 : EditBox01 := (wHnd:=13, x1:=48, y1:=24, x2:=77, y2:=31, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00400300, order:=4, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, pVarMin:=150, pVarMax:=300, format:=16#0001400C, pCanSel:=1);
-	fbDbgPageEdit_5 : EditBox01 := (wHnd:=14, x1:=48, y1:=40, x2:=77, y2:=47, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00287800, order:=5, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, pVarMax:=1000, format:=16#0001400C, pCanSel:=1);
-	fbDbgPageEdit_6 : EditBox01 := (wHnd:=15, x1:=90, y1:=8, x2:=119, y2:=15, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00231700, order:=6, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#0000000C, pCanSel:=1);
-	fbDbgPageEdit_7 : EditBox01 := (wHnd:=16, x1:=90, y1:=24, x2:=119, y2:=31, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00231600, order:=7, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#0000000C, pCanSel:=1);
-	fbDbgPageEdit_8 : EditBox01 := (wHnd:=17, x1:=90, y1:=40, x2:=119, y2:=47, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00231800, order:=8, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, enumId:=5, format:=16#0000000C, pCanSel:=1);
-	fbDbgPageEdit_9 : EditBox01 := (wHnd:=18, x1:=6, y1:=8, x2:=35, y2:=15, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00400000, order:=1, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, enumId:=3, pVarMax:=2, format:=16#0001400C, pCanSel:=1);
+	{G:"EvaporatorFan_vars"}
+	fbEvaporatorFan : DrawEvaporatorFan;
+	fbRefrEvaporatorFan : RefrEvaporatorFan;
+	fbEvaporatorFanString_10 : Static01 := (wHnd:=12, x:=108, y:=24, pFont:=?EWP2_6x8, bckCol:=16777215, pString:=?kStr00006, pVisVar:=1, format:=16#0020, bordPts:=0, selForeCol:=16777215, pRefrVar:=0, pSelVar:=0, numChars:=0);
+	fbEvaporatorFanString_11 : Static01 := (wHnd:=13, x:=108, y:=32, pFont:=?EWP2_6x8, bckCol:=16777215, pString:=?kStr00007, pVisVar:=1, format:=16#0020, bordPts:=0, selForeCol:=16777215, pRefrVar:=0, pSelVar:=0, numChars:=0);
+	fbEvaporatorFanString_12 : Static01 := (wHnd:=14, x:=108, y:=40, pFont:=?EWP2_6x8, bckCol:=16777215, pString:=?kStr00002, pVisVar:=1, format:=16#0020, bordPts:=0, selForeCol:=16777215, pRefrVar:=0, pSelVar:=0, numChars:=0);
+	fbEvaporatorFanString_13 : Static01 := (wHnd:=15, x:=108, y:=48, pFont:=?EWP2_6x8, bckCol:=16777215, pString:=?kStr00008, pVisVar:=1, format:=16#0020, bordPts:=0, selForeCol:=16777215, pRefrVar:=0, pSelVar:=0, numChars:=0);
+	fbEvaporatorFanEdit_1 : EditBox01 := (wHnd:=16, x1:=6, y1:=32, x2:=35, y2:=39, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00401100, order:=1, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, enumId:=4, pVarMax:=2, format:=16#0001400C, pCanSel:=1);
+	fbEvaporatorFanEdit_2 : EditBox01 := (wHnd:=17, x1:=42, y1:=16, x2:=71, y2:=23, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00400100, order:=2, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, pVarMin:=150, pVarMax:=300, format:=16#0001400C, pCanSel:=1);
+	fbEvaporatorFanEdit_3 : EditBox01 := (wHnd:=18, x1:=42, y1:=32, x2:=71, y2:=39, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00400200, order:=3, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, pVarMin:=20, pVarMax:=200, format:=16#0001400C, pCanSel:=1);
+	fbEvaporatorFanEdit_5 : EditBox01 := (wHnd:=19, x1:=42, y1:=48, x2:=71, y2:=55, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00287800, order:=4, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, pVarMax:=1000, format:=16#0001400C, pCanSel:=1);
+	fbEvaporatorFanEdit_6 : EditBox01 := (wHnd:=20, x1:=78, y1:=40, x2:=107, y2:=47, pFont:=?EWP2_6x8, bckCol:=16777215, pVar:=16#00231500, order:=5, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#00000014);
+	fbEvaporatorFanEdit_7 : EditBox01 := (wHnd:=21, x1:=78, y1:=48, x2:=107, y2:=55, pFont:=?EWP2_6x8, bckCol:=16777215, pVar:=16#00231900, order:=6, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyUInt, format:=16#00000014);
+	fbEvaporatorFanEdit_8 : EditBox01 := (wHnd:=22, x1:=78, y1:=24, x2:=107, y2:=31, pFont:=?EWP2_6x8, bckCol:=16777215, pVar:=16#00231200, order:=7, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#00000014, pCanSel:=1);
+	fbEvaporatorFanEdit_9 : EditBox01 := (wHnd:=23, x1:=78, y1:=32, x2:=107, y2:=39, pFont:=?EWP2_6x8, bckCol:=16777215, pVar:=16#00230C00, order:=8, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#00000014, pCanSel:=1);
+
+	{G:"Main_vars"}
+	fbMain : DrawMain;
+	fbRefrMain : RefrMain;
+	fbMainEdit_1 : EditBox01 := (wHnd:=30, y1:=16, x2:=127, y2:=31, pFont:=?EWP2_8x16, bckCol:=16777215, rw:=TRUE, pVar:=16#00368700, order:=2, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, enumId:=1, format:=16#00000014);
+	fbMainEdit_2 : EditBox01 := (wHnd:=31, y1:=32, x2:=127, y2:=47, pFont:=?EWP2_8x16, bckCol:=16777215, pVar:=16#00231400, order:=3, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, enumId:=2, format:=16#00000014, pCanSel:=1);
+	fbMainEdit_3 : EditBox01 := (wHnd:=32, x1:=6, y1:=48, x2:=59, y2:=55, pFont:=?EWP2_6x8, bckCol:=16777215, rw:=TRUE, pVar:=16#00230000, order:=4, pVisVar:=1, bckSelCol:=16777215, refr:=TRUE, type:=tyString, format:=16#09000014, pCanSel:=1);
+	fbMainEdit_4 : EditBox01 := (wHnd:=33, x1:=66, y1:=48, x2:=119, y2:=55, pFont:=?EWP2_6x8, bckCol:=16777215, rw:=TRUE, pVar:=16#00230500, order:=5, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyString, format:=16#0900000C, pCanSel:=1);
+	Main_tmpBOOL : BOOL;
+
+	{G:"Unit_vars"}
+	fbUnit : DrawUnit;
+	fbRefrUnit : RefrUnit;
+	fbUnitString_10 : Static01 := (wHnd:=34, x:=6, y:=48, pFont:=?EWP2_6x8, bckCol:=16777215, pString:=?kStr00009, pVisVar:=1, format:=16#0020, bordPts:=0, selForeCol:=16777215, pRefrVar:=0, pSelVar:=0, numChars:=0);
+	fbUnitEdit_9 : EditBox01 := (wHnd:=35, x1:=48, y1:=48, x2:=119, y2:=55, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00400000, order:=1, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, enumId:=3, pVarMax:=2, format:=16#00014014, pCanSel:=1);
+	fbUnitEdit_12 : EditBox01 := (wHnd:=36, x1:=6, y1:=16, x2:=119, y2:=23, pFont:=?EWP2_6x8, bckCol:=16777215, pVar:=16#00231400, order:=2, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, enumId:=2, format:=16#00000014, pCanSel:=1);
+	fbUnitEdit_13 : EditBox01 := (wHnd:=37, x1:=6, y1:=32, x2:=35, y2:=39, pFont:=?EWP2_6x8, bckCol:=16777215, pVar:=16#00230C00, order:=3, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#00000014, pCanSel:=1);
+	fbUnitEdit_14 : EditBox01 := (wHnd:=38, x1:=48, y1:=32, x2:=77, y2:=39, pFont:=?EWP2_6x8, bckCol:=16777215, pVar:=16#00230F00, order:=4, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#00000014, pCanSel:=1);
+	fbUnitEdit_15 : EditBox01 := (wHnd:=39, x1:=90, y1:=32, x2:=119, y2:=39, pFont:=?EWP2_6x8, bckCol:=16777215, pVar:=16#00231200, order:=5, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#00000014, pCanSel:=1);
 
 	{G:"PIDCoefficients_vars"}
 	fbPIDCoefficients : DrawPIDCoefficients;
 	fbRefrPIDCoefficients : RefrPIDCoefficients;
-	fbPIDCoefficientsEdit_1 : EditBox01 := (wHnd:=19, x1:=12, y1:=8, x2:=41, y2:=15, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00402000, order:=1, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, pVarMin:=1, pVarMax:=300, format:=16#0001400C, pCanSel:=1);
-	fbPIDCoefficientsEdit_2 : EditBox01 := (wHnd:=20, x1:=12, y1:=24, x2:=41, y2:=31, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00402300, order:=2, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyUInt, pVarMax:=6000, format:=16#0001400C, pCanSel:=1);
-	fbPIDCoefficientsEdit_3 : EditBox01 := (wHnd:=21, x1:=12, y1:=40, x2:=41, y2:=47, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00402600, order:=3, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyUInt, pVarMax:=6000, format:=16#0001400C, pCanSel:=1);
-	fbPIDCoefficientsEdit_4 : EditBox01 := (wHnd:=22, x1:=48, y1:=8, x2:=77, y2:=15, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00402100, order:=4, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, pVarMin:=1, pVarMax:=300, format:=16#0001400C, pCanSel:=1);
-	fbPIDCoefficientsEdit_5 : EditBox01 := (wHnd:=23, x1:=48, y1:=24, x2:=77, y2:=31, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00402400, order:=5, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyUInt, pVarMax:=6000, format:=16#0001400C, pCanSel:=1);
-	fbPIDCoefficientsEdit_6 : EditBox01 := (wHnd:=24, x1:=48, y1:=40, x2:=77, y2:=47, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00402700, order:=6, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyUInt, pVarMax:=6000, format:=16#0001400C, pCanSel:=1);
-	fbPIDCoefficientsEdit_7 : EditBox01 := (wHnd:=25, x1:=84, y1:=8, x2:=113, y2:=15, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00402200, order:=7, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, pVarMin:=1, pVarMax:=300, format:=16#0001400C, pCanSel:=1);
-	fbPIDCoefficientsEdit_8 : EditBox01 := (wHnd:=26, x1:=84, y1:=24, x2:=113, y2:=31, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00402500, order:=8, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyUInt, pVarMax:=6000, format:=16#0001400C, pCanSel:=1);
-	fbPIDCoefficientsEdit_9 : EditBox01 := (wHnd:=27, x1:=84, y1:=40, x2:=113, y2:=47, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00402800, order:=9, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyUInt, pVarMax:=6000, format:=16#0001400C, pCanSel:=1);
+	fbPIDCoefficientsString_10 : Static01 := (wHnd:=40, x:=6, y:=16, pFont:=?EWP2_6x8, bckCol:=16777215, pString:=?kStr00010, pVisVar:=1, format:=16#0020, bordPts:=0, selForeCol:=16777215, pRefrVar:=0, pSelVar:=0, numChars:=0);
+	fbPIDCoefficientsString_11 : Static01 := (wHnd:=41, x:=6, y:=32, pFont:=?EWP2_6x8, bckCol:=16777215, pString:=?kStr00011, pVisVar:=1, format:=16#0020, bordPts:=0, selForeCol:=16777215, pRefrVar:=0, pSelVar:=0, numChars:=0);
+	fbPIDCoefficientsString_12 : Static01 := (wHnd:=42, x:=6, y:=48, pFont:=?EWP2_6x8, bckCol:=16777215, pString:=?kStr00012, pVisVar:=1, format:=16#0020, bordPts:=0, selForeCol:=16777215, pRefrVar:=0, pSelVar:=0, numChars:=0);
+	fbPIDCoefficientsEdit_1 : EditBox01 := (wHnd:=43, x1:=18, y1:=16, x2:=53, y2:=23, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00402000, order:=1, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, pVarMin:=1, pVarMax:=3000, format:=16#0001400C, pCanSel:=1);
+	fbPIDCoefficientsEdit_2 : EditBox01 := (wHnd:=44, x1:=60, y1:=16, x2:=89, y2:=23, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00402300, order:=2, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyUInt, pVarMax:=6000, format:=16#0001400C, pCanSel:=1);
+	fbPIDCoefficientsEdit_3 : EditBox01 := (wHnd:=45, x1:=96, y1:=16, x2:=125, y2:=23, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00402600, order:=3, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyUInt, pVarMax:=6000, format:=16#0001400C, pCanSel:=1);
+	fbPIDCoefficientsEdit_4 : EditBox01 := (wHnd:=46, x1:=18, y1:=32, x2:=53, y2:=39, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00402100, order:=4, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, pVarMin:=1, pVarMax:=3000, format:=16#0001400C, pCanSel:=1);
+	fbPIDCoefficientsEdit_5 : EditBox01 := (wHnd:=47, x1:=60, y1:=32, x2:=89, y2:=39, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00402400, order:=5, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyUInt, pVarMax:=6000, format:=16#0001400C, pCanSel:=1);
+	fbPIDCoefficientsEdit_6 : EditBox01 := (wHnd:=48, x1:=96, y1:=32, x2:=125, y2:=39, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00402700, order:=6, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyUInt, pVarMax:=6000, format:=16#0001400C, pCanSel:=1);
+	fbPIDCoefficientsEdit_7 : EditBox01 := (wHnd:=49, x1:=18, y1:=48, x2:=53, y2:=55, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00402200, order:=7, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, pVarMin:=1, pVarMax:=3000, format:=16#0001400C, pCanSel:=1);
+	fbPIDCoefficientsEdit_8 : EditBox01 := (wHnd:=50, x1:=60, y1:=48, x2:=89, y2:=55, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00402500, order:=8, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyUInt, pVarMax:=6000, format:=16#0001400C, pCanSel:=1);
+	fbPIDCoefficientsEdit_9 : EditBox01 := (wHnd:=51, x1:=96, y1:=48, x2:=125, y2:=55, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00402800, order:=9, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyUInt, pVarMax:=6000, format:=16#0001400C, pCanSel:=1);
 
-	{G:"CompressorDbgPage_vars"}
-	fbCompressorDbgPage : DrawCompressorDbgPage;
-	fbRefrCompressorDbgPage : RefrCompressorDbgPage;
-	fbCompressorDbgPageEdit_1 : EditBox01 := (wHnd:=28, x1:=12, y1:=8, x2:=41, y2:=15, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00231D00, order:=1, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#0000000C, pCanSel:=1);
-	fbCompressorDbgPageEdit_2 : EditBox01 := (wHnd:=29, x1:=12, y1:=24, x2:=41, y2:=31, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00231300, order:=2, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#0000000C, pCanSel:=1);
-	fbCompressorDbgPageEdit_3 : EditBox01 := (wHnd:=30, x1:=12, y1:=40, x2:=41, y2:=47, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00231C00, order:=3, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#0000000C, pCanSel:=1);
+	{G:"EXV_vars"}
+	fbEXV : DrawEXV;
+	fbRefrEXV : RefrEXV;
+	fbEXVString_10 : Static01 := (wHnd:=52, x:=90, y:=16, pFont:=?EWP2_6x8, bckCol:=16777215, pString:=?kStr00013, pVisVar:=1, format:=16#0020, bordPts:=0, selForeCol:=16777215, pRefrVar:=0, pSelVar:=0, numChars:=0);
+	fbEXVString_11 : Static01 := (wHnd:=53, x:=90, y:=24, pFont:=?EWP2_6x8, bckCol:=16777215, pString:=?kStr00014, pVisVar:=1, format:=16#0020, bordPts:=0, selForeCol:=16777215, pRefrVar:=0, pSelVar:=0, numChars:=0);
+	fbEXVString_12 : Static01 := (wHnd:=54, x:=90, y:=32, pFont:=?EWP2_6x8, bckCol:=16777215, pString:=?kStr00015, pVisVar:=1, format:=16#0020, bordPts:=0, selForeCol:=16777215, pRefrVar:=0, pSelVar:=0, numChars:=0);
+	fbEXVString_13 : Static01 := (wHnd:=55, x:=90, y:=40, pFont:=?EWP2_6x8, bckCol:=16777215, pString:=?kStr00002, pVisVar:=1, format:=16#0020, bordPts:=0, selForeCol:=16777215, pRefrVar:=0, pSelVar:=0, numChars:=0);
+	fbEXVString_14 : Static01 := (wHnd:=56, x:=90, y:=48, pFont:=?EWP2_6x8, bckCol:=16777215, pString:=?kStr00016, pVisVar:=1, format:=16#0020, bordPts:=0, selForeCol:=16777215, pRefrVar:=0, pSelVar:=0, numChars:=0);
+	fbEXVEdit_1 : EditBox01 := (wHnd:=57, x1:=6, y1:=16, x2:=35, y2:=23, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00401A00, order:=1, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, pVarMin:=10, pVarMax:=300, format:=16#0001400C, pCanSel:=1);
+	fbEXVEdit_2 : EditBox01 := (wHnd:=58, x1:=6, y1:=32, x2:=35, y2:=39, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00402900, order:=2, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, pVarMax:=300, format:=16#0001400C, pCanSel:=1);
+	fbEXVEdit_4 : EditBox01 := (wHnd:=59, x1:=48, y1:=16, x2:=77, y2:=23, pFont:=?EWP2_6x8, bckCol:=16777215, pVar:=16#00231D00, order:=4, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#00000014, pCanSel:=1);
+	fbEXVEdit_5 : EditBox01 := (wHnd:=60, x1:=48, y1:=24, x2:=77, y2:=31, pFont:=?EWP2_6x8, bckCol:=16777215, pVar:=16#00231300, order:=5, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#00000014, pCanSel:=1);
+	fbEXVEdit_6 : EditBox01 := (wHnd:=61, x1:=48, y1:=32, x2:=77, y2:=39, pFont:=?EWP2_6x8, bckCol:=16777215, pVar:=16#00231C00, order:=6, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#00000014, pCanSel:=1);
+	fbEXVEdit_7 : EditBox01 := (wHnd:=62, x1:=48, y1:=40, x2:=77, y2:=47, pFont:=?EWP2_6x8, bckCol:=16777215, pVar:=16#00231600, order:=7, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#00000014, pCanSel:=1);
+	fbEXVEdit_8 : EditBox01 := (wHnd:=63, x1:=6, y1:=48, x2:=35, y2:=55, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00287B00, order:=3, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, pVarMax:=1000, format:=16#0001400C, pCanSel:=1);
+	fbEXVEdit_9 : EditBox01 := (wHnd:=64, x1:=48, y1:=48, x2:=77, y2:=55, pFont:=?EWP2_6x8, bckCol:=16777215, pVar:=16#00231A00, order:=8, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, format:=16#00000014, pCanSel:=1);
 
 END_VAR
 
@@ -68,6 +110,26 @@ END_VAR
 	(*                         *)
 	(***************************)
 
+VAR_GLOBAL CONSTANT
+
+	kStr00002 :STRING[4] := 'Cmd';
+	kStr00001 :STRING[4] := 'SAT';
+	kStr00009 :STRING[5] := 'MODE';
+	kStr00013 :STRING[6] := 'Tcoil';
+	kStr00005 :STRING[8] := 'EXV.cmd';
+	kStr00003 :STRING[5] := 'Freq';
+	kStr00016 :STRING[6] := 'Steps';
+	kStr00015 :STRING[7] := 'S.Heat';
+	kStr00004 :STRING[4] := 'SLV';
+	kStr00014 :STRING[6] := 'Pcoil';
+	kStr00007 :STRING[4] := 'RAT';
+	kStr00006 :STRING[4] := 'TMx';
+	kStr00010 :STRING[2] := 'F';
+	kStr00008 :STRING[4] := 'RPM';
+	kStr00012 :STRING[2] := 'E';
+	kStr00011 :STRING[2] := 'C';
+
+END_VAR
 VAR_GLOBAL CONSTANT
 
 	{G:"Fonts"}
@@ -753,13 +815,17 @@ PROGRAM PageDraw
 	(* Declaring the system attributes of windows *)
 	res := Video_SetWndSysProps( ?EWP2_6x8, 16777215, 0 );
 
-	(* *** INITIALIZING THE OBJECTS OF PAGE 'ModeSelection' *** *)
+	(* *** INITIALIZING THE OBJECTS OF PAGE 'Compressor' *** *)
 
-	(* *** INITIALIZING THE OBJECTS OF PAGE 'DbgPage' *** *)
+	(* *** INITIALIZING THE OBJECTS OF PAGE 'EvaporatorFan' *** *)
+
+	(* *** INITIALIZING THE OBJECTS OF PAGE 'Main' *** *)
+
+	(* *** INITIALIZING THE OBJECTS OF PAGE 'Unit' *** *)
 
 	(* *** INITIALIZING THE OBJECTS OF PAGE 'PIDCoefficients' *** *)
 
-	(* *** INITIALIZING THE OBJECTS OF PAGE 'CompressorDbgPage' *** *)
+	(* *** INITIALIZING THE OBJECTS OF PAGE 'EXV' *** *)
 
 	(* Init the set elements *)
 	guiCallStack[ giStackPtr ] := 0;
@@ -767,7 +833,7 @@ PROGRAM PageDraw
 		CASE guiCallStack[ giStackPtr ] OF
 
 			0:
-				fbModeSelection();
+				fbMain();
 
 
 		END_CASE;
@@ -794,7 +860,7 @@ END_VAR
 		CASE guiCallStack[ giStackPtr ] OF
 
 			0:
-				fbRefrModeSelection();
+				fbRefrMain();
 
 
 		END_CASE;
@@ -824,7 +890,7 @@ END_PROGRAM
 	(*                         *)
 	(***************************)
 
-FUNCTION_BLOCK DrawModeSelection
+FUNCTION_BLOCK DrawMain
 
 	VAR_OUTPUT
 	uiOutVar : UINT;
@@ -833,13 +899,13 @@ FUNCTION_BLOCK DrawModeSelection
 	VAR_EXTERNAL
 	guiCallStack : ARRAY[ 0..9 ] OF UINT;
 	giStackPtr : INT;
-	ModeSelection_tmpBOOL : BOOL;
+	Main_tmpBOOL : BOOL;
 	IsRealMode_MB_ADDR : UINT;
-	fbModeSelectionEdit_1 : EditBox01;
-	fbModeSelectionEdit_2 : EditBox01;
-	fbModeSelectionEdit_3 : EditBox01;
-	fbModeSelectionEdit_4 : EditBox01;
-	fbDbgPage : DrawDbgPage;
+	fbMainEdit_1 : EditBox01;
+	fbMainEdit_2 : EditBox01;
+	fbMainEdit_3 : EditBox01;
+	fbMainEdit_4 : EditBox01;
+	fbUnit : DrawUnit;
 	$waitRefresh : BOOL;
 	END_VAR
 
@@ -921,18 +987,18 @@ FUNCTION_BLOCK DrawModeSelection
 			(* *** PAGE SECTION *** *)
 
 			(* *** DRAW CONTROLS *** *)
-			fbModeSelectionEdit_1.accMode := kACS_INIT;
-			fbModeSelectionEdit_1();
-			fbModeSelectionEdit_1.accMode := kACS_PRINT;
-			fbModeSelectionEdit_2.accMode := kACS_INIT;
-			fbModeSelectionEdit_2();
-			fbModeSelectionEdit_2.accMode := kACS_PRINT;
-			fbModeSelectionEdit_3.accMode := kACS_INIT;
-			fbModeSelectionEdit_3();
-			fbModeSelectionEdit_3.accMode := kACS_PRINT;
-			fbModeSelectionEdit_4.accMode := kACS_INIT;
-			fbModeSelectionEdit_4();
-			fbModeSelectionEdit_4.accMode := kACS_PRINT;
+			fbMainEdit_1.accMode := kACS_INIT;
+			fbMainEdit_1();
+			fbMainEdit_1.accMode := kACS_PRINT;
+			fbMainEdit_2.accMode := kACS_INIT;
+			fbMainEdit_2();
+			fbMainEdit_2.accMode := kACS_PRINT;
+			fbMainEdit_3.accMode := kACS_INIT;
+			fbMainEdit_3();
+			fbMainEdit_3.accMode := kACS_PRINT;
+			fbMainEdit_4.accMode := kACS_INIT;
+			fbMainEdit_4();
+			fbMainEdit_4.accMode := kACS_PRINT;
 
 			(* Select the first selectable control *)
 			iNextSel := Video_FirstLastEdit( TRUE, FALSE );
@@ -973,15 +1039,15 @@ FUNCTION_BLOCK DrawModeSelection
 					CASE key OF
 
 					19:	(* Key: LongEnter - Action: Call *)
-						Video_GetParam ( 0 , IsRealMode_MB_ADDR , 0 , ? ModeSelection_tmpBOOL , tyUInt ) ;
-						ModeSelection_tmpBOOL := not ModeSelection_tmpBOOL ;
-						Video_SetParam ( 0 , IsRealMode_MB_ADDR , 0 , ? ModeSelection_tmpBOOL , tyBool ) ;
+						Video_GetParam ( 0 , IsRealMode_MB_ADDR , 0 , ? Main_tmpBOOL , tyUInt ) ;
+						Main_tmpBOOL := not Main_tmpBOOL ;
+						Video_SetParam ( 0 , IsRealMode_MB_ADDR , 0 , ? Main_tmpBOOL , tyBool ) ;
 						
 
 					12:	(* Key: Right - Action: OpenPage *)
 						res := Video_Lock( res );
 						giStackPtr := giStackPtr + 1;
-						fbDbgPage();
+						fbUnit();
 
 
 						(* Locking the video and decrementing stack page *)
@@ -1003,7 +1069,7 @@ FUNCTION_BLOCK DrawModeSelection
 
 						CASE iNextSel OF
 
-							6,7,8,9:
+							30,31,32,33:
 								(* Entering the edit mode *)
 								res := Video_EnterEdit( TO_UINT( iNextSel ) );
 
@@ -1057,7 +1123,7 @@ FUNCTION_BLOCK DrawModeSelection
 
 	END_FUNCTION_BLOCK
 
-FUNCTION_BLOCK DrawDbgPage
+FUNCTION_BLOCK DrawUnit
 
 	VAR_OUTPUT
 	uiOutVar : UINT;
@@ -1066,16 +1132,255 @@ FUNCTION_BLOCK DrawDbgPage
 	VAR_EXTERNAL
 	guiCallStack : ARRAY[ 0..9 ] OF UINT;
 	giStackPtr : INT;
-	fbDbgPageEdit_1 : EditBox01;
-	fbDbgPageEdit_2 : EditBox01;
-	fbDbgPageEdit_3 : EditBox01;
-	fbDbgPageEdit_4 : EditBox01;
-	fbDbgPageEdit_5 : EditBox01;
-	fbDbgPageEdit_6 : EditBox01;
-	fbDbgPageEdit_7 : EditBox01;
-	fbDbgPageEdit_8 : EditBox01;
-	fbDbgPageEdit_9 : EditBox01;
-	fbPIDCoefficients : DrawPIDCoefficients;
+	fbUnitString_10 : Static01;
+	fbUnitEdit_9 : EditBox01;
+	fbUnitEdit_12 : EditBox01;
+	fbUnitEdit_13 : EditBox01;
+	fbUnitEdit_14 : EditBox01;
+	fbUnitEdit_15 : EditBox01;
+	fbEvaporatorFan : DrawEvaporatorFan;
+	$waitRefresh : BOOL;
+	END_VAR
+
+	VAR
+	res : USINT;
+	bStatRedrw : BOOL;
+	bMapsReset : BOOL;
+	iNextSel : INT;
+	$Set_IndexVisEl : UINT;
+	$Set_CycleRefresh : UINT;
+	$Set_PtrBoolVis : @BOOL;
+	$Set_VisEl : BOOL;
+	$Set_IndexPageInSet : UINT;
+	$Set_ForcePageReload : BOOL;
+	$Set_NextPage : BOOL;
+	$Set_PrevPage : BOOL;
+	$Set_LocalSetPagNumber: UINT;
+	$Set_NumVisEl: UINT;
+	$Set_LastFirstEl: INT;
+	udiev : UDINT;
+	ev : UINT;
+	key : USINT;
+	x1 : UINT;
+	y1 : UINT;
+	x2 : UINT;
+	y2 : UINT;
+	wParam : UINT;
+	END_VAR
+
+	{CODE:ST}
+
+	(* Writing this page's ID to the top of the callstack *)
+	guiCallStack[ giStackPtr ] := 16#04;
+
+	(* Flag of waiting for refresh task *)
+	$waitRefresh := TRUE;
+
+	(* Resetting the object map *)
+	res := Video_ResetMaps( 16#00 );
+
+	(* Setting flags: this page is to be drawn *)
+	bStatRedrw := TRUE;
+	bMapsReset := TRUE;
+
+	(* The area to be cleared is the area of the entire page *)
+	x1:= 0;
+	y1:= 13;
+	x2:= 127;
+	y2:= 63;
+
+	(* Unlocking the video *)
+	res := Video_Unlock( res );
+
+	WHILE TRUE DO
+
+		(* Locking the video *)
+		res := Video_Lock( res );
+
+		(* Initializing the page *)
+		res := Video_InitPage( 0, 0, 127, 63, ?'Unit', 16#0103 );
+
+		(* Setting the page colors *)
+		res := Video_SetPageColors( 0, 16777215 );
+
+		IF bStatRedrw THEN
+
+			(* *** CLEARING PAGE AREA *** *)
+			res := Video_ClrRect( x1, y1, x2, y2 );
+
+		END_IF;
+
+		IF bMapsReset THEN
+
+			(* Resetting all maps *)
+			res := Video_ResetMaps( 16#05 );
+
+			(* *** DRAW PAGE CONTROLS *** *)
+
+			(* *** PAGE SECTION *** *)
+
+			(* *** DRAW CONTROLS *** *)
+			fbUnitEdit_9.accMode := kACS_INIT;
+			fbUnitEdit_9();
+			fbUnitEdit_9.accMode := kACS_PRINT;
+			fbUnitString_10.accMode := kACS_INIT;
+			fbUnitString_10();
+			fbUnitString_10.accMode := kACS_PRINT;
+			fbUnitEdit_12.accMode := kACS_INIT;
+			fbUnitEdit_12();
+			fbUnitEdit_12.accMode := kACS_PRINT;
+			fbUnitEdit_13.accMode := kACS_INIT;
+			fbUnitEdit_13();
+			fbUnitEdit_13.accMode := kACS_PRINT;
+			fbUnitEdit_14.accMode := kACS_INIT;
+			fbUnitEdit_14();
+			fbUnitEdit_14.accMode := kACS_PRINT;
+			fbUnitEdit_15.accMode := kACS_INIT;
+			fbUnitEdit_15();
+			fbUnitEdit_15.accMode := kACS_PRINT;
+
+			(* Select the first selectable control *)
+			iNextSel := Video_FirstLastEdit( TRUE, FALSE );
+			IF iNextSel > -1 THEN
+				res := Video_SendEvent( kWM_SELECT, TO_UINT(iNextSel) );
+			END_IF;
+
+
+		END_IF;
+
+		(* Unlocking the video *)
+		res := Video_Unlock( res );
+
+		(* Reset the flags for page redraw request *)
+		bStatRedrw := FALSE;
+		bMapsReset := FALSE;
+
+		(* *** EVENTS HANDLING *** *)
+		WHILE TRUE DO
+
+			(* the drawing task wait the refreshing task *)
+			IF $waitRefresh THEN
+				res := Video_Sleep( 50 );
+			ELSE
+
+				(* Retrieving events *)
+				udiev := Video_GetEvent( res );
+				(* Extracting the event code *)
+				ev := TO_UINT(udiev);
+
+				CASE ev OF
+
+				(* Key-related events handling: *)
+				kWM_KEY:
+
+					key := TO_USINT(SHR(udiev, 16));
+
+					CASE key OF
+
+					8:	(* Key: Left - Action: Close *)
+						RETURN;
+
+					12:	(* Key: Right - Action: OpenPage *)
+						res := Video_Lock( res );
+						giStackPtr := giStackPtr + 1;
+						fbEvaporatorFan();
+
+
+						(* Locking the video and decrementing stack page *)
+						res := Video_Lock( res );
+						giStackPtr := giStackPtr - 1;
+						$waitRefresh := TRUE;
+						res := Video_Unlock( res );
+
+						(* Area to be erased = area of the child window just closed *)
+						x1 := 0;
+						y1 := 13;
+						x2 := 127;
+						y2 := 63;
+						bStatRedrw := TRUE;
+						bMapsReset := TRUE;
+						EXIT;
+
+					13:	(* Key: Enter - Action: Edit *)
+
+						CASE iNextSel OF
+
+							35,36,37,38,39:
+								(* Entering the edit mode *)
+								res := Video_EnterEdit( TO_UINT( iNextSel ) );
+
+								IF res = kKEY_Up THEN
+
+									iNextSel := TO_INT( Video_NextEdit( TRUE ) );
+									IF iNextSel > -1 THEN
+										res := Video_SendEvent( kWM_SELECT, TO_UINT(iNextSel) );
+									END_IF;
+
+								ELSIF res = kKEY_Down THEN
+
+									iNextSel := TO_INT( Video_PrevEdit( TRUE ) );
+									IF iNextSel > -1 THEN
+										res := Video_SendEvent( kWM_SELECT, TO_UINT(iNextSel) );
+									END_IF;
+
+								END_IF;
+
+						END_CASE;
+
+					11:	(* Key: Up - Action: PrevField *)
+						iNextSel := TO_INT( Video_PrevEdit( TRUE ) );
+						IF iNextSel > -1 THEN
+							res := Video_SendEvent( kWM_SELECT, TO_UINT(iNextSel) );
+						END_IF;
+
+					10:	(* Key: Down - Action: NextField *)
+						iNextSel := TO_INT( Video_NextEdit( TRUE ) );
+						IF iNextSel > -1 THEN
+							res := Video_SendEvent( kWM_SELECT, TO_UINT(iNextSel) );
+						END_IF;
+
+					END_CASE;
+
+				(* Selecting a control: *)
+				kWM_SELECT:
+
+					(* Extracting the index of the edit box clicked *)
+					iNextSel := TO_INT(SHR(udiev, 16));
+
+					(* Only select the object *)
+					res := Video_EnterEditSel( TO_UINT( iNextSel ), TRUE );
+
+					END_CASE;
+				END_IF;
+
+			END_WHILE;
+
+		END_WHILE;
+
+	END_FUNCTION_BLOCK
+
+FUNCTION_BLOCK DrawEvaporatorFan
+
+	VAR_OUTPUT
+	uiOutVar : UINT;
+	END_VAR
+
+	VAR_EXTERNAL
+	guiCallStack : ARRAY[ 0..9 ] OF UINT;
+	giStackPtr : INT;
+	fbEvaporatorFanString_10 : Static01;
+	fbEvaporatorFanString_11 : Static01;
+	fbEvaporatorFanString_12 : Static01;
+	fbEvaporatorFanString_13 : Static01;
+	fbEvaporatorFanEdit_1 : EditBox01;
+	fbEvaporatorFanEdit_2 : EditBox01;
+	fbEvaporatorFanEdit_3 : EditBox01;
+	fbEvaporatorFanEdit_5 : EditBox01;
+	fbEvaporatorFanEdit_6 : EditBox01;
+	fbEvaporatorFanEdit_7 : EditBox01;
+	fbEvaporatorFanEdit_8 : EditBox01;
+	fbEvaporatorFanEdit_9 : EditBox01;
+	fbCompressor : DrawCompressor;
 	$waitRefresh : BOOL;
 	END_VAR
 
@@ -1122,7 +1427,7 @@ FUNCTION_BLOCK DrawDbgPage
 
 	(* The area to be cleared is the area of the entire page *)
 	x1:= 0;
-	y1:= 0;
+	y1:= 13;
 	x2:= 127;
 	y2:= 63;
 
@@ -1135,7 +1440,7 @@ FUNCTION_BLOCK DrawDbgPage
 		res := Video_Lock( res );
 
 		(* Initializing the page *)
-		res := Video_InitPage( 0, 0, 127, 63, ?' ', 16#0003 );
+		res := Video_InitPage( 0, 0, 127, 63, ?'Evaporator Fan', 16#0103 );
 
 		(* Setting the page colors *)
 		res := Video_SetPageColors( 0, 16777215 );
@@ -1157,33 +1462,566 @@ FUNCTION_BLOCK DrawDbgPage
 			(* *** PAGE SECTION *** *)
 
 			(* *** DRAW CONTROLS *** *)
-			fbDbgPageEdit_1.accMode := kACS_INIT;
-			fbDbgPageEdit_1();
-			fbDbgPageEdit_1.accMode := kACS_PRINT;
-			fbDbgPageEdit_2.accMode := kACS_INIT;
-			fbDbgPageEdit_2();
-			fbDbgPageEdit_2.accMode := kACS_PRINT;
-			fbDbgPageEdit_3.accMode := kACS_INIT;
-			fbDbgPageEdit_3();
-			fbDbgPageEdit_3.accMode := kACS_PRINT;
-			fbDbgPageEdit_4.accMode := kACS_INIT;
-			fbDbgPageEdit_4();
-			fbDbgPageEdit_4.accMode := kACS_PRINT;
-			fbDbgPageEdit_5.accMode := kACS_INIT;
-			fbDbgPageEdit_5();
-			fbDbgPageEdit_5.accMode := kACS_PRINT;
-			fbDbgPageEdit_6.accMode := kACS_INIT;
-			fbDbgPageEdit_6();
-			fbDbgPageEdit_6.accMode := kACS_PRINT;
-			fbDbgPageEdit_7.accMode := kACS_INIT;
-			fbDbgPageEdit_7();
-			fbDbgPageEdit_7.accMode := kACS_PRINT;
-			fbDbgPageEdit_8.accMode := kACS_INIT;
-			fbDbgPageEdit_8();
-			fbDbgPageEdit_8.accMode := kACS_PRINT;
-			fbDbgPageEdit_9.accMode := kACS_INIT;
-			fbDbgPageEdit_9();
-			fbDbgPageEdit_9.accMode := kACS_PRINT;
+			fbEvaporatorFanEdit_1.accMode := kACS_INIT;
+			fbEvaporatorFanEdit_1();
+			fbEvaporatorFanEdit_1.accMode := kACS_PRINT;
+			fbEvaporatorFanEdit_2.accMode := kACS_INIT;
+			fbEvaporatorFanEdit_2();
+			fbEvaporatorFanEdit_2.accMode := kACS_PRINT;
+			fbEvaporatorFanEdit_3.accMode := kACS_INIT;
+			fbEvaporatorFanEdit_3();
+			fbEvaporatorFanEdit_3.accMode := kACS_PRINT;
+			fbEvaporatorFanEdit_5.accMode := kACS_INIT;
+			fbEvaporatorFanEdit_5();
+			fbEvaporatorFanEdit_5.accMode := kACS_PRINT;
+			fbEvaporatorFanEdit_6.accMode := kACS_INIT;
+			fbEvaporatorFanEdit_6();
+			fbEvaporatorFanEdit_6.accMode := kACS_PRINT;
+			fbEvaporatorFanEdit_7.accMode := kACS_INIT;
+			fbEvaporatorFanEdit_7();
+			fbEvaporatorFanEdit_7.accMode := kACS_PRINT;
+			fbEvaporatorFanEdit_8.accMode := kACS_INIT;
+			fbEvaporatorFanEdit_8();
+			fbEvaporatorFanEdit_8.accMode := kACS_PRINT;
+			fbEvaporatorFanEdit_9.accMode := kACS_INIT;
+			fbEvaporatorFanEdit_9();
+			fbEvaporatorFanEdit_9.accMode := kACS_PRINT;
+			fbEvaporatorFanString_10.accMode := kACS_INIT;
+			fbEvaporatorFanString_10();
+			fbEvaporatorFanString_10.accMode := kACS_PRINT;
+			fbEvaporatorFanString_11.accMode := kACS_INIT;
+			fbEvaporatorFanString_11();
+			fbEvaporatorFanString_11.accMode := kACS_PRINT;
+			fbEvaporatorFanString_12.accMode := kACS_INIT;
+			fbEvaporatorFanString_12();
+			fbEvaporatorFanString_12.accMode := kACS_PRINT;
+			fbEvaporatorFanString_13.accMode := kACS_INIT;
+			fbEvaporatorFanString_13();
+			fbEvaporatorFanString_13.accMode := kACS_PRINT;
+
+			(* Select the first selectable control *)
+			iNextSel := Video_FirstLastEdit( TRUE, FALSE );
+			IF iNextSel > -1 THEN
+				res := Video_SendEvent( kWM_SELECT, TO_UINT(iNextSel) );
+			END_IF;
+
+
+		END_IF;
+
+		(* Unlocking the video *)
+		res := Video_Unlock( res );
+
+		(* Reset the flags for page redraw request *)
+		bStatRedrw := FALSE;
+		bMapsReset := FALSE;
+
+		(* *** EVENTS HANDLING *** *)
+		WHILE TRUE DO
+
+			(* the drawing task wait the refreshing task *)
+			IF $waitRefresh THEN
+				res := Video_Sleep( 50 );
+			ELSE
+
+				(* Retrieving events *)
+				udiev := Video_GetEvent( res );
+				(* Extracting the event code *)
+				ev := TO_UINT(udiev);
+
+				CASE ev OF
+
+				(* Key-related events handling: *)
+				kWM_KEY:
+
+					key := TO_USINT(SHR(udiev, 16));
+
+					CASE key OF
+
+					8:	(* Key: Left - Action: Close *)
+						RETURN;
+
+					12:	(* Key: Right - Action: OpenPage *)
+						res := Video_Lock( res );
+						giStackPtr := giStackPtr + 1;
+						fbCompressor();
+
+
+						(* Locking the video and decrementing stack page *)
+						res := Video_Lock( res );
+						giStackPtr := giStackPtr - 1;
+						$waitRefresh := TRUE;
+						res := Video_Unlock( res );
+
+						(* Area to be erased = area of the child window just closed *)
+						x1 := 0;
+						y1 := 13;
+						x2 := 127;
+						y2 := 63;
+						bStatRedrw := TRUE;
+						bMapsReset := TRUE;
+						EXIT;
+
+					13:	(* Key: Enter - Action: Edit *)
+
+						CASE iNextSel OF
+
+							16,17,18,19,20,21,22,23:
+								(* Entering the edit mode *)
+								res := Video_EnterEdit( TO_UINT( iNextSel ) );
+
+								IF res = kKEY_Up THEN
+
+									iNextSel := TO_INT( Video_NextEdit( TRUE ) );
+									IF iNextSel > -1 THEN
+										res := Video_SendEvent( kWM_SELECT, TO_UINT(iNextSel) );
+									END_IF;
+
+								ELSIF res = kKEY_Down THEN
+
+									iNextSel := TO_INT( Video_PrevEdit( TRUE ) );
+									IF iNextSel > -1 THEN
+										res := Video_SendEvent( kWM_SELECT, TO_UINT(iNextSel) );
+									END_IF;
+
+								END_IF;
+
+						END_CASE;
+
+					11:	(* Key: Up - Action: PrevField *)
+						iNextSel := TO_INT( Video_PrevEdit( TRUE ) );
+						IF iNextSel > -1 THEN
+							res := Video_SendEvent( kWM_SELECT, TO_UINT(iNextSel) );
+						END_IF;
+
+					10:	(* Key: Down - Action: NextField *)
+						iNextSel := TO_INT( Video_NextEdit( TRUE ) );
+						IF iNextSel > -1 THEN
+							res := Video_SendEvent( kWM_SELECT, TO_UINT(iNextSel) );
+						END_IF;
+
+					END_CASE;
+
+				(* Selecting a control: *)
+				kWM_SELECT:
+
+					(* Extracting the index of the edit box clicked *)
+					iNextSel := TO_INT(SHR(udiev, 16));
+
+					(* Only select the object *)
+					res := Video_EnterEditSel( TO_UINT( iNextSel ), TRUE );
+
+					END_CASE;
+				END_IF;
+
+			END_WHILE;
+
+		END_WHILE;
+
+	END_FUNCTION_BLOCK
+
+FUNCTION_BLOCK DrawCompressor
+
+	VAR_OUTPUT
+	uiOutVar : UINT;
+	END_VAR
+
+	VAR_EXTERNAL
+	guiCallStack : ARRAY[ 0..9 ] OF UINT;
+	giStackPtr : INT;
+	fbCompressorString_8 : Static01;
+	fbCompressorString_9 : Static01;
+	fbCompressorString_10 : Static01;
+	fbCompressorString_11 : Static01;
+	fbCompressorString_12 : Static01;
+	fbCompressorEdit_1 : EditBox01;
+	fbCompressorEdit_2 : EditBox01;
+	fbCompressorEdit_3 : EditBox01;
+	fbCompressorEdit_4 : EditBox01;
+	fbCompressorEdit_5 : EditBox01;
+	fbCompressorEdit_6 : EditBox01;
+	fbCompressorEdit_7 : EditBox01;
+	fbEXV : DrawEXV;
+	$waitRefresh : BOOL;
+	END_VAR
+
+	VAR
+	res : USINT;
+	bStatRedrw : BOOL;
+	bMapsReset : BOOL;
+	iNextSel : INT;
+	$Set_IndexVisEl : UINT;
+	$Set_CycleRefresh : UINT;
+	$Set_PtrBoolVis : @BOOL;
+	$Set_VisEl : BOOL;
+	$Set_IndexPageInSet : UINT;
+	$Set_ForcePageReload : BOOL;
+	$Set_NextPage : BOOL;
+	$Set_PrevPage : BOOL;
+	$Set_LocalSetPagNumber: UINT;
+	$Set_NumVisEl: UINT;
+	$Set_LastFirstEl: INT;
+	udiev : UDINT;
+	ev : UINT;
+	key : USINT;
+	x1 : UINT;
+	y1 : UINT;
+	x2 : UINT;
+	y2 : UINT;
+	wParam : UINT;
+	END_VAR
+
+	{CODE:ST}
+
+	(* Writing this page's ID to the top of the callstack *)
+	guiCallStack[ giStackPtr ] := 16#01;
+
+	(* Flag of waiting for refresh task *)
+	$waitRefresh := TRUE;
+
+	(* Resetting the object map *)
+	res := Video_ResetMaps( 16#00 );
+
+	(* Setting flags: this page is to be drawn *)
+	bStatRedrw := TRUE;
+	bMapsReset := TRUE;
+
+	(* The area to be cleared is the area of the entire page *)
+	x1:= 0;
+	y1:= 13;
+	x2:= 127;
+	y2:= 63;
+
+	(* Unlocking the video *)
+	res := Video_Unlock( res );
+
+	WHILE TRUE DO
+
+		(* Locking the video *)
+		res := Video_Lock( res );
+
+		(* Initializing the page *)
+		res := Video_InitPage( 0, 0, 127, 63, ?'Compressor', 16#0103 );
+
+		(* Setting the page colors *)
+		res := Video_SetPageColors( 0, 16777215 );
+
+		IF bStatRedrw THEN
+
+			(* *** CLEARING PAGE AREA *** *)
+			res := Video_ClrRect( x1, y1, x2, y2 );
+
+		END_IF;
+
+		IF bMapsReset THEN
+
+			(* Resetting all maps *)
+			res := Video_ResetMaps( 16#02 );
+
+			(* *** DRAW PAGE CONTROLS *** *)
+
+			(* *** PAGE SECTION *** *)
+
+			(* *** DRAW CONTROLS *** *)
+			fbCompressorEdit_1.accMode := kACS_INIT;
+			fbCompressorEdit_1();
+			fbCompressorEdit_1.accMode := kACS_PRINT;
+			fbCompressorEdit_2.accMode := kACS_INIT;
+			fbCompressorEdit_2();
+			fbCompressorEdit_2.accMode := kACS_PRINT;
+			fbCompressorEdit_3.accMode := kACS_INIT;
+			fbCompressorEdit_3();
+			fbCompressorEdit_3.accMode := kACS_PRINT;
+			fbCompressorEdit_4.accMode := kACS_INIT;
+			fbCompressorEdit_4();
+			fbCompressorEdit_4.accMode := kACS_PRINT;
+			fbCompressorEdit_5.accMode := kACS_INIT;
+			fbCompressorEdit_5();
+			fbCompressorEdit_5.accMode := kACS_PRINT;
+			fbCompressorEdit_6.accMode := kACS_INIT;
+			fbCompressorEdit_6();
+			fbCompressorEdit_6.accMode := kACS_PRINT;
+			fbCompressorEdit_7.accMode := kACS_INIT;
+			fbCompressorEdit_7();
+			fbCompressorEdit_7.accMode := kACS_PRINT;
+			fbCompressorString_8.accMode := kACS_INIT;
+			fbCompressorString_8();
+			fbCompressorString_8.accMode := kACS_PRINT;
+			fbCompressorString_9.accMode := kACS_INIT;
+			fbCompressorString_9();
+			fbCompressorString_9.accMode := kACS_PRINT;
+			fbCompressorString_10.accMode := kACS_INIT;
+			fbCompressorString_10();
+			fbCompressorString_10.accMode := kACS_PRINT;
+			fbCompressorString_11.accMode := kACS_INIT;
+			fbCompressorString_11();
+			fbCompressorString_11.accMode := kACS_PRINT;
+			fbCompressorString_12.accMode := kACS_INIT;
+			fbCompressorString_12();
+			fbCompressorString_12.accMode := kACS_PRINT;
+
+			(* Select the first selectable control *)
+			iNextSel := Video_FirstLastEdit( TRUE, FALSE );
+			IF iNextSel > -1 THEN
+				res := Video_SendEvent( kWM_SELECT, TO_UINT(iNextSel) );
+			END_IF;
+
+
+		END_IF;
+
+		(* Unlocking the video *)
+		res := Video_Unlock( res );
+
+		(* Reset the flags for page redraw request *)
+		bStatRedrw := FALSE;
+		bMapsReset := FALSE;
+
+		(* *** EVENTS HANDLING *** *)
+		WHILE TRUE DO
+
+			(* the drawing task wait the refreshing task *)
+			IF $waitRefresh THEN
+				res := Video_Sleep( 50 );
+			ELSE
+
+				(* Retrieving events *)
+				udiev := Video_GetEvent( res );
+				(* Extracting the event code *)
+				ev := TO_UINT(udiev);
+
+				CASE ev OF
+
+				(* Key-related events handling: *)
+				kWM_KEY:
+
+					key := TO_USINT(SHR(udiev, 16));
+
+					CASE key OF
+
+					8:	(* Key: Left - Action: Close *)
+						RETURN;
+
+					12:	(* Key: Right - Action: OpenPage *)
+						res := Video_Lock( res );
+						giStackPtr := giStackPtr + 1;
+						fbEXV();
+
+
+						(* Locking the video and decrementing stack page *)
+						res := Video_Lock( res );
+						giStackPtr := giStackPtr - 1;
+						$waitRefresh := TRUE;
+						res := Video_Unlock( res );
+
+						(* Area to be erased = area of the child window just closed *)
+						x1 := 0;
+						y1 := 13;
+						x2 := 127;
+						y2 := 63;
+						bStatRedrw := TRUE;
+						bMapsReset := TRUE;
+						EXIT;
+
+					13:	(* Key: Enter - Action: Edit *)
+
+						CASE iNextSel OF
+
+							5,6,7,8,9,10,11:
+								(* Entering the edit mode *)
+								res := Video_EnterEdit( TO_UINT( iNextSel ) );
+
+								IF res = kKEY_Up THEN
+
+									iNextSel := TO_INT( Video_NextEdit( TRUE ) );
+									IF iNextSel > -1 THEN
+										res := Video_SendEvent( kWM_SELECT, TO_UINT(iNextSel) );
+									END_IF;
+
+								ELSIF res = kKEY_Down THEN
+
+									iNextSel := TO_INT( Video_PrevEdit( TRUE ) );
+									IF iNextSel > -1 THEN
+										res := Video_SendEvent( kWM_SELECT, TO_UINT(iNextSel) );
+									END_IF;
+
+								END_IF;
+
+						END_CASE;
+
+					11:	(* Key: Up - Action: PrevField *)
+						iNextSel := TO_INT( Video_PrevEdit( TRUE ) );
+						IF iNextSel > -1 THEN
+							res := Video_SendEvent( kWM_SELECT, TO_UINT(iNextSel) );
+						END_IF;
+
+					10:	(* Key: Down - Action: NextField *)
+						iNextSel := TO_INT( Video_NextEdit( TRUE ) );
+						IF iNextSel > -1 THEN
+							res := Video_SendEvent( kWM_SELECT, TO_UINT(iNextSel) );
+						END_IF;
+
+					END_CASE;
+
+				(* Selecting a control: *)
+				kWM_SELECT:
+
+					(* Extracting the index of the edit box clicked *)
+					iNextSel := TO_INT(SHR(udiev, 16));
+
+					(* Only select the object *)
+					res := Video_EnterEditSel( TO_UINT( iNextSel ), TRUE );
+
+					END_CASE;
+				END_IF;
+
+			END_WHILE;
+
+		END_WHILE;
+
+	END_FUNCTION_BLOCK
+
+FUNCTION_BLOCK DrawEXV
+
+	VAR_OUTPUT
+	uiOutVar : UINT;
+	END_VAR
+
+	VAR_EXTERNAL
+	guiCallStack : ARRAY[ 0..9 ] OF UINT;
+	giStackPtr : INT;
+	fbEXVString_10 : Static01;
+	fbEXVString_11 : Static01;
+	fbEXVString_12 : Static01;
+	fbEXVString_13 : Static01;
+	fbEXVString_14 : Static01;
+	fbEXVEdit_1 : EditBox01;
+	fbEXVEdit_2 : EditBox01;
+	fbEXVEdit_4 : EditBox01;
+	fbEXVEdit_5 : EditBox01;
+	fbEXVEdit_6 : EditBox01;
+	fbEXVEdit_7 : EditBox01;
+	fbEXVEdit_8 : EditBox01;
+	fbEXVEdit_9 : EditBox01;
+	fbPIDCoefficients : DrawPIDCoefficients;
+	$waitRefresh : BOOL;
+	END_VAR
+
+	VAR
+	res : USINT;
+	bStatRedrw : BOOL;
+	bMapsReset : BOOL;
+	iNextSel : INT;
+	$Set_IndexVisEl : UINT;
+	$Set_CycleRefresh : UINT;
+	$Set_PtrBoolVis : @BOOL;
+	$Set_VisEl : BOOL;
+	$Set_IndexPageInSet : UINT;
+	$Set_ForcePageReload : BOOL;
+	$Set_NextPage : BOOL;
+	$Set_PrevPage : BOOL;
+	$Set_LocalSetPagNumber: UINT;
+	$Set_NumVisEl: UINT;
+	$Set_LastFirstEl: INT;
+	udiev : UDINT;
+	ev : UINT;
+	key : USINT;
+	x1 : UINT;
+	y1 : UINT;
+	x2 : UINT;
+	y2 : UINT;
+	wParam : UINT;
+	END_VAR
+
+	{CODE:ST}
+
+	(* Writing this page's ID to the top of the callstack *)
+	guiCallStack[ giStackPtr ] := 16#06;
+
+	(* Flag of waiting for refresh task *)
+	$waitRefresh := TRUE;
+
+	(* Resetting the object map *)
+	res := Video_ResetMaps( 16#00 );
+
+	(* Setting flags: this page is to be drawn *)
+	bStatRedrw := TRUE;
+	bMapsReset := TRUE;
+
+	(* The area to be cleared is the area of the entire page *)
+	x1:= 0;
+	y1:= 13;
+	x2:= 127;
+	y2:= 63;
+
+	(* Unlocking the video *)
+	res := Video_Unlock( res );
+
+	WHILE TRUE DO
+
+		(* Locking the video *)
+		res := Video_Lock( res );
+
+		(* Initializing the page *)
+		res := Video_InitPage( 0, 0, 127, 63, ?'EXV', 16#0103 );
+
+		(* Setting the page colors *)
+		res := Video_SetPageColors( 0, 16777215 );
+
+		IF bStatRedrw THEN
+
+			(* *** CLEARING PAGE AREA *** *)
+			res := Video_ClrRect( x1, y1, x2, y2 );
+
+		END_IF;
+
+		IF bMapsReset THEN
+
+			(* Resetting all maps *)
+			res := Video_ResetMaps( 16#07 );
+
+			(* *** DRAW PAGE CONTROLS *** *)
+
+			(* *** PAGE SECTION *** *)
+
+			(* *** DRAW CONTROLS *** *)
+			fbEXVEdit_1.accMode := kACS_INIT;
+			fbEXVEdit_1();
+			fbEXVEdit_1.accMode := kACS_PRINT;
+			fbEXVEdit_2.accMode := kACS_INIT;
+			fbEXVEdit_2();
+			fbEXVEdit_2.accMode := kACS_PRINT;
+			fbEXVEdit_4.accMode := kACS_INIT;
+			fbEXVEdit_4();
+			fbEXVEdit_4.accMode := kACS_PRINT;
+			fbEXVEdit_5.accMode := kACS_INIT;
+			fbEXVEdit_5();
+			fbEXVEdit_5.accMode := kACS_PRINT;
+			fbEXVEdit_6.accMode := kACS_INIT;
+			fbEXVEdit_6();
+			fbEXVEdit_6.accMode := kACS_PRINT;
+			fbEXVEdit_7.accMode := kACS_INIT;
+			fbEXVEdit_7();
+			fbEXVEdit_7.accMode := kACS_PRINT;
+			fbEXVEdit_8.accMode := kACS_INIT;
+			fbEXVEdit_8();
+			fbEXVEdit_8.accMode := kACS_PRINT;
+			fbEXVEdit_9.accMode := kACS_INIT;
+			fbEXVEdit_9();
+			fbEXVEdit_9.accMode := kACS_PRINT;
+			fbEXVString_10.accMode := kACS_INIT;
+			fbEXVString_10();
+			fbEXVString_10.accMode := kACS_PRINT;
+			fbEXVString_11.accMode := kACS_INIT;
+			fbEXVString_11();
+			fbEXVString_11.accMode := kACS_PRINT;
+			fbEXVString_12.accMode := kACS_INIT;
+			fbEXVString_12();
+			fbEXVString_12.accMode := kACS_PRINT;
+			fbEXVString_13.accMode := kACS_INIT;
+			fbEXVString_13();
+			fbEXVString_13.accMode := kACS_PRINT;
+			fbEXVString_14.accMode := kACS_INIT;
+			fbEXVString_14();
+			fbEXVString_14.accMode := kACS_PRINT;
 
 			(* Select the first selectable control *)
 			iNextSel := Video_FirstLastEdit( TRUE, FALSE );
@@ -1240,7 +2078,7 @@ FUNCTION_BLOCK DrawDbgPage
 
 						(* Area to be erased = area of the child window just closed *)
 						x1 := 0;
-						y1 := 0;
+						y1 := 13;
 						x2 := 127;
 						y2 := 63;
 						bStatRedrw := TRUE;
@@ -1251,7 +2089,7 @@ FUNCTION_BLOCK DrawDbgPage
 
 						CASE iNextSel OF
 
-							10,11,12,13,14,15,16,17,18:
+							57,58,59,60,61,62,63,64:
 								(* Entering the edit mode *)
 								res := Video_EnterEdit( TO_UINT( iNextSel ) );
 
@@ -1314,6 +2152,9 @@ FUNCTION_BLOCK DrawPIDCoefficients
 	VAR_EXTERNAL
 	guiCallStack : ARRAY[ 0..9 ] OF UINT;
 	giStackPtr : INT;
+	fbPIDCoefficientsString_10 : Static01;
+	fbPIDCoefficientsString_11 : Static01;
+	fbPIDCoefficientsString_12 : Static01;
 	fbPIDCoefficientsEdit_1 : EditBox01;
 	fbPIDCoefficientsEdit_2 : EditBox01;
 	fbPIDCoefficientsEdit_3 : EditBox01;
@@ -1323,7 +2164,6 @@ FUNCTION_BLOCK DrawPIDCoefficients
 	fbPIDCoefficientsEdit_7 : EditBox01;
 	fbPIDCoefficientsEdit_8 : EditBox01;
 	fbPIDCoefficientsEdit_9 : EditBox01;
-	fbCompressorDbgPage : DrawCompressorDbgPage;
 	$waitRefresh : BOOL;
 	END_VAR
 
@@ -1356,7 +2196,7 @@ FUNCTION_BLOCK DrawPIDCoefficients
 	{CODE:ST}
 
 	(* Writing this page's ID to the top of the callstack *)
-	guiCallStack[ giStackPtr ] := 16#03;
+	guiCallStack[ giStackPtr ] := 16#05;
 
 	(* Flag of waiting for refresh task *)
 	$waitRefresh := TRUE;
@@ -1370,7 +2210,7 @@ FUNCTION_BLOCK DrawPIDCoefficients
 
 	(* The area to be cleared is the area of the entire page *)
 	x1:= 0;
-	y1:= 0;
+	y1:= 13;
 	x2:= 127;
 	y2:= 63;
 
@@ -1383,7 +2223,7 @@ FUNCTION_BLOCK DrawPIDCoefficients
 		res := Video_Lock( res );
 
 		(* Initializing the page *)
-		res := Video_InitPage( 0, 0, 127, 63, ?' ', 16#0003 );
+		res := Video_InitPage( 0, 0, 127, 63, ?'PID  Kp    Ti    Td', 16#0103 );
 
 		(* Setting the page colors *)
 		res := Video_SetPageColors( 0, 16777215 );
@@ -1398,7 +2238,7 @@ FUNCTION_BLOCK DrawPIDCoefficients
 		IF bMapsReset THEN
 
 			(* Resetting all maps *)
-			res := Video_ResetMaps( 16#04 );
+			res := Video_ResetMaps( 16#06 );
 
 			(* *** DRAW PAGE CONTROLS *** *)
 
@@ -1432,229 +2272,15 @@ FUNCTION_BLOCK DrawPIDCoefficients
 			fbPIDCoefficientsEdit_9.accMode := kACS_INIT;
 			fbPIDCoefficientsEdit_9();
 			fbPIDCoefficientsEdit_9.accMode := kACS_PRINT;
-
-			(* Select the first selectable control *)
-			iNextSel := Video_FirstLastEdit( TRUE, FALSE );
-			IF iNextSel > -1 THEN
-				res := Video_SendEvent( kWM_SELECT, TO_UINT(iNextSel) );
-			END_IF;
-
-
-		END_IF;
-
-		(* Unlocking the video *)
-		res := Video_Unlock( res );
-
-		(* Reset the flags for page redraw request *)
-		bStatRedrw := FALSE;
-		bMapsReset := FALSE;
-
-		(* *** EVENTS HANDLING *** *)
-		WHILE TRUE DO
-
-			(* the drawing task wait the refreshing task *)
-			IF $waitRefresh THEN
-				res := Video_Sleep( 50 );
-			ELSE
-
-				(* Retrieving events *)
-				udiev := Video_GetEvent( res );
-				(* Extracting the event code *)
-				ev := TO_UINT(udiev);
-
-				CASE ev OF
-
-				(* Key-related events handling: *)
-				kWM_KEY:
-
-					key := TO_USINT(SHR(udiev, 16));
-
-					CASE key OF
-
-					8:	(* Key: Left - Action: Close *)
-						RETURN;
-
-					12:	(* Key: Right - Action: OpenPage *)
-						res := Video_Lock( res );
-						giStackPtr := giStackPtr + 1;
-						fbCompressorDbgPage();
-
-
-						(* Locking the video and decrementing stack page *)
-						res := Video_Lock( res );
-						giStackPtr := giStackPtr - 1;
-						$waitRefresh := TRUE;
-						res := Video_Unlock( res );
-
-						(* Area to be erased = area of the child window just closed *)
-						x1 := 0;
-						y1 := 0;
-						x2 := 127;
-						y2 := 63;
-						bStatRedrw := TRUE;
-						bMapsReset := TRUE;
-						EXIT;
-
-					13:	(* Key: Enter - Action: Edit *)
-
-						CASE iNextSel OF
-
-							19,20,21,22,23,24,25,26,27:
-								(* Entering the edit mode *)
-								res := Video_EnterEdit( TO_UINT( iNextSel ) );
-
-								IF res = kKEY_Up THEN
-
-									iNextSel := TO_INT( Video_NextEdit( TRUE ) );
-									IF iNextSel > -1 THEN
-										res := Video_SendEvent( kWM_SELECT, TO_UINT(iNextSel) );
-									END_IF;
-
-								ELSIF res = kKEY_Down THEN
-
-									iNextSel := TO_INT( Video_PrevEdit( TRUE ) );
-									IF iNextSel > -1 THEN
-										res := Video_SendEvent( kWM_SELECT, TO_UINT(iNextSel) );
-									END_IF;
-
-								END_IF;
-
-						END_CASE;
-
-					11:	(* Key: Up - Action: PrevField *)
-						iNextSel := TO_INT( Video_PrevEdit( TRUE ) );
-						IF iNextSel > -1 THEN
-							res := Video_SendEvent( kWM_SELECT, TO_UINT(iNextSel) );
-						END_IF;
-
-					10:	(* Key: Down - Action: NextField *)
-						iNextSel := TO_INT( Video_NextEdit( TRUE ) );
-						IF iNextSel > -1 THEN
-							res := Video_SendEvent( kWM_SELECT, TO_UINT(iNextSel) );
-						END_IF;
-
-					END_CASE;
-
-				(* Selecting a control: *)
-				kWM_SELECT:
-
-					(* Extracting the index of the edit box clicked *)
-					iNextSel := TO_INT(SHR(udiev, 16));
-
-					(* Only select the object *)
-					res := Video_EnterEditSel( TO_UINT( iNextSel ), TRUE );
-
-					END_CASE;
-				END_IF;
-
-			END_WHILE;
-
-		END_WHILE;
-
-	END_FUNCTION_BLOCK
-
-FUNCTION_BLOCK DrawCompressorDbgPage
-
-	VAR_OUTPUT
-	uiOutVar : UINT;
-	END_VAR
-
-	VAR_EXTERNAL
-	guiCallStack : ARRAY[ 0..9 ] OF UINT;
-	giStackPtr : INT;
-	fbCompressorDbgPageEdit_1 : EditBox01;
-	fbCompressorDbgPageEdit_2 : EditBox01;
-	fbCompressorDbgPageEdit_3 : EditBox01;
-	$waitRefresh : BOOL;
-	END_VAR
-
-	VAR
-	res : USINT;
-	bStatRedrw : BOOL;
-	bMapsReset : BOOL;
-	iNextSel : INT;
-	$Set_IndexVisEl : UINT;
-	$Set_CycleRefresh : UINT;
-	$Set_PtrBoolVis : @BOOL;
-	$Set_VisEl : BOOL;
-	$Set_IndexPageInSet : UINT;
-	$Set_ForcePageReload : BOOL;
-	$Set_NextPage : BOOL;
-	$Set_PrevPage : BOOL;
-	$Set_LocalSetPagNumber: UINT;
-	$Set_NumVisEl: UINT;
-	$Set_LastFirstEl: INT;
-	udiev : UDINT;
-	ev : UINT;
-	key : USINT;
-	x1 : UINT;
-	y1 : UINT;
-	x2 : UINT;
-	y2 : UINT;
-	wParam : UINT;
-	END_VAR
-
-	{CODE:ST}
-
-	(* Writing this page's ID to the top of the callstack *)
-	guiCallStack[ giStackPtr ] := 16#04;
-
-	(* Flag of waiting for refresh task *)
-	$waitRefresh := TRUE;
-
-	(* Resetting the object map *)
-	res := Video_ResetMaps( 16#00 );
-
-	(* Setting flags: this page is to be drawn *)
-	bStatRedrw := TRUE;
-	bMapsReset := TRUE;
-
-	(* The area to be cleared is the area of the entire page *)
-	x1:= 0;
-	y1:= 0;
-	x2:= 127;
-	y2:= 63;
-
-	(* Unlocking the video *)
-	res := Video_Unlock( res );
-
-	WHILE TRUE DO
-
-		(* Locking the video *)
-		res := Video_Lock( res );
-
-		(* Initializing the page *)
-		res := Video_InitPage( 0, 0, 127, 63, ?' ', 16#0003 );
-
-		(* Setting the page colors *)
-		res := Video_SetPageColors( 0, 16777215 );
-
-		IF bStatRedrw THEN
-
-			(* *** CLEARING PAGE AREA *** *)
-			res := Video_ClrRect( x1, y1, x2, y2 );
-
-		END_IF;
-
-		IF bMapsReset THEN
-
-			(* Resetting all maps *)
-			res := Video_ResetMaps( 16#05 );
-
-			(* *** DRAW PAGE CONTROLS *** *)
-
-			(* *** PAGE SECTION *** *)
-
-			(* *** DRAW CONTROLS *** *)
-			fbCompressorDbgPageEdit_1.accMode := kACS_INIT;
-			fbCompressorDbgPageEdit_1();
-			fbCompressorDbgPageEdit_1.accMode := kACS_PRINT;
-			fbCompressorDbgPageEdit_2.accMode := kACS_INIT;
-			fbCompressorDbgPageEdit_2();
-			fbCompressorDbgPageEdit_2.accMode := kACS_PRINT;
-			fbCompressorDbgPageEdit_3.accMode := kACS_INIT;
-			fbCompressorDbgPageEdit_3();
-			fbCompressorDbgPageEdit_3.accMode := kACS_PRINT;
+			fbPIDCoefficientsString_10.accMode := kACS_INIT;
+			fbPIDCoefficientsString_10();
+			fbPIDCoefficientsString_10.accMode := kACS_PRINT;
+			fbPIDCoefficientsString_11.accMode := kACS_INIT;
+			fbPIDCoefficientsString_11();
+			fbPIDCoefficientsString_11.accMode := kACS_PRINT;
+			fbPIDCoefficientsString_12.accMode := kACS_INIT;
+			fbPIDCoefficientsString_12();
+			fbPIDCoefficientsString_12.accMode := kACS_PRINT;
 
 			(* Select the first selectable control *)
 			iNextSel := Video_FirstLastEdit( TRUE, FALSE );
@@ -1701,7 +2327,7 @@ FUNCTION_BLOCK DrawCompressorDbgPage
 
 						CASE iNextSel OF
 
-							28,29,30:
+							43,44,45,46,47,48,49,50,51:
 								(* Entering the edit mode *)
 								res := Video_EnterEdit( TO_UINT( iNextSel ) );
 
@@ -1761,18 +2387,18 @@ FUNCTION_BLOCK DrawCompressorDbgPage
 	(*                         *)
 	(***************************)
 
-FUNCTION_BLOCK RefrModeSelection
+FUNCTION_BLOCK RefrMain
 
 	VAR_EXTERNAL
 	guiCallStack : ARRAY[ 0..9 ] OF UINT;
 	giStackPtr : INT;
 	IsRealMode_MB_ADDR : UINT;
-	ModeSelection_tmpBOOL : BOOL;
-	fbModeSelectionEdit_1 : EditBox01;
-	fbModeSelectionEdit_2 : EditBox01;
-	fbModeSelectionEdit_3 : EditBox01;
-	fbModeSelectionEdit_4 : EditBox01;
-	fbRefrDbgPage : RefrDbgPage;
+	Main_tmpBOOL : BOOL;
+	fbMainEdit_1 : EditBox01;
+	fbMainEdit_2 : EditBox01;
+	fbMainEdit_3 : EditBox01;
+	fbMainEdit_4 : EditBox01;
+	fbRefrUnit : RefrUnit;
 	$waitRefresh : BOOL;
 	END_VAR
 
@@ -1804,15 +2430,15 @@ FUNCTION_BLOCK RefrModeSelection
 			$waitRefresh := FALSE;
 
 			(* *** REFRESH PAGE CONTROLS *** *)
-			IF fbModeSelectionEdit_1.accMode <> kACS_MODIFY THEN
-				fbModeSelectionEdit_1();
+			IF fbMainEdit_1.accMode <> kACS_MODIFY THEN
+				fbMainEdit_1();
 			END_IF;
-			fbModeSelectionEdit_2();
-			IF fbModeSelectionEdit_3.accMode <> kACS_MODIFY THEN
-				fbModeSelectionEdit_3();
+			fbMainEdit_2();
+			IF fbMainEdit_3.accMode <> kACS_MODIFY THEN
+				fbMainEdit_3();
 			END_IF;
-			IF fbModeSelectionEdit_4.accMode <> kACS_MODIFY THEN
-				fbModeSelectionEdit_4();
+			IF fbMainEdit_4.accMode <> kACS_MODIFY THEN
+				fbMainEdit_4();
 			END_IF;
 
 			(* *** REFRESHING BACKGROUND ITEMS *** *)
@@ -1833,8 +2459,8 @@ FUNCTION_BLOCK RefrModeSelection
 		(* *** MANAGING CHILD WINDOWS AND ALARM MESSAGES *** *)
 		IF pagID <> 16#00 THEN
 			CASE pagID OF
-				16#02:
-					fbRefrDbgPage();
+				16#04:
+					fbRefrUnit();
 
 			END_CASE;
 
@@ -1849,21 +2475,109 @@ FUNCTION_BLOCK RefrModeSelection
 
 END_FUNCTION_BLOCK
 
-FUNCTION_BLOCK RefrDbgPage
+FUNCTION_BLOCK RefrUnit
 
 	VAR_EXTERNAL
 	guiCallStack : ARRAY[ 0..9 ] OF UINT;
 	giStackPtr : INT;
-	fbDbgPageEdit_1 : EditBox01;
-	fbDbgPageEdit_2 : EditBox01;
-	fbDbgPageEdit_3 : EditBox01;
-	fbDbgPageEdit_4 : EditBox01;
-	fbDbgPageEdit_5 : EditBox01;
-	fbDbgPageEdit_6 : EditBox01;
-	fbDbgPageEdit_7 : EditBox01;
-	fbDbgPageEdit_8 : EditBox01;
-	fbDbgPageEdit_9 : EditBox01;
-	fbRefrPIDCoefficients : RefrPIDCoefficients;
+	fbUnitString_10 : Static01;
+	fbUnitEdit_9 : EditBox01;
+	fbUnitEdit_12 : EditBox01;
+	fbUnitEdit_13 : EditBox01;
+	fbUnitEdit_14 : EditBox01;
+	fbUnitEdit_15 : EditBox01;
+	fbRefrEvaporatorFan : RefrEvaporatorFan;
+	$waitRefresh : BOOL;
+	END_VAR
+
+	VAR
+	res : USINT;
+	pagID : UINT;
+	n : USINT;
+	iSP : INT;
+	pDC : UDINT;
+	rx1 : UINT;
+	ry1 : UINT;
+	rx2 : UINT;
+	ry2 : UINT;
+	END_VAR
+
+	{CODE:ST}
+
+	REPEAT
+
+		(* Locking the video *)
+		res := Video_Lock( res );
+
+		(* Testing if page has changed *)
+		pagID := guiCallStack[ giStackPtr ];
+
+		IF pagID = 16#04 THEN
+
+			(* the refresh task is arrived *)
+			$waitRefresh := FALSE;
+
+			(* *** REFRESH PAGE CONTROLS *** *)
+			IF fbUnitEdit_9.accMode <> kACS_MODIFY THEN
+				fbUnitEdit_9();
+			END_IF;
+			fbUnitEdit_12();
+			fbUnitEdit_13();
+			fbUnitEdit_14();
+			fbUnitEdit_15();
+
+			(* *** REFRESHING BACKGROUND ITEMS *** *)
+			(* Cursor across the call stack *)
+			iSP := giStackPtr;
+
+			(* *** REFRESHING PARENT BACKGROUND ITEMS *** *)
+
+			
+		END_IF;
+
+		(* Unlocking the video *)
+		res := Video_Unlock( res );
+
+		(* Suspending the task *)
+		res := Video_Sleep( 50 );
+
+		(* *** MANAGING CHILD WINDOWS AND ALARM MESSAGES *** *)
+		IF pagID <> 16#04 THEN
+			CASE pagID OF
+				16#02:
+					fbRefrEvaporatorFan();
+
+			END_CASE;
+
+			(* Re-testing if this page is active *)
+			res := Video_Lock( res );
+			pagID := guiCallStack[ giStackPtr ];
+			res := Video_Unlock( res );
+		END_IF;
+
+	UNTIL pagID <> 16#04
+	END_REPEAT;
+
+END_FUNCTION_BLOCK
+
+FUNCTION_BLOCK RefrEvaporatorFan
+
+	VAR_EXTERNAL
+	guiCallStack : ARRAY[ 0..9 ] OF UINT;
+	giStackPtr : INT;
+	fbEvaporatorFanString_10 : Static01;
+	fbEvaporatorFanString_11 : Static01;
+	fbEvaporatorFanString_12 : Static01;
+	fbEvaporatorFanString_13 : Static01;
+	fbEvaporatorFanEdit_1 : EditBox01;
+	fbEvaporatorFanEdit_2 : EditBox01;
+	fbEvaporatorFanEdit_3 : EditBox01;
+	fbEvaporatorFanEdit_5 : EditBox01;
+	fbEvaporatorFanEdit_6 : EditBox01;
+	fbEvaporatorFanEdit_7 : EditBox01;
+	fbEvaporatorFanEdit_8 : EditBox01;
+	fbEvaporatorFanEdit_9 : EditBox01;
+	fbRefrCompressor : RefrCompressor;
 	$waitRefresh : BOOL;
 	END_VAR
 
@@ -1895,33 +2609,22 @@ FUNCTION_BLOCK RefrDbgPage
 			$waitRefresh := FALSE;
 
 			(* *** REFRESH PAGE CONTROLS *** *)
-			IF fbDbgPageEdit_1.accMode <> kACS_MODIFY THEN
-				fbDbgPageEdit_1();
+			IF fbEvaporatorFanEdit_1.accMode <> kACS_MODIFY THEN
+				fbEvaporatorFanEdit_1();
 			END_IF;
-			IF fbDbgPageEdit_2.accMode <> kACS_MODIFY THEN
-				fbDbgPageEdit_2();
+			IF fbEvaporatorFanEdit_2.accMode <> kACS_MODIFY THEN
+				fbEvaporatorFanEdit_2();
 			END_IF;
-			IF fbDbgPageEdit_3.accMode <> kACS_MODIFY THEN
-				fbDbgPageEdit_3();
+			IF fbEvaporatorFanEdit_3.accMode <> kACS_MODIFY THEN
+				fbEvaporatorFanEdit_3();
 			END_IF;
-			IF fbDbgPageEdit_4.accMode <> kACS_MODIFY THEN
-				fbDbgPageEdit_4();
+			IF fbEvaporatorFanEdit_5.accMode <> kACS_MODIFY THEN
+				fbEvaporatorFanEdit_5();
 			END_IF;
-			IF fbDbgPageEdit_5.accMode <> kACS_MODIFY THEN
-				fbDbgPageEdit_5();
-			END_IF;
-			IF fbDbgPageEdit_6.accMode <> kACS_MODIFY THEN
-				fbDbgPageEdit_6();
-			END_IF;
-			IF fbDbgPageEdit_7.accMode <> kACS_MODIFY THEN
-				fbDbgPageEdit_7();
-			END_IF;
-			IF fbDbgPageEdit_8.accMode <> kACS_MODIFY THEN
-				fbDbgPageEdit_8();
-			END_IF;
-			IF fbDbgPageEdit_9.accMode <> kACS_MODIFY THEN
-				fbDbgPageEdit_9();
-			END_IF;
+			fbEvaporatorFanEdit_6();
+			fbEvaporatorFanEdit_7();
+			fbEvaporatorFanEdit_8();
+			fbEvaporatorFanEdit_9();
 
 			(* *** REFRESHING BACKGROUND ITEMS *** *)
 			(* Cursor across the call stack *)
@@ -1941,8 +2644,8 @@ FUNCTION_BLOCK RefrDbgPage
 		(* *** MANAGING CHILD WINDOWS AND ALARM MESSAGES *** *)
 		IF pagID <> 16#02 THEN
 			CASE pagID OF
-				16#03:
-					fbRefrPIDCoefficients();
+				16#01:
+					fbRefrCompressor();
 
 			END_CASE;
 
@@ -1957,21 +2660,24 @@ FUNCTION_BLOCK RefrDbgPage
 
 END_FUNCTION_BLOCK
 
-FUNCTION_BLOCK RefrPIDCoefficients
+FUNCTION_BLOCK RefrCompressor
 
 	VAR_EXTERNAL
 	guiCallStack : ARRAY[ 0..9 ] OF UINT;
 	giStackPtr : INT;
-	fbPIDCoefficientsEdit_1 : EditBox01;
-	fbPIDCoefficientsEdit_2 : EditBox01;
-	fbPIDCoefficientsEdit_3 : EditBox01;
-	fbPIDCoefficientsEdit_4 : EditBox01;
-	fbPIDCoefficientsEdit_5 : EditBox01;
-	fbPIDCoefficientsEdit_6 : EditBox01;
-	fbPIDCoefficientsEdit_7 : EditBox01;
-	fbPIDCoefficientsEdit_8 : EditBox01;
-	fbPIDCoefficientsEdit_9 : EditBox01;
-	fbRefrCompressorDbgPage : RefrCompressorDbgPage;
+	fbCompressorString_8 : Static01;
+	fbCompressorString_9 : Static01;
+	fbCompressorString_10 : Static01;
+	fbCompressorString_11 : Static01;
+	fbCompressorString_12 : Static01;
+	fbCompressorEdit_1 : EditBox01;
+	fbCompressorEdit_2 : EditBox01;
+	fbCompressorEdit_3 : EditBox01;
+	fbCompressorEdit_4 : EditBox01;
+	fbCompressorEdit_5 : EditBox01;
+	fbCompressorEdit_6 : EditBox01;
+	fbCompressorEdit_7 : EditBox01;
+	fbRefrEXV : RefrEXV;
 	$waitRefresh : BOOL;
 	END_VAR
 
@@ -1997,7 +2703,200 @@ FUNCTION_BLOCK RefrPIDCoefficients
 		(* Testing if page has changed *)
 		pagID := guiCallStack[ giStackPtr ];
 
-		IF pagID = 16#03 THEN
+		IF pagID = 16#01 THEN
+
+			(* the refresh task is arrived *)
+			$waitRefresh := FALSE;
+
+			(* *** REFRESH PAGE CONTROLS *** *)
+			IF fbCompressorEdit_1.accMode <> kACS_MODIFY THEN
+				fbCompressorEdit_1();
+			END_IF;
+			IF fbCompressorEdit_2.accMode <> kACS_MODIFY THEN
+				fbCompressorEdit_2();
+			END_IF;
+			fbCompressorEdit_3();
+			fbCompressorEdit_4();
+			fbCompressorEdit_5();
+			fbCompressorEdit_6();
+			fbCompressorEdit_7();
+
+			(* *** REFRESHING BACKGROUND ITEMS *** *)
+			(* Cursor across the call stack *)
+			iSP := giStackPtr;
+
+			(* *** REFRESHING PARENT BACKGROUND ITEMS *** *)
+
+			
+		END_IF;
+
+		(* Unlocking the video *)
+		res := Video_Unlock( res );
+
+		(* Suspending the task *)
+		res := Video_Sleep( 50 );
+
+		(* *** MANAGING CHILD WINDOWS AND ALARM MESSAGES *** *)
+		IF pagID <> 16#01 THEN
+			CASE pagID OF
+				16#06:
+					fbRefrEXV();
+
+			END_CASE;
+
+			(* Re-testing if this page is active *)
+			res := Video_Lock( res );
+			pagID := guiCallStack[ giStackPtr ];
+			res := Video_Unlock( res );
+		END_IF;
+
+	UNTIL pagID <> 16#01
+	END_REPEAT;
+
+END_FUNCTION_BLOCK
+
+FUNCTION_BLOCK RefrEXV
+
+	VAR_EXTERNAL
+	guiCallStack : ARRAY[ 0..9 ] OF UINT;
+	giStackPtr : INT;
+	fbEXVString_10 : Static01;
+	fbEXVString_11 : Static01;
+	fbEXVString_12 : Static01;
+	fbEXVString_13 : Static01;
+	fbEXVString_14 : Static01;
+	fbEXVEdit_1 : EditBox01;
+	fbEXVEdit_2 : EditBox01;
+	fbEXVEdit_4 : EditBox01;
+	fbEXVEdit_5 : EditBox01;
+	fbEXVEdit_6 : EditBox01;
+	fbEXVEdit_7 : EditBox01;
+	fbEXVEdit_8 : EditBox01;
+	fbEXVEdit_9 : EditBox01;
+	fbRefrPIDCoefficients : RefrPIDCoefficients;
+	$waitRefresh : BOOL;
+	END_VAR
+
+	VAR
+	res : USINT;
+	pagID : UINT;
+	n : USINT;
+	iSP : INT;
+	pDC : UDINT;
+	rx1 : UINT;
+	ry1 : UINT;
+	rx2 : UINT;
+	ry2 : UINT;
+	END_VAR
+
+	{CODE:ST}
+
+	REPEAT
+
+		(* Locking the video *)
+		res := Video_Lock( res );
+
+		(* Testing if page has changed *)
+		pagID := guiCallStack[ giStackPtr ];
+
+		IF pagID = 16#06 THEN
+
+			(* the refresh task is arrived *)
+			$waitRefresh := FALSE;
+
+			(* *** REFRESH PAGE CONTROLS *** *)
+			IF fbEXVEdit_1.accMode <> kACS_MODIFY THEN
+				fbEXVEdit_1();
+			END_IF;
+			IF fbEXVEdit_2.accMode <> kACS_MODIFY THEN
+				fbEXVEdit_2();
+			END_IF;
+			fbEXVEdit_4();
+			fbEXVEdit_5();
+			fbEXVEdit_6();
+			fbEXVEdit_7();
+			IF fbEXVEdit_8.accMode <> kACS_MODIFY THEN
+				fbEXVEdit_8();
+			END_IF;
+			fbEXVEdit_9();
+
+			(* *** REFRESHING BACKGROUND ITEMS *** *)
+			(* Cursor across the call stack *)
+			iSP := giStackPtr;
+
+			(* *** REFRESHING PARENT BACKGROUND ITEMS *** *)
+
+			
+		END_IF;
+
+		(* Unlocking the video *)
+		res := Video_Unlock( res );
+
+		(* Suspending the task *)
+		res := Video_Sleep( 50 );
+
+		(* *** MANAGING CHILD WINDOWS AND ALARM MESSAGES *** *)
+		IF pagID <> 16#06 THEN
+			CASE pagID OF
+				16#05:
+					fbRefrPIDCoefficients();
+
+			END_CASE;
+
+			(* Re-testing if this page is active *)
+			res := Video_Lock( res );
+			pagID := guiCallStack[ giStackPtr ];
+			res := Video_Unlock( res );
+		END_IF;
+
+	UNTIL pagID <> 16#06
+	END_REPEAT;
+
+END_FUNCTION_BLOCK
+
+FUNCTION_BLOCK RefrPIDCoefficients
+
+	VAR_EXTERNAL
+	guiCallStack : ARRAY[ 0..9 ] OF UINT;
+	giStackPtr : INT;
+	fbPIDCoefficientsString_10 : Static01;
+	fbPIDCoefficientsString_11 : Static01;
+	fbPIDCoefficientsString_12 : Static01;
+	fbPIDCoefficientsEdit_1 : EditBox01;
+	fbPIDCoefficientsEdit_2 : EditBox01;
+	fbPIDCoefficientsEdit_3 : EditBox01;
+	fbPIDCoefficientsEdit_4 : EditBox01;
+	fbPIDCoefficientsEdit_5 : EditBox01;
+	fbPIDCoefficientsEdit_6 : EditBox01;
+	fbPIDCoefficientsEdit_7 : EditBox01;
+	fbPIDCoefficientsEdit_8 : EditBox01;
+	fbPIDCoefficientsEdit_9 : EditBox01;
+	$waitRefresh : BOOL;
+	END_VAR
+
+	VAR
+	res : USINT;
+	pagID : UINT;
+	n : USINT;
+	iSP : INT;
+	pDC : UDINT;
+	rx1 : UINT;
+	ry1 : UINT;
+	rx2 : UINT;
+	ry2 : UINT;
+	END_VAR
+
+	{CODE:ST}
+
+	REPEAT
+
+		(* Locking the video *)
+		res := Video_Lock( res );
+
+		(* Testing if page has changed *)
+		pagID := guiCallStack[ giStackPtr ];
+
+		IF pagID = 16#05 THEN
 
 			(* the refresh task is arrived *)
 			$waitRefresh := FALSE;
@@ -2046,90 +2945,7 @@ FUNCTION_BLOCK RefrPIDCoefficients
 		(* Suspending the task *)
 		res := Video_Sleep( 50 );
 
-		(* *** MANAGING CHILD WINDOWS AND ALARM MESSAGES *** *)
-		IF pagID <> 16#03 THEN
-			CASE pagID OF
-				16#04:
-					fbRefrCompressorDbgPage();
-
-			END_CASE;
-
-			(* Re-testing if this page is active *)
-			res := Video_Lock( res );
-			pagID := guiCallStack[ giStackPtr ];
-			res := Video_Unlock( res );
-		END_IF;
-
-	UNTIL pagID <> 16#03
-	END_REPEAT;
-
-END_FUNCTION_BLOCK
-
-FUNCTION_BLOCK RefrCompressorDbgPage
-
-	VAR_EXTERNAL
-	guiCallStack : ARRAY[ 0..9 ] OF UINT;
-	giStackPtr : INT;
-	fbCompressorDbgPageEdit_1 : EditBox01;
-	fbCompressorDbgPageEdit_2 : EditBox01;
-	fbCompressorDbgPageEdit_3 : EditBox01;
-	$waitRefresh : BOOL;
-	END_VAR
-
-	VAR
-	res : USINT;
-	pagID : UINT;
-	n : USINT;
-	iSP : INT;
-	pDC : UDINT;
-	rx1 : UINT;
-	ry1 : UINT;
-	rx2 : UINT;
-	ry2 : UINT;
-	END_VAR
-
-	{CODE:ST}
-
-	REPEAT
-
-		(* Locking the video *)
-		res := Video_Lock( res );
-
-		(* Testing if page has changed *)
-		pagID := guiCallStack[ giStackPtr ];
-
-		IF pagID = 16#04 THEN
-
-			(* the refresh task is arrived *)
-			$waitRefresh := FALSE;
-
-			(* *** REFRESH PAGE CONTROLS *** *)
-			IF fbCompressorDbgPageEdit_1.accMode <> kACS_MODIFY THEN
-				fbCompressorDbgPageEdit_1();
-			END_IF;
-			IF fbCompressorDbgPageEdit_2.accMode <> kACS_MODIFY THEN
-				fbCompressorDbgPageEdit_2();
-			END_IF;
-			IF fbCompressorDbgPageEdit_3.accMode <> kACS_MODIFY THEN
-				fbCompressorDbgPageEdit_3();
-			END_IF;
-
-			(* *** REFRESHING BACKGROUND ITEMS *** *)
-			(* Cursor across the call stack *)
-			iSP := giStackPtr;
-
-			(* *** REFRESHING PARENT BACKGROUND ITEMS *** *)
-
-			
-		END_IF;
-
-		(* Unlocking the video *)
-		res := Video_Unlock( res );
-
-		(* Suspending the task *)
-		res := Video_Sleep( 50 );
-
-	UNTIL pagID <> 16#04
+	UNTIL pagID <> 16#05
 	END_REPEAT;
 
 END_FUNCTION_BLOCK
