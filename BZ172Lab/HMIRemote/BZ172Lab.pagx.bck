@@ -348,42 +348,14 @@
 				<YPOS>0</YPOS>
 				<CHARGRIDDIMX>6</CHARGRIDDIMX>
 				<CHARGRIDDIMY>8</CHARGRIDDIMY>
-				<CAPTION/>
-				<TITLEBAR>No</TITLEBAR>
+				<CAPTION>      BZ172LAB</CAPTION>
+				<TITLEBAR>Yes</TITLEBAR>
 				<SYSMENU>No</SYSMENU>
 				<BORDER>No</BORDER>
 				<DESC/>
 			</ATTRIBUTES>
 			<OBJECTS>
-				<STRINGS>
-					<STRING name="String_4">
-						<FONT>EWP2_6x8</FONT>
-						<BCKCOLOR type="RGBColor">16777215</BCKCOLOR>
-						<COLOR type="RGBColor">0</COLOR>
-						<TEXT>
-							<![CDATA[Mode.CMD]]>
-						</TEXT>
-						<XPOS>6</XPOS>
-						<YPOS>48</YPOS>
-						<XDIM>48</XDIM>
-						<YDIM>8</YDIM>
-						<VISIBLE>TRUE</VISIBLE>
-						<ZORDER>6</ZORDER>
-						<STYLE>Flat</STYLE>
-						<BORDCOL type="RGBColor">0</BORDCOL>
-						<BORDPTS>0</BORDPTS>
-						<SELBCK type="RGBColor">0</SELBCK>
-						<SELCOL type="RGBColor">16777215</SELCOL>
-						<NUMCHAR>0</NUMCHAR>
-						<ALIGN>Left</ALIGN>
-						<REFRESH>FALSE</REFRESH>
-						<SELECT>FALSE</SELECT>
-						<EVENTS>
-							<EVENT name="BeforeUpdate"/>
-							<EVENT name="AfterUpdate"/>
-						</EVENTS>
-					</STRING>
-				</STRINGS>
+				<STRINGS/>
 				<IMGS/>
 				<LINES/>
 				<RECTS/>
@@ -399,7 +371,7 @@
 						<BORDCOL type="RGBColor">0</BORDCOL>
 						<BORDPTS>0</BORDPTS>
 						<XPOS>0</XPOS>
-						<YPOS>0</YPOS>
+						<YPOS>16</YPOS>
 						<XDIM>128</XDIM>
 						<YDIM>16</YDIM>
 						<NUMCHAR>16</NUMCHAR>
@@ -409,8 +381,8 @@
 						<ACCESS>RW</ACCESS>
 						<DESC/>
 						<ZORDER>3</ZORDER>
-						<VAR type="BOOL">@LocalParameters.BZIsRealMode</VAR>
-						<TYPE>BOOL</TYPE>
+						<VAR type="INT">@LocalParameters.BZIsRealMode</VAR>
+						<TYPE>INT</TYPE>
 						<REFRESH>TRUE</REFRESH>
 						<VISIBLE>TRUE</VISIBLE>
 						<SELECT>FALSE</SELECT>
@@ -437,7 +409,7 @@
 						<BORDCOL type="RGBColor">0</BORDCOL>
 						<BORDPTS>0</BORDPTS>
 						<XPOS>0</XPOS>
-						<YPOS>24</YPOS>
+						<YPOS>32</YPOS>
 						<XDIM>128</XDIM>
 						<YDIM>16</YDIM>
 						<NUMCHAR>16</NUMCHAR>
@@ -473,26 +445,64 @@
 						<SELCOL type="RGBColor">0</SELCOL>
 						<STYLE>Flat</STYLE>
 						<BORDCOL type="RGBColor">0</BORDCOL>
-						<BORDPTS>1</BORDPTS>
-						<XPOS>60</XPOS>
+						<BORDPTS>0</BORDPTS>
+						<XPOS>6</XPOS>
 						<YPOS>48</YPOS>
-						<XDIM>66</XDIM>
+						<XDIM>54</XDIM>
 						<YDIM>8</YDIM>
-						<NUMCHAR>11</NUMCHAR>
+						<NUMCHAR>9</NUMCHAR>
 						<ORDER>4</ORDER>
-						<FORMAT>emUnitMode</FORMAT>
+						<FORMAT>%s</FORMAT>
 						<ALIGN>Center</ALIGN>
 						<ACCESS>RW</ACCESS>
 						<DESC/>
 						<ZORDER>5</ZORDER>
-						<VAR type="INT">@LocalParameters.bzUnitModeCfg</VAR>
-						<TYPE>INT</TYPE>
+						<VAR type="STRING">@LocalParameters.bzBIOSVersion</VAR>
+						<TYPE>STRING</TYPE>
 						<REFRESH>TRUE</REFRESH>
 						<VISIBLE>TRUE</VISIBLE>
 						<SELECT>TRUE</SELECT>
 						<LABEL/>
-						<VARMIN>0</VARMIN>
-						<VARMAX>2</VARMAX>
+						<VARMIN>*</VARMIN>
+						<VARMAX>*</VARMAX>
+						<EVENTS>
+							<EVENT name="BeforeUpdate"/>
+							<EVENT name="AfterUpdate"/>
+							<EVENT name="OnGotFocus"/>
+							<EVENT name="OnLostFocus"/>
+							<EVENT name="OnClick"/>
+							<EVENT name="OnEnter"/>
+							<EVENT name="OnChange"/>
+						</EVENTS>
+					</EDIT>
+					<EDIT name="Edit_4">
+						<FONT>EWP2_6x8</FONT>
+						<COLOR type="RGBColor">0</COLOR>
+						<BCKCOLOR type="RGBColor">16777215</BCKCOLOR>
+						<SELBCK type="RGBColor">0</SELBCK>
+						<SELCOL type="RGBColor">16777215</SELCOL>
+						<STYLE>Flat</STYLE>
+						<BORDCOL type="RGBColor">0</BORDCOL>
+						<BORDPTS>0</BORDPTS>
+						<XPOS>66</XPOS>
+						<YPOS>48</YPOS>
+						<XDIM>54</XDIM>
+						<YDIM>8</YDIM>
+						<NUMCHAR>9</NUMCHAR>
+						<ORDER>5</ORDER>
+						<FORMAT>%s</FORMAT>
+						<ALIGN>Right</ALIGN>
+						<ACCESS>RW</ACCESS>
+						<DESC/>
+						<ZORDER>6</ZORDER>
+						<VAR type="STRING">@LocalParameters.bzAppVersion</VAR>
+						<TYPE>STRING</TYPE>
+						<REFRESH>TRUE</REFRESH>
+						<VISIBLE>TRUE</VISIBLE>
+						<SELECT>TRUE</SELECT>
+						<LABEL/>
+						<VARMIN>*</VARMIN>
+						<VARMAX>*</VARMAX>
 						<EVENTS>
 							<EVENT name="BeforeUpdate"/>
 							<EVENT name="AfterUpdate"/>

@@ -1,0 +1,145 @@
+﻿
+	(***************************)
+	(*                         *)
+	(*     FUNCTION BLOCKS     *)
+	(*                         *)
+	(***************************)
+
+FUNCTION_BLOCK ProbeError_t
+
+{ DE:"Probe error" }
+
+	VAR_INPUT
+	enable : BOOL := FALSE; { DE:"Enable error condition test. When FALSE, output will be set to 0 (inactive alarm)" }
+	probe : INT; { DE:"Value read from the probe to be tested for absence/fault" }
+	END_VAR
+
+	VAR_OUTPUT
+	alarm : USINT; { DE:"Alarm status: 0 = inactive, 1 = active" }
+	END_VAR
+
+	VAR CONSTANT
+	FAULT_VALUE : INT := -32768; 
+	END_VAR
+
+	{ CODE:ST }alarm := TO_USINT( enable AND ( probe = FAULT_VALUE ) );
+
+
+END_FUNCTION_BLOCK
+
+FUNCTION_BLOCK DelayAutoRearmAlarm_t
+
+{ DE:"Delayed alarm with automatic rearm" }
+
+	VAR_INPUT
+	enable : BOOL; { DE:"Enable error condition test. When FALSE, output will be set to 0 (inactive alarm)" }
+	condition : BOOL; { DE:"Error condition (active if TRUE)" }
+	delay : UDINT; { DE:"Alarm activation delay, in milliseconds" }
+	END_VAR
+
+	VAR_OUTPUT
+	alarm : USINT; { DE:"Alarm status: 0 = inactive, 1 = active" }
+	END_VAR
+
+	VAR
+	autoRearmAlarm : AutoRearmAlarm_t; 
+	t : TON; 
+	END_VAR
+
+	{ CODE:ST }t( in := enable AND condition, pt := delay );
+
+autoRearmAlarm( enable := enable, condition := t.q );
+alarm := autoRearmAlarm.alarm;
+
+END_FUNCTION_BLOCK
+
+FUNCTION_BLOCK DelayManualRearmAlarm_t
+
+{ DE:"Delayed alarm with manual rearm" }
+
+	VAR_INPUT
+	enable : BOOL; { DE:"Enable error condition test. When FALSE, output will be set to 0 (inactive alarm)" }
+	reset : BOOL; { DE:"Alarm reset command. When TRUE and alarm status is waiting for manual reset, it becomes inactive (output is set to 0)" }
+	condition : BOOL; { DE:"Error condition (active if TRUE)" }
+	delay : UDINT; { DE:"Alarm activation delay, in milliseconds" }
+	END_VAR
+
+	VAR_OUTPUT
+	alarm : USINT; { DE:"Alarm status: 0 = inactive, 1 = active, 2 = waiting for manual reset" }
+	END_VAR
+
+	VAR
+	manualRearmAlarm : ManualRearmAlarm_t; 
+	t : TON; 
+	END_VAR
+
+	{ CODE:ST }t( in := enable AND condition, pt := delay );
+
+manualRearmAlarm( enable := enable, condition := t.q, reset := reset );
+alarm := manualRearmAlarm.alarm;
+
+END_FUNCTION_BLOCK
+
+FUNCTION_BLOCK AutoRearmAlarm_t
+
+{ DE:"Alarm with automatic rearm" }
+
+	VAR_INPUT
+	enable : BOOL; { DE:"Enable error condition test. When FALSE, output will be set to 0 (inactive alarm)" }
+	condition : BOOL; { DE:"Error condition (active if TRUE)" }
+	END_VAR
+
+	VAR_OUTPUT
+	alarm : USINT; { DE:"Alarm status: 0 = inactive, 1 = active" }
+	END_VAR
+
+	{ CODE:ST }IF enable AND condition THEN
+	alarm := 1;
+ELSE
+	alarm := 0;
+END_IF;
+
+END_FUNCTION_BLOCK
+
+FUNCTION_BLOCK ManualRearmAlarm_t
+
+{ DE:"Alarm with manual rearm" }
+
+	VAR_INPUT
+	enable : BOOL; { DE:"Enable error condition test. When FALSE, output will be set to 0 (inactive alarm)" }
+	reset : BOOL; { DE:"Alarm reset command. When TRUE and alarm status is waiting for manual reset, it becomes inactive (output is set to 0)" }
+	condition : BOOL; { DE:"Error condition (active if TRUE)" }
+	END_VAR
+
+	VAR_OUTPUT
+	alarm : USINT; { DE:"Alarm status: 0 = inactive, 1 = active, 2 = waiting for manual reset" }
+	END_VAR
+
+	VAR
+	status : USINT; 
+	END_VAR
+
+	{ CODE:ST }CASE status OF
+
+0:
+	IF enable AND condition THEN
+		status := 1;
+	END_IF;
+
+1:
+	IF NOT(condition) OR NOT(enable) THEN
+		status := 2;
+	END_IF;
+
+2:
+	IF enable AND condition THEN
+		status := 1;
+	ELSIF reset THEN
+		status := 0;
+	END_IF;
+
+END_CASE;
+
+alarm := status;
+
+END_FUNCTION_BLOCK

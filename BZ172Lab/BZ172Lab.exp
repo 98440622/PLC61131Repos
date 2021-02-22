@@ -49,6 +49,12 @@ bzCompressorPIDTdCfg AT %MW101.39 : UINT;	{ DE:"Derivative dumping time for comp
 bzEEVPIDTdCfg AT %MW101.40 : UINT;	{ DE:"Derivative dumping time for EEV control" }
 bzEvapSuperheatDeadbandCfg AT %MW101.41 : INT;	{ DE:"Evaporator coil superheat control deadband" }
 BZSwitchReversedCfg AT %MW101.42 : INT;	{ DE:"BZSwitch status logic configuration" }
+bzUnitRunhourLog AT %MW101.43 : UINT;	{ DE:"Unit accumulation working time in hour" }
+bzUnitRunhourThresholdCfg AT %MW101.44 : UINT;	{ DE:"Unit run-hour threshold" }
+bzEEVRunHourLog AT %MW101.45 : UINT;	{ DE:"EXV accumulation working time in hour" }
+bzEEVRunHourThresholdCfg AT %MW101.46 : UINT;	{ DE:"EXV run-hour threshold" }
+bzCompressorRunHourLog AT %MW101.47 : UINT;	{ DE:"Compressor accumulation working time in hour" }
+bzCompressorRunHourThresholdCfg AT %MW101.48 : UINT;	{ DE:"Compressor run-hour threshold" }
 	{G:"Status_variables"}
 bzBIOSVersion AT %MW110.0 : STRING[ 8 ];	{ DE:"M172 BIOS version" }
 bzAppVersion AT %MW110.5 : STRING[ 8 ];	{ DE:"Application version by a string type format of xx.xx.xx" }
@@ -108,6 +114,9 @@ bzEvaporatorFanSpeed5 AT %MW110.62 : UINT;	{ DE:"Evaporator fan 5 speed" }
 bzEvaporatorFanSpeed6 AT %MW110.63 : UINT;	{ DE:"Evaporator fan 6 speed" }
 bzEvaporatorFanSpeed7 AT %MW110.64 : UINT;	{ DE:"Evaporator fan 7 speed" }
 bzEvaporatorFanSpeed8 AT %MW110.65 : UINT;	{ DE:"Evaporator fan 8 speed" }
+bzUnitRunhourWarning AT %MW110.66 : INT;	{ DE:"Exceeded unit working time warning" }
+bzEXVRunhourWarning AT %MW110.67 : INT;	{ DE:"Exceeded EXV working time warning" }
+bzCompressorRunhourWarning AT %MW110.68 : INT;	{ DE:"Exceeded compressor working time warning" }
 	{G:"IO_Mapping"}
 HW_AI_01 AT %IW1.0 : INT;	{ DE:"AIL1 analogue input" }
 HW_AI_02 AT %IW1.1 : INT;	{ DE:"AIL2 analogue input" }

@@ -21,10 +21,10 @@ VAR_GLOBAL
 	{G:"ModeSelection_vars"}
 	fbModeSelection : DrawModeSelection;
 	fbRefrModeSelection : RefrModeSelection;
-	fbModeSelectionString_4 : Static01 := (wHnd:=6, x:=6, y:=48, pFont:=?EWP2_6x8, bckCol:=16777215, pString:=?kStr00001, pVisVar:=1, format:=16#0020, bordPts:=0, selForeCol:=16777215, pRefrVar:=0, pSelVar:=0, numChars:=0);
-	fbModeSelectionEdit_1 : EditBox01 := (wHnd:=7, x2:=127, y2:=15, pFont:=?EWP2_8x16, bckCol:=16777215, rw:=TRUE, pVar:=16#00368700, order:=2, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, enumId:=1, format:=16#00000014);
-	fbModeSelectionEdit_2 : EditBox01 := (wHnd:=8, y1:=24, x2:=127, y2:=39, pFont:=?EWP2_8x16, bckCol:=16777215, pVar:=16#00231400, order:=3, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, enumId:=2, format:=16#00000014, pCanSel:=1);
-	fbModeSelectionEdit_3 : EditBox01 := (wHnd:=9, x1:=60, y1:=48, x2:=125, y2:=55, pFont:=?EWP2_6x8, bckCol:=16777215, bordPts:=1, rw:=TRUE, pVar:=16#00400000, order:=4, pVisVar:=1, bckSelCol:=16777215, refr:=TRUE, type:=tyInt, enumId:=3, pVarMax:=2, format:=16#00014014, pCanSel:=1);
+	fbModeSelectionEdit_1 : EditBox01 := (wHnd:=6, y1:=16, x2:=127, y2:=31, pFont:=?EWP2_8x16, bckCol:=16777215, rw:=TRUE, pVar:=16#00368700, order:=2, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, enumId:=1, format:=16#00000014);
+	fbModeSelectionEdit_2 : EditBox01 := (wHnd:=7, y1:=32, x2:=127, y2:=47, pFont:=?EWP2_8x16, bckCol:=16777215, pVar:=16#00231400, order:=3, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, enumId:=2, format:=16#00000014, pCanSel:=1);
+	fbModeSelectionEdit_3 : EditBox01 := (wHnd:=8, x1:=6, y1:=48, x2:=59, y2:=55, pFont:=?EWP2_6x8, bckCol:=16777215, rw:=TRUE, pVar:=16#00230000, order:=4, pVisVar:=1, bckSelCol:=16777215, refr:=TRUE, type:=tyString, format:=16#09000014, pCanSel:=1);
+	fbModeSelectionEdit_4 : EditBox01 := (wHnd:=9, x1:=66, y1:=48, x2:=119, y2:=55, pFont:=?EWP2_6x8, bckCol:=16777215, rw:=TRUE, pVar:=16#00230500, order:=5, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyString, format:=16#0900000C, pCanSel:=1);
 	ModeSelection_tmpBOOL : BOOL;
 
 	{G:"DbgPage_vars"}
@@ -68,11 +68,6 @@ END_VAR
 	(*                         *)
 	(***************************)
 
-VAR_GLOBAL CONSTANT
-
-	kStr00001 :STRING[9] := 'Mode.CMD';
-
-END_VAR
 VAR_GLOBAL CONSTANT
 
 	{G:"Fonts"}
@@ -840,10 +835,10 @@ FUNCTION_BLOCK DrawModeSelection
 	giStackPtr : INT;
 	ModeSelection_tmpBOOL : BOOL;
 	IsRealMode_MB_ADDR : UINT;
-	fbModeSelectionString_4 : Static01;
 	fbModeSelectionEdit_1 : EditBox01;
 	fbModeSelectionEdit_2 : EditBox01;
 	fbModeSelectionEdit_3 : EditBox01;
+	fbModeSelectionEdit_4 : EditBox01;
 	fbDbgPage : DrawDbgPage;
 	$waitRefresh : BOOL;
 	END_VAR
@@ -891,7 +886,7 @@ FUNCTION_BLOCK DrawModeSelection
 
 	(* The area to be cleared is the area of the entire page *)
 	x1:= 0;
-	y1:= 0;
+	y1:= 13;
 	x2:= 127;
 	y2:= 63;
 
@@ -904,7 +899,7 @@ FUNCTION_BLOCK DrawModeSelection
 		res := Video_Lock( res );
 
 		(* Initializing the page *)
-		res := Video_InitPage( 0, 0, 127, 63, ?' ', 16#0003 );
+		res := Video_InitPage( 0, 0, 127, 63, ?'      BZ172LAB', 16#0103 );
 
 		(* Setting the page colors *)
 		res := Video_SetPageColors( 0, 16777215 );
@@ -935,9 +930,9 @@ FUNCTION_BLOCK DrawModeSelection
 			fbModeSelectionEdit_3.accMode := kACS_INIT;
 			fbModeSelectionEdit_3();
 			fbModeSelectionEdit_3.accMode := kACS_PRINT;
-			fbModeSelectionString_4.accMode := kACS_INIT;
-			fbModeSelectionString_4();
-			fbModeSelectionString_4.accMode := kACS_PRINT;
+			fbModeSelectionEdit_4.accMode := kACS_INIT;
+			fbModeSelectionEdit_4();
+			fbModeSelectionEdit_4.accMode := kACS_PRINT;
 
 			(* Select the first selectable control *)
 			iNextSel := Video_FirstLastEdit( TRUE, FALSE );
@@ -997,7 +992,7 @@ FUNCTION_BLOCK DrawModeSelection
 
 						(* Area to be erased = area of the child window just closed *)
 						x1 := 0;
-						y1 := 0;
+						y1 := 13;
 						x2 := 127;
 						y2 := 63;
 						bStatRedrw := TRUE;
@@ -1008,7 +1003,7 @@ FUNCTION_BLOCK DrawModeSelection
 
 						CASE iNextSel OF
 
-							7,8,9:
+							6,7,8,9:
 								(* Entering the edit mode *)
 								res := Video_EnterEdit( TO_UINT( iNextSel ) );
 
@@ -1773,10 +1768,10 @@ FUNCTION_BLOCK RefrModeSelection
 	giStackPtr : INT;
 	IsRealMode_MB_ADDR : UINT;
 	ModeSelection_tmpBOOL : BOOL;
-	fbModeSelectionString_4 : Static01;
 	fbModeSelectionEdit_1 : EditBox01;
 	fbModeSelectionEdit_2 : EditBox01;
 	fbModeSelectionEdit_3 : EditBox01;
+	fbModeSelectionEdit_4 : EditBox01;
 	fbRefrDbgPage : RefrDbgPage;
 	$waitRefresh : BOOL;
 	END_VAR
@@ -1815,6 +1810,9 @@ FUNCTION_BLOCK RefrModeSelection
 			fbModeSelectionEdit_2();
 			IF fbModeSelectionEdit_3.accMode <> kACS_MODIFY THEN
 				fbModeSelectionEdit_3();
+			END_IF;
+			IF fbModeSelectionEdit_4.accMode <> kACS_MODIFY THEN
+				fbModeSelectionEdit_4();
 			END_IF;
 
 			(* *** REFRESHING BACKGROUND ITEMS *** *)

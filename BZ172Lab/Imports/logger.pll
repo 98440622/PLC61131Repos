@@ -1,0 +1,64 @@
+﻿	(*********************)
+	(*                   *)
+	(*     FUNCTIONS     *)
+	(*                   *)
+	(*********************)
+
+
+FUNCTION MONTH_TO_STR : BOOL
+
+	{ DE:"This function fills MonthStr string variable with 3 characters month name.
+The function return true on success, false on failure.
+" }
+
+	VAR_INPUT
+	MonthStr : @STRING; 	{ DE:"Output string pointer must be 3 char or more" }
+	len : USINT; 	{ DE:"sizeof destination string" }
+	Month : USINT; 	{ DE:"Month (1..12)" }
+	END_VAR
+
+	VAR
+	Ja : @USINT; 	{ DE:"auxiliary variable to reset string" }
+	bret : BOOL; 	{ DE:"boolean return value" }
+	END_VAR
+
+	{ CODE:ST }if len<3 or Month<1 or Month>12 then MONTH_TO_STR:=false; return; (* errore *)
+else MONTH_TO_STR:=true; end_if;
+
+Ja:=MonthStr; @Ja:=0; (* stringa vuota *)
+
+case Month of
+	1:	bret:=sysSTRCAT(@MonthStr,len,'JAN');
+	2:	bret:=sysSTRCAT(@MonthStr,len,'FEB');
+	3:	bret:=sysSTRCAT(@MonthStr,len,'MAR');
+	4:	bret:=sysSTRCAT(@MonthStr,len,'APR');
+	5:	bret:=sysSTRCAT(@MonthStr,len,'MAY');
+	6:	bret:=sysSTRCAT(@MonthStr,len,'JUN');
+	7:	bret:=sysSTRCAT(@MonthStr,len,'JUL');
+	8:	bret:=sysSTRCAT(@MonthStr,len,'AUG');
+	9:	bret:=sysSTRCAT(@MonthStr,len,'SEP');
+	10:	bret:=sysSTRCAT(@MonthStr,len,'OCT');
+	11:	bret:=sysSTRCAT(@MonthStr,len,'NOV');
+	12:	bret:=sysSTRCAT(@MonthStr,len,'DEC');
+end_case;
+
+END_FUNCTION
+
+	(************************)
+	(*                      *)
+	(*      STRUCTURES      *)
+	(*                      *)
+	(************************)
+
+TYPE
+
+	alarmFieldString : STRUCT 
+		alarmName : STRING[ 3 ]; 
+	END_STRUCT;
+
+	dataFieldString : STRUCT 
+		dataName : STRING[ 6 ]; 
+	END_STRUCT;
+
+END_TYPE
+

@@ -1,0 +1,310 @@
+﻿	(*********************)
+	(*                   *)
+	(*     FUNCTIONS     *)
+	(*                   *)
+	(*********************)
+
+
+FUNCTION DATE_TO_STR : INT
+
+	VAR_INPUT
+	Day : USINT; 
+	Month : USINT; 
+	Year : USINT; 
+	StrPtr : @USINT; 	{ DE:"Output string pointer must be 10 char or more" }
+	END_VAR
+
+	VAR
+	J : ARRAY[ 0..10 ] OF USINT; 
+	i : INT; 
+	END_VAR
+
+	{ CODE:ST }i:=0;
+
+Year:=100+Year;
+REPEAT (* preleva le cifre *)
+	J[i]:=MOD(Year,10); Year:=Year/10; i:=i+1;
+UNTIL Year=0 END_REPEAT;
+J[i-1]:=0;         (* secolo    *)
+J[i]:=2;   i:=i+1; (* millennio *)
+J[i]:=255; i:=i+1; (* 255+48 --> '/' *)
+
+Month:=100+Month;
+REPEAT (* preleva le cifre *)
+	J[i]:=MOD(Month,10); Month:=Month/10; i:=i+1;
+UNTIL Month=0 END_REPEAT;
+J[i-1]:=255; (* 255+48 --> '/' *)
+
+Day:=100+Day;
+REPEAT (* preleva le cifre *)
+	J[i]:=MOD(Day,10); Day:=Day/10; i:=i+1;
+UNTIL Day=0 END_REPEAT;
+DATE_TO_STR:=i-1;
+
+i:=i-2;
+WHILE i>=0 DO	
+	@StrPtr:=J[i]+48; i:=i-1; StrPtr:=StrPtr+SizeOf(@StrPtr);
+END_WHILE;
+@StrPtr:=0;
+
+END_FUNCTION
+
+
+FUNCTION DINT_TO_STR : INT
+
+	{ DE:"Signed integer (1,2,4 byte) to String converter
+Inserts decimal point as requested
+" }
+
+	VAR_INPUT
+	Value : DINT; 
+	StrPtr : @USINT; 	{ DE:"Output string pointer should be 12 char or more" }
+	Decimals : USINT; 	{ DE:"Decimal digits (0,1,2,3) -- XXX.Y XX.YY X.YYY" }
+	END_VAR
+
+	VAR
+	J : ARRAY[ 0..11 ] OF USINT; 	{ DE:"dieci cifre + segno + punto decimale" }
+	i : INT; 
+	Segno : BOOL; 	{ DE:"Numero negativo" }
+	Flag : BOOL; 	{ DE:"E' richiesto lo zero iniziale" }
+	udValue : UDINT; 
+	END_VAR
+
+	{ CODE:ST }Segno:=Value<0; udValue:=TO_UDINT(ABS(Value)); Flag:=false;
+CASE Decimals of
+	0: ;
+	1: IF udValue<10   THEN udValue:=  10+udValue; Flag:=true; END_IF;
+	2: IF udValue<100  THEN udValue:= 100+udValue; Flag:=true; END_IF;
+	3: IF udValue<1000 THEN udValue:=1000+udValue; Flag:=true; END_IF;
+	ELSE Decimals:=0; (* altri valori non supportati *)
+END_CASE;
+	
+i:=0;
+REPEAT (* preleva le cifre *)
+	J[i]:=TO_USINT(MOD(udValue,10)); udValue:=udValue/10; i:=i+1;
+	IF TO_USINT(i)=Decimals THEN J[i]:=254; i:=i+1; END_IF; (* 254+48 --> '.' *)
+UNTIL udValue=0 END_REPEAT;
+IF Flag THEN J[i-1]:=0; END_IF; (* cambia la cifra introdotta in 0 *)
+IF Segno THEN J[i]:=253; i:=i+1; END_IF; (* 253+48 --> '-' *)
+
+DINT_TO_STR:=i;
+
+i:=i-1;
+WHILE i>=0 DO	
+	@StrPtr:=J[i]+48; i:=i-1; StrPtr:=StrPtr+SizeOf(@StrPtr);
+END_WHILE;
+
+@StrPtr:=0;
+
+END_FUNCTION
+
+
+FUNCTION TIME_TO_STR : INT
+
+	VAR_INPUT
+	Minutes : USINT; 
+	Hours : USINT; 
+	StrPtr : @USINT; 	{ DE:"Output string pointer must be 10 char or more" }
+	END_VAR
+
+	VAR
+	J : ARRAY[ 0..5 ] OF USINT; 
+	i : INT; 
+	END_VAR
+
+	{ CODE:ST }i:=0;
+Minutes:=100+Minutes;
+REPEAT (* preleva le cifre *)
+	J[i]:=MOD(Minutes,10); Minutes:=Minutes/10; i:=i+1;
+UNTIL Minutes=0 END_REPEAT;
+J[i-1]:=10; (* 10+48 --> ':' *)
+
+Hours:=100+Hours;
+REPEAT (* preleva le cifre *)
+	J[i]:=MOD(Hours,10); Hours:=Hours/10; i:=i+1;
+UNTIL Hours=0 END_REPEAT;
+
+TIME_TO_STR:=i-1;
+
+i:=i-2;
+WHILE i>=0 DO	
+	@StrPtr:=J[i]+48; i:=i-1; StrPtr:=StrPtr+SizeOf(@StrPtr);
+END_WHILE;
+@StrPtr:=0;
+
+END_FUNCTION
+
+
+FUNCTION UDINT_TO_STR : INT
+
+	{ DE:"Unsigned integer (1,2,4 byte) to String converter
+Inserts decimal point as requested
+" }
+
+	VAR_INPUT
+	Value : UDINT; 
+	StrPtr : @USINT; 	{ DE:"Output string pointer must be 11 char or more" }
+	Decimals : USINT; 	{ DE:"Decimal digits (0,1,2,3) -- XXX.Y XX.YY X.YYY" }
+	END_VAR
+
+	VAR
+	J : ARRAY[ 0..10 ] OF USINT; 	{ DE:"dieci cifre + punto decimale" }
+	i : INT; 
+	Flag : BOOL; 	{ DE:"E' richiesto lo zero iniziale" }
+	END_VAR
+
+	{ CODE:ST }Flag:=false;
+CASE Decimals of
+	0: ;
+	1: IF Value<10   THEN Value:=  10+Value; Flag:=true; END_IF;
+	2: IF Value<100  THEN Value:= 100+Value; Flag:=true; END_IF;
+	3: IF Value<1000 THEN Value:=1000+Value; Flag:=true; END_IF;
+	ELSE Decimals:=0; (* altri valori non supportati *)
+END_CASE;
+
+i:=0;
+REPEAT (* preleva le cifre *)
+	J[i]:=TO_USINT(MOD(Value,10)); Value:=Value/10; i:=i+1;
+	IF TO_USINT(i)=Decimals THEN J[i]:=254; i:=i+1; END_IF; (* 254+48 --> '.' *)
+UNTIL Value=0 END_REPEAT;
+IF Flag THEN J[i-1]:=0; END_IF; (* cambia la cifra introdotta in 0 *)
+
+UDINT_TO_STR:=i;
+
+i:=i-1;
+WHILE i>=0 DO	
+	@StrPtr:=J[i]+48; i:=i-1; StrPtr:=StrPtr+SizeOf(@StrPtr);
+END_WHILE;
+
+@StrPtr:=0;
+
+END_FUNCTION
+
+
+FUNCTION STR_LEN : USINT
+
+	{ DE:"String Length" }
+
+	VAR_INPUT
+	pStr : @STRING; 	{ DE:"Address of input string, i.e. ADR(stringVar)" }
+	END_VAR
+
+	VAR
+	pUSINT : @USINT; 
+	END_VAR
+
+	{ CODE:ST }pUSINT := pStr;
+
+FOR STR_LEN:= 0 TO 255 DO 
+
+	IF @pUSINT = 0 THEN 
+	EXIT; 
+	END_IF; 
+
+	pUSINT := pUSINT+1; 
+
+END_FOR;
+
+END_FUNCTION
+
+
+FUNCTION INT_TO_STR : INT
+
+	{ DE:"Signed integer (1,2,4 byte) to String converter
+Inserts decimal point as requested
+" }
+
+	VAR_INPUT
+	Value : INT; 
+	StrPtr : @USINT; 	{ DE:"Output string pointer should be 12 char or more" }
+	Decimals : USINT; 	{ DE:"Decimal digits (0,1,2,3) -- XXX.Y XX.YY X.YYY" }
+	END_VAR
+
+	VAR
+	J : ARRAY[ 0..6 ] OF USINT; 	{ DE:"dieci cifre + segno + punto decimale" }
+	i : INT; 
+	Segno : BOOL; 	{ DE:"Numero negativo" }
+	Flag : BOOL; 	{ DE:"E' richiesto lo zero iniziale" }
+	dValue : DINT; 
+	END_VAR
+
+	{ CODE:ST }Segno:=Value<0; dValue:=ABS(TO_DINT(Value)); Flag:=false;
+CASE Decimals of
+	0: ;
+	1: IF dValue<10   THEN dValue:=  10+dValue; Flag:=true; END_IF;
+	2: IF dValue<100  THEN dValue:= 100+dValue; Flag:=true; END_IF;
+	3: IF dValue<1000 THEN dValue:=1000+dValue; Flag:=true; END_IF;
+	ELSE Decimals:=0; (* altri valori non supportati *)
+END_CASE;
+	
+i:=0;
+REPEAT (* preleva le cifre *)
+	J[i]:=TO_USINT(MOD(dValue,10)); dValue:=dValue/10; i:=i+1;
+	IF TO_USINT(i)=Decimals THEN J[i]:=254; i:=i+1; END_IF; (* 254+48 --> '.' *)
+UNTIL dValue=0 END_REPEAT;
+IF Flag THEN J[i-1]:=0; END_IF; (* cambia la cifra introdotta in 0 *)
+IF Segno THEN J[i]:=253; i:=i+1; END_IF; (* 253+48 --> '-' *)
+
+INT_TO_STR:=i;
+
+i:=i-1;
+WHILE i>=0 DO	
+	@StrPtr:=J[i]+48; i:=i-1; StrPtr:=StrPtr+SizeOf(@StrPtr);
+END_WHILE;
+
+@StrPtr:=0;
+
+END_FUNCTION
+
+
+FUNCTION TIME_SEC_TO_STR : INT
+
+	VAR_INPUT
+	Seconds : USINT; 
+	Minutes : USINT; 
+	Hours : USINT; 
+	StrPtr : @USINT; 	{ DE:"Output string pointer must be 10 char or more" }
+	END_VAR
+
+	VAR
+	J : ARRAY[ 0..5 ] OF USINT; 
+	i : INT; 
+	END_VAR
+
+	{ CODE:ST }i:=0;
+
+Seconds:=100+Seconds;
+REPEAT (* preleva le cifre *)
+	J[i]:=MOD(Seconds,10); 
+	Seconds:=Seconds/10; 
+	i:=i+1;
+UNTIL Seconds=0 END_REPEAT;
+J[i-1]:=10; (* 10+48 --> ':' *)
+
+Minutes:=100+Minutes;
+REPEAT (* preleva le cifre *)
+	J[i]:=MOD(Minutes,10); 
+	Minutes:=Minutes/10; 
+	i:=i+1;
+UNTIL Minutes=0 END_REPEAT;
+J[i-1]:=10; (* 10+48 --> ':' *)
+
+Hours:=100+Hours;
+REPEAT (* preleva le cifre *)
+	J[i]:=MOD(Hours,10); 
+	Hours:=Hours/10; 
+	i:=i+1;
+UNTIL Hours=0 END_REPEAT;
+
+TIME_SEC_TO_STR:=i-1;
+
+i:=i-2;
+WHILE i>=0 DO	
+	@StrPtr:=J[i]+48; 
+	i:=i-1; 
+	StrPtr:=StrPtr+SizeOf(@StrPtr);
+END_WHILE;
+@StrPtr:=0;
+
+END_FUNCTION
+

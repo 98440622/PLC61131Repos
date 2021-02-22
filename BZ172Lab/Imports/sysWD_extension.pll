@@ -1,0 +1,22 @@
+﻿
+        (*********************)
+        (*                   *)
+        (*     FUNCTIONS     *)
+        (*                   *)
+        (*********************)
+
+FUNCTION sysWD_system: UINT
+{ DE:"Return system watchdog load in percentage or running time.
+Percentage is a value between 0 and 100. Small value means system wathdog
+not loaded, bigger means you are close to controller reset due to system 
+watchdog.
+Running time is a time value in 0.1sec, this is periodically reloded
+and decreased automatically by the system. Closer to 0 means you are close 
+to controller reset due to system watchdog." }
+        
+    VAR_INPUT
+	out_val: BOOL; { DE:"select return value meaning: FALSE=%, TRUE=time in sec/10" }
+    END_VAR
+
+    {CODE:EMBEDDED}
+END_FUNCTION

@@ -1,0 +1,187 @@
+﻿	(*********************)
+	(*                   *)
+	(*     FUNCTIONS     *)
+	(*                   *)
+	(*********************)
+
+
+FUNCTION C2F_Probe_Converter : INT
+
+	VAR_INPUT
+	Probe_Val : INT; 
+	END_VAR
+
+	{ CODE:ST }
+
+
+if (Probe_Val=-32768) then
+	C2F_Probe_Converter := -32768;
+else
+	C2F_Probe_Converter := C2F_Converter(Probe_Val);
+end_if;
+
+
+END_FUNCTION
+
+
+FUNCTION F2C_Probe_Converter : INT
+
+	VAR_INPUT
+	Probe_Val : INT; 
+	END_VAR
+
+	{ CODE:ST }
+if (Probe_Val=-32768) then
+	F2C_Probe_Converter:=-32768;
+else
+	F2C_Probe_Converter:=F2C_Converter(Probe_Val);
+end_if;
+
+
+
+
+END_FUNCTION
+
+
+FUNCTION C2F : INT
+
+	{ DE:"Conversion from Celsius to Fahrenheit
+If Input is equal to -32768 also output is set with the same value.
+
+NOTE:
+°F-->°C-->°F no error in the conversion chain 
+°C-->°F-->°C the conversion chain has on some points an error of +-1 due to the loss 
+of resolution in the conversion °C-->°F" }
+
+	VAR_INPUT
+	C : INT; 	{ DE:"°C/10" }
+	END_VAR
+
+	VAR
+	Freal : REAL; 
+	END_VAR
+
+	{ CODE:ST }Freal := TO_REAL(C)*1.8+320.0;
+Freal := SEL(Freal>=0.0, Freal-0.5, Freal+0.5);
+C2F := SEL(C=-32768,TO_INT( Freal ),-32768);
+
+END_FUNCTION
+
+
+FUNCTION C2F_Converter : INT
+
+	VAR_INPUT
+	VAR_IN : INT; 	{ DE:"Input variable" }
+	END_VAR
+
+	VAR
+	tmp_DINT : DINT; 
+	END_VAR
+
+	{ CODE:ST }
+
+tmp_DINT := TO_DINT(VAR_IN);
+
+tmp_DINT := (tmp_DINT*9/5)+320;
+
+C2F_Converter:= TO_INT(tmp_DINT);
+
+END_FUNCTION
+
+
+FUNCTION C2F_Dif_Converter : INT
+
+	VAR_INPUT
+	VAR_IN : INT; 	{ DE:"Input variable" }
+	END_VAR
+
+	VAR
+	tmp_DINT : DINT; 
+	END_VAR
+
+	{ CODE:ST }
+tmp_DINT := TO_DINT(VAR_IN);
+
+tmp_DINT := (tmp_DINT*9/5);
+
+C2F_Dif_Converter:= TO_INT(tmp_DINT);
+
+END_FUNCTION
+
+
+FUNCTION F2C : INT
+
+	{ DE:"Conversion from Fahrenheit to Celsius
+If Input is equal to -32768 also output is set with the same value.
+
+NOTE:
+°F-->°C-->°F no error in the conversion chain 
+°C-->°F-->°C the conversion chain has on some points an error of +-1 due to the loss 
+of resolution in the conversion °C-->°F" }
+
+	VAR_INPUT
+	F : INT; 	{ DE:"°F/10" }
+	END_VAR
+
+	VAR
+	Creal : REAL; 
+	END_VAR
+
+	{ CODE:ST }Creal := (TO_REAL(F)-320.0)/1.8;
+Creal := SEL(Creal>=0.0, Creal-0.5, Creal+0.5);
+F2C := SEL(F=-32768,TO_INT( Creal ),-32768);
+
+END_FUNCTION
+
+
+FUNCTION F2C_Converter : INT
+
+	VAR_INPUT
+	VAR_IN : INT; 	{ DE:"Input variable" }
+	END_VAR
+
+	VAR
+	tmp_DINT : DINT; 
+	round_factor : DINT; 
+	END_VAR
+
+	{ CODE:ST }
+tmp_DINT := (TO_DINT(VAR_IN-320))*50/9;
+
+if (tmp_DINT>=0) then
+	round_factor := 5;
+else
+	round_factor := -5;
+end_if;
+tmp_DINT := (tmp_DINT+round_factor)/10;
+
+F2C_Converter:= TO_INT( tmp_DINT );
+
+END_FUNCTION
+
+
+FUNCTION F2C_Dif_Converter : INT
+
+	VAR_INPUT
+	VAR_IN : INT; 	{ DE:"Input variable" }
+	END_VAR
+
+	VAR
+	tmp_DINT : DINT; 
+	round_factor : DINT; 
+	END_VAR
+
+	{ CODE:ST }if (VAR_IN>=0) then
+	round_factor := 5;
+else
+	round_factor := -5;
+end_if;
+
+tmp_DINT := (TO_DINT(VAR_IN))*50/9;
+
+tmp_DINT := (tmp_DINT+round_factor)/10;
+
+F2C_Dif_Converter:= TO_INT( tmp_DINT );
+
+END_FUNCTION
+
