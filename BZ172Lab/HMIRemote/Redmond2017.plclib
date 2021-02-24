@@ -1,0 +1,75 @@
+﻿<lib version="1.0.0" name="Imports\Redmond2017.plclib" fullXml="true" link="true">
+	<descr/>
+	<globalVars/>
+	<retainVars/>
+	<constantVars/>
+	<functions/>
+	<functionBlocks>
+		<functionBlock name="rand" version="1.0.0" creationDate="0" lastModifiedDate="0">
+			<vars>
+				<inoutVars>
+					<var name="ui16_random" type="UINT"/>
+				</inoutVars>
+				<localVars>
+					<var name="ui16_random_tmp" type="UINT"/>
+					<var name="ui16_random_copy" type="UINT"/>
+				</localVars>
+			</vars>
+			<iecDeclaration active="FALSE"/>
+			<interfaces/>
+			<methods/>
+			<sourceCode type="ST">
+				<![CDATA[
+
+
+ui16_random_copy := ui16_random;
+
+
+  // update random sequence
+  // polinomial alghoritm:
+  // +> b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 b10 b11 b12 b13 b14 b15
+  // |     |  |     |                                     |
+  // ------+--+-----+-------------------------------------+
+  // carry = b1^b2^b4^b15
+  // Pn+1=(Pn<<1)|carry
+
+
+if (ui16_random_copy = 0) then
+	ui16_random_copy := ui16_random_copy + 1;
+end_if;
+ui16_random_tmp := 0;
+  
+if ( ui16_random_copy and 16#0002)>0 then
+	ui16_random_tmp := 1;
+end_if;
+if ( ui16_random_copy and 16#0004)>0 then
+ 	ui16_random_tmp := ui16_random_tmp xor 1;
+end_if;
+if ( ui16_random_copy and 16#0010)>0 then
+  	ui16_random_tmp := ui16_random_tmp xor 1;
+end_if;
+  
+if ( ui16_random_copy and 16#8000)>0 then
+	ui16_random_tmp := ui16_random_tmp xor 1;
+end_if;
+    
+ui16_random_copy := TO_UINT(SHL(ui16_random_copy, 1));
+  
+ui16_random := TO_UINT(ui16_random_copy or (ui16_random_tmp and 16#00FF));
+
+
+
+
+
+]]>
+			</sourceCode>
+		</functionBlock>
+	</functionBlocks>
+	<programs/>
+	<macros/>
+	<structs/>
+	<typedefs/>
+	<enums/>
+	<subranges/>
+	<interfaces/>
+</lib>

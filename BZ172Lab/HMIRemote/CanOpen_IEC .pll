@@ -8,7 +8,7 @@ FUNCTION sysCOPM_Sdo_OpenChn : UDINT
 	{ DE:"COPM Open SDO channel.
 	
 This function has to be invoked in the Background task.
-It can be used only if Evolution is configured as CanOpen Master.
+It can be used only if controller is configured as CanOpen Master.
 
 It returns a SDO Handle to be used as hdlr input of function 
 sysCOPM_Sdo_DownloadRequest()." }
@@ -22,7 +22,7 @@ FUNCTION sysCOPM_Sdo_CloseChn : BOOL
          { DE:"COPM Close SDO channel.
 
 This function has to be invoked in the Background task.
-It can be used only if Evolution is configured as CanOpen Master.
+It can be used only if controller is configured as CanOpen Master.
 
 It closes the SDO Handle previously opened by function sysCOPM_Sdo_OpenChn().
 Returns TRUE if closed correctly.
@@ -37,7 +37,7 @@ FUNCTION sysCOPM_Sdo_DownloadRequest : UDINT
 	{ DE:"Send a SDO write object to a remote CanOpen node.
 
 This function has to be invoked in the Background task.
-It can be used only if Evolution is configured as CanOpen Master.
+It can be used only if controller is configured as CanOpen Master.
 
 Note: hdlr input is the output of the function sysCOPM_Sdo_DownloadRequest().
 

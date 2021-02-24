@@ -1,0 +1,205 @@
+﻿
+        (*********************)
+        (*                   *)
+        (*     FUNCTIONS     *)
+        (*                   *)
+        (*********************)
+
+FUNCTION sys_USBD_Command : USINT
+{ DE:"Enable/disable PC host access to File System.
+The function return a USINT which could have the following meanings:
+	0	=	Command accepted.
+	1	=	Command executed but failed.
+	2	=	Command code non valid.
+	3	=	Command not executed, function called into task timed.
+" }
+        
+  VAR_INPUT
+		cmd	: USINT;	{ DE:"Command: 0=disable, 1=enable" }
+  END_VAR
+
+    {CODE:EMBEDDED}
+END_FUNCTION
+
+FUNCTION sys_USBD_Status : USINT
+{ DE:"PC host connection status.
+The function return a USINT which could have the following meanings:
+	0	=	USB device Disconnected.
+	1	=	USB device Connected.
+	2	=	USB device Suspended.
+	3	=	Command not executed, function called into task timed.
+" }
+        
+  VAR_INPUT
+		dummy	: USINT;	{ DE:"Dummy input" }
+  END_VAR
+
+    {CODE:EMBEDDED}
+END_FUNCTION
+
+FUNCTION sys_F_WOPEN : DWORD
+{ DE:"Truncate file to zero length or create file for writing.
+The function return a DWORD which could have the following meanings:
+	0		=	No file found or function called into task timed.
+	Otherwise		=	File’s ID.
+" }
+        
+  VAR_INPUT
+		file	: STRING;	{ DE:"File's name" }
+  END_VAR
+
+    {CODE:EMBEDDED}
+END_FUNCTION
+
+FUNCTION sys_F_ROPEN : DWORD
+{ DE:"Open existing file for reading.
+The function return a DWORD which could have the following meanings:
+	0		=	No file found or function called into task timed.
+	Otherwise		=	File’s ID.
+" }
+        
+  VAR_INPUT
+		file	: STRING;	{ DE:"File's name" }
+  END_VAR
+
+    {CODE:EMBEDDED}
+END_FUNCTION
+
+FUNCTION sys_FM_READ : BOOL
+{ DE:"Read a STRING from binary file.
+The function return a BOOL which could have the following meanings:
+	TRUE	=	Command accepted.
+	FALSE	=	An error occurred or function called into task timed.
+" }
+
+	VAR_INPUT
+		id  : DWORD;  { DE:"File's ID" }
+		msg : STRING; { DE:"String to read" }
+		len : UDINT;  { DE:"SIZEOF(String to read)" }		
+	END_VAR
+
+    {CODE:EMBEDDED}
+END_FUNCTION
+
+FUNCTION sys_FM_WRITE : BOOL
+{ DE:"Write a STRING to a binary file.
+The function return a BOOL which could have the following meanings:
+	TRUE	=	Command accepted.
+	FALSE	=	An error occurred or function called into task timed.
+" }
+
+	VAR_INPUT
+		id : DWORD;   { DE:"File's ID" }
+		msg : STRING; { DE:"String to write" }
+	END_VAR
+
+    {CODE:EMBEDDED}
+END_FUNCTION
+
+FUNCTION sys_F_CLOSE : BOOL
+{ DE:"Close a binary file.
+The function return a BOOL which could have the following meanings:
+	TRUE	=	Command accepted.
+	FALSE	=	Function called into task timed.
+" }
+
+	VAR_INPUT
+		id : DWORD; { DE:"File's ID" }
+	END_VAR
+
+    {CODE:EMBEDDED}
+END_FUNCTION
+
+FUNCTION sys_FA_READ : REAL
+{ DE:"Read a FLOAT from a binary file.
+The function return a REAL which is the value of the FLOAT. 
+If function is called into task timed return 0.
+" }
+
+	VAR_INPUT
+		id  : DWORD; { DE:"File's ID" }
+	END_VAR
+
+    {CODE:EMBEDDED}
+END_FUNCTION
+
+FUNCTION sys_FA_WRITE : BOOL
+{ DE:"Write a FLOAT to a binary file.
+The function return a BOOL which could have the following meanings:
+	TRUE	=	Command accepted.
+	FALSE	=	An error occurred or function called into task timed
+" }
+
+	VAR_INPUT
+		id : DWORD; 	{ DE:"File's ID" }
+		value : REAL; { DE:"Float to write" }
+	END_VAR
+
+    {CODE:EMBEDDED}
+END_FUNCTION
+
+FUNCTION sys_F_EOF : BOOL
+{ DE:"Test if end of file is reached.
+The function return a BOOL which could have the following meanings:
+	TRUE	=	End of file reached.
+	FALSE	=	End of file not reached yet or function called into task timed.
+" }
+
+	VAR_INPUT
+		id : DWORD; { DE:"File's ID" }
+	END_VAR
+
+    {CODE:EMBEDDED}
+END_FUNCTION
+
+FUNCTION sys_F_REMOVE : BOOL
+{ DE:"Delete a file.
+The function return a BOOL which could have the following meanings:
+	TRUE	=	Command accepted.
+	FALSE	=	An error occurred or function called into task timed.
+" }
+
+	VAR_INPUT
+		file	: STRING;	{ DE:"File's name" }
+	END_VAR
+
+    {CODE:EMBEDDED}
+END_FUNCTION
+
+FUNCTION sys_F_WOPENA : DWORD
+{ DE:"Open for appending (writing to end of file).
+The function return a DWORD which could have the following meanings:
+	0		=	No file found or function called into task timed.
+	Otherwise		=	File’s ID.
+" }
+        
+  VAR_INPUT
+		file	: STRING;	{ DE:"File's name" }
+  END_VAR
+
+    {CODE:EMBEDDED}
+END_FUNCTION
+
+FUNCTION sys_F_FILELENGTH : DINT
+{ DE:"File length.
+The function return a DINT which could have the following meanings:
+	file length	=	length of file
+	-1	=	An error occurred or function called into task timed.
+" }
+
+	VAR_INPUT
+		file	: STRING;	{ DE:"File's name" }
+	END_VAR
+
+    {CODE:EMBEDDED}
+END_FUNCTION
+
+        (************************)
+        (*                   	*)
+        (*     FUNCTIONS BLOCK  *)
+        (*                   	*)
+        (************************)
+
+
+
+

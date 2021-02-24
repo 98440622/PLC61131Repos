@@ -3,7 +3,7 @@
 <devicetemplate>
 	<deviceinfo caption="BZ172Lab" name="BZ172Lab" version="0.0" icon="img\application.ico" deviceid="BZ172Lab" devicetype="application" PLCApplicationID="BZ172Lab">
 		<description>BZ172Lab Application</description>
-		<protocols><protocol>M172P_596p10_appl</protocol></protocols>
+		<protocols><protocol>M172P_596p11_appl</protocol></protocols>
 	</deviceinfo>
 	<plcconfig>
 		<hmi>

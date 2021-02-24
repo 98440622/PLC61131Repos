@@ -256,6 +256,7 @@
 		<protocol name="CanOpen" commaddr="15772" commsubindex="0"/>
 		<menu id="12"/>
 		<option name="excludeWRAllRedef">true</option>
+		<option name="eepromAddress">132</option>
 	</par>
 	<par ipa="10042" name="Port_HTTP_PI" descr="HTTP Port number, 0 is equal to default port 80, 65535 disable from reset HTTP service" defval="0" min="0" max="65535" um="num" typepar="unsignedShort" typetarg="unsignedShort">
 		<protocol name="Modbus" commaddr="15796" commsubindex="0"/>
@@ -2289,11 +2290,6 @@
 		<protocol name="Modbus" commaddr="15771" commsubindex="0"/>
 		<protocol name="CanOpen" commaddr="15771" commsubindex="0"/>
 		<option name="eepromAddress">130</option>
-	</par>
-	<par ipa="10412" hidden="true" readonly="false" name="Port_TFTP_IP" typepar="unsignedShort" typetarg="unsignedShort" defval="0" min="0" max="65535" um="num" scale="1" form="%d" descr="">
-		<protocol name="Modbus" commaddr="15772" commsubindex="0"/>
-		<protocol name="CanOpen" commaddr="15772" commsubindex="0"/>
-		<option name="eepromAddress">132</option>
 	</par>
 	<par ipa="10413" hidden="true" readonly="false" name="Impulse_PC2" typepar="unsignedShort" typetarg="unsignedShort" defval="3000" min="0" max="30000" um="num" scale="1" form="%d" descr="">
 		<protocol name="Modbus" commaddr="15773" commsubindex="0"/>

@@ -4,7 +4,7 @@
 	<commSettings>Modbus:1,1000#COM:1,38400,E,8,1</commSettings>
 	<sources>
 		<main>BZ172Lab.plc</main>
-		<target id="M172P_596p10">FreeAdvance_HMI_596p10.tgt</target>
+		<target id="M172P_596p11">FreeAdvance_HMI_596p11.tgt</target>
 		<libraries>
 			<lib link="false">HMIInterface.pll</lib>
 			<lib link="false">basic.plclib</lib>
@@ -16,6 +16,7 @@
 			<lib link="false">CanOpen_IEC .pll</lib>
 			<lib link="false">Redmond2017.plclib</lib>
 			<lib link="false">StrLib.pll</lib>
+			<lib link="false">FS_IEC.pll</lib>
 		</libraries>
 		<aux/>
 	</sources>
