@@ -48,13 +48,23 @@ bzEvaporatorFanPIDTdCfg AT %MW101.38 : UINT;	{ DE:"Derivative dumping time for e
 bzCompressorPIDTdCfg AT %MW101.39 : UINT;	{ DE:"Derivative dumping time for compressor control" }
 bzEEVPIDTdCfg AT %MW101.40 : UINT;	{ DE:"Derivative dumping time for EEV control" }
 bzEvapSuperheatDeadbandCfg AT %MW101.41 : INT;	{ DE:"Evaporator coil superheat control deadband" }
-BZSwitchReversedCfg AT %MW101.42 : INT;	{ DE:"BZSwitch status logic configuration" }
-bzUnitRunhourLog AT %MW101.43 : UINT;	{ DE:"Unit accumulation working time in hour" }
-bzUnitRunhourThresholdCfg AT %MW101.44 : UINT;	{ DE:"Unit run-hour threshold" }
-bzEEVRunHourLog AT %MW101.45 : UINT;	{ DE:"EXV accumulation working time in hour" }
-bzEEVRunHourThresholdCfg AT %MW101.46 : UINT;	{ DE:"EXV run-hour threshold" }
-bzCompressorRunHourLog AT %MW101.47 : UINT;	{ DE:"Compressor accumulation working time in hour" }
-bzCompressorRunHourThresholdCfg AT %MW101.48 : UINT;	{ DE:"Compressor run-hour threshold" }
+bzUnitRunhourLog AT %MW101.42 : UINT;	{ DE:"Unit accumulation working time in hour" }
+bzUnitRunhourThresholdCfg AT %MW101.43 : UINT;	{ DE:"Unit run-hour threshold" }
+bzEEVRunHourLog AT %MW101.44 : UINT;	{ DE:"EXV accumulation working time in hour" }
+bzEEVRunHourThresholdCfg AT %MW101.45 : UINT;	{ DE:"EXV run-hour threshold" }
+bzCompressorRunHourLog AT %MW101.46 : UINT;	{ DE:"Compressor accumulation working time in hour" }
+bzCompressorRunHourThresholdCfg AT %MW101.47 : UINT;	{ DE:"Compressor run-hour threshold" }
+bzNumberOfEvaporatorFansCfg AT %MW101.48 : INT;	{ DE:"Number of evaporator fans installed on the unit" }
+bzEvaporatorFanRunhourThresholdCfg AT %MW101.49 : UINT;	{ DE:"Evaporator fan working hours threshold" }
+BZSwitchReversedCfg AT %MW101.50 : INT;
+bzEvaporatorFan1RunhourLog AT %MW101.51 : UINT;	{ DE:"Accumulation working time of fan %d" }
+bzEvaporatorFan2RunhourLog AT %MW101.52 : UINT;	{ DE:"Accumulation working time of fan %d" }
+bzEvaporatorFan3RunhourLog AT %MW101.53 : UINT;	{ DE:"Accumulation working time of fan %d" }
+bzEvaporatorFan4RunhourLog AT %MW101.54 : UINT;	{ DE:"Accumulation working time of fan %d" }
+bzEvaporatorFan5RunhourLog AT %MW101.55 : UINT;	{ DE:"Accumulation working time of fan %d" }
+bzEvaporatorFan6RunhourLog AT %MW101.56 : UINT;	{ DE:"Accumulation working time of fan %d" }
+bzEvaporatorFan7RunhourLog AT %MW101.57 : UINT;	{ DE:"Accumulation working time of fan %d" }
+bzEvaporatorFan8RunhourLog AT %MW101.58 : UINT;	{ DE:"Accumulation working time of fan %d" }
 	{G:"Status_variables"}
 bzBIOSVersion AT %MW110.0 : STRING[ 8 ];	{ DE:"M172 BIOS version" }
 bzAppVersion AT %MW110.5 : STRING[ 8 ];	{ DE:"Application version by a string type format of xx.xx.xx" }
@@ -106,17 +116,41 @@ bzEXVFeedback AT %MW110.54 : INT;	{ DE:"Number of steps" }
 bzCompressorFeedback AT %MW110.55 : INT;	{ DE:"Compressor speed by VFD frequence" }
 bzEvaporatorCoilSuperheat AT %MW110.56 : INT;	{ DE:"Superheat calculated by pressure and temperature from the outlet side of evaporator coil" }
 bzEvaporatorCoilTemperature AT %MW110.57 : INT;	{ DE:"Refrigerant temperature on the outlet side of the evaporator coil" }
-bzEvaporatorFanSpeed1 AT %MW110.58 : UINT;	{ DE:"Evaporator fan 1 speed" }
-bzEvaporatorFanSpeed2 AT %MW110.59 : UINT;	{ DE:"Evaporator fan 2 speed" }
-bzEvaporatorFanSpeed3 AT %MW110.60 : UINT;	{ DE:"Evaporator fan 3 speed" }
-bzEvaporatorFanSpeed4 AT %MW110.61 : UINT;	{ DE:"Evaporator fan 4 speed" }
-bzEvaporatorFanSpeed5 AT %MW110.62 : UINT;	{ DE:"Evaporator fan 5 speed" }
-bzEvaporatorFanSpeed6 AT %MW110.63 : UINT;	{ DE:"Evaporator fan 6 speed" }
-bzEvaporatorFanSpeed7 AT %MW110.64 : UINT;	{ DE:"Evaporator fan 7 speed" }
-bzEvaporatorFanSpeed8 AT %MW110.65 : UINT;	{ DE:"Evaporator fan 8 speed" }
+bzEvaporatorFan1Speed AT %MW110.58 : UINT;	{ DE:"Evaporator fan 1 speed" }
+bzEvaporatorFan2Speed AT %MW110.59 : UINT;	{ DE:"Evaporator fan 2 speed" }
+bzEvaporatorFan3Speed AT %MW110.60 : UINT;	{ DE:"Evaporator fan 3 speed" }
+bzEvaporatorFan4Speed AT %MW110.61 : UINT;	{ DE:"Evaporator fan 4 speed" }
+bzEvaporatorFan5Speed AT %MW110.62 : UINT;	{ DE:"Evaporator fan 5 speed" }
+bzEvaporatorFan6Speed AT %MW110.63 : UINT;	{ DE:"Evaporator fan 6 speed" }
+bzEvaporatorFan7Speed AT %MW110.64 : UINT;	{ DE:"Evaporator fan 7 speed" }
+bzEvaporatorFan8Speed AT %MW110.65 : UINT;	{ DE:"Evaporator fan 8 speed" }
 bzUnitRunhourWarning AT %MW110.66 : INT;	{ DE:"Exceeded unit working time warning" }
 bzEXVRunhourWarning AT %MW110.67 : INT;	{ DE:"Exceeded EXV working time warning" }
 bzCompressorRunhourWarning AT %MW110.68 : INT;	{ DE:"Exceeded compressor working time warning" }
+bzFrequenceReadingChannel1 AT %MW110.69 : UINT;	{ DE:"The raw feedback of the evaporator fan 1 from the fast DI module" }
+bzFrequenceReadingChannel2 AT %MW110.70 : UINT;	{ DE:"The raw feedback of the evaporator fan 2 from the fast DI module" }
+bzFrequenceReadingChannel3 AT %MW110.71 : UINT;	{ DE:"The raw feedback of the evaporator fan 3 from the fast DI module" }
+bzFrequenceReadingChannel4 AT %MW110.72 : UINT;	{ DE:"The raw feedback of the evaporator fan 4 from the fast DI module" }
+bzFrequenceReadingChannel5 AT %MW110.73 : UINT;	{ DE:"The raw feedback of the evaporator fan 5 from the fast DI module" }
+bzFrequenceReadingChannel6 AT %MW110.74 : UINT;	{ DE:"The raw feedback of the evaporator fan 6 from the fast DI module" }
+bzFrequenceReadingChannel7 AT %MW110.75 : UINT;	{ DE:"The raw feedback of the evaporator fan 7 from the fast DI module" }
+bzFrequenceReadingChannel8 AT %MW110.76 : UINT;	{ DE:"The raw feedback of the evaporator fan 8 from the fast DI module" }
+bzEvaporatorFan1RPMWarning AT %MW110.77 : INT;	{ DE:"Abnormal rpm of evaporator fan 1" }
+bzEvaporatorFan2RPMWarning AT %MW110.78 : INT;	{ DE:"Abnormal rpm of evaporator fan 2" }
+bzEvaporatorFan3RPMWarning AT %MW110.79 : INT;	{ DE:"Abnormal rpm of evaporator fan 3" }
+bzEvaporatorFan4RPMWarning AT %MW110.80 : INT;	{ DE:"Abnormal rpm of evaporator fan 4" }
+bzEvaporatorFan5RPMWarning AT %MW110.81 : INT;	{ DE:"Abnormal rpm of evaporator fan 5" }
+bzEvaporatorFan6RPMWarning AT %MW110.82 : INT;	{ DE:"Abnormal rpm of evaporator fan 6" }
+bzEvaporatorFan7RPMWarning AT %MW110.83 : INT;	{ DE:"Abnormal rpm of evaporator fan 7" }
+bzEvaporatorFan8RPMWarning AT %MW110.84 : INT;	{ DE:"Abnormal rpm of evaporator fan 8" }
+bzEvaporatorFan1RunhourWarning AT %MW110.85 : INT;	{ DE:"Evaporator fan 1 run-hour warning" }
+bzEvaporatorFan2RunhourWarning AT %MW110.86 : INT;	{ DE:"Evaporator fan 2 run-hour warning" }
+bzEvaporatorFan3RunhourWarning AT %MW110.87 : INT;	{ DE:"Evaporator fan 3 run-hour warning" }
+bzEvaporatorFan4RunhourWarning AT %MW110.88 : INT;	{ DE:"Evaporator fan 4 run-hour warning" }
+bzEvaporatorFan5RunhourWarning AT %MW110.89 : INT;	{ DE:"Evaporator fan 5 run-hour warning" }
+bzEvaporatorFan6RunhourWarning AT %MW110.90 : INT;	{ DE:"Evaporator fan 6 run-hour warning" }
+bzEvaporatorFan7RunhourWarning AT %MW110.91 : INT;	{ DE:"Evaporator fan 7 run-hour warning" }
+bzEvaporatorFan8RunhourWarning AT %MW110.92 : INT;	{ DE:"Evaporator fan 8 run-hour warning" }
 	{G:"IO_Mapping"}
 HW_AI_01 AT %IW1.0 : INT;	{ DE:"AIL1 analogue input" }
 HW_AI_02 AT %IW1.1 : INT;	{ DE:"AIL2 analogue input" }

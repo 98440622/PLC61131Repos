@@ -1377,7 +1377,7 @@
 						<ORDER>4</ORDER>
 						<FORMAT>%s</FORMAT>
 						<ALIGN>Center</ALIGN>
-						<ACCESS>RW</ACCESS>
+						<ACCESS>RO</ACCESS>
 						<DESC/>
 						<ZORDER>5</ZORDER>
 						<VAR type="STRING">@LocalParameters.bzBIOSVersion</VAR>
@@ -1415,7 +1415,7 @@
 						<ORDER>5</ORDER>
 						<FORMAT>%s</FORMAT>
 						<ALIGN>Right</ALIGN>
-						<ACCESS>RW</ACCESS>
+						<ACCESS>RO</ACCESS>
 						<DESC/>
 						<ZORDER>6</ZORDER>
 						<VAR type="STRING">@LocalParameters.bzAppVersion</VAR>
@@ -2223,6 +2223,7 @@ END_PROGRAM
 			</EVENTS>
 			<ACTIONS>
 				<ACTION id="2" key="8"/>
+				<ACTION id="1" key="12">PulseAcquisition</ACTION>
 			</ACTIONS>
 			<SCRIPT>
 				<![CDATA[]]>
@@ -2717,6 +2718,391 @@ END_PROGRAM
 			<ACTIONS>
 				<ACTION id="2" key="8"/>
 				<ACTION id="1" key="12">PIDCoefficients</ACTION>
+			</ACTIONS>
+			<SCRIPT>
+				<![CDATA[]]>
+			</SCRIPT>
+		</PAGE>
+		<PAGE name="PulseAcquisition">
+			<ATTRIBUTES>
+				<MSGID>0</MSGID>
+				<WNDMODE>0</WNDMODE>
+				<MODAL>No</MODAL>
+				<FONT>EWP2_6x8</FONT>
+				<COLOR type="RGBColor">0</COLOR>
+				<BCKCOLOR type="RGBColor">16777215</BCKCOLOR>
+				<STYLE>Flat</STYLE>
+				<XDIM>128</XDIM>
+				<YDIM>64</YDIM>
+				<XPOS>0</XPOS>
+				<YPOS>0</YPOS>
+				<CHARGRIDDIMX>6</CHARGRIDDIMX>
+				<CHARGRIDDIMY>8</CHARGRIDDIMY>
+				<CAPTION>Pulse</CAPTION>
+				<TITLEBAR>Yes</TITLEBAR>
+				<SYSMENU>No</SYSMENU>
+				<BORDER>Yes</BORDER>
+				<DESC/>
+			</ATTRIBUTES>
+			<OBJECTS>
+				<STRINGS>
+					<STRING name="String_9">
+						<FONT>EWP2_6x8</FONT>
+						<BCKCOLOR type="RGBColor">16777215</BCKCOLOR>
+						<COLOR type="RGBColor">0</COLOR>
+						<TEXT>
+							<![CDATA[Enough?]]>
+						</TEXT>
+						<XPOS>84</XPOS>
+						<YPOS>48</YPOS>
+						<XDIM>42</XDIM>
+						<YDIM>8</YDIM>
+						<VISIBLE>TRUE</VISIBLE>
+						<ZORDER>9</ZORDER>
+						<STYLE>Flat</STYLE>
+						<BORDCOL type="RGBColor">0</BORDCOL>
+						<BORDPTS>0</BORDPTS>
+						<SELBCK type="RGBColor">0</SELBCK>
+						<SELCOL type="RGBColor">16777215</SELCOL>
+						<NUMCHAR>0</NUMCHAR>
+						<ALIGN>Left</ALIGN>
+						<REFRESH>FALSE</REFRESH>
+						<SELECT>FALSE</SELECT>
+						<EVENTS>
+							<EVENT name="BeforeUpdate"/>
+							<EVENT name="AfterUpdate"/>
+						</EVENTS>
+					</STRING>
+				</STRINGS>
+				<IMGS/>
+				<LINES/>
+				<RECTS/>
+				<ANIMS/>
+				<EDITS>
+					<EDIT name="Edit_1">
+						<FONT>EWP2_6x8</FONT>
+						<COLOR type="RGBColor">0</COLOR>
+						<BCKCOLOR type="RGBColor">16777215</BCKCOLOR>
+						<SELBCK type="RGBColor">0</SELBCK>
+						<SELCOL type="RGBColor">16777215</SELCOL>
+						<STYLE>Flat</STYLE>
+						<BORDCOL type="RGBColor">0</BORDCOL>
+						<BORDPTS>1</BORDPTS>
+						<XPOS>6</XPOS>
+						<YPOS>16</YPOS>
+						<XDIM>30</XDIM>
+						<YDIM>8</YDIM>
+						<NUMCHAR>5</NUMCHAR>
+						<ORDER>1</ORDER>
+						<FORMAT>%d</FORMAT>
+						<ALIGN>Center</ALIGN>
+						<ACCESS>RO</ACCESS>
+						<DESC/>
+						<ZORDER>1</ZORDER>
+						<VAR type="UINT">@LocalParameters.bzFrequenceReadingChannel1</VAR>
+						<TYPE>UINT</TYPE>
+						<REFRESH>TRUE</REFRESH>
+						<VISIBLE>TRUE</VISIBLE>
+						<SELECT>TRUE</SELECT>
+						<LABEL/>
+						<VARMIN>*</VARMIN>
+						<VARMAX>*</VARMAX>
+						<EVENTS>
+							<EVENT name="BeforeUpdate"/>
+							<EVENT name="AfterUpdate"/>
+							<EVENT name="OnGotFocus"/>
+							<EVENT name="OnLostFocus"/>
+							<EVENT name="OnClick"/>
+							<EVENT name="OnEnter"/>
+							<EVENT name="OnChange"/>
+						</EVENTS>
+					</EDIT>
+					<EDIT name="Edit_2">
+						<FONT>EWP2_6x8</FONT>
+						<COLOR type="RGBColor">0</COLOR>
+						<BCKCOLOR type="RGBColor">16777215</BCKCOLOR>
+						<SELBCK type="RGBColor">0</SELBCK>
+						<SELCOL type="RGBColor">16777215</SELCOL>
+						<STYLE>Flat</STYLE>
+						<BORDCOL type="RGBColor">0</BORDCOL>
+						<BORDPTS>1</BORDPTS>
+						<XPOS>48</XPOS>
+						<YPOS>16</YPOS>
+						<XDIM>30</XDIM>
+						<YDIM>8</YDIM>
+						<NUMCHAR>5</NUMCHAR>
+						<ORDER>2</ORDER>
+						<FORMAT>%d</FORMAT>
+						<ALIGN>Center</ALIGN>
+						<ACCESS>RO</ACCESS>
+						<DESC/>
+						<ZORDER>2</ZORDER>
+						<VAR type="UINT">@LocalParameters.bzFrequenceReadingChannel2</VAR>
+						<TYPE>UINT</TYPE>
+						<REFRESH>TRUE</REFRESH>
+						<VISIBLE>TRUE</VISIBLE>
+						<SELECT>TRUE</SELECT>
+						<LABEL/>
+						<VARMIN>*</VARMIN>
+						<VARMAX>*</VARMAX>
+						<EVENTS>
+							<EVENT name="BeforeUpdate"/>
+							<EVENT name="AfterUpdate"/>
+							<EVENT name="OnGotFocus"/>
+							<EVENT name="OnLostFocus"/>
+							<EVENT name="OnClick"/>
+							<EVENT name="OnEnter"/>
+							<EVENT name="OnChange"/>
+						</EVENTS>
+					</EDIT>
+					<EDIT name="Edit_3">
+						<FONT>EWP2_6x8</FONT>
+						<COLOR type="RGBColor">0</COLOR>
+						<BCKCOLOR type="RGBColor">16777215</BCKCOLOR>
+						<SELBCK type="RGBColor">0</SELBCK>
+						<SELCOL type="RGBColor">16777215</SELCOL>
+						<STYLE>Flat</STYLE>
+						<BORDCOL type="RGBColor">0</BORDCOL>
+						<BORDPTS>1</BORDPTS>
+						<XPOS>90</XPOS>
+						<YPOS>16</YPOS>
+						<XDIM>30</XDIM>
+						<YDIM>8</YDIM>
+						<NUMCHAR>5</NUMCHAR>
+						<ORDER>3</ORDER>
+						<FORMAT>%d</FORMAT>
+						<ALIGN>Center</ALIGN>
+						<ACCESS>RO</ACCESS>
+						<DESC/>
+						<ZORDER>3</ZORDER>
+						<VAR type="UINT">@LocalParameters.bzFrequenceReadingChannel3</VAR>
+						<TYPE>UINT</TYPE>
+						<REFRESH>TRUE</REFRESH>
+						<VISIBLE>TRUE</VISIBLE>
+						<SELECT>TRUE</SELECT>
+						<LABEL/>
+						<VARMIN>*</VARMIN>
+						<VARMAX>*</VARMAX>
+						<EVENTS>
+							<EVENT name="BeforeUpdate"/>
+							<EVENT name="AfterUpdate"/>
+							<EVENT name="OnGotFocus"/>
+							<EVENT name="OnLostFocus"/>
+							<EVENT name="OnClick"/>
+							<EVENT name="OnEnter"/>
+							<EVENT name="OnChange"/>
+						</EVENTS>
+					</EDIT>
+					<EDIT name="Edit_4">
+						<FONT>EWP2_6x8</FONT>
+						<COLOR type="RGBColor">0</COLOR>
+						<BCKCOLOR type="RGBColor">16777215</BCKCOLOR>
+						<SELBCK type="RGBColor">0</SELBCK>
+						<SELCOL type="RGBColor">16777215</SELCOL>
+						<STYLE>Flat</STYLE>
+						<BORDCOL type="RGBColor">0</BORDCOL>
+						<BORDPTS>1</BORDPTS>
+						<XPOS>6</XPOS>
+						<YPOS>32</YPOS>
+						<XDIM>30</XDIM>
+						<YDIM>8</YDIM>
+						<NUMCHAR>5</NUMCHAR>
+						<ORDER>4</ORDER>
+						<FORMAT>%d</FORMAT>
+						<ALIGN>Center</ALIGN>
+						<ACCESS>RO</ACCESS>
+						<DESC/>
+						<ZORDER>4</ZORDER>
+						<VAR type="UINT">@LocalParameters.bzFrequenceReadingChannel4</VAR>
+						<TYPE>UINT</TYPE>
+						<REFRESH>TRUE</REFRESH>
+						<VISIBLE>TRUE</VISIBLE>
+						<SELECT>TRUE</SELECT>
+						<LABEL/>
+						<VARMIN>*</VARMIN>
+						<VARMAX>*</VARMAX>
+						<EVENTS>
+							<EVENT name="BeforeUpdate"/>
+							<EVENT name="AfterUpdate"/>
+							<EVENT name="OnGotFocus"/>
+							<EVENT name="OnLostFocus"/>
+							<EVENT name="OnClick"/>
+							<EVENT name="OnEnter"/>
+							<EVENT name="OnChange"/>
+						</EVENTS>
+					</EDIT>
+					<EDIT name="Edit_5">
+						<FONT>EWP2_6x8</FONT>
+						<COLOR type="RGBColor">0</COLOR>
+						<BCKCOLOR type="RGBColor">16777215</BCKCOLOR>
+						<SELBCK type="RGBColor">0</SELBCK>
+						<SELCOL type="RGBColor">16777215</SELCOL>
+						<STYLE>Flat</STYLE>
+						<BORDCOL type="RGBColor">0</BORDCOL>
+						<BORDPTS>1</BORDPTS>
+						<XPOS>48</XPOS>
+						<YPOS>32</YPOS>
+						<XDIM>30</XDIM>
+						<YDIM>8</YDIM>
+						<NUMCHAR>5</NUMCHAR>
+						<ORDER>5</ORDER>
+						<FORMAT>%d</FORMAT>
+						<ALIGN>Center</ALIGN>
+						<ACCESS>RO</ACCESS>
+						<DESC/>
+						<ZORDER>5</ZORDER>
+						<VAR type="UINT">@LocalParameters.bzFrequenceReadingChannel5</VAR>
+						<TYPE>UINT</TYPE>
+						<REFRESH>TRUE</REFRESH>
+						<VISIBLE>TRUE</VISIBLE>
+						<SELECT>TRUE</SELECT>
+						<LABEL/>
+						<VARMIN>*</VARMIN>
+						<VARMAX>*</VARMAX>
+						<EVENTS>
+							<EVENT name="BeforeUpdate"/>
+							<EVENT name="AfterUpdate"/>
+							<EVENT name="OnGotFocus"/>
+							<EVENT name="OnLostFocus"/>
+							<EVENT name="OnClick"/>
+							<EVENT name="OnEnter"/>
+							<EVENT name="OnChange"/>
+						</EVENTS>
+					</EDIT>
+					<EDIT name="Edit_6">
+						<FONT>EWP2_6x8</FONT>
+						<COLOR type="RGBColor">0</COLOR>
+						<BCKCOLOR type="RGBColor">16777215</BCKCOLOR>
+						<SELBCK type="RGBColor">0</SELBCK>
+						<SELCOL type="RGBColor">16777215</SELCOL>
+						<STYLE>Flat</STYLE>
+						<BORDCOL type="RGBColor">0</BORDCOL>
+						<BORDPTS>1</BORDPTS>
+						<XPOS>90</XPOS>
+						<YPOS>32</YPOS>
+						<XDIM>30</XDIM>
+						<YDIM>8</YDIM>
+						<NUMCHAR>5</NUMCHAR>
+						<ORDER>6</ORDER>
+						<FORMAT>%d</FORMAT>
+						<ALIGN>Center</ALIGN>
+						<ACCESS>RO</ACCESS>
+						<DESC/>
+						<ZORDER>6</ZORDER>
+						<VAR type="UINT">@LocalParameters.bzFrequenceReadingChannel6</VAR>
+						<TYPE>UINT</TYPE>
+						<REFRESH>TRUE</REFRESH>
+						<VISIBLE>TRUE</VISIBLE>
+						<SELECT>TRUE</SELECT>
+						<LABEL/>
+						<VARMIN>*</VARMIN>
+						<VARMAX>*</VARMAX>
+						<EVENTS>
+							<EVENT name="BeforeUpdate"/>
+							<EVENT name="AfterUpdate"/>
+							<EVENT name="OnGotFocus"/>
+							<EVENT name="OnLostFocus"/>
+							<EVENT name="OnClick"/>
+							<EVENT name="OnEnter"/>
+							<EVENT name="OnChange"/>
+						</EVENTS>
+					</EDIT>
+					<EDIT name="Edit_7">
+						<FONT>EWP2_6x8</FONT>
+						<COLOR type="RGBColor">0</COLOR>
+						<BCKCOLOR type="RGBColor">16777215</BCKCOLOR>
+						<SELBCK type="RGBColor">0</SELBCK>
+						<SELCOL type="RGBColor">16777215</SELCOL>
+						<STYLE>Flat</STYLE>
+						<BORDCOL type="RGBColor">0</BORDCOL>
+						<BORDPTS>1</BORDPTS>
+						<XPOS>6</XPOS>
+						<YPOS>48</YPOS>
+						<XDIM>30</XDIM>
+						<YDIM>8</YDIM>
+						<NUMCHAR>5</NUMCHAR>
+						<ORDER>7</ORDER>
+						<FORMAT>%d</FORMAT>
+						<ALIGN>Center</ALIGN>
+						<ACCESS>RO</ACCESS>
+						<DESC/>
+						<ZORDER>7</ZORDER>
+						<VAR type="UINT">@LocalParameters.bzFrequenceReadingChannel7</VAR>
+						<TYPE>UINT</TYPE>
+						<REFRESH>TRUE</REFRESH>
+						<VISIBLE>TRUE</VISIBLE>
+						<SELECT>TRUE</SELECT>
+						<LABEL/>
+						<VARMIN>*</VARMIN>
+						<VARMAX>*</VARMAX>
+						<EVENTS>
+							<EVENT name="BeforeUpdate"/>
+							<EVENT name="AfterUpdate"/>
+							<EVENT name="OnGotFocus"/>
+							<EVENT name="OnLostFocus"/>
+							<EVENT name="OnClick"/>
+							<EVENT name="OnEnter"/>
+							<EVENT name="OnChange"/>
+						</EVENTS>
+					</EDIT>
+					<EDIT name="Edit_8">
+						<FONT>EWP2_6x8</FONT>
+						<COLOR type="RGBColor">0</COLOR>
+						<BCKCOLOR type="RGBColor">16777215</BCKCOLOR>
+						<SELBCK type="RGBColor">0</SELBCK>
+						<SELCOL type="RGBColor">16777215</SELCOL>
+						<STYLE>Flat</STYLE>
+						<BORDCOL type="RGBColor">0</BORDCOL>
+						<BORDPTS>1</BORDPTS>
+						<XPOS>48</XPOS>
+						<YPOS>48</YPOS>
+						<XDIM>30</XDIM>
+						<YDIM>8</YDIM>
+						<NUMCHAR>5</NUMCHAR>
+						<ORDER>8</ORDER>
+						<FORMAT>%d</FORMAT>
+						<ALIGN>Center</ALIGN>
+						<ACCESS>RO</ACCESS>
+						<DESC/>
+						<ZORDER>8</ZORDER>
+						<VAR type="UINT">@LocalParameters.bzFrequenceReadingChannel8</VAR>
+						<TYPE>UINT</TYPE>
+						<REFRESH>TRUE</REFRESH>
+						<VISIBLE>TRUE</VISIBLE>
+						<SELECT>TRUE</SELECT>
+						<LABEL/>
+						<VARMIN>*</VARMIN>
+						<VARMAX>*</VARMAX>
+						<EVENTS>
+							<EVENT name="BeforeUpdate"/>
+							<EVENT name="AfterUpdate"/>
+							<EVENT name="OnGotFocus"/>
+							<EVENT name="OnLostFocus"/>
+							<EVENT name="OnClick"/>
+							<EVENT name="OnEnter"/>
+							<EVENT name="OnChange"/>
+						</EVENTS>
+					</EDIT>
+				</EDITS>
+				<TEXTBOXES/>
+				<COMBOBOXES/>
+				<BUTTONS/>
+				<CHECKBOXES/>
+				<PROGRESSES/>
+				<CHARTS/>
+				<CUSTOMS/>
+			</OBJECTS>
+			<EVENTS>
+				<EVENT name="OnLoad"/>
+				<EVENT name="OnUnload"/>
+				<EVENT name="OnActivate"/>
+				<EVENT name="OnDeactivate"/>
+				<EVENT name="OnDraw"/>
+				<EVENT name="OnTimer"/>
+				<EVENT name="OnAfterDraw"/>
+			</EVENTS>
+			<ACTIONS>
+				<ACTION id="2" key="8"/>
 			</ACTIONS>
 			<SCRIPT>
 				<![CDATA[]]>
