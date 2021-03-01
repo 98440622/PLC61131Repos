@@ -10,6 +10,9 @@ Version MY_VERSION
 2021.02.21 Create separate files for register map doc and code generation
 2021.02.27 Add the data points accessor to the target device
 2021.02.28 New verison of c file generation
+2021.03.01 Implementation of the six data point representors
+           Improve the C files by adding comments
+           Addresses the issues in the C files that cause failure of modbus polling
 
 """
 
@@ -18,7 +21,7 @@ from ctypes import *
 import os
 from datetime import datetime
 
-MY_VERSION = '21FEB01'
+MY_VERSION = '21MAR01'
 
 def createDDF(variable_filename, e2prom_filename) :
     '''
@@ -105,19 +108,27 @@ typedef struct _tagMBBZ172LabVariables {{
 """.format(MY_VERSION, str(datetime.now()))
         for i in range(0, len(ddf) - 1):
             if (ddf.Type.iloc[i] == 'Signed 16-bit') :
-                strContent += '    bzI16 ' + ddf.DataPoint.iloc[i] + '[1];\n'
+                strContent += '    /*{0:03d}*/bzI16 '.format(i) + ddf.DataPoint.iloc[i] + '[1];'
             elif (ddf.Type.iloc[i] == 'Unsigned 16-bit'):
-                strContent += '    bzU16 ' + ddf.DataPoint.iloc[i] + '[1];\n'
+                strContent += '    /*{0:03d}*/bzU16 '.format(i) + ddf.DataPoint.iloc[i] + '[1];'
             elif (ddf.Type.iloc[i] == 'String') :
-                max_len = int(ddf.Size.iloc[i])
-                if (max_len % 2) :
-                    max_len += 1
-                else :
-                    max_len += 2
-                strContent += str('    bzU8  ' + ddf.DataPoint.iloc[i] +
-                              '[{0}];\n'.format(max_len))
+                max_len = int(int(ddf.Size.iloc[i]) / 2)
+                #if (max_len % 2) :
+                #    max_len += 1
+                #else :
+                #    max_len += 2
+                strContent += str('    /*{0:03d}*/bzU8  ' + ddf.DataPoint.iloc[i] +
+                              '[{1}];').format(i, max_len)
             else:
                 pass
+            if (ddf.Type.iloc[i] == 'String'):
+                strContent += '// Max string length is ' + str(max_len) + '\n'
+            else:
+                if (ddf.Unit.iloc[i] == ''):
+                    strContent += '// ' + ddf.Note.iloc[i] + '\n'
+                else:
+                    strContent += '// ' + ddf.Unit.iloc[i] + '\n'
+                
         strContent += """
 } MBBZ172LabVariables;
 """
@@ -169,16 +180,46 @@ _public_ void MBBZ172LabDevice_dtor(MBBZ172LabDevice*);
 #include "bzMBDevice_BZ172Lab.h"
 
 void {2}(bzR32* lpRval, bzBool from_reg, bzU16* regs, bzU8 len) {{
+    if (from_reg) {{
+        *lpRval = (bzR32)regs[0];    
+    }} else {{
+        regs[0] = (bzU16)(*lpRval);
+    }}
 }}
 void {3}(bzR32* lpRval, bzBool from_reg, bzU16* regs, bzU8 len) {{
+    if (from_reg) {{
+        *lpRval = ((bzR32)regs[0]) / (bzR32)10.0;    
+    }} else {{
+        regs[0] = (bzU16)((*lpRval) * (bzR32)10.0);
+    }}
 }}
-void {4}(bzR32* lpIval, bzBool from_reg, bzU16* regs, bzU8 len) {{
+void {4}(bzR32* lpRval, bzBool from_reg, bzU16* regs, bzU8 len) {{
+    if (from_reg) {{
+        *lpRval = ((bzR32)regs[0]) / (bzR32)100.0;    
+    }} else {{
+        regs[0] = (bzU16)((*lpRval) * (bzR32)100.0);
+    }}
 }}
-void {5}(bzR32* lpIval, bzBool from_reg, bzU16* regs, bzU8 len) {{
+void {5}(bzR32* lpRval, bzBool from_reg, bzU16* regs, bzU8 len) {{
+    if (from_reg) {{
+        *lpRval = (bzR32)((bzI16)regs[0]);    
+    }} else {{
+        regs[0] = (bzI16)(*lpRval);
+    }}
 }}
 void {6}(bzR32* lpRval, bzBool from_reg, bzU16* regs, bzU8 len) {{
+    if (from_reg) {{
+        *lpRval = ((bzR32)((bzI16)regs[0])) / (bzR32)10.0;    
+    }} else {{
+        regs[0] = (bzI16)((*lpRval) * (bzR32)10.0);
+    }}
 }}
-void {7}(bzR32* lpIval, bzBool from_reg, bzU16* regs, bzU8 len) {{
+void {7}(bzR32* lpRval, bzBool from_reg, bzU16* regs, bzU8 len) {{
+    if (from_reg) {{
+        *lpRval = ((bzR32)((bzI16)regs[0])) / (bzR32)100.0;    
+    }} else {{
+        regs[0] = (bzI16)((*lpRval) * (bzR32)100.0);
+    }}
 }}
 
 _public_ void MBBZ172LabDevice_ctor(MBBZ172LabDevice* me, bzU8 id) {{
@@ -192,18 +233,18 @@ _public_ void MBBZ172LabDevice_ctor(MBBZ172LabDevice* me, bzU8 id) {{
            strRepresentorList[5])
         for i in range(0, len(ddf) - 1):
             if (ddf.Type.iloc[i] == 'String') :
-                sz = int(ddf.Size.iloc[i])
-                if (sz % 2) :
-                    sz += 1
-                else :
-                    sz += 2
-                sz /= 2
+                sz = int(int(ddf.Size.iloc[i]) / 2)
+                #if (sz % 2) :
+                #    sz += 1
+                #else :
+                #    sz += 2
+                #sz /= 2
             else:
                 sz = 1
             strLn = '    bzModbusRegister_new(me->MBRegisters[{0}], '\
                     'bzBusProtocol_MB_HoldingRegister, {1}, {2}, '\
                     'me->MBVariables.{3});\n'.format(i,
-                                                     int(ddf.Address.iloc[i]),
+                                                     int(ddf.Address.iloc[i]) - 1,
                                                      int(sz),
                                                      ddf.DataPoint.iloc[i])
             strContent += strLn
