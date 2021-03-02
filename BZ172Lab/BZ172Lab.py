@@ -13,6 +13,7 @@ Version MY_VERSION
 2021.03.01 Implementation of the six data point representors
            Improve the C files by adding comments
            Addresses the issues in the C files that cause failure of modbus polling
+2021.03.02 Add a script as an example for auto testing
 
 """
 
@@ -20,6 +21,7 @@ import pandas as pd
 from ctypes import *
 import os
 from datetime import datetime
+import time
 
 MY_VERSION = '21MAR01'
 
@@ -308,10 +310,14 @@ class IrACdx36LibCaller :
         self.pollString = self.clib.IRAC_BZ172Lab_PollString
 
     def init(self):
-        self.Init()
+        rtn = self.Init()
+        if (rtn == 0):
+            print(':~) Connected to data point agent')
+        else:
+            print(':-( Fail to connect data point agent {0}'.format(rtn))
 
     def term(self):
-        self.Term()
+        return self.Term()
 
     def getVar(self, id):
         val = c_float()
@@ -334,6 +340,12 @@ class IrACdx36LibCaller :
         lpstr.value = text.encode('utf-8')
         rtn = self.pollString(id, 0, lpstr, 256)
         return rtn;
+    
+    def getVars(self, ids):
+        res = []
+        for id in ids:
+            res.append(self.getVar(id))
+        return res
 
 """
 Example,
@@ -375,8 +387,72 @@ def RAT(*args):
 caller.init()
 if (RAT() > 0):    # Read from a data point
     RAT(23.2)      # Write to the data point
+    
+caller.getVars([7, 8, 9]) # Read 3 data points in a bunch
 caller.term()
 """
+# %% an example of how to use a script to run an auto testing
+def sample_1():
+    RATavg, SATavg, RACmax, Unitst, Unitcmd, Coolsp, SATsp, Fanstg = \
+        [4,      7,     10,     12,      80,     81,    83,     97]
+    EvapFancmd, EXVcmd, Compcmd, Compspd = \
+        [   13,     14,      15,      19]
+        
+    caller.init()
+    
+    print("TEST CASE 1. Cooling function verification")
+
+    print("Step 1. check ambient temperature")
+    print("Average supply air temperature is ", caller.getVar(SATavg)[1])
+    print("Average return air temperature is ", caller.getVar(RATavg)[1])
+    print("Max rack inlet temperature is ", caller.getVar(RACmax)[1])
+    
+    print("Step 2. make sure the set points can meet the requirements")
+    print("Supply air setpoint is 15.0")
+    caller.setVar(SATsp, 15.0)
+    print("Fan strategy is 0 (inrow)")
+    caller.setVar(Fanstg, 0)
+    print("Cool setpoint is 18.0")
+    caller.setVar(Coolsp, 18.0)
+    
+    print("Step 3. set unit on (1)")
+    caller.setVar(Unitcmd, 1)
+    time.sleep(1) # wait for 1 second
+    print("<<{0}>> - Unit status is ON?".format(
+        caller.getVar(Unitst) == (0, 2)))
+    
+    time.sleep(5)
+    print("Step 4. check actuators")
+    print("<<{0}>> - Evaporator fan is started?".format(
+        caller.getVar(EvapFancmd)[1] > 0))
+    print("<<{0}>> - EXV is opened?".format(
+        caller.getVar(EXVcmd)[1] > 0))
+    print("Wait for 10 seconds...")
+    time.sleep(10)
+    print("<<{0}>> - Compressor is started?".format(
+        caller.getVar(Compcmd)[1] > 0))
+    
+    print("Step 5. check compressor upload")
+    comp_spd = caller.getVar(Compcmd)[1]
+    print("Compressor current speed ", comp_spd)
+    print("Wait for 20 second...")
+    time.sleep(20)
+    print("<<{0}>> - Now the compressor speed is increased?".format(
+        caller.getVar(Compcmd)[1] > comp_spd))
+    
+    print("Step 6. set unit off")
+    caller.setVar(Unitcmd, 0)
+    print("Wait for 10 seconds...")
+    time.sleep(10)
+    print("<<{0}>> - All actuators are off".format(
+        caller.getVar(EvapFancmd)[1] == 0 and
+        caller.getVar(EXVcmd)[1] == 0) and
+        caller.getVar(Compcmd)[1] == 0)
+    
+    print("END OF TEST CASE 1")
+    
+    caller.term()
+    print("Disconnect from data point agent")
 
 # %%
 if __name__ == '__main__':
