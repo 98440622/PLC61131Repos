@@ -53,7 +53,7 @@ VAR_GLOBAL
 	{G:"Main_vars"}
 	fbMain : DrawMain;
 	fbRefrMain : RefrMain;
-	fbMainEdit_1 : EditBox01 := (wHnd:=30, y1:=16, x2:=127, y2:=31, pFont:=?EWP2_8x16, bckCol:=16777215, rw:=TRUE, pVar:=16#00368700, order:=2, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, enumId:=1, format:=16#00000014);
+	fbMainEdit_1 : EditBox01 := (wHnd:=30, y1:=16, x2:=127, y2:=31, pFont:=?EWP2_8x16, bckCol:=16777215, rw:=TRUE, pVar:=16#00368700, order:=2, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, enumId:=1, pVarMax:=1, format:=16#00014014);
 	fbMainEdit_2 : EditBox01 := (wHnd:=31, y1:=32, x2:=127, y2:=47, pFont:=?EWP2_8x16, bckCol:=16777215, pVar:=16#00231400, order:=3, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyInt, enumId:=2, format:=16#00000014, pCanSel:=1);
 	fbMainEdit_3 : EditBox01 := (wHnd:=32, x1:=6, y1:=48, x2:=59, y2:=55, pFont:=?EWP2_6x8, bckCol:=16777215, pVar:=16#00230000, order:=4, pVisVar:=1, bckSelCol:=16777215, refr:=TRUE, type:=tyString, format:=16#09000014, pCanSel:=1);
 	fbMainEdit_4 : EditBox01 := (wHnd:=33, x1:=66, y1:=48, x2:=119, y2:=55, pFont:=?EWP2_6x8, bckCol:=16777215, pVar:=16#00230500, order:=5, pVisVar:=1, foreSelCol:=16777215, refr:=TRUE, type:=tyString, format:=16#0900000C, pCanSel:=1);
@@ -729,11 +729,11 @@ VAR_GLOBAL CONSTANT
 
 	(*** Enumeratives: ***)
 	kbEnumIdxBaseLanguage : UDINT := 0;
-	kbResEnums : ARRAY[ 0..201 ] OF BYTE :=
+	kbResEnums : ARRAY[ 0..237 ] OF BYTE :=
 	(*** Language: BaseLanguage ***)
 	(*** Enum ID ***) 16#01,
 	(* 0 *) 16#00, 16#00, 16#00, 16#00, 
-	(* SIMULATION *) 16#53, 16#49, 16#4D, 16#55, 16#4C, 16#41, 16#54, 16#49, 16#4F, 16#4E, 16#00, 
+	(* S O L O *) 16#53, 16#20, 16#4F, 16#20, 16#4C, 16#20, 16#4F, 16#00, 
 	(* 1 *) 16#01, 16#00, 16#00, 16#00, 
 	(* R E A L *) 16#52, 16#20, 16#45, 16#20, 16#41, 16#20, 16#4C, 16#00, 
 	(* End of enum *) 16#CD, 16#CD, 16#CD, 16#CD, 16#CD, 16#CD, 16#CD, 16#CD, 
@@ -768,6 +768,12 @@ VAR_GLOBAL CONSTANT
 	(* OPENED *) 16#4F, 16#50, 16#45, 16#4E, 16#45, 16#44, 16#00, 
 	(* 1 *) 16#01, 16#00, 16#00, 16#00, 
 	(* CLOSED *) 16#43, 16#4C, 16#4F, 16#53, 16#45, 16#44, 16#00, 
+	(* End of enum *) 16#CD, 16#CD, 16#CD, 16#CD, 16#CD, 16#CD, 16#CD, 16#CD, 
+	(*** Enum ID ***) 16#06,
+	(* 0 *) 16#00, 16#00, 16#00, 16#00, 
+	(* R E A L *) 16#52, 16#20, 16#45, 16#20, 16#41, 16#20, 16#4C, 16#00, 
+	(* 1 *) 16#01, 16#00, 16#00, 16#00, 
+	(* V I R T U A L *) 16#56, 16#20, 16#49, 16#20, 16#52, 16#20, 16#54, 16#20, 16#55, 16#20, 16#41, 16#20, 16#4C, 16#00, 
 	(* End of enum *) 16#CD, 16#CD, 16#CD, 16#CD, 16#CD, 16#CD, 16#CD, 16#CD, 
 	(* End of language *) 16#CD, 16#CD, 16#CD, 16#CD ;
 	{G:"Parameters"}

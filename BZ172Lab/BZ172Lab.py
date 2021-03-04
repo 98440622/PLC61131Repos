@@ -14,6 +14,7 @@ Version MY_VERSION
            Improve the C files by adding comments
            Addresses the issues in the C files that cause failure of modbus polling
 2021.03.02 Add a script as an example for auto testing
+2021.03.04 Generate two DDF.csv files, one for user and the other is a complete version
 
 """
 
@@ -23,7 +24,7 @@ import os
 from datetime import datetime
 import time
 
-MY_VERSION = '21MAR01'
+MY_VERSION = '21MAR02'
 
 def createDDF(variable_filename, e2prom_filename) :
     '''
@@ -58,9 +59,6 @@ def createDDF(variable_filename, e2prom_filename) :
     ddf = pd.concat([dfVariables, dfConfigurations])
     ddf = ddf.fillna('')
 
-    # Remove 'BZ...' items
-    ddf = ddf.drop(index=ddf[ddf['Name'].str.match('BZ')].index)
-
     # Fill the 'Size' of 16bit items with '1'
     ddf.loc[ddf['Size'] == '', 'Size'] = '1'
 
@@ -79,9 +77,13 @@ def createDDF(variable_filename, e2prom_filename) :
 
     # Update index
     ddf.index=[x for x in range(1, len(ddf) + 1)]
+    
+    # Remove 'BZ...' items for customer version
+    ddf_copy = ddf.drop(index=ddf[ddf['DataPoint'].str.match('BZ')].index)
 
     # save to csv file with utf-8 format by default
     ddf.to_csv('BZ172LabDDF.csv', index_label='NO')
+    ddf_copy.to_csv('BZ172LabDDF2MBs.csv', index_label='NO')
 
     return ddf;
 
@@ -315,6 +317,7 @@ class IrACdx36LibCaller :
             print(':~) Connected to data point agent')
         else:
             print(':-( Fail to connect data point agent {0}'.format(rtn))
+        return rtn
 
     def term(self):
         return self.Term()
@@ -391,6 +394,110 @@ if (RAT() > 0):    # Read from a data point
 caller.getVars([7, 8, 9]) # Read 3 data points in a bunch
 caller.term()
 """
+# %% Solo is what i want
+class BZ172Lab :
+    '''
+    TBC
+    '''
+    def __init__(self):
+        self.caller = IrACdx36LibCaller()
+        
+        self.IDandVars = pd.read_csv('BZ172LabDDF.csv', usecols=[0, 2])
+        self.IDandVars.NO = self.IDandVars.NO - 1
+        
+        self.BIOSVersionID,\
+        self.AppVersionID = [
+            IDandVars.NO[IDandVars.DataPoint == 'BIOSVersion'], 
+            IDandVars.NO[IDandVars.DataPoint == 'AppVersion']]
+        self.BZIsRealModeID = \
+            IDandVars.NO[IDandVars.DataPoint == 'BZIsRealMode']
+        
+        self.BZDILnID = [x for x in range(84, 96)]
+        self.BZAILnID = [x for x in range(96, 108)]
+        
+        self.AmbientTemperaturesID = [x for x in range(2, 11)]
+        
+        self.WarningIDs = [x for x in range(39, 65)] # 64 is the last one
+        self.AlarmIDs = [x for x in range(66, 75)]
+
+        if (self.caller.init() != 0):
+            print("Activate IrACdx36 firstly.")
+        else:
+            var = self.caller.getVar(self.BZIsRealModeID)
+            if (var[0] != 0):
+                print("IrACdx36 cannot connect to target.")
+            else:
+                print("GOOD to go with {0} mode".format(
+                    ['REAL', 'SOLO'][var[1] == 0]))
+                    
+        print("BIOS         : ", 
+              (self.caller.getStr(self.BIOSVersionID)[1]).decode('utf-8'))
+        print("APPLICATION  : ", 
+              (self.caller.getStr(self.AppVersionID)[1]).decode('utf-8'))
+                
+    def __del__(self):
+        #self.caller.term()
+        pass
+        
+    def goSolo(self):
+        var = self.caller.getVar(self.BZIsRealModeID)
+        if (var[0] != 0):
+            print("Lost target!")
+        else:
+            if (var[1] == 1):
+                #print("Set target in solo mode")
+                self.caller.setVar(self.BZIsRealModeID, 0)
+                input("Cycle the power of the target and "
+                      "press any key after it reboot...")
+            else:
+                pass
+            
+            for i in self.BZAILnID:    
+                self.caller.setVar(i, 220)
+            
+            print("Solo is my desire.")
+    
+    def setAI(self, i, v):
+        if (i in self.BZAILnID):
+            self.caller.setVar(i, v)
+        else:
+            print(i, " is not for AI index")
+    
+    def toggleDI(self, i):
+        if (i in self.BZDILnID):
+            self.caller.setVar(i, [1, 0][self.caller.getVar(i)[1] == 0])
+        
+    def checkAmbient(self):
+        tmps = self.caller.getVars(self.AmbientTemperaturesID)
+        for i, k in zip(self.AmbientTemperaturesID, 
+                        range(0, len(self.AmbientTemperaturesID))):
+            print("{0}({2}) = {1:.01f}".format(self.IDandVars.DataPoint[i],
+                                          tmps[k][1],
+                                          k))
+            
+            
+    def checkWarnings(self):
+        tmps = self.caller.getVars(self.WarningIDs)
+        for i, k in zip(self.WarningIDs,
+                        range(0, len(self.WarningIDs))):
+            print("{0} = {1}".format(self.IDandVars.DataPoint[i],
+                                          ['NO', 'YES'][int(tmps[k][1])],
+                                          k))
+            
+    def checkAlarms(self):
+        tmps = self.caller.getVars(self.AlarmIDs)
+        for i, k in zip(self.AlarmIDs,
+                        range(0, len(self.AlarmIDs))):
+            print("{0} = {1}".format(self.IDandVars.DataPoint[i],
+                                          ['NO', 'YES'][int(tmps[k][1])],
+                                          k))
+        
+        
+            
+        
+        
+        
+
 # %% an example of how to use a script to run an auto testing
 def sample_1():
     RATavg, SATavg, RACmax, Unitst, Unitcmd, Coolsp, SATsp, Fanstg = \

@@ -4,7 +4,7 @@
 		<LANG id="0" descr="BaseLanguage">
 			<ENUMS>
 				<ENUM id="1" name="emControllerMode" descr="emControllerMode">
-					<VAL id="0">SIMULATION</VAL>
+					<VAL id="0">S O L O</VAL>
 					<VAL id="1">R E A L</VAL>
 				</ENUM>
 				<ENUM id="2" name="emUnitStatus" descr="emUnitStatus">
@@ -26,6 +26,10 @@
 				<ENUM id="5" name="emRelayStatus" descr="emRelayStatus">
 					<VAL id="0">OPENED</VAL>
 					<VAL id="1">CLOSED</VAL>
+				</ENUM>
+				<ENUM id="6" name="emHWSimulated" descr="emHWSimulated">
+					<VAL id="0">R E A L</VAL>
+					<VAL id="1">V I R T U A L</VAL>
 				</ENUM>
 			</ENUMS>
 			<STRINGTABLE>
@@ -1310,8 +1314,8 @@
 						<VISIBLE>TRUE</VISIBLE>
 						<SELECT>FALSE</SELECT>
 						<LABEL/>
-						<VARMIN>*</VARMIN>
-						<VARMAX>*</VARMAX>
+						<VARMIN>0</VARMIN>
+						<VARMAX>1</VARMAX>
 						<EVENTS>
 							<EVENT name="BeforeUpdate"/>
 							<EVENT name="AfterUpdate"/>

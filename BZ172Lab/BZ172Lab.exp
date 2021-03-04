@@ -65,6 +65,7 @@ bzEvaporatorFan5RunhourLog AT %MW101.55 : UINT;	{ DE:"Accumulation working time 
 bzEvaporatorFan6RunhourLog AT %MW101.56 : UINT;	{ DE:"Accumulation working time of fan %d" }
 bzEvaporatorFan7RunhourLog AT %MW101.57 : UINT;	{ DE:"Accumulation working time of fan %d" }
 bzEvaporatorFan8RunhourLog AT %MW101.58 : UINT;	{ DE:"Accumulation working time of fan %d" }
+BZIsHWSimulated AT %MW101.59 : INT;
 	{G:"Status_variables"}
 bzBIOSVersion AT %MW110.0 : STRING[ 8 ];	{ DE:"M172 BIOS version" }
 bzAppVersion AT %MW110.5 : STRING[ 8 ];	{ DE:"Application version by a string type format of xx.xx.xx" }
@@ -151,6 +152,30 @@ bzEvaporatorFan5RunhourWarning AT %MW110.89 : INT;	{ DE:"Evaporator fan 5 run-ho
 bzEvaporatorFan6RunhourWarning AT %MW110.90 : INT;	{ DE:"Evaporator fan 6 run-hour warning" }
 bzEvaporatorFan7RunhourWarning AT %MW110.91 : INT;	{ DE:"Evaporator fan 7 run-hour warning" }
 bzEvaporatorFan8RunhourWarning AT %MW110.92 : INT;	{ DE:"Evaporator fan 8 run-hour warning" }
+BZAIL_01 AT %MW110.93 : INT := 0;
+BZAIL_02 AT %MW110.94 : INT := 0;
+BZAIL_03 AT %MW110.95 : INT := 0;
+BZAIL_04 AT %MW110.96 : INT := 0;
+BZAIL_05 AT %MW110.97 : INT := 0;
+BZAIL_06 AT %MW110.98 : INT := 0;
+BZAIL_07 AT %MW110.99 : INT := 0;
+BZAIL_08 AT %MW110.100 : INT := 0;
+BZAIL_09 AT %MW110.101 : INT := 0;
+BZAIL_10 AT %MW110.102 : INT := 0;
+BZAIL_11 AT %MW110.103 : INT := 0;
+BZAIL_12 AT %MW110.104 : INT := 0;
+BZDIL_01 AT %MW110.105 : INT := 0;
+BZDIL_02 AT %MW110.106 : INT := 0;
+BZDIL_03 AT %MW110.107 : INT := 0;
+BZDIL_04 AT %MW110.108 : INT := 0;
+BZDIL_05 AT %MW110.109 : INT := 0;
+BZDIL_06 AT %MW110.110 : INT := 0;
+BZDIL_07 AT %MW110.111 : INT := 0;
+BZDIL_08 AT %MW110.112 : INT := 0;
+BZDIL_09 AT %MW110.113 : INT := 0;
+BZDIL_10 AT %MW110.114 : INT := 0;
+BZDIL_11 AT %MW110.115 : INT := 0;
+BZDIL_12 AT %MW110.116 : INT := 0;
 	{G:"IO_Mapping"}
 HW_AI_01 AT %IW1.0 : INT;	{ DE:"AIL1 analogue input" }
 HW_AI_02 AT %IW1.1 : INT;	{ DE:"AIL2 analogue input" }
