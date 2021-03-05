@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<plcLibrary schemaVersion="2.4">
-	<lib version="1.0.3" name="BZ172Lab" fullXml="true">
-		<descr/>
+<plcLibrary schemaVersion="2.7">
+	<lib version="1.0.4" name="BZ172Lab" fullXml="true">
+		<descr>This is my design.</descr>
 		<libWorkspace>
-			<folder id="15" name="BZ172Lab">
+			<folder id="16" name="BZ172Lab">
 				<folder name="Programs">
-					<Pou name="BZActuatorUTProg"/>
+					<Pou name="BZCANUTProg"/>
 				</folder>
 				<folder name="Interfaces">
 					<Pou name="BZActuatorBase_SetMode"/>
@@ -19,20 +19,179 @@
 				</folder>
 				<folder name="Components">
 					<Definition name="BZProportionalValve"/>
-					<Definition name="BZAnalogActuator"/>
 					<Definition name="BZActuatorBase"/>
 					<Definition name="BZECFan"/>
 					<Definition name="BZElectricHeaterBar"/>
 					<Definition name="BZBinaryOutput"/>
+					<folder name="BZTemperatureSensor">
+						<Definition name="BZTemperatureSensor"/>
+						<Pou name="IBZTemperatureSensor_new"/>
+						<Pou name="IBZTemperatureSensor_update"/>
+						<Pou name="IBZTemperatureSensor_read"/>
+						<Pou name="BZTemperatureSensor_update"/>
+						<Pou name="BZTemperatureSensor_read"/>
+					</folder>
+					<folder name="BZMBDevice">
+						<Definition name="BZMBDevice"/>
+						<Pou name="IBZMBDevice_new"/>
+						<Definition name="BZVariableByMBRegisters"/>
+						<Pou name="IBZVariableByMBRegisters_new"/>
+						<folder name="Inheritance">
+							<Definition name="BZCarelUXPB000100111"/>
+							<Definition name="BZCSCB1"/>
+							<Definition name="BZEliwellEVD"/>
+							<Pou name="IBZCarelUXPB000100111_new"/>
+							<Pou name="IBZEliwellEVD_new"/>
+							<Pou name="IBZCSCB1_new"/>
+							<Pou name="IBZCarelUXPB000100111_readFrequencies"/>
+							<Pou name="IBZCSCB1_getStatus"/>
+						</folder>
+						<Pou name="IBZMBDevice_poll"/>
+					</folder>
+					<folder name="BZSwitch">
+						<Definition name="BZSwitch"/>
+						<Pou name="IBZSwitch_new"/>
+						<Pou name="IBZSwitch_update"/>
+					</folder>
+					<folder name="BZRelay">
+						<Definition name="BZRelay"/>
+						<Pou name="IBZRelay_new"/>
+						<Pou name="IBZRelay_run"/>
+						<Pou name="BZRelay_run"/>
+						<Pou name="BZRelay_updateRunhour"/>
+					</folder>
+					<folder name="BZAnalogActuator">
+						<Definition name="BZAnalogActuator"/>
+						<Pou name="IBZAnalogActuator_new"/>
+					</folder>
+					<folder name="BZDAQChannel">
+						<Definition name="BZDAQChannel"/>
+						<Pou name="IBZDAQChannel_new"/>
+					</folder>
+					<folder name="BZECFanEBM">
+						<Definition name="BZECFanEBM"/>
+						<Pou name="IBZECFanEBM_new"/>
+						<Pou name="BZECFanEBM_run"/>
+						<Pou name="IBZECFanEBM_updateRPM"/>
+						<Pou name="IBZECFanEBM_isRPMGood"/>
+						<Pou name="IBZECFanEBM_updateRunhour"/>
+					</folder>
+					<folder name="BZFault">
+						<Definition name="BZFault"/>
+						<Pou name="IBZFault_new"/>
+					</folder>
+					<folder name="BZEEV">
+						<Definition name="BZEEV"/>
+						<Pou name="IBZEEV_new"/>
+						<Pou name="BZEEV_run"/>
+						<Pou name="IBZEEV_isAtPosition"/>
+						<Pou name="BZEEV_updateRunhour"/>
+					</folder>
+					<folder name="BZVariableSpeedCompressor">
+						<Definition name="BZVariableSpeedCompressor"/>
+						<Pou name="IBZVariableSpeedCompressor_new"/>
+						<Pou name="BZVariableSpeedCompressor_run"/>
+						<Pou name="IBZVariableSpeedCompressor_isRunning"/>
+					</folder>
+					<folder name="BZPressureTransmitter">
+						<Definition name="BZPressureTransmitterBy20mA"/>
+						<Pou name="IBZPressureTransmitterBy20mA_new"/>
+						<Pou name="BZPressureTransmitterBy20mA_update"/>
+					</folder>
 				</folder>
 				<folder name="Types">
 					<Definition name="BZActuatorStatus"/>
 					<Definition name="BZActuatorMode"/>
 					<Definition name="BZRealRange"/>
+					<Definition name="BZTemperatureUnitE"/>
+					<Definition name="BZInt16RangeT"/>
+					<Definition name="BZModbusRegisterTypeE"/>
+					<Definition name="BZIRACUnitStatusE"/>
+					<Definition name="BZSwitchStatusE"/>
+					<Definition name="BZRelayOutputE"/>
+					<Definition name="BZDAQChannelTypeE"/>
+					<Definition name="BZFaultLevelE"/>
+					<Definition name="BZPressureUnitE"/>
+					<Definition name="BZMBDeviceStatus"/>
 				</folder>
 				<folder name="Utilities">
-					<Pou name="BZComputeY"/>
+					<Pou name="IBZComputeY"/>
 					<Pou name="BZBoundY"/>
+				</folder>
+				<folder name="Machines">
+					<folder name="bzAisleACUnit">
+						<folder name="BZFaultInheritor">
+							<Definition name="bzAisleACUnitFault"/>
+							<Pou name="IbzAisleACUnitFault_new"/>
+							<Pou name="bzAisleACUnitFault_evaulate"/>
+							<folder name="Warnings">
+								<Pou name="IBZFault_UnitMaintenanceWarning_new"/>
+								<Pou name="IBZFault_NoneOfRackinletTemperatureWarning_new"/>
+								<Pou name="BZFault_UnitMaintenanceWarning"/>
+								<Pou name="BZFault_NoneOfRackinletTemperatureWarning"/>
+								<Pou name="BZFault_HighRackinletTemperatureWarning"/>
+								<Pou name="IBZFault_HighRackinletTemperatureWarning_new"/>
+								<Pou name="BZFault_HighReturnTemperatureWarning"/>
+								<Pou name="IBZFault_HighReturnTemperatureWarning_new"/>
+								<Pou name="BZFault_HighSupplyTemperatureWarning"/>
+								<Pou name="IBZFault_HighSupplyTemperatureWarning_new"/>
+								<Pou name="IBZFault_CondensatePumpRunhourWarning_new"/>
+								<Pou name="BZFault_CondensatePumpRunhourWarning"/>
+								<Pou name="BZFault_SolenoidValveRunhourWarning"/>
+								<Pou name="IBZFault_SolenoidValveRunhourWarning_new"/>
+								<Pou name="BZFault_UnitRunhourWarning"/>
+								<Pou name="IBZFault_UnitRunhourWarning_new"/>
+								<Pou name="BZFault_EEVRunhourWarning"/>
+								<Pou name="IBZFault_EEVRunhourWarning_new"/>
+								<Pou name="BZFault_CompressorRunhourWarning"/>
+								<Pou name="IBZFault_CompressorRunhourWarning_new"/>
+								<Pou name="BZFault_EvaporatorFanRPMWarning"/>
+								<Pou name="IBZFault_EvaporatorFanRPMWarning_new"/>
+								<Pou name="BZFault_EvaporatorFanRunhourWarning"/>
+								<Pou name="IBZFault_EvaporatorFanRunhourWarning_new"/>
+							</folder>
+							<folder name="Alarms">
+								<Pou name="BZFault_AirfilterCloggedAlarm"/>
+								<Pou name="BZFault_CoilOutletSensorFaultAlarm"/>
+								<Pou name="BZFault_LowerReturnAirSensorFaultAlarm"/>
+								<Pou name="BZFault_LeakageAlarm"/>
+								<Pou name="BZFault_LowerSupplyAirSensorFaultAlarm"/>
+								<Pou name="BZFault_PanFullAlarm"/>
+								<Pou name="BZFault_UnitRemoteShutdownAlarm"/>
+								<Pou name="BZFault_UpperReturnAirSensorFaultAlarm"/>
+								<Pou name="BZFault_UpperSupplyAirSensorFaultAlarm"/>
+								<Pou name="IBZFault_AirfilterCloggedAlarm_new"/>
+								<Pou name="IBZFault_CoilOutletSensorFaultAlarm_new"/>
+								<Pou name="IBZFault_LowerReturnAirSensorFaultAlarm_new"/>
+								<Pou name="IBZFault_LowerSupplyAirSensorFaultAlarm_new"/>
+								<Pou name="IBZFault_LeakageAlarm_new"/>
+								<Pou name="IBZFault_PanFullAlarm_new"/>
+								<Pou name="IBZFault_UnitRemoteShutdownAlarm_new"/>
+								<Pou name="IBZFault_UpperReturnAirSensorFaultAlarm_new"/>
+								<Pou name="IBZFault_UpperSupplyAirSensorFaultAlarm_new"/>
+								<Pou name="BZFault_AirfilterRunhourAlarm"/>
+								<Pou name="IBZFault_AirfilterRunhourAlarm_new"/>
+							</folder>
+						</folder>
+						<Definition name="bzAisleACUnit"/>
+						<Pou name="bzAisleACUnit_groupTemperatures"/>
+						<Pou name="bzAisleACUnit_on1min"/>
+						<Pou name="bzAisleACUnit_on1s"/>
+						<Pou name="bzAisleACUnit_poll"/>
+						<Pou name="bzAisleACUnit_run"/>
+						<Pou name="IbzAisleACUnit_new"/>
+						<Pou name="bzAisleACUnit_on1h"/>
+						<Definition name="bzAisleACUnitCfg"/>
+						<folder name="Typedefs">
+							<Definition name="bzAisleACUnitEvapFanStrategy" genHidden="false"/>
+							<Definition name="bzAisleACUnitEvapFanCtrlStrategy"/>
+							<Definition name="bzAisleACUnitCompressorSM"/>
+							<Definition name="bzAisleACUnitEEVSM"/>
+						</folder>
+						<Pou name="bzAisleACUnit_controlEXV"/>
+						<Pou name="bzAisleACUnit_controlCompressor"/>
+						<Pou name="bzAisleACUnit_controlEvaporatorFan"/>
+					</folder>
 				</folder>
 			</folder>
 		</libWorkspace>
@@ -40,207 +199,39 @@
 		<retainVars/>
 		<constantVars/>
 		<functions>
-			<function name="BZBoundY" version="1.0.0" creationDate="1607935276" lastModifiedDate="1607935797">
-				<returnValue>REAL</returnValue>
-				<vars>
-					<inputVars>
-						<var name="minY" type="REAL"/>
-						<var name="maxY" type="REAL"/>
-						<var name="Y" type="REAL"/>
-					</inputVars>
-				</vars>
-				<iecDeclaration active="FALSE"/>
-				<sourceCode type="ST">
-					<![CDATA[if (minY > maxY) then
-	if (Y > minY) then
-		BZBoundY := minY;
-	elsif (Y < maxY) then
-		BZBoundY := maxY;
-	else
-		BZBoundY := Y;
-	end_if;
-else
-	if (Y > maxY) then
-		BZBoundY := maxY;
-	elsif (Y < minY) then
-		BZBoundY := minY;
-	else
-		BZBoundY := Y;
-	end_if;
-end_if; 
-]]>
-				</sourceCode>
-			</function>
-			<function name="BZComputeY" version="1.0.0" creationDate="1607928975" lastModifiedDate="1607930034">
+			<function name="BZActuatorBase_SetMode" version="1.0.0" creationDate="0" lastModifiedDate="1607670413" excludeFromBuild="FALSE">
 				<returnValue>BOOL</returnValue>
 				<vars>
 					<inputVars>
-						<var name="x1" type="REAL"/>
-						<var name="y1" type="REAL"/>
-						<var name="x2" type="REAL"/>
-						<var name="y2" type="REAL"/>
-						<var name="x" type="REAL"/>
-						<var name="y" type="@REAL"/>
-					</inputVars>
-				</vars>
-				<iecDeclaration active="FALSE"/>
-				<sourceCode type="ST">
-					<![CDATA[/*
-** Computes the output Y for the input X.  x must be scaled the same as x1 and x2.
-** y1 and y2 must be scaled the same.
-** The output Y, will be scaled the same as y1 and y2.
-**
-** Care must be taken to choose scalings to avoid overflow.
-** The equation is implement this way:
-** y = (y2 - y1) * (x - x1) / (x2 - x1) + y1
-**
-** You are also responsible for bounding x1, and x2 to prevent overflow of the output.
-**
-** Returns the value FALSE if the value x2 - x1 = 0
-*/
-
-if (x2 = x1) then	// TODO : IS THAT A GOOD WAY TO DO THIS?
-	@y := 0.0;
-	
-	BZComputeY := FALSE;
-else
-	@y := (((y2 - y1) * (x - x1)) / (x2 - x1)) + y1;
-	
-	BZComputeY := TRUE;
-end_if;
-]]>
-				</sourceCode>
-			</function>
-			<function name="BZElectricHeaterBar_Command" version="1.0.0" creationDate="1607668556" lastModifiedDate="1607675868">
-				<returnValue>BOOL</returnValue>
-				<vars>
-					<inputVars>
-						<var name="me" type="@BZElectricHeaterBar"/>
+						<var name="me" type="@BZActuatorBase"/>
 						<var name="mode" type="BZActuatorMode"/>
-						<var name="is_on" type="BOOL"/>
 					</inputVars>
-					<localVars>
-						<var name="rtn" type="BOOL"/>
-					</localVars>
 				</vars>
 				<iecDeclaration active="FALSE"/>
 				<sourceCode type="ST">
 					<![CDATA[
-rtn := BZActuatorBase_SetMode(?(@me.Parent.Parent), mode);
+@me.Mode := mode;
 
-@me.Parent.Command := is_on;
+BZActuatorBase_SetMode := TRUE;
 
-BZElectricHeaterBar_Command := TRUE;
 ]]>
 				</sourceCode>
 			</function>
-			<function name="BZECFan_Command" version="1.0.0" creationDate="1607667134" lastModifiedDate="1607926693">
-				<returnValue>BOOL</returnValue>
+			<function name="BZActuatorBase_GetStatus" version="1.0.0" creationDate="1607662241" lastModifiedDate="1607670404" excludeFromBuild="FALSE">
+				<returnValue>BZActuatorStatus</returnValue>
 				<vars>
 					<inputVars>
-						<var name="me" type="@BZECFan"/>
-						<var name="mode" type="BZActuatorMode"/>
-						<var name="speed_pct" type="REAL"/>
-					</inputVars>
-					<localVars>
-						<var name="rtn" type="BOOL"/>
-					</localVars>
-				</vars>
-				<iecDeclaration active="FALSE"/>
-				<sourceCode type="ST">
-					<![CDATA[
-rtn := BZActuatorBase_SetMode(?(@me.Parent.Parent), mode);
-
-@me.Parent.CommandPct := speed_pct;
-
-BZECFan_Command := TRUE;
-]]>
-				</sourceCode>
-			</function>
-			<function name="BZProportionalValve_Command" version="1.0.0" creationDate="1607664549" lastModifiedDate="1607926683">
-				<returnValue>BOOL</returnValue>
-				<vars>
-					<inputVars>
-						<var name="me" type="@BZProportionalValve"/>
-						<var name="mode" type="BZActuatorMode"/>
-						<var name="position_pct" type="REAL"/>
-					</inputVars>
-					<localVars>
-						<var name="rtn" type="BOOL"/>
-					</localVars>
-				</vars>
-				<iecDeclaration active="FALSE"/>
-				<sourceCode type="ST">
-					<![CDATA[
-rtn := BZActuatorBase_SetMode(?(@me.Parent.Parent), mode);
-
-@me.Parent.CommandPct := position_pct;
-
-BZProportionalValve_Command := TRUE;
-]]>
-				</sourceCode>
-			</function>
-			<function name="BZElectricHeaterBar_Run" version="1.0.0" creationDate="1607668556" lastModifiedDate="1607676320">
-				<returnValue>BOOL</returnValue>
-				<vars>
-					<inputVars>
-						<var name="me" type="@BZElectricHeaterBar"/>
+						<var name="me" type="@BZActuatorBase"/>
 					</inputVars>
 				</vars>
 				<iecDeclaration active="FALSE"/>
 				<sourceCode type="ST">
 					<![CDATA[
-case @me.Parent.Parent.Mode of
-	
-	STANDBY:
-		@me.Parent.Parent.Status := OFF;
-
-	AUTO:
-		@me.Parent.Parent.Status := RUNNING;
-	
-	MANUAL:
-		@me.Parent.Parent.Status := RUNNING;
-	
-	IO:
-		@me.Parent.Parent.Status := RUNNING;
-
-end_case;
-
-BZElectricHeaterBar_Run := TRUE;
+BZActuatorBase_GetStatus := @me.Status;
 ]]>
 				</sourceCode>
 			</function>
-			<function name="BZECFan_Run" version="1.0.0" creationDate="1607667134" lastModifiedDate="1607670447">
-				<returnValue>BOOL</returnValue>
-				<vars>
-					<inputVars>
-						<var name="me" type="@BZECFan"/>
-					</inputVars>
-				</vars>
-				<iecDeclaration active="FALSE"/>
-				<sourceCode type="ST">
-					<![CDATA[
-case @me.Parent.Parent.Mode of
-	
-	STANDBY:
-		@me.Parent.Parent.Status := OFF;
-
-	AUTO:
-		@me.Parent.Parent.Status := RUNNING;
-	
-	MANUAL:
-		@me.Parent.Parent.Status := RUNNING;
-	
-	IO:
-		@me.Parent.Parent.Status := RUNNING;
-
-end_case;
-
-BZECFan_Run := TRUE;
-]]>
-				</sourceCode>
-			</function>
-			<function name="BZProportionalValve_Run" version="1.0.0" creationDate="1607664549" lastModifiedDate="1607935816">
+			<function name="BZProportionalValve_Run" version="1.0.0" creationDate="1607664549" lastModifiedDate="1607935816" excludeFromBuild="FALSE">
 				<returnValue>BOOL</returnValue>
 				<vars>
 					<inputVars>
@@ -290,207 +281,3573 @@ BZProportionalValve_Run := TRUE;
 ]]>
 				</sourceCode>
 			</function>
-			<function name="BZActuatorBase_GetStatus" version="1.0.0" creationDate="1607662241" lastModifiedDate="1607670404">
-				<returnValue>BZActuatorStatus</returnValue>
-				<vars>
-					<inputVars>
-						<var name="me" type="@BZActuatorBase"/>
-					</inputVars>
-				</vars>
-				<iecDeclaration active="FALSE"/>
-				<sourceCode type="ST">
-					<![CDATA[
-BZActuatorBase_GetStatus := @me.Status;
-]]>
-				</sourceCode>
-			</function>
-			<function name="BZActuatorBase_SetMode" version="1.0.0" creationDate="0" lastModifiedDate="1607670413">
+			<function name="BZECFan_Run" version="1.0.0" creationDate="1607667134" lastModifiedDate="1607670447" excludeFromBuild="FALSE">
 				<returnValue>BOOL</returnValue>
 				<vars>
 					<inputVars>
-						<var name="me" type="@BZActuatorBase"/>
-						<var name="mode" type="BZActuatorMode"/>
+						<var name="me" type="@BZECFan"/>
 					</inputVars>
 				</vars>
 				<iecDeclaration active="FALSE"/>
 				<sourceCode type="ST">
 					<![CDATA[
-@me.Mode := mode;
+case @me.Parent.Parent.Mode of
+	
+	STANDBY:
+		@me.Parent.Parent.Status := OFF;
 
-BZActuatorBase_SetMode := TRUE;
+	AUTO:
+		@me.Parent.Parent.Status := RUNNING;
+	
+	MANUAL:
+		@me.Parent.Parent.Status := RUNNING;
+	
+	IO:
+		@me.Parent.Parent.Status := RUNNING;
 
+end_case;
+
+BZECFan_Run := TRUE;
 ]]>
 				</sourceCode>
 			</function>
-		</functions>
-		<functionBlocks/>
-		<programs>
-			<program name="BZActuatorUTProg" version="1.0.0" creationDate="0" lastModifiedDate="1607933425">
+			<function name="BZElectricHeaterBar_Run" version="1.0.0" creationDate="1607668556" lastModifiedDate="1607676320" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
 				<vars>
+					<inputVars>
+						<var name="me" type="@BZElectricHeaterBar"/>
+					</inputVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+case @me.Parent.Parent.Mode of
+	
+	STANDBY:
+		@me.Parent.Parent.Status := OFF;
+
+	AUTO:
+		@me.Parent.Parent.Status := RUNNING;
+	
+	MANUAL:
+		@me.Parent.Parent.Status := RUNNING;
+	
+	IO:
+		@me.Parent.Parent.Status := RUNNING;
+
+end_case;
+
+BZElectricHeaterBar_Run := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="BZProportionalValve_Command" version="1.0.0" creationDate="1607664549" lastModifiedDate="1607926683" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZProportionalValve"/>
+						<var name="mode" type="BZActuatorMode"/>
+						<var name="position_pct" type="REAL"/>
+					</inputVars>
 					<localVars>
-						<var name="res" type="BOOL"/>
-						<var name="valve1" type="BZProportionalValve"/>
-						<var name="fan1" type="BZECFan"/>
-						<var name="heater1" type="BZElectricHeaterBar"/>
-						<var name="probes" type="INT" dim0="4">
-							<initValue>[0, 0, 0, 0]</initValue>
-						</var>
-						<var name="cnt" type="UINT">
-							<initValue>0</initValue>
-						</var>
-						<var name="actuators" type="@BZActuatorBase" dim0="10"/>
-						<var name="analog_actuators" type="@BZAnalogActuator" dim0="5"/>
-						<var name="i" type="INT"/>
-						<var name="binary_actuators" type="@BZBinaryOutput" dim0="3"/>
-						<var name="is_first_called" type="BOOL">
-							<initValue>TRUE</initValue>
-						</var>
+						<var name="rtn" type="BOOL"/>
 					</localVars>
 				</vars>
 				<iecDeclaration active="FALSE"/>
 				<sourceCode type="ST">
 					<![CDATA[
-if (is_first_called) then
-	/*
-		initialize local variables
-	 */
-	i := 0;
+rtn := BZActuatorBase_SetMode(?(@me.Parent.Parent), mode);
+
+@me.Parent.CommandPct := position_pct;
+
+BZProportionalValve_Command := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="BZECFan_Command" version="1.0.0" creationDate="1607667134" lastModifiedDate="1607926693" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZECFan"/>
+						<var name="mode" type="BZActuatorMode"/>
+						<var name="speed_pct" type="REAL"/>
+					</inputVars>
+					<localVars>
+						<var name="rtn" type="BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+rtn := BZActuatorBase_SetMode(?(@me.Parent.Parent), mode);
+
+@me.Parent.CommandPct := speed_pct;
+
+BZECFan_Command := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="BZElectricHeaterBar_Command" version="1.0.0" creationDate="1607668556" lastModifiedDate="1607675868" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZElectricHeaterBar"/>
+						<var name="mode" type="BZActuatorMode"/>
+						<var name="is_on" type="BOOL"/>
+					</inputVars>
+					<localVars>
+						<var name="rtn" type="BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+rtn := BZActuatorBase_SetMode(?(@me.Parent.Parent), mode);
+
+@me.Parent.Command := is_on;
+
+BZElectricHeaterBar_Command := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZTemperatureSensor_new" version="1.0.0" creationDate="1611807303" lastModifiedDate="1612166812" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZTemperatureSensor"/>
+						<var name="type" type="BZTemperatureUnitE"/>
+						<var name="ptrHWVal" type="@INT"/>
+					</inputVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+//
+// initialize properties
+//
+@me.bIsAvailable := TRUE;
+@me.m_enUnit := type;
+@me.m_fValue := 0.0;
+@me.m_i16Range.Min := TO_INT(-500);
+@me.m_i16Range.Max := TO_INT(1500);
+@me.m_ptrHWValue := ptrHWVal;
+
+//
+// initialize 'this' for methods
+//
+@me.update.me := me;
+@me.read.me := me;
+
+IBZTemperatureSensor_new := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZTemperatureSensor_update" version="1.0.0" creationDate="1611807333" lastModifiedDate="1612006815" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZTemperatureSensor"/>
+					</inputVars>
+					<localVars>
+						<var name="ptrHW" type="@INT"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+ptrHW := @me.m_ptrHWValue; // have to make a copy because the syntax of @(@()) can not be recognized
+
+if (@ptrHW > @me.m_i16Range.Min) and (@ptrHW < @me.m_i16Range.Max) then
+	@me.bIsAvailable := TRUE;
+	@me.m_fValue := (TO_REAL(@ptrHW)) / 10.0;
+else
+	@me.bIsAvailable := FALSE;
+	@me.m_fValue := -3276.8;
+end_if;
+
+
+IBZTemperatureSensor_update := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZTemperatureSensor_read" version="1.0.0" creationDate="1611807409" lastModifiedDate="1614214047" excludeFromBuild="FALSE">
+				<returnValue>REAL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZTemperatureSensor"/>
+						<var name="as_type" type="BZTemperatureUnitE"/>
+					</inputVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+
+if (as_type = @me.m_enUnit) then
+	IBZTemperatureSensor_read := @me.m_fValue;
+else
+	if (as_type = enCelcius) then
+		IBZTemperatureSensor_read := (@me.m_fValue - 32.0) * 5.0 / 9.0;
+	else
+		IBZTemperatureSensor_read := @me.m_fValue * 9.0 / 5.0 + 32.0;
+	end_if;
+end_if;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZMBDevice_new" version="1.0.0" creationDate="1612238910" lastModifiedDate="1613709478" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZMBDevice"/>
+						<var name="id" type="USINT"/>
+						<var name="name" type="STRING" length="32"/>
+					</inputVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[//
+// initialize properties
+//
+@me.Id 					:= id;
+@me.Name 				:= name;
+@me.Status				:= MBD_OFFLINE;
+@me.NbrOfCommFailure	:= 0;
+@me.MaxNbrOfCommFailure	:= 10;
+//
+// initialize 'this' for methods
+//
+
+IBZMBDevice_new := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZVariableByMBRegisters_new" version="1.0.0" creationDate="1613701900" lastModifiedDate="1613703814" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZVariableByMBRegisters"/>
+						<var name="addr" type="UINT"/>
+						<var name="nbr" type="UINT"/>
+						<var name="type" type="BZModbusRegisterTypeE"/>
+					</inputVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+@me.StartAddr	:= addr;
+@me.NbrOfRegs	:= nbr;
+@me.TypeOfReg	:= type;
+
+IBZVariableByMBRegisters_new := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZCarelUXPB000100111_new" version="1.0.0" creationDate="1612242687" lastModifiedDate="1613710705" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZCarelUXPB000100111"/>
+						<var name="id" type="USINT"/>
+					</inputVars>
+					<localVars>
+						<var name="res" type="BOOL"/>
+						<var name="i" type="INT"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+res := IBZMBDevice_new(?(@me.parent), id, 'BZCarelUXPB000100111');
+
+for i := 0 to 7 do
+	@me.frequencies[i] := TO_UINT(0);
+end_for;
+
+res := IBZVariableByMBRegisters_new(?(@me.freqBlocks), 9, 8, BZMBInputRegister);
+
+IBZCarelUXPB000100111_new := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZEliwellEVD_new" version="1.0.0" creationDate="1613029868" lastModifiedDate="1613032519" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZEliwellEVD"/>
+						<var name="id" type="USINT"/>
+						<var name="eev" type="@BZEEV"/>
+					</inputVars>
+					<localVars>
+						<var name="res" type="BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+res := IBZMBDevice_new(?(@me.parent), id, 'BZEliwellEVD');
+
+// register map
+
+@me.m_eev := eev;
+
+IBZEliwellEVD_new := TRUE;
+
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZCSCB1_new" version="1.0.0" creationDate="1612252094" lastModifiedDate="1613714484" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZCSCB1"/>
+						<var name="id" type="USINT"/>
+					</inputVars>
+					<localVars>
+						<var name="res" type="BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+res := IBZMBDevice_new(?(@me.parent), id, 'BZCSCB1');
+
+res := IBZVariableByMBRegisters_new(?(@me.placeholderBlk), 8970, 9, BZMBHoldingRegister);
+
+IBZCSCB1_new := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZCarelUXPB000100111_readFrequencies" version="1.0.0" creationDate="1613703135" lastModifiedDate="1613708536" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZCarelUXPB000100111"/>
+					</inputVars>
+					<localVars>
+						<var name="res" type="BOOL"/>
+						<var name="regs" type="INT" dim0="100"/>
+						<var name="i" type="INT"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+
+res := IBZMBDevice_poll(?(@me.parent), @me.freqBlocks.TypeOfReg, @me.freqBlocks.StartAddr, @me.freqBlocks.NbrOfRegs, ?regs, TRUE);
+
+
+if (res) then
+	for i := 0 to 7 do
+		@me.frequencies[i] := TO_UINT(regs[i]);
+	end_for;
+else
+end_if;
+
+
+IBZCarelUXPB000100111_readFrequencies := res;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZCSCB1_getStatus" version="1.0.0" creationDate="1613713994" lastModifiedDate="1613714077" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZCSCB1"/>
+					</inputVars>
+					<localVars>
+						<var name="res" type="BOOL"/>
+						<var name="regs" type="INT" dim0="100"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+
+res := IBZMBDevice_poll(?(@me.parent), @me.placeholderBlk.TypeOfReg, @me.placeholderBlk.StartAddr, @me.placeholderBlk.NbrOfRegs, ?regs, TRUE);
+
+IBZCSCB1_getStatus := res;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZMBDevice_poll" version="1.0.0" creationDate="1613704167" lastModifiedDate="1613709303" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZMBDevice"/>
+						<var name="type" type="BZModbusRegisterTypeE"/>
+						<var name="addr" type="UINT"/>
+						<var name="nbr" type="UINT"/>
+						<var name="regs" type="@INT"/>
+						<var name="is_read" type="BOOL"/>
+					</inputVars>
+					<localVars>
+						<var name="rtn" type="BOOL"/>
+						<var name="res" type="UINT"/>
+					</localVars>
+					<localConsts>
+						<const name="TIMEOUT" type="UINT">
+							<initValue>100</initValue>
+						</const>
+					</localConsts>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+
+
+rtn := TRUE;
+
+if (type = BZMBCoil) then 
+	;//sysMbMRTU_FC01
+elsif (type = BZMBDiscreteInput) then
+	;//sysMbMRTU_FC02
+elsif (type = BZMBInputRegister) then
+	res := sysMbMRTU_FC04(@me.Id, addr, nbr, regs, TIMEOUT);
+elsif (type = BZMBHoldingRegister) then
+	if (is_read) then
+		res := sysMbMRTU_FC03(@me.Id, addr, nbr, regs, TIMEOUT);
+	else
+		res := sysMbMRTU_FC16(@me.Id, addr, nbr, regs, TIMEOUT);
+	end_if;
+else 
+	rtn := FALSE;
+end_if;
+
+if (rtn) then
+	if (res > 0) then
+		if (res = TO_UINT(16) and @me.NbrOfCommFailure < @me.MaxNbrOfCommFailure) then
+			@me.NbrOfCommFailure := @me.NbrOfCommFailure + 1;
+		else;
+		end_if;
+		
+		rtn := FALSE;
+	else
+		@me.NbrOfCommFailure := 0;
+	end_if;
+else ;
+end_if;
+
+if (@me.NbrOfCommFailure = @me.MaxNbrOfCommFailure) then
+	@me.Status := MBD_OFFLINE;
+else
+	@me.Status := MBD_ONLINE;
+end_if;
+
+
+IBZMBDevice_poll := rtn;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZSwitch_new" version="1.0.0" creationDate="1612425590" lastModifiedDate="1612490012" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZSwitch"/>
+						<var name="ptrHW" type="@BOOL"/>
+						<var name="is_reversed" type="BOOL"/>
+					</inputVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+//
+// initialize properties
+//
+@me.m_ptrHWValue 	:= ptrHW;
+@me.m_bReversed 	:= is_reversed;
+
+//
+// initialize 'this' for methods
+//
+
+
+IBZSwitch_new := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZSwitch_update" version="1.0.0" creationDate="1612425901" lastModifiedDate="1612487147" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZSwitch"/>
+					</inputVars>
+					<localVars>
+						<var name="ptrHW" type="@BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+ptrHW := @me.m_ptrHWValue; // have to make a copy because the syntax of @(@()) can not be recognized
+
+if (@me.m_bReversed) then
+	if (@ptrHW) then
+		@me.Status := BZSwitchOPEN;
+	else
+		@me.Status := BZSwitchCLOSE;
+	end_if;
+else
+	if (@ptrHW) then
+		@me.Status := BZSwitchCLOSE;
+	else
+		@me.Status := BZSwitchOPEN;
+	end_if;
+end_if;
 	
-	analog_actuators[0] := ?(valve1.Parent);
-	actuators[i] := ?(@analog_actuators[0].Parent); i := i + 1;
-	analog_actuators[1] := ?(fan1.Parent);
-	actuators[i] := ?(@analog_actuators[1].Parent); i := i + 1;
+IBZSwitch_update := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZRelay_new" version="1.0.0" creationDate="1612489011" lastModifiedDate="1612841875" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZRelay"/>
+						<var name="ptrHW" type="@BOOL"/>
+						<var name="output_of_true" type="BZRelayOutputE"/>
+					</inputVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[//
+// initialize properties
+//
+@me.m_ptrHWValue 	:= ptrHW;
+@me.m_cfg 			:= output_of_true;
+@me.m_runhours		:= 0;
+@me.m_status		:= ACT_OFF;
+
+//
+// initialize 'this' for methods
+//
+@me.run.me				:= me;
+@me.updateRunhour.me	:= me;
+
+IBZRelay_new := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZRelay_run" version="1.0.0" creationDate="1612490273" lastModifiedDate="1612841671" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZRelay"/>
+					</inputVars>
+					<localVars>
+						<var name="ptrHW" type="@BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+ptrHW := @me.m_ptrHWValue; // have to make a copy because the syntax of @(@()) can not be recognized
+
+if (@me.m_cfg = BZRelay_CLOSE) then
+	if (@me.m_output = BZRelay_CLOSE) then
+		@ptrHW := TRUE;
+		
+		@me.m_status := ACT_RUNNING;
+	else
+		@ptrHW := FALSE;
+		
+		@me.m_status := ACT_OFF;
+	end_if;
+else
+	if (@me.m_output = BZRelay_CLOSE) then
+		@ptrHW := FALSE;
+		
+		@me.m_status := ACT_RUNNING;
+	else
+		@ptrHW := TRUE;
+		
+		@me.m_status := ACT_OFF;
+	end_if;
+end_if;
+
+
+IBZRelay_run := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZAnalogActuator_new" version="1.0.0" creationDate="1612504245" lastModifiedDate="1613696396" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZAnalogActuator"/>
+					</inputVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+@me.m_Range.High:= 100.0;
+@me.m_Range.Low	:= 0.0;
+@me.m_Runhours	:= 0;
+@me.m_Status	:= ACT_INITIALISING;
+@me.m_Output	:= 0.0;
+
+IBZAnalogActuator_new := TRUE;
+
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZDAQChannel_new" version="1.0.0" creationDate="1612504085" lastModifiedDate="1612504204" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZDAQChannel"/>
+						<var name="ptrHW" type="@INT"/>
+						<var name="type" type="BZDAQChannelTypeE"/>
+					</inputVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+@me.m_ptrHWValue 	:= ptrHW;
+@me.m_Type			:= type;
+
+IBZDAQChannel_new := TRUE;	
+
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZECFanEBM_new" version="1.0.0" creationDate="1612506311" lastModifiedDate="1614153787" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZECFanEBM"/>
+						<var name="daq" type="@BZDAQChannel"/>
+					</inputVars>
+					<localVars>
+						<var name="res" type="BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+// properties
+@me.m_daq_chnl := daq;
+
+res := IBZAnalogActuator_new(?(@me.m_parent));
+
+@me.m_plus_per_round 	:= TO_UINT(6); // The number of pulse per round is 6 by default.
+@me.PulseFrequence 		:= TO_UINT(0);
+@me.IsTachoFeedbackPresent	:= TRUE;
+
+// 'this' for members
+@me.run.me := me;
+
+IBZECFanEBM_new := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZECFanEBM_updateRPM" version="1.0.0" creationDate="1613710048" lastModifiedDate="1613711499" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZECFanEBM"/>
+						<var name="freq" type="UINT">
+							<descr>Frequence in Hz</descr>
+						</var>
+					</inputVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+@me.Tacho := TO_UINT((TO_REAL(freq) * 60.0) / TO_REAL(@me.m_plus_per_round));
+
+IBZECFanEBM_updateRPM := TRUE;
+
+
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZECFanEBM_isRPMGood" version="1.0.0" creationDate="1613710048" lastModifiedDate="1614157580" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZECFanEBM"/>
+					</inputVars>
+					<localVars>
+						<var name="rtn" type="BOOL"/>
+						<var name="estimated_rpm" type="REAL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+
+rtn := TRUE;
+
+if (@me.IsTachoFeedbackPresent) then
+	if (@me.m_parent.m_Command > 0.0) then
+		if (@me.Tacho < TO_UINT(800)) then
+			rtn := FALSE;		
+		else; // As long as the fan blades are rotating, everything's fine. Aha...
+		end_if;
+	else; // Return TRUE if fan is not commanded to run
+	end_if;
+else;	// Return TRUE if tacho feedback is not possible
+end_if;
+
+IBZECFanEBM_isRPMGood := rtn;
+
+
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZECFanEBM_updateRunhour" version="1.0.0" creationDate="1614226892" lastModifiedDate="1614227095" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZECFanEBM"/>
+					</inputVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+if (@me.m_parent.m_Status = ACT_RUNNING) then
+	if (@me.IsTachoFeedbackPresent and @me.Tacho > TO_UINT(800)) then
+		@me.m_parent.m_Runhours := @me.m_parent.m_Runhours + 1;	
+	else
+		@me.m_parent.m_Runhours := @me.m_parent.m_Runhours + 1;
+	end_if;
+else;
+end_if;
+
+IBZECFanEBM_updateRunhour := TRUE;
+
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZFault_new" version="1.0.0" creationDate="1612660643" lastModifiedDate="1612666049" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZFault"/>
+						<var name="level" type="BZFaultLevelE"/>
+						<var name="code" type="INT"/>
+					</inputVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+@me.Code 		:= code;
+@me.Enabled 	:= TRUE;
+@me.Level 		:= level;
+@me.Reset 		:= FALSE;
+@me.IsPresent	:= FALSE;
+
+IBZFault_new := TRUE;
+
+
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZEEV_new" version="1.0.0" creationDate="1613025902" lastModifiedDate="1613958555" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZEEV"/>
+						<var name="max_steps" type="UINT"/>
+					</inputVars>
+					<localVars>
+						<var name="res" type="BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+@me.MAXSteps := max_steps;
+
+res := IBZAnalogActuator_new(?(@me.m_parent));
+
+@me.run.me 				:= me;
+@me.updateRunhour.me	:= me;
+
+IBZEEV_new := TRUE;
+
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZEEV_isAtPosition" version="1.0.0" creationDate="1613211123" lastModifiedDate="1613220145" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZEEV"/>
+						<var name="steps" type="UINT"/>
+					</inputVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+IBZEEV_isAtPosition := @me.ReqSteps = @me.Steps and @me.Steps = steps;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZVariableSpeedCompressor_new" version="1.0.0" creationDate="1613032945" lastModifiedDate="1613053871" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZVariableSpeedCompressor"/>
+						<var name="max_spd_hz" type="UINT"/>
+					</inputVars>
+					<localVars>
+						<var name="res" type="BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+@me.MAXSpeedHz := max_spd_hz;
+
+res := IBZAnalogActuator_new(?(@me.m_parent));
+
+@me.run.me := me;
+
+
+IBZVariableSpeedCompressor_new := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZVariableSpeedCompressor_isRunning" version="1.0.0" creationDate="1613218123" lastModifiedDate="1613218382" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZVariableSpeedCompressor"/>
+					</inputVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+IBZVariableSpeedCompressor_isRunning := @me.ReqFrequence > 0 and @me.ActFrequence > 0;
+
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZPressureTransmitterBy20mA_new" version="1.0.0" creationDate="1613261006" lastModifiedDate="1613279302" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZPressureTransmitterBy20mA"/>
+						<var name="ptrHW" type="@INT"/>
+						<var name="max_pressure_bar" type="REAL"/>
+					</inputVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+@me.IsAvailable 	:= TRUE;
+@me.m_enUnit		:= BZ_enBAR;
+@me.m_ptrHWValue	:= ptrHW;
+@me.m_range.High	:= max_pressure_bar;
+@me.m_range.Low		:= 0.0;
+@me.Value			:= 0.0;
+
+@me.update.me		:= me;
+
+IBZPressureTransmitterBy20mA_new := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZComputeY" version="1.0.0" creationDate="1607928975" lastModifiedDate="1613279150" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="x1" type="REAL"/>
+						<var name="y1" type="REAL"/>
+						<var name="x2" type="REAL"/>
+						<var name="y2" type="REAL"/>
+						<var name="x" type="REAL"/>
+						<var name="y" type="@REAL"/>
+					</inputVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[/*
+** Computes the output Y for the input X.  x must be scaled the same as x1 and x2.
+** y1 and y2 must be scaled the same.
+** The output Y, will be scaled the same as y1 and y2.
+**
+** Care must be taken to choose scalings to avoid overflow.
+** The equation is implement this way:
+** y = (y2 - y1) * (x - x1) / (x2 - x1) + y1
+**
+** You are also responsible for bounding x1, and x2 to prevent overflow of the output.
+**
+** Returns the value FALSE if the value x2 - x1 = 0
+*/
+
+if (x2 = x1) then	// TODO : IS THAT A GOOD WAY TO DO THIS?
+	@y := 0.0;
 	
-	binary_actuators[0] := ?(heater1.Parent);
-	actuators[i] := ?(@binary_actuators[0].Parent); i := i + 1;
+	IBZComputeY := FALSE;
+else
+	@y := (((y2 - y1) * (x - x1)) / (x2 - x1)) + y1;
+	
+	IBZComputeY := TRUE;
+end_if;
+]]>
+				</sourceCode>
+			</function>
+			<function name="BZBoundY" version="1.0.0" creationDate="1607935276" lastModifiedDate="1607935797" excludeFromBuild="FALSE">
+				<returnValue>REAL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="minY" type="REAL"/>
+						<var name="maxY" type="REAL"/>
+						<var name="Y" type="REAL"/>
+					</inputVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[if (minY > maxY) then
+	if (Y > minY) then
+		BZBoundY := minY;
+	elsif (Y < maxY) then
+		BZBoundY := maxY;
+	else
+		BZBoundY := Y;
+	end_if;
+else
+	if (Y > maxY) then
+		BZBoundY := maxY;
+	elsif (Y < minY) then
+		BZBoundY := minY;
+	else
+		BZBoundY := Y;
+	end_if;
+end_if; 
+]]>
+				</sourceCode>
+			</function>
+			<function name="IbzAisleACUnitFault_new" version="1.0.0" creationDate="1612682568" lastModifiedDate="1614226392" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@bzAisleACUnitFault"/>
+						<var name="unit" type="@bzAisleACUnit"/>
+					</inputVars>
+					<localVars>
+						<var name="res" type="BOOL"/>
+						<var name="i" type="INT"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+res := IBZFault_UnitMaintenanceWarning_new(?(@unit.BZFault_evaluators.UnitMaintenanceWarning_evaluator), 						unit);
+res := IBZFault_NoneOfRackinletTemperatureWarning_new(?(@unit.BZFault_evaluators.NoneOfRackinletTemperatureWarning_evaluator), 	unit);
+res := IBZFault_HighRackinletTemperatureWarning_new(?(@unit.BZFault_evaluators.HighRackinletTemperatureWarning_evaluator),		unit);
+res := IBZFault_HighReturnTemperatureWarning_new(?(@unit.BZFault_evaluators.HighReturnTemperatureWarning_evaluator),			unit);			
+res := IBZFault_HighSupplyTemperatureWarning_new(?(@unit.BZFault_evaluators.HighSupplyTemperatureWarning_evaluator),			unit);			
+res	:= IBZFault_CondensatePumpRunhourWarning_new(?(@unit.BZFault_evaluators.CondensatePumpRunhourWarning_evaluator),			unit);
+res	:= IBZFault_SolenoidValveRunhourWarning_new(?(@unit.BZFault_evaluators.SolenoidValveRunhourWarning_evaluator),				unit);
+res := IBZFault_UnitRunhourWarning_new(?(@unit.BZFault_evaluators.UnitRunhourWarning_evaluator),								unit);
+res := IBZFault_EEVRunhourWarning_new(?(@unit.BZFault_evaluators.EEVRunhourWarning_evaluator),									unit);
+res := IBZFault_CompressorRunhourWarning_new(?(@unit.BZFault_evaluators.CompressorRunhourWarning_evaluator),					unit);
+for i := 0 to 7 do
+	res := IBZFault_EvaporatorFanRPMWarning_new(?(@unit.BZFault_evaluators.EvaporatorFanRPMWarning_evaluators[i]), i,			unit);
+	res := IBZFault_EvaporatorFanRunhourWarning_new(?(@unit.BZFault_evaluators.EvaporatorFanRunhourWarning_evaluators[i]), i,	unit);
+end_for;
+
+res := IBZFault_UnitRemoteShutdownAlarm_new(?(@unit.BZFault_evaluators.UnitRemoteShutdownAlarm_evaluator), 					unit);
+res := IBZFault_AirfilterCloggedAlarm_new(?(@unit.BZFault_evaluators.AirfilterCloggedAlarm_evaluator),						unit);
+res := IBZFault_LeakageAlarm_new(?(@unit.BZFault_evaluators.LeakageAlarm_evaluator),										unit);
+res := IBZFault_PanFullAlarm_new(?(@unit.BZFault_evaluators.PanFullAlarm_evaluator),										unit);
+res := IBZFault_UpperReturnAirSensorFaultAlarm_new(?(@unit.BZFault_evaluators.UpperReturnAirSensorFaultAlarm_evaluator),	unit);
+res := IBZFault_LowerReturnAirSensorFaultAlarm_new(?(@unit.BZFault_evaluators.LowerReturnAirSensorFaultAlarm_evaluator),	unit);
+res := IBZFault_UpperSupplyAirSensorFaultAlarm_new(?(@unit.BZFault_evaluators.UpperSupplyAirSensorFaultAlarm_evaluator),	unit);
+res := IBZFault_LowerSupplyAirSensorFaultAlarm_new(?(@unit.BZFault_evaluators.LowerSupplyAirSensorFaultAlarm_evaluator),	unit);
+res := IBZFault_CoilOutletSensorFaultAlarm_new(?(@unit.BZFault_evaluators.CoilOutletSensorFaultAlarm_evaluator),			unit);
+res := IBZFault_AirfilterRunhourAlarm_new(?(@unit.BZFault_evaluators.AirfilterRunhourAlarm_evaluator),						unit);
+
+@me.NumberOfAlarmDetected := 0;
+
+@me.evaulate.me := me;
+
+IbzAisleACUnitFault_new := TRUE;
+
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZFault_UnitMaintenanceWarning_new" version="1.0.0" creationDate="1612665753" lastModifiedDate="1612668107" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZFault_UnitMaintenanceWarning"/>
+						<var name="unit" type="@bzAisleACUnit"/>
+					</inputVars>
+					<localVars>
+						<var name="res" type="BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+res := IBZFault_new(?(@me.parent), BZ_WARNING, 10060);
+
+@me.me := unit;
+
+IBZFault_UnitMaintenanceWarning_new := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZFault_NoneOfRackinletTemperatureWarning_new" version="1.0.0" creationDate="1612665753" lastModifiedDate="1612760164" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZFault_NoneOfRackinletTemperatureWarning"/>
+						<var name="unit" type="@bzAisleACUnit"/>
+					</inputVars>
+					<localVars>
+						<var name="res" type="BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+res := IBZFault_new(?(@me.parent), BZ_WARNING, 9963);
+
+@me.me := unit;
+
+IBZFault_NoneOfRackinletTemperatureWarning_new := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZFault_HighRackinletTemperatureWarning_new" version="1.0.0" creationDate="1612665753" lastModifiedDate="1612860352" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZFault_HighRackinletTemperatureWarning"/>
+						<var name="unit" type="@bzAisleACUnit"/>
+					</inputVars>
+					<localVars>
+						<var name="res" type="BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+res := IBZFault_new(?(@me.parent), BZ_WARNING, 9964);
+
+@me.me := unit;
+
+IBZFault_HighRackinletTemperatureWarning_new := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZFault_HighReturnTemperatureWarning_new" version="1.0.0" creationDate="1612665753" lastModifiedDate="1612860369" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZFault_HighReturnTemperatureWarning"/>
+						<var name="unit" type="@bzAisleACUnit"/>
+					</inputVars>
+					<localVars>
+						<var name="res" type="BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+res := IBZFault_new(?(@me.parent), BZ_WARNING, 9961);
+
+@me.me := unit;
+
+IBZFault_HighReturnTemperatureWarning_new := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZFault_HighSupplyTemperatureWarning_new" version="1.0.0" creationDate="1612665753" lastModifiedDate="1612860853" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZFault_HighSupplyTemperatureWarning"/>
+						<var name="unit" type="@bzAisleACUnit"/>
+					</inputVars>
+					<localVars>
+						<var name="res" type="BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+res := IBZFault_new(?(@me.parent), BZ_WARNING, 9962);
+
+@me.me := unit;
+
+IBZFault_HighSupplyTemperatureWarning_new := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZFault_CondensatePumpRunhourWarning_new" version="1.0.0" creationDate="1612665753" lastModifiedDate="1612920595" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZFault_CondensatePumpRunhourWarning"/>
+						<var name="unit" type="@bzAisleACUnit"/>
+					</inputVars>
+					<localVars>
+						<var name="res" type="BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+res := IBZFault_new(?(@me.parent), BZ_WARNING, 10050);
+
+@me.me := unit;
+
+IBZFault_CondensatePumpRunhourWarning_new := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZFault_SolenoidValveRunhourWarning_new" version="1.0.0" creationDate="1612665753" lastModifiedDate="1612924093" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZFault_SolenoidValveRunhourWarning"/>
+						<var name="unit" type="@bzAisleACUnit"/>
+					</inputVars>
+					<localVars>
+						<var name="res" type="BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+res := IBZFault_new(?(@me.parent), BZ_WARNING, 10020);
+
+@me.me := unit;
+
+IBZFault_SolenoidValveRunhourWarning_new := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZFault_UnitRunhourWarning_new" version="1.0.0" creationDate="1612665753" lastModifiedDate="1613957320" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZFault_UnitRunhourWarning"/>
+						<var name="unit" type="@bzAisleACUnit"/>
+					</inputVars>
+					<localVars>
+						<var name="res" type="BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+res := IBZFault_new(?(@me.parent), BZ_WARNING, 10061);
+
+@me.me := unit;
+
+IBZFault_UnitRunhourWarning_new := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZFault_EEVRunhourWarning_new" version="1.0.0" creationDate="1612665753" lastModifiedDate="1613961498" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZFault_EEVRunhourWarning"/>
+						<var name="unit" type="@bzAisleACUnit"/>
+					</inputVars>
+					<localVars>
+						<var name="res" type="BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+res := IBZFault_new(?(@me.parent), BZ_WARNING, 10011);
+
+@me.me := unit;
+
+IBZFault_EEVRunhourWarning_new := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZFault_CompressorRunhourWarning_new" version="1.0.0" creationDate="1612665753" lastModifiedDate="1613962683" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZFault_CompressorRunhourWarning"/>
+						<var name="unit" type="@bzAisleACUnit"/>
+					</inputVars>
+					<localVars>
+						<var name="res" type="BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+res := IBZFault_new(?(@me.parent), BZ_WARNING, 10030);
+
+@me.me := unit;
+
+IBZFault_CompressorRunhourWarning_new := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZFault_EvaporatorFanRPMWarning_new" version="1.0.0" creationDate="1612665753" lastModifiedDate="1614216267" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZFault_EvaporatorFanRPMWarning"/>
+						<var name="index" type="INT"/>
+						<var name="unit" type="@bzAisleACUnit"/>
+					</inputVars>
+					<localVars>
+						<var name="res" type="BOOL"/>
+						<var name="err_code" type="UINT"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+err_code := TO_UINT(9980) + TO_UINT(index);
+res := IBZFault_new(?(@me.parent), BZ_WARNING, TO_INT(err_code));
+
+@me.fan_index := index;
+@me.me := unit;
+
+IBZFault_EvaporatorFanRPMWarning_new := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZFault_EvaporatorFanRunhourWarning_new" version="1.0.0" creationDate="1612665753" lastModifiedDate="1614226251" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZFault_EvaporatorFanRunhourWarning"/>
+						<var name="index" type="INT"/>
+						<var name="unit" type="@bzAisleACUnit"/>
+					</inputVars>
+					<localVars>
+						<var name="res" type="BOOL"/>
+						<var name="err_code" type="UINT"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+err_code := TO_UINT(9988) + TO_UINT(index);
+res := IBZFault_new(?(@me.parent), BZ_WARNING, TO_INT(err_code));
+
+@me.fan_index := index;
+@me.me := unit;
+
+IBZFault_EvaporatorFanRunhourWarning_new := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZFault_AirfilterCloggedAlarm_new" version="1.0.0" creationDate="1612665753" lastModifiedDate="1612685619" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZFault_AirfilterCloggedAlarm"/>
+						<var name="unit" type="@bzAisleACUnit"/>
+					</inputVars>
+					<localVars>
+						<var name="res" type="BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+res := IBZFault_new(?(@me.parent), BZ_ALARM, 10261);
+
+@me.me := unit;
+
+IBZFault_AirfilterCloggedAlarm_new := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZFault_CoilOutletSensorFaultAlarm_new" version="1.0.0" creationDate="1612665753" lastModifiedDate="1612781421" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZFault_CoilOutletSensorFaultAlarm"/>
+						<var name="unit" type="@bzAisleACUnit"/>
+					</inputVars>
+					<localVars>
+						<var name="res" type="BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+res := IBZFault_new(?(@me.parent), BZ_ALARM, 10210);
+
+@me.me := unit;
+
+IBZFault_CoilOutletSensorFaultAlarm_new := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZFault_LowerReturnAirSensorFaultAlarm_new" version="1.0.0" creationDate="1612665753" lastModifiedDate="1612756592" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZFault_LowerReturnAirSensorFaultAlarm"/>
+						<var name="unit" type="@bzAisleACUnit"/>
+					</inputVars>
+					<localVars>
+						<var name="res" type="BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+res := IBZFault_new(?(@me.parent), BZ_ALARM, 10162);
+
+@me.me := unit;
+
+IBZFault_LowerReturnAirSensorFaultAlarm_new := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZFault_LowerSupplyAirSensorFaultAlarm_new" version="1.0.0" creationDate="1612665753" lastModifiedDate="1612757901" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZFault_LowerSupplyAirSensorFaultAlarm"/>
+						<var name="unit" type="@bzAisleACUnit"/>
+					</inputVars>
+					<localVars>
+						<var name="res" type="BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+res := IBZFault_new(?(@me.parent), BZ_ALARM, 10164);
+
+@me.me := unit;
+
+IBZFault_LowerSupplyAirSensorFaultAlarm_new := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZFault_LeakageAlarm_new" version="1.0.0" creationDate="1612665753" lastModifiedDate="1612704089" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZFault_LeakageAlarm"/>
+						<var name="unit" type="@bzAisleACUnit"/>
+					</inputVars>
+					<localVars>
+						<var name="res" type="BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+res := IBZFault_new(?(@me.parent), BZ_ALARM, 10262);
+
+@me.me := unit;
+
+IBZFault_LeakageAlarm_new := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZFault_PanFullAlarm_new" version="1.0.0" creationDate="1612665753" lastModifiedDate="1612708805" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZFault_PanFullAlarm"/>
+						<var name="unit" type="@bzAisleACUnit"/>
+					</inputVars>
+					<localVars>
+						<var name="res" type="BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+res := IBZFault_new(?(@me.parent), BZ_ALARM, 10250);
+
+@me.me := unit;
+
+IBZFault_PanFullAlarm_new := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZFault_UnitRemoteShutdownAlarm_new" version="1.0.0" creationDate="1612665753" lastModifiedDate="1612681261" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZFault_UnitRemoteShutdownAlarm"/>
+						<var name="unit" type="@bzAisleACUnit"/>
+					</inputVars>
+					<localVars>
+						<var name="res" type="BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+res := IBZFault_new(?(@me.parent), BZ_ALARM, 10260);
+
+@me.me := unit;
+
+IBZFault_UnitRemoteShutdownAlarm_new := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZFault_UpperReturnAirSensorFaultAlarm_new" version="1.0.0" creationDate="1612665753" lastModifiedDate="1612749689" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZFault_UpperReturnAirSensorFaultAlarm"/>
+						<var name="unit" type="@bzAisleACUnit"/>
+					</inputVars>
+					<localVars>
+						<var name="res" type="BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+res := IBZFault_new(?(@me.parent), BZ_ALARM, 10161);
+
+@me.me := unit;
+
+IBZFault_UpperReturnAirSensorFaultAlarm_new := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZFault_UpperSupplyAirSensorFaultAlarm_new" version="1.0.0" creationDate="1612665753" lastModifiedDate="1612757529" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZFault_UpperSupplyAirSensorFaultAlarm"/>
+						<var name="unit" type="@bzAisleACUnit"/>
+					</inputVars>
+					<localVars>
+						<var name="res" type="BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+res := IBZFault_new(?(@me.parent), BZ_ALARM, 10163);
+
+@me.me := unit;
+
+IBZFault_UpperSupplyAirSensorFaultAlarm_new := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IBZFault_AirfilterRunhourAlarm_new" version="1.0.0" creationDate="1612665753" lastModifiedDate="1612931419" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZFault_AirfilterRunhourAlarm"/>
+						<var name="unit" type="@bzAisleACUnit"/>
+					</inputVars>
+					<localVars>
+						<var name="res" type="BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+res := IBZFault_new(?(@me.parent), BZ_ALARM, 10263);
+
+@me.me := unit;
+
+IBZFault_AirfilterRunhourAlarm_new := TRUE;
+]]>
+				</sourceCode>
+			</function>
+			<function name="IbzAisleACUnit_new" version="1.0.0" creationDate="1612017920" lastModifiedDate="1613307942" excludeFromBuild="FALSE">
+				<returnValue>BOOL</returnValue>
+				<vars>
+					<inputVars>
+						<var name="me" type="@bzAisleACUnit"/>
+					</inputVars>
+					<localVars>
+						<var name="res" type="BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[
+//
+// initialize properties
+//
+@me.strModelNO	:= 'M172';
+@me.strSerialNO	:= 'IEC6113-3';
+
+res	:= IbzAisleACUnitFault_new(?(@me.BZFault_evaluators), me);
+
+//
+// initialize 'this' for public methods
+//
+@me.groupRackAirSensors.me 		:= me;
+@me.groupReturnAirSensors.me 	:= me;
+@me.groupSupplyAirSensors.me 	:= me;
+@me.run.me 						:= me;
+@me.poll.me 					:= me;
+@me.on1s.me						:= me;
+@me.on1min.me					:= me;
+@me.on1h.me						:= me;
+@me.controlEvaporatorFan.me		:= me;
+@me.controlEXV.me				:= me;
+@me.controlCompressor.me		:= me;
+
+
+IbzAisleACUnit_new := TRUE;
+
+]]>
+				</sourceCode>
+			</function>
+		</functions>
+		<functionBlocks>
+			<functionBlock name="BZTemperatureSensor_update" version="1.0.0" creationDate="1612006866" lastModifiedDate="1612006961" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZTemperatureSensor"/>
+					</inputVars>
+					<localVars>
+						<var name="ptrHW" type="@INT"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+ptrHW := @me.m_ptrHWValue; // have to make a copy because the syntax of @(@()) can not be recognized
+
+if (@ptrHW > @me.m_i16Range.Min) and (@ptrHW < @me.m_i16Range.Max) then
+	@me.bIsAvailable := TRUE;
+	@me.m_fValue := (TO_REAL(@ptrHW)) / 10.0;
+else
+	@me.bIsAvailable := FALSE;
+	@me.m_fValue := -3276.8;
+end_if;
+
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="BZTemperatureSensor_read" version="1.0.0" creationDate="1612166024" lastModifiedDate="1612166601" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZTemperatureSensor"/>
+						<var name="as_type" type="BZTemperatureUnitE"/>
+					</inputVars>
+					<outputVars>
+						<var name="value" type="REAL"/>
+					</outputVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+value := IBZTemperatureSensor_read(me, as_type);
+
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="BZRelay_run" version="1.0.0" creationDate="1612840194" lastModifiedDate="1612840339" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZRelay"/>
+					</inputVars>
+					<localVars>
+						<var name="res" type="BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+res := IBZRelay_run(me);
+
+
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="BZRelay_updateRunhour" version="1.0.0" creationDate="1612841483" lastModifiedDate="1612841975" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZRelay"/>
+					</inputVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+if (@me.m_status = ACT_RUNNING) then
+	@me.m_runhours := @me.m_runhours + 1;
+else;
+end_if;
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="BZECFanEBM_run" version="1.0.0" creationDate="1612508970" lastModifiedDate="1614130284" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZECFanEBM"/>
+					</inputVars>
+					<localVars>
+						<var name="ptrAct" type="@BZAnalogActuator"/>
+						<var name="ptrDAC" type="@BZDAQChannel"/>
+						<var name="ptrHW" type="@INT"/>
+						<var name="res" type="BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+
+if (@me.m_parent.m_Status = ACT_INITIALISING) then
+	@me.m_parent.m_Status := ACT_OFF;
+elsif (@me.m_parent.m_Status = ACT_OFF) then
+	if (@me.m_parent.m_Command > 0.0) then
+		@me.m_parent.m_Status := ACT_RUNNING;
+	else;
+	end_if;
+elsif (@me.m_parent.m_Status = ACT_RUNNING) then
+	if (@me.m_parent.m_Command = 0.0) then
+		@me.m_parent.m_Status := ACT_OFF;
+	else;
+	end_if;
+else;
+end_if;
+
+@me.m_parent.m_Output := @me.m_parent.m_Command;
+
+ptrDAC := @me.m_daq_chnl;
+ptrHW := @ptrDAC.m_ptrHWValue;
+@ptrHW := TO_INT(@me.m_parent.m_Output * 10.0);
+
+
+res := IBZECFanEBM_updateRPM(me, @me.PulseFrequence);
+
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="BZEEV_run" version="1.0.0" creationDate="1613026043" lastModifiedDate="1613697104" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZEEV"/>
+					</inputVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+if (@me.m_parent.m_Status = ACT_INITIALISING) then
+	@me.m_parent.m_Status := ACT_OFF;
+elsif (@me.m_parent.m_Status = ACT_OFF) then
+	if (@me.m_parent.m_Command > 0.0) then
+		@me.m_parent.m_Status := ACT_RUNNING;
+	else;
+	end_if;
+elsif (@me.m_parent.m_Status = ACT_RUNNING) then
+	if (@me.m_parent.m_Command = 0.0) then
+		@me.m_parent.m_Status := ACT_OFF;
+	else;
+	end_if;
+else;
+end_if;
+
+// TODO : Steps should updated by MBDevice and Command is the input to EVD controller
+@me.ReqSteps	:= TO_UINT(TO_REAL(@me.MAXSteps) * @me.m_parent.m_Command / 100.0);
+@me.Steps 		:= TO_UINT(TO_REAL(@me.MAXSteps) * @me.m_parent.m_Command / 100.0); // THIS IS FOR SIMULATION ONLY
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="BZEEV_updateRunhour" version="1.0.0" creationDate="1613958470" lastModifiedDate="1613958901" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZEEV"/>
+					</inputVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+if (@me.m_parent.m_Status = ACT_RUNNING) then
+	@me.m_parent.m_Runhours := @me.m_parent.m_Runhours + 1;
+else;
+end_if;
+
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="BZVariableSpeedCompressor_run" version="1.0.0" creationDate="1613033015" lastModifiedDate="1613697162" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZVariableSpeedCompressor"/>
+					</inputVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+if (@me.m_parent.m_Status = ACT_INITIALISING) then
+	@me.m_parent.m_Status := ACT_OFF;
+elsif (@me.m_parent.m_Status = ACT_OFF) then
+	if (@me.m_parent.m_Command > 0.0) then
+		@me.m_parent.m_Status := ACT_RUNNING;
+	else;
+	end_if;
+elsif (@me.m_parent.m_Status = ACT_RUNNING) then
+	if (@me.m_parent.m_Command = 0.0) then
+		@me.m_parent.m_Status := ACT_OFF;
+	else;
+	end_if;
+else;
+end_if;
+
+// TODO : Steps should updated by MBDevice and Command is the input to EVD controller
+@me.ReqFrequence := TO_UINT(TO_REAL(@me.MAXSpeedHz) * @me.m_parent.m_Command / 100.0); // THIS IS FOR SIMULATION ONLY
+@me.ActFrequence := @me.ReqFrequence;
+
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="BZPressureTransmitterBy20mA_update" version="1.0.0" creationDate="1613262824" lastModifiedDate="1613441380" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@BZPressureTransmitterBy20mA"/>
+					</inputVars>
+					<localVars>
+						<var name="ptrINT" type="@INT"/>
+						<var name="current" type="REAL"/>
+						<var name="pressure" type="REAL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+/*
+	0       4.0 (mA)      0.0(bar)
+	1000    20.0(mA)      max(bar)
+ */
+
+ptrINT := @me.m_ptrHWValue;
+
+if (IBZComputeY(0.0, 4.0, 1000.0, 20.0, TO_REAL(@ptrINT), ?current)) then
+	if (IBZComputeY(4.0, 0.0, 20.0, (@me.m_range.High), current, ?pressure)) then
+		@me.Value := pressure;
+	else
+		@me.IsAvailable := FALSE;
+	end_if;
+else
+	@me.IsAvailable := FALSE;
+end_if;
+
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="bzAisleACUnitFault_evaulate" version="1.0.0" creationDate="1612683126" lastModifiedDate="1614226451" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@bzAisleACUnitFault"/>
+					</inputVars>
+					<localVars>
+						<var name="i" type="INT"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+/*****************************************************************************
+ __          __             _____    _   _   _____   _   _    _____       
+ \ \        / /     /\     |  __ \  | \ | | |_   _| | \ | |  / ____|      
+  \ \  /\  / /     /  \    | |__) | |  \| |   | |   |  \| | | |  __   ___ 
+   \ \/  \/ /     / /\ \   |  _  /  | . ` |   | |   | . ` | | | |_ | / __|
+    \  /\  /     / ____ \  | | \ \  | |\  |  _| |_  | |\  | | |__| | \__ \
+     \/  \/     /_/    \_\ |_|  \_\ |_| \_| |_____| |_| \_|  \_____| |___/
+                                                                          
+
+ ****************************************************************************/
+
+//
+// Unit maintenance mode
+//
+@me.NumberOfWarningsDetected := 0;
+
+@me.UnitMaintenanceWarning_evaluator();
+if (@me.UnitMaintenanceWarning_evaluator.parent.IsPresent) then
+	@me.NumberOfWarningsDetected := @me.NumberOfWarningsDetected + 1;
+else;
+end_if;
+
+@me.NoneOfRackinletTemperatureWarning_evaluator();
+if (@me.NoneOfRackinletTemperatureWarning_evaluator.parent.IsPresent) then
+	@me.NumberOfWarningsDetected := @me.NumberOfWarningsDetected + 1;
+else;
+end_if;
+
+@me.HighRackinletTemperatureWarning_evaluator();
+if (@me.HighRackinletTemperatureWarning_evaluator.parent.IsPresent) then
+	@me.NumberOfWarningsDetected := @me.NumberOfWarningsDetected + 1;
+else;
+end_if;
+
+@me.HighReturnTemperatureWarning_evaluator();
+if (@me.HighReturnTemperatureWarning_evaluator.parent.IsPresent) then
+	@me.NumberOfWarningsDetected := @me.NumberOfWarningsDetected + 1;
+else;
+end_if;
+
+@me.HighSupplyTemperatureWarning_evaluator();
+if (@me.HighSupplyTemperatureWarning_evaluator.parent.IsPresent) then
+	@me.NumberOfWarningsDetected := @me.NumberOfWarningsDetected + 1;
+else;
+end_if;
+
+@me.CondensatePumpRunhourWarning_evaluator();
+if (@me.CondensatePumpRunhourWarning_evaluator.parent.IsPresent) then
+	@me.NumberOfWarningsDetected := @me.NumberOfWarningsDetected + 1;
+else;
+end_if;
+
+@me.SolenoidValveRunhourWarning_evaluator();
+if (@me.SolenoidValveRunhourWarning_evaluator.parent.IsPresent) then
+	@me.NumberOfWarningsDetected := @me.NumberOfWarningsDetected + 1;
+else;
+end_if;
+
+@me.UnitRunhourWarning_evaluator();
+if (@me.UnitRunhourWarning_evaluator.parent.IsPresent) then
+	@me.NumberOfWarningsDetected := @me.NumberOfWarningsDetected + 1;
+else;
+end_if;
+
+@me.EEVRunhourWarning_evaluator();
+if (@me.EEVRunhourWarning_evaluator.parent.IsPresent) then
+	@me.NumberOfWarningsDetected := @me.NumberOfWarningsDetected + 1;
+else;
+end_if;
+
+@me.CompressorRunhourWarning_evaluator();
+if (@me.CompressorRunhourWarning_evaluator.parent.IsPresent) then
+	@me.NumberOfWarningsDetected := @me.NumberOfWarningsDetected + 1;
+else;
+end_if;
+
+for i := 0 to @me.NbrOfEvapFanWarnings - 1 do
+	@me.EvaporatorFanRPMWarning_evaluators[i]();
+	@me.EvaporatorFanRunhourWarning_evaluators[i]();
+	if (@me.EvaporatorFanRPMWarning_evaluators[i].parent.IsPresent or @me.EvaporatorFanRunhourWarning_evaluators[i].parent.IsPresent) then
+		@me.NumberOfWarningsDetected := @me.NumberOfWarningsDetected + 1;
+	else;
+	end_if;
+end_for;
+
+/*****************************************************************************
+		             _                   _____    __  __       
+		     /\     | |          /\     |  __ \  |  \/  |      
+		    /  \    | |         /  \    | |__) | | \  / |  ___ 
+		   / /\ \   | |        / /\ \   |  _  /  | |\/| | / __|
+		  / ____ \  | |____   / ____ \  | | \ \  | |  | | \__ \
+		 /_/    \_\ |______| /_/    \_\ |_|  \_\ |_|  |_| |___/
+		                                                       
+
+ *****************************************************************************/
+@me.NumberOfAlarmDetected := 0;
+
+//
+// Remote shutdown
+//
+@me.UnitRemoteShutdownAlarm_evaluator();
+if (@me.UnitRemoteShutdownAlarm_evaluator.parent.IsPresent) then	// STUPID CODE BECAUSE THERE'S NO '?:' SUPPORTING!
+	@me.NumberOfAlarmDetected := @me.NumberOfAlarmDetected + 1;
+else;
+end_if;
+
+//
+// Airfilter clogged
+//
+@me.AirfilterCloggedAlarm_evaluator();
+if (@me.AirfilterCloggedAlarm_evaluator.parent.IsPresent) then	
+	@me.NumberOfAlarmDetected := @me.NumberOfAlarmDetected + 1;
+else;
+end_if;
+
+//
+// Leakage
+//
+@me.LeakageAlarm_evaluator();
+if (@me.LeakageAlarm_evaluator.parent.IsPresent) then
+	@me.NumberOfAlarmDetected := @me.NumberOfAlarmDetected + 1;
+else;
+end_if;
+
+//
+// Pan full
+//
+@me.PanFullAlarm_evaluator();
+if (@me.PanFullAlarm_evaluator.parent.IsPresent) then
+	@me.NumberOfAlarmDetected := @me.NumberOfAlarmDetected + 1;
+else;
+end_if;
+
+//
+// Upper return temperature sensor
+//
+@me.UpperReturnAirSensorFaultAlarm_evaluator();
+if (@me.UpperReturnAirSensorFaultAlarm_evaluator.parent.IsPresent) then
+	@me.NumberOfAlarmDetected := @me.NumberOfAlarmDetected + 1;
+else;
+end_if;
+
+//
+// Lower return temperature sensor
+//
+@me.LowerReturnAirSensorFaultAlarm_evaluator();
+if (@me.LowerReturnAirSensorFaultAlarm_evaluator.parent.IsPresent) then
+	@me.NumberOfAlarmDetected := @me.NumberOfAlarmDetected + 1;
+else;
+end_if;
+
+//
+// Upper supply temperature sensor
+//
+@me.UpperSupplyAirSensorFaultAlarm_evaluator();
+if (@me.UpperSupplyAirSensorFaultAlarm_evaluator.parent.IsPresent) then
+	@me.NumberOfAlarmDetected := @me.NumberOfAlarmDetected + 1;
+else;
+end_if;
+
+//
+// Lower supply temperature sensor
+//
+@me.LowerSupplyAirSensorFaultAlarm_evaluator();
+if (@me.LowerSupplyAirSensorFaultAlarm_evaluator.parent.IsPresent) then
+	@me.NumberOfAlarmDetected := @me.NumberOfAlarmDetected + 1;
+else;
+end_if;
+
+//
+// Coil outlet temperature sensor
+//
+@me.CoilOutletSensorFaultAlarm_evaluator();
+if (@me.CoilOutletSensorFaultAlarm_evaluator.parent.IsPresent) then
+	@me.NumberOfAlarmDetected := @me.NumberOfAlarmDetected + 1;
+else;
+end_if;
+
+//
+// Airfilter runhour
+//
+@me.AirfilterRunhourAlarm_evaluator();
+if (@me.AirfilterRunhourAlarm_evaluator.parent.IsPresent) then
+	@me.NumberOfAlarmDetected := @me.NumberOfAlarmDetected + 1;
+else;
+end_if;
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="BZFault_UnitMaintenanceWarning" version="1.0.0" creationDate="1612663089" lastModifiedDate="1612683692" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@bzAisleACUnit"/>
+						<var name="parent" type="BZFault"/>
+					</inputVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+// DO WHAT YOU WANT TO DO, HIAHIA...
+
+if (@me.m_unit_status = BZ_MAINTENANCE) then
+	@me.BZFault_evaluators.UnitMaintenanceWarning_evaluator.parent.IsPresent := TRUE;
+else
+	@me.BZFault_evaluators.UnitMaintenanceWarning_evaluator.parent.IsPresent := FALSE;
+end_if;
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="BZFault_NoneOfRackinletTemperatureWarning" version="1.0.0" creationDate="1612663089" lastModifiedDate="1612760098" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@bzAisleACUnit"/>
+						<var name="parent" type="BZFault"/>
+					</inputVars>
+					<localVars>
+						<var name="ptrTmp" type="@BZTemperatureSensor"/>
+						<var name="nbr" type="INT"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+// DO WHAT YOU WANT TO DO, HIAHIA...
+nbr := 0;
+ptrTmp := @me.groupRackAirSensors.Sensors[0];
+if (@ptrTmp.bIsAvailable) then
+	nbr := nbr + 1;
+else;
+end_if;
+
+ptrTmp := @me.groupRackAirSensors.Sensors[1];
+if (@ptrTmp.bIsAvailable) then
+	nbr := nbr + 1;
+else;
+end_if;
+
+if (nbr = 0) then
+	@me.BZFault_evaluators.NoneOfRackinletTemperatureWarning_evaluator.parent.IsPresent := TRUE;
+else
+	@me.BZFault_evaluators.NoneOfRackinletTemperatureWarning_evaluator.parent.IsPresent := FALSE;
+end_if;
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="BZFault_HighRackinletTemperatureWarning" version="1.0.0" creationDate="1612663089" lastModifiedDate="1613614969" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@bzAisleACUnit"/>
+						<var name="parent" type="BZFault"/>
+					</inputVars>
+					<localVars>
+						<var name="ptrTmp" type="@BZTemperatureSensor"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+// DO WHAT YOU WANT TO DO, HIAHIA...
+if (@me.groupRackAirSensors.High < @me.m_configurations.m_bzHighRackinletTemperatureThresholdCfg) then
+	@me.m_high_rackinlet_temp_timeout_counter_u16 := TO_UINT(@me.m_configurations.m_bzHighRackinletTemperatureTimeoutCfg);
+else;
+end_if;
+
+if (@me.m_high_rackinlet_temp_timeout_counter_u16 = 0) then
+	@me.BZFault_evaluators.HighRackinletTemperatureWarning_evaluator.parent.IsPresent := TRUE;
+else
+	@me.BZFault_evaluators.HighRackinletTemperatureWarning_evaluator.parent.IsPresent := FALSE;
+end_if;
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="BZFault_HighReturnTemperatureWarning" version="1.0.0" creationDate="1612663089" lastModifiedDate="1613615143" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@bzAisleACUnit"/>
+						<var name="parent" type="BZFault"/>
+					</inputVars>
+					<localVars>
+						<var name="ptrTmp" type="@BZTemperatureSensor"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+
+
+
+
+
+
+
+
+// DO WHAT YOU WANT TO DO, HIAHIA...
+if (@me.groupReturnAirSensors.Mean < @me.m_configurations.m_bzHighReturnTemperatureThresholdCfg) then
+	@me.m_high_return_temp_timeout_counter_u16 := TO_UINT(@me.m_configurations.m_bzHighReturnTemperatureTimeoutCfg);
+else;
+end_if;
+
+if (@me.m_high_return_temp_timeout_counter_u16 = 0) then
+	@me.BZFault_evaluators.HighReturnTemperatureWarning_evaluator.parent.IsPresent := TRUE;
+else
+	@me.BZFault_evaluators.HighReturnTemperatureWarning_evaluator.parent.IsPresent := FALSE;
+end_if;
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="BZFault_HighSupplyTemperatureWarning" version="1.0.0" creationDate="1612663089" lastModifiedDate="1613615469" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@bzAisleACUnit"/>
+						<var name="parent" type="BZFault"/>
+					</inputVars>
+					<localVars>
+						<var name="ptrTmp" type="@BZTemperatureSensor"/>
+						<var name="ptrComp" type="@BZVariableSpeedCompressor"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+
+// DO WHAT YOU WANT TO DO, HIAHIA...
+ptrComp := @me.Compressor;
+if (@ptrComp.m_parent.m_Command > 95.0 and @ptrComp.ActFrequence > TO_UINT(TO_REAL(@ptrComp.MAXSpeedHz) * 0.95)) then
+	if (@me.groupSupplyAirSensors.Mean < @me.m_configurations.m_bzHighSupplyTemperatureThresholdCfg) then
+		@me.m_high_supply_temp_timeout_counter_u16 := TO_UINT(@me.m_configurations.m_bzHighSupplyTemperatureTimeoutCfg);
+	else;
+	end_if;
+else
+	@me.m_high_supply_temp_timeout_counter_u16 := TO_UINT(@me.m_configurations.m_bzHighSupplyTemperatureTimeoutCfg);
+end_if;
+
+if (@me.m_high_supply_temp_timeout_counter_u16 = 0) then
+	@me.BZFault_evaluators.HighSupplyTemperatureWarning_evaluator.parent.IsPresent := TRUE;
+else
+	@me.BZFault_evaluators.HighSupplyTemperatureWarning_evaluator.parent.IsPresent := FALSE;
+end_if;
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="BZFault_CondensatePumpRunhourWarning" version="1.0.0" creationDate="1612663089" lastModifiedDate="1612920498" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@bzAisleACUnit"/>
+						<var name="parent" type="BZFault"/>
+					</inputVars>
+					<localVars>
+						<var name="ptrBZRelay" type="@BZRelay"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+// DO WHAT YOU WANT TO DO, HIAHIA...
+ptrBZRelay := @me.CondensatePumpRelay;
+
+if (@me.m_configurations.m_bzCondensatePumpRunhourThresholdCfg < @ptrBZRelay.m_runhours) then
+	@me.BZFault_evaluators.CondensatePumpRunhourWarning_evaluator.parent.IsPresent := TRUE;
+else
+	@me.BZFault_evaluators.CondensatePumpRunhourWarning_evaluator.parent.IsPresent := FALSE;
+end_if;
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="BZFault_SolenoidValveRunhourWarning" version="1.0.0" creationDate="1612663089" lastModifiedDate="1612924007" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@bzAisleACUnit"/>
+						<var name="parent" type="BZFault"/>
+					</inputVars>
+					<localVars>
+						<var name="ptrBZRelay" type="@BZRelay"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+// DO WHAT YOU WANT TO DO, HIAHIA...
+ptrBZRelay := @me.SolenoidValveRelay;
+
+if (@me.m_configurations.m_bzSolenoidValveRunhourThresholdCfg < @ptrBZRelay.m_runhours) then
+	@me.BZFault_evaluators.SolenoidValveRunhourWarning_evaluator.parent.IsPresent := TRUE;
+else
+	@me.BZFault_evaluators.SolenoidValveRunhourWarning_evaluator.parent.IsPresent := FALSE;
+end_if;
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="BZFault_UnitRunhourWarning" version="1.0.0" creationDate="1612663089" lastModifiedDate="1613957258" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@bzAisleACUnit"/>
+						<var name="parent" type="BZFault"/>
+					</inputVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+// DO WHAT YOU WANT TO DO, HIAHIA...
+
+if (@me.m_configurations.m_bzUnitRunhourThresholdCfg < @me.Runhours) then
+	@me.BZFault_evaluators.UnitRunhourWarning_evaluator.parent.IsPresent := TRUE;
+else
+	@me.BZFault_evaluators.UnitRunhourWarning_evaluator.parent.IsPresent := FALSE;
+end_if;
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="BZFault_EEVRunhourWarning" version="1.0.0" creationDate="1612663089" lastModifiedDate="1613961438" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@bzAisleACUnit"/>
+						<var name="parent" type="BZFault"/>
+					</inputVars>
+					<localVars>
+						<var name="ptrBZEEV" type="@BZEEV"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+// DO WHAT YOU WANT TO DO, HIAHIA...
+ptrBZEEV := @me.EXV;
+
+if (@me.m_configurations.m_bzEEVRunHourThresholdCfg < @ptrBZEEV.m_parent.m_Runhours) then
+	@me.BZFault_evaluators.EEVRunhourWarning_evaluator.parent.IsPresent := TRUE;
+else
+	@me.BZFault_evaluators.EEVRunhourWarning_evaluator.parent.IsPresent := FALSE;
+end_if;
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="BZFault_CompressorRunhourWarning" version="1.0.0" creationDate="1612663089" lastModifiedDate="1613962639" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@bzAisleACUnit"/>
+						<var name="parent" type="BZFault"/>
+					</inputVars>
+					<localVars>
+						<var name="ptrComp" type="@BZVariableSpeedCompressor"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+// DO WHAT YOU WANT TO DO, HIAHIA...
+ptrComp := @me.Compressor;
+
+if (@me.m_configurations.m_bzCompressorRunhourThresholdCfg < @ptrComp.m_parent.m_Runhours) then
+	@me.BZFault_evaluators.CompressorRunhourWarning_evaluator.parent.IsPresent := TRUE;
+else
+	@me.BZFault_evaluators.CompressorRunhourWarning_evaluator.parent.IsPresent := FALSE;
+end_if;
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="BZFault_EvaporatorFanRPMWarning" version="1.0.0" creationDate="1612663089" lastModifiedDate="1614215418" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@bzAisleACUnit"/>
+						<var name="parent" type="BZFault"/>
+						<var name="fan_index" type="INT"/>
+					</inputVars>
+					<localVars>
+						<var name="ptrFan" type="@BZECFanEBM"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+// DO WHAT YOU WANT TO DO, HIAHIA...
+
+
+ptrFan := @me.EvapFans[fan_index];
+if (not IBZECFanEBM_isRPMGood(ptrFan)) then
+	@me.BZFault_evaluators.EvaporatorFanRPMWarning_evaluators[fan_index].parent.IsPresent := TRUE;
+else
+	@me.BZFault_evaluators.EvaporatorFanRPMWarning_evaluators[fan_index].parent.IsPresent := FALSE;
+end_if;
+
+
+
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="BZFault_EvaporatorFanRunhourWarning" version="1.0.0" creationDate="1612663089" lastModifiedDate="1614231937" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@bzAisleACUnit"/>
+						<var name="parent" type="BZFault"/>
+						<var name="fan_index" type="INT"/>
+					</inputVars>
+					<localVars>
+						<var name="ptrFan" type="@BZECFanEBM"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+// DO WHAT YOU WANT TO DO, HIAHIA...
+
+
+ptrFan := @me.EvapFans[fan_index];
+if (@ptrFan.m_parent.m_Runhours > @me.m_configurations.m_bzEvaporatorFanRunhourThresholdCfg) then
+	@me.BZFault_evaluators.EvaporatorFanRunhourWarning_evaluators[fan_index].parent.IsPresent := TRUE;
+else
+	@me.BZFault_evaluators.EvaporatorFanRunhourWarning_evaluators[fan_index].parent.IsPresent := FALSE;
+end_if;
+
+
+
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="BZFault_AirfilterCloggedAlarm" version="1.0.0" creationDate="1612663089" lastModifiedDate="1612704493" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@bzAisleACUnit"/>
+						<var name="parent" type="BZFault"/>
+					</inputVars>
+					<localVars>
+						<var name="ptrSwitchTmp" type="@BZSwitch"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+// DO WHAT YOU WANT TO DO, HIAHIA...
+ptrSwitchTmp := @me.AirfilterCloggedSwitch;
+
+if (@ptrSwitchTmp.Status = BZSwitchCLOSE) then
+	@me.BZFault_evaluators.AirfilterCloggedAlarm_evaluator.parent.IsPresent := TRUE;
+else
+	@me.BZFault_evaluators.AirfilterCloggedAlarm_evaluator.parent.IsPresent := FALSE;
+end_if;
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="BZFault_CoilOutletSensorFaultAlarm" version="1.0.0" creationDate="1612663089" lastModifiedDate="1612780730" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@bzAisleACUnit"/>
+						<var name="parent" type="BZFault"/>
+					</inputVars>
+					<localVars>
+						<var name="ptrTempProbe" type="@BZTemperatureSensor"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+// DO WHAT YOU WANT TO DO, HIAHIA...
+ptrTempProbe := @me.EvapCoilTempSensor;
+
+if (not @ptrTempProbe.bIsAvailable) then
+	@me.BZFault_evaluators.CoilOutletSensorFaultAlarm_evaluator.parent.IsPresent := TRUE;
+else
+	@me.BZFault_evaluators.CoilOutletSensorFaultAlarm_evaluator.parent.IsPresent := FALSE;
+end_if;
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="BZFault_LowerReturnAirSensorFaultAlarm" version="1.0.0" creationDate="1612663089" lastModifiedDate="1612756537" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@bzAisleACUnit"/>
+						<var name="parent" type="BZFault"/>
+					</inputVars>
+					<localVars>
+						<var name="ptrTempProbe" type="@BZTemperatureSensor"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+// DO WHAT YOU WANT TO DO, HIAHIA...
+ptrTempProbe := @me.groupReturnAirSensors.Sensors[1];
+
+if (not @ptrTempProbe.bIsAvailable) then
+	@me.BZFault_evaluators.LowerReturnAirSensorFaultAlarm_evaluator.parent.IsPresent := TRUE;
+else
+	@me.BZFault_evaluators.LowerReturnAirSensorFaultAlarm_evaluator.parent.IsPresent := FALSE;
+end_if;
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="BZFault_LeakageAlarm" version="1.0.0" creationDate="1612663089" lastModifiedDate="1612704513" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@bzAisleACUnit"/>
+						<var name="parent" type="BZFault"/>
+					</inputVars>
+					<localVars>
+						<var name="ptrSwitchTmp" type="@BZSwitch"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+// DO WHAT YOU WANT TO DO, HIAHIA...
+ptrSwitchTmp := @me.LeakageSwitch;
+
+if (@ptrSwitchTmp.Status = BZSwitchCLOSE) then
+	@me.BZFault_evaluators.LeakageAlarm_evaluator.parent.IsPresent := TRUE;
+else
+	@me.BZFault_evaluators.LeakageAlarm_evaluator.parent.IsPresent := FALSE;
+end_if;
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="BZFault_LowerSupplyAirSensorFaultAlarm" version="1.0.0" creationDate="1612663089" lastModifiedDate="1612757828" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@bzAisleACUnit"/>
+						<var name="parent" type="BZFault"/>
+					</inputVars>
+					<localVars>
+						<var name="ptrTempProbe" type="@BZTemperatureSensor"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+// DO WHAT YOU WANT TO DO, HIAHIA...
+ptrTempProbe := @me.groupSupplyAirSensors.Sensors[1];
+
+if (not @ptrTempProbe.bIsAvailable) then
+	@me.BZFault_evaluators.LowerSupplyAirSensorFaultAlarm_evaluator.parent.IsPresent := TRUE;
+else
+	@me.BZFault_evaluators.LowerSupplyAirSensorFaultAlarm_evaluator.parent.IsPresent := FALSE;
+end_if;
+
+
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="BZFault_PanFullAlarm" version="1.0.0" creationDate="1612663089" lastModifiedDate="1612708744" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@bzAisleACUnit"/>
+						<var name="parent" type="BZFault"/>
+					</inputVars>
+					<localVars>
+						<var name="ptrSwitchTmp" type="@BZSwitch"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+// DO WHAT YOU WANT TO DO, HIAHIA...
+ptrSwitchTmp := @me.UpperPanSwitch;
+
+if (@ptrSwitchTmp.Status = BZSwitchCLOSE) then
+	@me.BZFault_evaluators.PanFullAlarm_evaluator.parent.IsPresent := TRUE;
+else
+	@me.BZFault_evaluators.PanFullAlarm_evaluator.parent.IsPresent := FALSE;
+end_if;
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="BZFault_UnitRemoteShutdownAlarm" version="1.0.0" creationDate="1612663089" lastModifiedDate="1612683711" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@bzAisleACUnit"/>
+						<var name="parent" type="BZFault"/>
+					</inputVars>
+					<localVars>
+						<var name="ptrSwitchTmp" type="@BZSwitch"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+// DO WHAT YOU WANT TO DO, HIAHIA...
+ptrSwitchTmp := @me.RemoteShutdownSwitch;
+
+if (@ptrSwitchTmp.Status = BZSwitchCLOSE) then
+	@me.BZFault_evaluators.UnitRemoteShutdownAlarm_evaluator.parent.IsPresent := TRUE;
+else
+	@me.BZFault_evaluators.UnitRemoteShutdownAlarm_evaluator.parent.IsPresent := FALSE;
+end_if;
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="BZFault_UpperReturnAirSensorFaultAlarm" version="1.0.0" creationDate="1612663089" lastModifiedDate="1612750672" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@bzAisleACUnit"/>
+						<var name="parent" type="BZFault"/>
+					</inputVars>
+					<localVars>
+						<var name="ptrTempProbe" type="@BZTemperatureSensor"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+// DO WHAT YOU WANT TO DO, HIAHIA...
+ptrTempProbe := @me.groupReturnAirSensors.Sensors[0];
+
+if (not @ptrTempProbe.bIsAvailable) then
+	@me.BZFault_evaluators.UpperReturnAirSensorFaultAlarm_evaluator.parent.IsPresent := TRUE;
+else
+	@me.BZFault_evaluators.UpperReturnAirSensorFaultAlarm_evaluator.parent.IsPresent := FALSE;
+end_if;
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="BZFault_UpperSupplyAirSensorFaultAlarm" version="1.0.0" creationDate="1612663089" lastModifiedDate="1612757529" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@bzAisleACUnit"/>
+						<var name="parent" type="BZFault"/>
+					</inputVars>
+					<localVars>
+						<var name="ptrTempProbe" type="@BZTemperatureSensor"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+// DO WHAT YOU WANT TO DO, HIAHIA...
+ptrTempProbe := @me.groupSupplyAirSensors.Sensors[0];
+
+if (not @ptrTempProbe.bIsAvailable) then
+	@me.BZFault_evaluators.UpperSupplyAirSensorFaultAlarm_evaluator.parent.IsPresent := TRUE;
+else
+	@me.BZFault_evaluators.UpperSupplyAirSensorFaultAlarm_evaluator.parent.IsPresent := FALSE;
+end_if;
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="BZFault_AirfilterRunhourAlarm" version="1.0.0" creationDate="1612663089" lastModifiedDate="1612931335" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@bzAisleACUnit"/>
+						<var name="parent" type="BZFault"/>
+					</inputVars>
+					<localVars>
+						<var name="ptrSwitchTmp" type="@BZSwitch"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+// DO WHAT YOU WANT TO DO, HIAHIA...
+if (@me.AirfilterRunhour > @me.m_configurations.m_bzAirfilterRunhourThresholdCfg) then
+	@me.BZFault_evaluators.AirfilterRunhourAlarm_evaluator.parent.IsPresent := TRUE;
+else
+	@me.BZFault_evaluators.AirfilterRunhourAlarm_evaluator.parent.IsPresent := FALSE;
+end_if;
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="bzAisleACUnit_groupTemperatures" version="1.0.0" creationDate="1611891178" lastModifiedDate="1613396982" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@bzAisleACUnit"/>
+						<var name="Sensors" type="@BZTemperatureSensor" dim0="8"/>
+						<var name="NbrOfSen" type="INT"/>
+					</inputVars>
+					<outputVars>
+						<var name="Mean" type="REAL"/>
+						<var name="High" type="REAL"/>
+						<var name="IsAvailable" type="BOOL"/>
+					</outputVars>
+					<localVars>
+						<var name="i" type="INT"/>
+						<var name="cnt" type="INT"/>
+						<var name="val" type="REAL"/>
+						<var name="res" type="BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+
+Mean := 0.0;
+High := -3276.8;
+IsAvailable := FALSE;
+
+cnt := 0;
+for i := 0 to NbrOfSen - 1 do
+	@Sensors[i].update();
+	
+	if (@Sensors[i].bIsAvailable) then
+		val := IBZTemperatureSensor_read(Sensors[i], @Sensors[i].m_enUnit);
+		Mean := Mean + val;
+		cnt := cnt + 1;
+		
+		if (High < val) then
+			High := val;
+		else ;
+		end_if;
+		
+		IsAvailable := TRUE;
+	else ;
+	end_if;
+end_for;
+
+if (cnt = 0) then
+	Mean := -3276.8;
+else
+	Mean := Mean / TO_REAL(cnt);
+end_if;
+
+
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="bzAisleACUnit_on1min" version="1.0.0" creationDate="1612415370" lastModifiedDate="1612861979" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@bzAisleACUnit"/>
+					</inputVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+/**********************************************************************************************************************
+  _______   _____   __  __   ______   _____         _____    ____    _    _   _   _   _______   ______   _____        
+ |__   __| |_   _| |  \/  | |  ____| |  __ \       / ____|  / __ \  | |  | | | \ | | |__   __| |  ____| |  __ \       
+    | |      | |   | \  / | | |__    | |__) |     | |      | |  | | | |  | | |  \| |    | |    | |__    | |__) |  ___ 
+    | |      | |   | |\/| | |  __|   |  _  /      | |      | |  | | | |  | | | . ` |    | |    |  __|   |  _  /  / __|
+    | |     _| |_  | |  | | | |____  | | \ \      | |____  | |__| | | |__| | | |\  |    | |    | |____  | | \ \  \__ \
+    |_|    |_____| |_|  |_| |______| |_|  \_\      \_____|  \____/   \____/  |_| \_|    |_|    |______| |_|  \_\ |___/
+                                                                                                                      
+ **********************************************************************************************************************/
+
+if (@me.m_unit_maintenance_timeout_counter_u16 > 0) then
+	@me.m_unit_maintenance_timeout_counter_u16 := @me.m_unit_maintenance_timeout_counter_u16 - 1;
+else;
+end_if;
+
+if (@me.m_high_rackinlet_temp_timeout_counter_u16 > 0) then
+	@me.m_high_rackinlet_temp_timeout_counter_u16 := @me.m_high_rackinlet_temp_timeout_counter_u16 - 1;
+else;
+end_if;
+
+if (@me.m_high_return_temp_timeout_counter_u16 > 0) then
+	@me.m_high_return_temp_timeout_counter_u16 := @me.m_high_return_temp_timeout_counter_u16 - 1;
+else;
+end_if;
+
+
+if (@me.m_high_supply_temp_timeout_counter_u16 > 0) then
+	@me.m_high_supply_temp_timeout_counter_u16 := @me.m_high_supply_temp_timeout_counter_u16 - 1;
+else;
+end_if;
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="bzAisleACUnit_on1s" version="1.0.0" creationDate="1612413586" lastModifiedDate="1613309740" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@bzAisleACUnit"/>
+					</inputVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+
+/**********************************************************************************************************************
+  _______   _____   __  __   ______   _____         _____    ____    _    _   _   _   _______   ______   _____        
+ |__   __| |_   _| |  \/  | |  ____| |  __ \       / ____|  / __ \  | |  | | | \ | | |__   __| |  ____| |  __ \       
+    | |      | |   | \  / | | |__    | |__) |     | |      | |  | | | |  | | |  \| |    | |    | |__    | |__) |  ___ 
+    | |      | |   | |\/| | |  __|   |  _  /      | |      | |  | | | |  | | | . ` |    | |    |  __|   |  _  /  / __|
+    | |     _| |_  | |  | | | |____  | | \ \      | |____  | |__| | | |__| | | |\  |    | |    | |____  | | \ \  \__ \
+    |_|    |_____| |_|  |_| |______| |_|  \_\      \_____|  \____/   \____/  |_| \_|    |_|    |______| |_|  \_\ |___/
+                                                                                                                      
+ **********************************************************************************************************************/
+
+if (@me.m_unit_startup_delay_counter_u16 > 0) then
+	@me.m_unit_startup_delay_counter_u16 := @me.m_unit_startup_delay_counter_u16 - 1;
+else;
+end_if;
+
+if (@me.m_cond_pump_off_delay_counter_u16 > 0) then
+	@me.m_cond_pump_off_delay_counter_u16 := @me.m_cond_pump_off_delay_counter_u16 - 1;
+else;
+end_if;
+
+@me.controlEvaporatorFan();
+
+@me.controlEXV();
+
+@me.controlCompressor();
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="bzAisleACUnit_poll" version="1.0.0" creationDate="1612339446" lastModifiedDate="1614152338" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@bzAisleACUnit"/>
+					</inputVars>
+					<localVars>
+						<var name="ptrFanTachoModule" type="@BZCarelUXPB000100111"/>
+						<var name="ptrOutdoorModule" type="@BZCSCB1"/>
+						<var name="reg_vals" type="INT" dim0="100"/>
+						<var name="ptrEEVDriverModule" type="@BZEliwellEVD"/>
+						<var name="res" type="BOOL"/>
+						<var name="i" type="INT"/>
+						<var name="ptrFan" type="@BZECFanEBM"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+//
+// Fast DI module
+//
+ptrFanTachoModule := @me.FanTachoModule;
+res := IBZCarelUXPB000100111_readFrequencies(ptrFanTachoModule);
+
+// connect frequence measurement to the fan objects for RPM calculation
+for i := 0 to @me.NumberOfEvapFans - 1 do
+	ptrFan := @me.EvapFans[i];
+	@ptrFan.PulseFrequence := @ptrFanTachoModule.frequencies[i];
+end_for;
+
+//
+// Outdoor module
+//
+ptrOutdoorModule := @me.OutdoorModbule;
+res := IBZCSCB1_getStatus(ptrOutdoorModule);
+
+
+//
+// EXV driver module
+//
+ptrEEVDriverModule := @me.EVDController;
+
+
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="bzAisleACUnit_run" version="1.0.0" creationDate="1611906522" lastModifiedDate="1613614786" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@bzAisleACUnit"/>
+					</inputVars>
+					<localVars>
+						<var name="i" type="INT"/>
+						<var name="res" type="BOOL"/>
+						<var name="ptrTmp" type="@BZTemperatureSensor"/>
+						<var name="ptrSwitchTmp" type="@BZSwitch"/>
+						<var name="ptrRelayTmp" type="@BZRelay"/>
+						<var name="ptrEvapFan" type="@BZECFanEBM"/>
+						<var name="ptrEvapFanAct" type="@BZAnalogActuator"/>
+						<var name="ptrINTtmp" type="@INT"/>
+						<var name="ptrBOOLtmp" type="@BOOL"/>
+						<var name="ptrEXV" type="@BZEEV"/>
+						<var name="ptrCOMP" type="@BZVariableSpeedCompressor"/>
+						<var name="ptrPressureSensor" type="@BZPressureTransmitterBy20mA"/>
+					</localVars>
+					<localConsts>
+						<const name="NUMBER_OF_EVAP_FANS" type="INT">
+							<initValue>6</initValue>
+						</const>
+					</localConsts>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+me := me;	// TO AVOID AN ERROR WHEN DOWNLOAD THE PROGRAM, DON'T KNOW WHY IT WORKS
+
+
+/***************************************************************************************************
+		   _____   ______   _   _    _____   ______   _____        
+		  / ____| |  ____| | \ | |  / ____| |  ____| |  __ \       
+		 | (___   | |__    |  \| | | (___   | |__    | |__) |  ___ 
+		  \___ \  |  __|   | . ` |  \___ \  |  __|   |  _  /  / __|
+		  ____) | | |____  | |\  |  ____) | | |____  | | \ \  \__ \
+		 |_____/  |______| |_| \_| |_____/  |______| |_|  \_\ |___/
+                                                           
+ **************************************************************************************************/
+
+//
+// calculate the temperatures that are used control
+// 		- average temperature of return and supply air
+//		- the highest measurement of rack inlet temperature
+//		- update sensor readings
+//
+@me.groupReturnAirSensors();
+@me.groupSupplyAirSensors();
+@me.groupRackAirSensors();
+
+//
+// update sensor reading
+//
+ptrTmp := @me.EvapCoilTempSensor;	// HAVE TO USE A TEMPORARY VARIABLE BECAUSE '@(@)' IS IMPOSSIBLE
+@ptrTmp.update();
+
+ptrPressureSensor := @me.EvapCoilPressureSensor;
+@ptrPressureSensor.update();
+
+/**************************************************************************************************
+							   _____   __  __       
+							  / ____| |  \/  |      
+							 | (___   | \  / |  ___ 
+							  \___ \  | |\/| | / __|
+							  ____) | | |  | | \__ \
+							 |_____/  |_|  |_| |___/
+							                        
+ **************************************************************************************************/
+
+//
+// unit
+//
+if (@me.m_unit_status = BZ_OFF) then
+
+	ptrSwitchTmp := @me.RemoteShutdownSwitch;
+
+	if (@me.m_configurations.m_bzUnitModeCfg = 1 and @ptrSwitchTmp.Status = BZSwitchOPEN) then
+		@me.m_unit_startup_delay_counter_u16 := @me.m_configurations.m_bzUnitStartupDelayCfg;
+		
+		@me.m_unit_status := BZ_STARTUP_DELAY;
+	elsif (@me.m_configurations.m_bzUnitModeCfg = 2) then
+		@me.m_unit_maintenance_timeout_counter_u16 := @me.m_configurations.m_bzUnitMaintenanceTimeoutCfg;
+	
+		@me.m_unit_status := BZ_MAINTENANCE;
+	else;
+	end_if;
+	
+elsif (@me.m_unit_status = BZ_STARTUP_DELAY) then
+	
+	if (@me.m_configurations.m_bzUnitModeCfg = 0) then
+		@me.m_unit_status := BZ_OFF;
+	else
+		if (@me.m_unit_startup_delay_counter_u16 = 0) then
+			@me.m_unit_status := BZ_ON;
+		else;
+		end_if;
+	end_if;
+
+elsif (@me.m_unit_status = BZ_ON) then
+	
+	ptrSwitchTmp := @me.RemoteShutdownSwitch;
+	
+	if (@ptrSwitchTmp.Status = BZSwitchCLOSE) then
+		@me.m_unit_status := BZ_OFF;
+	elsif (@me.m_configurations.m_bzUnitModeCfg = 0) then
+		@me.m_unit_status := BZ_OFF;	
+	else;
+	end_if;
+
+elsif (@me.m_unit_status = BZ_MAINTENANCE) then
+
+	if (@me.m_configurations.m_bzUnitModeCfg = 0) then
+		@me.m_unit_status := BZ_OFF;
+		
+		ptrINTtmp := @me.EvapFanManOutPtr;
+		@ptrINTtmp := 0;
+		
+		ptrINTtmp := @me.SolenoidValveManOutPtr;
+		@ptrINTtmp := 0;
+		
+		ptrINTtmp := @me.CondPumpManOutPtr;
+		@ptrINTtmp := 0;
+		
+		ptrINTtmp := @me.EEVManOutPtr;
+		@ptrINTtmp := 0;
+		
+		ptrINTtmp := @me.CompressorManOutPtr;
+		@ptrINTtmp := 0;
+	elsif (@me.m_unit_maintenance_timeout_counter_u16 = 0) then
+		@me.m_unit_status := BZ_OFF;
+		
+		ptrINTtmp := @me.EvapFanManOutPtr;
+		@ptrINTtmp := 0;
+		
+		ptrINTtmp := @me.SolenoidValveManOutPtr;
+		@ptrINTtmp := 0;
+		
+		ptrINTtmp := @me.CondPumpManOutPtr;
+		@ptrINTtmp := 0;
+		
+		ptrINTtmp := @me.EEVManOutPtr;
+		@ptrINTtmp := 0;
+		
+		ptrINTtmp := @me.CompressorManOutPtr;
+		@ptrINTtmp := 0;
+		
+		res := sysWriteParINT(@me.m_configurations.unit_mode_cmd_adr, 0);
+		
+		//res := sysWriteDbgMsg(1, 'END OF MAINTENANCE');
+	else;
+	end_if;
+	
+else;
+end_if;
+
+//
+// Unit status relay
+//
+if (@me.m_unit_status <> BZ_MAINTENANCE) then	
+	ptrRelayTmp := @me.UnitStatusRelay;
+	if (@me.m_unit_status = BZ_ON) then
+		@ptrRelayTmp.m_output := BZRelay_CLOSE;
+	else
+		@ptrRelayTmp.m_output := BZRelay_OPEN;
+	end_if;	
+else;
+end_if;
+
+//
+// Unit major alarm indicator relay
+//
+ptrRelayTmp := @me.UnitAlarmHWIndicatorRelay;
+if (@me.BZFault_evaluators.NumberOfAlarmDetected > 0) then
+	@ptrRelayTmp.m_output := BZRelay_CLOSE;
+else
+	@ptrRelayTmp.m_output := BZRelay_OPEN;
+end_if;
+
+//
+// Condensate pump
+//
+ptrRelayTmp := @me.CondensatePumpRelay;
+
+if (@me.m_unit_status = BZ_MAINTENANCE) then
+	ptrINTtmp := @me.CondPumpManOutPtr;
+	@ptrRelayTmp.m_output := TO_BOOL(@ptrINTtmp);
+else
+	ptrSwitchTmp := @me.LowerPanSwitch;
+	if (@ptrSwitchTmp.Status = BZSwitchCLOSE) then
+		// keep timer on
+		@me.m_cond_pump_off_delay_counter_u16 := TO_UINT(@me.m_configurations.m_bzCondensatePumpDelay2OffCfg);
+		
+		// turn on condensate pump
+		@ptrRelayTmp.m_output := BZRelay_CLOSE;
+	else
+		if (@me.m_cond_pump_off_delay_counter_u16 = 0) then
+			// when timeout is expired, turn off pump
+			@ptrRelayTmp.m_output := BZRelay_OPEN;
+		else;
+		end_if;
+	end_if;
+end_if;
+
+//
+// Solenoid valve
+//
+ptrRelayTmp := @me.SolenoidValveRelay;
+
+if (@me.m_unit_status = BZ_ON) then
+	if (@me.controlEXV.sm = bzEEV_AUTO) then
+		@ptrRelayTmp.m_output := BZRelay_CLOSE;
+	elsif (@me.controlCompressor.sm = bzCompOFF) then
+		@ptrRelayTmp.m_output := BZRelay_OPEN;
+	else;
+	end_if;
+elsif (@me.m_unit_status = BZ_OFF) then
+	@ptrRelayTmp.m_output := BZRelay_OPEN;
+elsif (@me.m_unit_status = BZ_MAINTENANCE) then
+	ptrINTtmp := @me.SolenoidValveManOutPtr;
+	@ptrRelayTmp.m_output := TO_BOOL(@ptrINTtmp);
+else;
+end_if;
+
+//
+// Evaporator fan, EXV and Compressor controls are time sensible, 
+// so they have to be run in 'TIMED' task.
+//
+
+/**************************************************************************************************
+					  ______              _    _   _        _______       
+					 |  ____|     /\     | |  | | | |      |__   __|      
+					 | |__       /  \    | |  | | | |         | |     ___ 
+					 |  __|     / /\ \   | |  | | | |         | |    / __|
+					 | |       / ____ \  | |__| | | |____     | |    \__ \
+					 |_|      /_/    \_\  \____/  |______|    |_|    |___/
+					                                                      
+
+ *************************************************************************************************/
+@me.BZFault_evaluators.evaulate();
+
+/**************************************************************************************************
+		              _____   _______   _    _              _______    ____    _____        
+		     /\      / ____| |__   __| | |  | |     /\     |__   __|  / __ \  |  __ \       
+		    /  \    | |         | |    | |  | |    /  \       | |    | |  | | | |__) |  ___ 
+		   / /\ \   | |         | |    | |  | |   / /\ \      | |    | |  | | |  _  /  / __|
+		  / ____ \  | |____     | |    | |__| |  / ____ \     | |    | |__| | | | \ \  \__ \
+		 /_/    \_\  \_____|    |_|     \____/  /_/    \_\    |_|     \____/  |_|  \_\ |___/
+		                                                                                    
+ **************************************************************************************************/
+//
+// update switch
+//
+ptrSwitchTmp := @me.RemoteShutdownSwitch;
+res := IBZSwitch_update(ptrSwitchTmp);
+
+ptrSwitchTmp := @me.AirfilterCloggedSwitch;
+res := IBZSwitch_update(ptrSwitchTmp);
+
+ptrSwitchTmp := @me.LeakageSwitch;
+res := IBZSwitch_update(ptrSwitchTmp);
+
+ptrSwitchTmp := @me.UpperPanSwitch;
+res := IBZSwitch_update(ptrSwitchTmp);
+
+ptrSwitchTmp := @me.LowerPanSwitch;
+res := IBZSwitch_update(ptrSwitchTmp);
+
+
+//
+// update relay
+//
+ptrRelayTmp := @me.UnitStatusRelay;
+@ptrRelayTmp.run();
+
+ptrRelayTmp := @me.UnitAlarmHWIndicatorRelay;
+@ptrRelayTmp.run();
+
+ptrRelayTmp := @me.CondensatePumpRelay;
+@ptrRelayTmp.run();
+
+ptrRelayTmp	:= @me.SolenoidValveRelay;
+@ptrRelayTmp.run();
+
+//
+// update evaporator fans
+//
+for i := 0 to NUMBER_OF_EVAP_FANS - 1 do
+	ptrEvapFan := @me.EvapFans[i];
+	@ptrEvapFan.run();
+end_for;
+
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="bzAisleACUnit_on1h" version="1.0.0" creationDate="1612834083" lastModifiedDate="1614227163" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@bzAisleACUnit"/>
+					</inputVars>
+					<localVars>
+						<var name="ptrBZRelay" type="@BZRelay"/>
+						<var name="ptrBZEEV" type="@BZEEV"/>
+						<var name="ptrEvapFan" type="@BZECFanEBM"/>
+						<var name="i" type="INT"/>
+						<var name="res" type="BOOL"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+/***********************************************************************
+	  _____    _    _   _   _   _    _    ____    _    _   _____  
+	 |  __ \  | |  | | | \ | | | |  | |  / __ \  | |  | | |  __ \ 
+	 | |__) | | |  | | |  \| | | |__| | | |  | | | |  | | | |__) |
+	 |  _  /  | |  | | | . ` | |  __  | | |  | | | |  | | |  _  / 
+	 | | \ \  | |__| | | |\  | | |  | | | |__| | | |__| | | | \ \ 
+	 |_|  \_\  \____/  |_| \_| |_|  |_|  \____/   \____/  |_|  \_\
+	                                                               
+ **********************************************************************/
+ 
+ptrBZRelay := @me.CondensatePumpRelay;
+@ptrBZRelay.updateRunhour();
+
+ptrBZRelay := @me.SolenoidValveRelay;
+@ptrBZRelay.updateRunhour();
+
+ptrBZEEV := @me.EXV;
+@ptrBZEEV.updateRunhour();
+
+// The criterion should be the actual airflow does go through the filter, 
+// but now I just put unit status instead to make my life easier.
+if (@me.m_unit_status = BZ_ON) then
+	@me.AirfilterRunhour := @me.AirfilterRunhour + 1;
+	@me.Runhours := @me.Runhours + 1;
+else;
+end_if;
+
+for i := 0 to @me.NumberOfEvapFans - 1 do
+	ptrEvapFan := @me.EvapFans[i];
+	res := IBZECFanEBM_updateRunhour(ptrEvapFan);
+end_for;
+
+
+
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="bzAisleACUnit_controlEXV" version="1.0.0" creationDate="1613212825" lastModifiedDate="1613632204" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@bzAisleACUnit"/>
+						<var name="isSuperheatAvailable" type="BOOL"/>
+					</inputVars>
+					<outputVars>
+						<var name="sm" type="bzAisleACUnitEEVSM"/>
+						<var name="Superheat" type="REAL"/>
+					</outputVars>
+					<localVars>
+						<var name="EXVPid" type="PIDAdvanced"/>
+						<var name="ptrEXV" type="@BZEEV"/>
+						<var name="ptrINTtmp" type="@INT"/>
+						<var name="ptrTmp" type="@BZTemperatureSensor"/>
+						<var name="alarm" type="UINT"/>
+						<var name="alert" type="UINT"/>
+						<var name="ptrINTpress" type="@BZPressureTransmitterBy20mA"/>
+						<var name="getSaturationTemperature" type="Press2Temp"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+
+//
+// eev state machine
+//
+ptrEXV 		:= @me.EXV;
+ptrINTtmp 	:= @me.EvapCoilTempSensor;
+ptrINTpress	:= @me.EvapCoilPressureSensor;
+
+getSaturationTemperature.xEn			:= TRUE;
+getSaturationTemperature.iPress			:= TO_INT(@ptrINTpress.Value * 100.0);
+getSaturationTemperature.usiRefType		:= 4;	// 410A
+getSaturationTemperature.usiRefState	:= 1;
+getSaturationTemperature();
+Superheat 								:= TO_REAL(getSaturationTemperature.iTemp) / 10.0;
+if (Superheat > -20.0 and Superheat < 40.0) then
+	IsSuperheatAvailable := TRUE;
+else
+	IsSuperheatAvailable := FALSE;
+end_if;	
+
+
+EXVPid.rHighLimit 	:= 100.0;
+EXVPid.rLowLimit 	:= @me.m_configurations.m_bzMinimumEEVOpeningCfg;
+
+EXVPid.rKp 		:= 0.0 - @me.m_configurations.m_bzEEVPIDKpCfg;
+EXVPid.uiTi 	:= @me.m_configurations.m_bzEEVPIDTiCfg;
+EXVPid.uiTd 	:= @me.m_configurations.m_bzEEVPIDTdCfg;
+
+if (@me.m_unit_status = BZ_MAINTENANCE) then
+	ptrINTtmp := @me.EEVManOutPtr;
+	EXVPid.rManualValue	:= TO_REAL(@ptrINTtmp) / 10.0;
+	EXVPid.rLowLimit	:= 0.0;
+	EXVPid.xManualMode	:= TRUE;
+else
+	if (sm = bzEEV_IDLE) then
+		if (@me.controlCompressor.sm = bzCompPRESTART) then
+			sm := bzEEV_PREOPEN;
+		else
+			EXVPid.rManualValue	:= @me.m_configurations.m_bzEEVPreOpeningCfg;
+			EXVPid.xManualMode	:= TRUE;
+		end_if;
+	elsif (sm = bzEEV_PREOPEN) then
+		EXVPid.rManualValue	:= @me.m_configurations.m_bzEEVPreOpeningCfg;
+		EXVPid.xManualMode	:= TRUE;
+		if (IBZEEV_isAtPosition(ptrEXV, @ptrEXV.ReqSteps)) then
+			sm := bzEEV_AUTO;
+		else;
+		end_if;
+	elsif (sm = bzEEV_AUTO) then
+		/*if () then
+		els*/if (@me.controlCompressor.sm = bzCompPUMPDOWN) then
+			sm := bzEEV_PUMPDOWN;
+		elsif (@me.controlCompressor.sm = bzCompOFF) then
+			sm := bzEEV_IDLE;
+		else
+			if (isSuperheatAvailable) then
+				EXVPid.xManualMode 	:= FALSE;
+				EXVPid.rDeadband	:= @me.m_configurations.m_bzEvapSuperheatDeadbandCfg;
+				EXVPid.rPv 			:= Superheat; 
+				EXVPid.rSetp 		:= @me.m_configurations.m_bzEvapSuperheatSetpointCfg;
+			else
+				EXVPid.xManualMode	:= TRUE;
+				EXVPid.rManualValue	:= 50.0;
+			end_if;
+		end_if;	
+	elsif (sm = bzEEV_PUMPDOWN) then
+		if (@me.controlCompressor.sm = bzCompOFF) then
+			sm := bzEEV_IDLE;
+		else
+			// TODO : move to the full close position gradually
+			EXVPid.rManualValue	:= 0.0;
+			EXVPid.rLowLimit	:= 0.0;
+			EXVPid.xManualMode	:= TRUE;
+		end_if;
+	else;
+	end_if;
+end_if;
+
+// ONLY CALL IT ONCE!
+if (not EXVPid.xEn) then
+	EXVPid.xEn := TRUE;
+else;
+end_if; 
+
+EXVPid();
+
+@ptrEXV.m_parent.m_Command := EXVPid.rAnalog;
+
+alarm := EXVPid.uiAlarmID;
+alert := EXVPid.uiAlertID;	
+if (alarm <> 0 or alert <> 0) then
+	EXVPid.xReset := TRUE;
+else
+	EXVPid.xReset := FALSE;
+end_if;	
+
+// run actuator
+ptrExv := @me.EXV;
+@ptrExv.run();
+
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="bzAisleACUnit_controlCompressor" version="1.0.0" creationDate="1613214040" lastModifiedDate="1613632127" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@bzAisleACUnit"/>
+					</inputVars>
+					<outputVars>
+						<var name="sm" type="bzAisleACUnitCompressorSM">
+							<initValue>bzCompOFF</initValue>
+						</var>
+					</outputVars>
+					<localVars>
+						<var name="ptrCOMP" type="@BZVariableSpeedCompressor"/>
+						<var name="ptrINTtmp" type="@INT"/>
+						<var name="ptrEEV" type="@BZEEV"/>
+						<var name="ptrLiqValve" type="@BZRelay"/>
+						<var name="eev_pre_open_steps" type="UINT"/>
+						<var name="CompPid" type="PIDAdvanced"/>
+						<var name="alarm" type="UINT"/>
+						<var name="alert" type="UINT"/>
+						<var name="ptrTmp" type="@BZTemperatureSensor"/>
+						<var name="pre_sm" type="bzAisleACUnitCompressorSM">
+							<initValue>bzCompOFF</initValue>
+						</var>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[
+
+// control sequence
+ptrCOMP 	:= @me.Compressor;
+ptrEEV 		:= @me.EXV;
+ptrLiqValve	:= @me.SolenoidValveRelay;
+
+if (@me.m_unit_status = BZ_MAINTENANCE) then
+	ptrINTtmp := @me.CompressorManOutPtr;
+	CompPid.rLowLimit		:= 0.0;
+	CompPid.rManualValue	:= TO_REAL(@ptrINTtmp) / 10.0;
+	CompPid.xManualMode		:= TRUE;
+else
+	if (sm = bzCompOFF) then
+		if (@me.m_unit_status = BZ_ON) then
+			if (@me.groupSupplyAirSensors.Mean > @me.m_configurations.m_bzSupplyAirSetpointCfg) then
+				if (@me.groupReturnAirSensors.IsAvailable and @me.groupReturnAirSensors.Mean > 20.0) then
+					sm := bzCompPRESTART;
+				else
+					sm := bzCompPRESTART;
+				end_if;
+			else;
+			end_if;
+		else;
+			CompPid.rLowLimit		:= 0.0;
+			CompPid.rManualValue	:= 0.0;
+			CompPid.xManualMode		:= TRUE;
+		end_if;
+	elsif (sm = bzCompPRESTART) then
+		if (@me.controlEXV.sm = bzEEV_AUTO and @ptrLiqValve.m_status = ACT_RUNNING) then
+			sm := bzCompAUTO;
+		else;
+		end_if;
+	elsif (sm = bzCompAUTO) then
+		//if () then
+		//	sm := bzCompOFF;
+		/*els*/if (@me.m_unit_status = BZ_OFF or @me.groupSupplyAirSensors.Mean < 12.0) then
+			sm := bzCompPUMPDOWN;
+			CompPid.xManualMode := TRUE;
+			CompPid.rManualValue := 78.0;
+		else
+			CompPid.xManualMode 	:= FALSE;
+			CompPid.rDeadband		:= 0.0;
+			CompPid.rHighLimit 		:= 100.0;
+			CompPid.rLowLimit 		:= @me.m_configurations.m_bzMinimumCompressorCommandCfg;
+			
+			CompPid.rKp 			:= 0.0 - @me.m_configurations.m_bzCompressorPIDKpCfg;
+			CompPid.uiTi 			:= @me.m_configurations.m_bzCompressorPIDTiCfg;
+			CompPid.uiTd 			:= @me.m_configurations.m_bzCompressorPIDTiCfg;
+			CompPid.rPv 			:= @me.groupSupplyAirSensors.Mean; 
+			CompPid.rSetp 			:= @me.m_configurations.m_bzSupplyAirSetpointCfg;
+		end_if;
+	elsif (sm = bzCompPUMPDOWN) then
+		//if (pressure > threshold or timeout) then
+			sm := bzCompOFF;		
+		//else
+		//	@ptrComp.m_parent.m_Command := pumpdowncfg;
+		//end_if;
+	else;
+	end_if;
+end_if;
+
+	
+// ONLY CALL IT ONCE!
+if (not CompPid.xEn) then
+	CompPid.xEn := TRUE;
+else;
+end_if; 
+
+CompPid();
+
+@ptrCOMP.m_parent.m_Command := CompPid.rAnalog;
+
+alarm := CompPid.uiAlarmID;
+alert := CompPid.uiAlertID;	
+if (alarm <> 0 or alert <> 0) then
+	CompPid.xReset := TRUE;
+else
+	CompPid.xReset := FALSE;
+end_if;	
+	
+
+pre_sm := sm;
+
+// run actuator
+ptrCOMP := @me.Compressor;
+@ptrCOMP.run();
+]]>
+				</sourceCode>
+			</functionBlock>
+			<functionBlock name="bzAisleACUnit_controlEvaporatorFan" version="1.0.0" creationDate="1613307802" lastModifiedDate="1614153248" excludeFromBuild="FALSE">
+				<vars>
+					<inputVars>
+						<var name="me" type="@bzAisleACUnit"/>
+					</inputVars>
+					<localVars>
+						<var name="EvapFanPid" type="PIDAdvanced"/>
+						<var name="ptrINTtmp" type="@INT"/>
+						<var name="alarm" type="UINT"/>
+						<var name="alert" type="UINT"/>
+						<var name="i" type="INT"/>
+						<var name="ptrEvapFan" type="@BZECFanEBM"/>
+					</localVars>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<interfaces/>
+				<methods/>
+				<sourceCode type="ST">
+					<![CDATA[EvapFanPid.rDeadband	:= 0.0;
+EvapFanPid.rHighLimit 	:= @me.m_configurations.m_bzMaximumEvaporatorFanSpeedCfg;
+EvapFanPid.rLowLimit 	:= @me.m_configurations.m_bzMinimumEvaporatorFanSpeedCfg;
+EvapFanPid.rKp 			:= 0.0 - @me.m_configurations.m_bzEvaporatorFanPIDKpCfg;
+EvapFanPid.uiTi 		:= @me.m_configurations.m_bzEvaporatorFanPIDTiCfg;
+EvapFanPid.uiTd 		:= @me.m_configurations.m_bzEvaporatorFanPIDTdCfg;
+//
+// Evaporator fans
+//
+if (@me.m_unit_status = BZ_ON) then
+	
+	// Fan control strategies : 
+	//	0:InRow_CACS;
+	//	1:HACS_RACS;
+	//	2:CONSTANT_SPD
+	if (@me.m_configurations.m_bzEvaporatorFanStrategyCfg = bzInRow_CACS) then		
+		if (@me.groupRackAirSensors.High < -60.0 or @me.groupRackAirSensors.High > 120.0) then
+			EvapFanPid.xManualMode 	:= TRUE;
+			EvapFanPid.rManualValue	:= EvapFanPid.rHighLimit;
+		else
+			EvapFanPid.xManualMode	:= FALSE;
+			EvapFanPid.rPv 			:= @me.groupRackAirSensors.High;
+			EvapFanPid.rSetp 		:= @me.m_configurations.m_bzCoolSetpointCfg;
+		end_if;
+		
+	elsif (@me.m_configurations.m_bzEvaporatorFanStrategyCfg = bzHACS_RACS) then
+		if (@me.groupReturnAirSensors.Mean < -60.0 or @me.groupReturnAirSensors.Mean > 120.0) then
+			EvapFanPid.xManualMode 	:= TRUE;
+			EvapFanPid.rManualValue	:= EvapFanPid.rLowLimit;
+		else
+			EvapFanPid.xManualMode	:= FALSE;
+			EvapFanPid.rPv 			:= @me.groupReturnAirSensors.Mean;
+			EvapFanPid.rSetp 		:= @me.m_configurations.m_bzSupplyAirSetpointCfg + @me.m_configurations.m_bzDeltaTSetpointCfg;
+		end_if;
+		
+	elsif (@me.m_configurations.m_bzEvaporatorFanStrategyCfg = bzCONSTANT_SPD) then
+		ptrINTtmp := @me.EvapFanManOutPtr;
+		
+		EvapFanPid.xManualMode 	:= TRUE;
+		EvapFanPid.rManualValue := TO_REAL(@ptrINTtmp) / 10.0;
+	else
+		// If someone insisted on testing me with a wrong input, hope a comfortable breeze could clear your mind! 
+		EvapFanPid.xManualMode 	:= TRUE;
+		EvapFanPid.rManualValue := 100.0;
+	end_if;
+	
+	if (@me.BZFault_evaluators.PanFullAlarm_evaluator.parent.IsPresent) then
+		EvapFanPid.xManualMode 	:= TRUE;
+		EvapFanPid.rLowLimit	:= 0.0;
+		EvapFanPid.rManualValue := 0.0;
+	else;
+	end_if;
+	
+elsif (@me.m_unit_status = BZ_MAINTENANCE) then
+	ptrINTtmp := @me.EvapFanManOutPtr;
+	
+	EvapFanPid.xManualMode 	:= TRUE;
+	EvapFanPid.rLowLimit	:= 0.0;
+	EvapFanPid.rManualValue := TO_REAL(@ptrINTtmp) / 10.0;	
+elsif (@me.m_unit_status = BZ_OFF) then
+	EvapFanPid.xManualMode 	:= TRUE;
+	EvapFanPid.rLowLimit	:= 0.0;
+	EvapFanPid.rManualValue := 0.0;	
+else;
+end_if;
+
+// ONLY CALL IT ONCE!
+if (not EvapFanPid.xEn) then
+	EvapFanPid.xEn := TRUE;
+else;
+end_if; 
+
+EvapFanPid();
+
+alarm := EvapFanPid.uiAlarmID;
+alert := EvapFanPid.uiAlertID;	
+if (alarm <> 0 or alert <> 0) then
+	EvapFanPid.xReset := TRUE;
+else
+	EvapFanPid.xReset := FALSE;
+end_if;	
+
+for i := 0 to @me.NumberOfEvapFans - 1 do
+	ptrEvapFan := @me.EvapFans[i];
+	@ptrEvapFan.m_parent.m_Command := EvapFanPid.rAnalog;
+end_for;
+]]>
+				</sourceCode>
+			</functionBlock>
+		</functionBlocks>
+		<programs>
+			<program name="BZCANUTProg" version="1.0.0" creationDate="1611717758" lastModifiedDate="1611732627" excludeFromBuild="FALSE">
+				<vars>
+					<localVars>
+						<var name="dummyB" type="BOOL">
+							<initValue>FALSE</initValue>
+						</var>
+						<var name="CANchannel" type="UDINT">
+							<initValue>0</initValue>
+						</var>
+						<var name="sdoRes" type="UDINT">
+							<initValue>0</initValue>
+						</var>
+						<var name="obj_addr" type="UINT">
+							<initValue>0</initValue>
+						</var>
+						<var name="obj_offset" type="UINT">
+							<initValue>0</initValue>
+						</var>
+						<var name="node_addr" type="USINT">
+							<initValue>1</initValue>
+						</var>
+						<var name="temp" type="INT" dim0="3">
+							<initValue>[0, 0, 0]</initValue>
+						</var>
+						<var name="is_first_called" type="BOOL">
+							<initValue>TRUE</initValue>
+						</var>
+					</localVars>
+					<localConsts>
+						<const name="CAN_MAILBOX_FIRST_ADDRESS" type="UINT">
+							<initValue>10960</initValue>
+						</const>
+					</localConsts>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+				<sourceCode type="ST">
+					<![CDATA[if (is_first_called) then
+	obj_addr := CAN_MAILBOX_FIRST_ADDRESS;
 	
 	is_first_called := FALSE;
 else
-	/*
-		command actuators
-	 */
-	if MOD(cnt, 10) = 0 then
-		res := BZProportionalValve_Command(?valve1, AUTO, 40.5);
-	else
-		res := BZProportionalValve_Command(?valve1, STANDBY, 0);
-	end_if;
-	
-	
-	if MOD(cnt, 100) = 0 then
-		res := BZECFan_Command(?fan1, AUTO, 89.7);
-	else
-		res := BZECFan_Command(?fan1, STANDBY, 0);
-	end_if;
-	
-	
-	if MOD(cnt, 1000) = 0 then
-		res := BZElectricHeaterBar_Command(?heater1, AUTO, TRUE);
-	else
-		res := BZElectricHeaterBar_Command(?heater1, STANDBY, FALSE);
-	end_if;
-	
-	/*
-		run actuators
-	 */
-	res := BZProportionalValve_Run(?valve1);
-	res := BZECFan_Run(?fan1);
-	res := BZElectricHeaterBar_Run(?heater1);
-	
-	
-	/*
-		check actuators status
-	 */
-	for i := 0 to 2 do
-		if (BZActuatorBase_GetStatus(actuators[i]) = AUTO) then
-			probes[i] := probes[i] + 1;
-		end_if;
-	end_for;
-	
+	;
 end_if;
 
-/*
-	supporting 
- */
-cnt := cnt + 1;
+temp[0] := HW_AI_01;
+temp[1] := HW_AI_02;
+temp[2] := HW_AI_03;
+
+if Addr_CAN_OB = 1 then
+	node_addr := 2;
+elsif Addr_CAN_OB = 2 then
+	node_addr := 1;
+else 
+	;
+end_if;
+
+if (mod(cnt, 100) = 0) then
+	CANchannel := sysCOPM_Sdo_OpenChn(dummyB);
+	sdoRes := sysCOPM_Sdo_DownloadRequest(CANchannel,
+										  node_addr,
+										  obj_addr + obj_offset,
+										  0,
+										  2,
+										  TO_DINT(temp[obj_offset]),
+										  200);							  
+	dummyB := sysCOPM_Sdo_CloseChn(CANchannel);
+end_if;
+
+if obj_offset < 2 then
+	obj_offset := obj_offset + 1;
+else
+	obj_offset := 0;
+end_if;
+
 ]]>
 				</sourceCode>
 			</program>
 		</programs>
 		<macros/>
 		<structs>
-			<struct name="BZRealRange" version="1.0.0">
-				<descr>The minimal and maximum types are 'real'.</descr>
-				<vars>
-					<var name="Min" type="REAL">
-						<initValue>0.0</initValue>
-					</var>
-					<var name="Max" type="REAL">
-						<initValue>100.0</initValue>
-					</var>
-				</vars>
-			</struct>
-			<struct name="BZBinaryOutput" version="1.0.0">
-				<descr>A binary output has a configurable output according to the command.</descr>
-				<vars>
-					<var name="Parent" type="BZActuatorBase">
-						<initValue>(MODE:=STANDBY, STATUS:=OFF)</initValue>
-					</var>
-					<var name="Command" type="BOOL">
-						<initValue>FALSE</initValue>
-					</var>
-					<var name="Output" type="BOOL">
-						<initValue>FALSE</initValue>
-					</var>
-					<var name="IsReversed" type="BOOL">
-						<initValue>FALSE</initValue>
-					</var>
-				</vars>
-			</struct>
-			<struct name="BZElectricHeaterBar" version="1.0.0">
-				<descr>A heater bar is actually a resistor controlled by a relay to generate heat.</descr>
-				<vars>
-					<var name="Command" type="BOOL">
-						<initValue>FALSE</initValue>
-					</var>
-					<var name="Parent" type="BZBinaryOutput"/>
-				</vars>
-			</struct>
-			<struct name="BZECFan" version="1.0.0">
-				<descr>The EC type fan normally accepts a DC voltage as a command to regulate the speed and
-the feedback is converted to RPM from a plus feedback.</descr>
-				<vars>
-					<var name="Parent" type="BZAnalogActuator"/>
-					<var name="CommandVoltage" type="REAL">
-						<initValue>0.0</initValue>
-					</var>
-					<var name="FeedbackTacho" type="UINT">
-						<initValue>0</initValue>
-					</var>
-				</vars>
-			</struct>
-			<struct name="BZActuatorBase" version="1.0.0">
-				<vars>
-					<var name="Mode" type="BZActuatorMode"/>
-					<var name="Status" type="BZActuatorStatus"/>
-				</vars>
-			</struct>
-			<struct name="BZAnalogActuator" version="1.0.0">
-				<descr>The command to the actuator is an analog type input.</descr>
-				<vars>
-					<var name="Parent" type="BZActuatorBase">
-						<initValue>(MODE:=STANDBY, STATUS:=OFF)</initValue>
-					</var>
-					<var name="CommandPct" type="REAL">
-						<initValue>0.0</initValue>
-					</var>
-					<var name="FeedbackPct" type="REAL">
-						<initValue>0.0</initValue>
-					</var>
-					<var name="LimitationPct" type="BZRealRange">
-						<initValue>(Min:=0.0,Max:=100.0)</initValue>
-					</var>
-				</vars>
-			</struct>
 			<struct name="BZProportionalValve" version="1.0.0">
 				<descr>The proportional valve actuator is type of a motor that can be regulated by the given command of position.
 Normally it is presented by a DC voltage. An output DC type singal is sometimes provided as the position feedback
@@ -510,10 +3867,604 @@ of the actual position.</descr>
 						<initValue>(Min:=0.0,Max:=10.0)</initValue>
 					</var>
 				</vars>
+				<iecDeclaration active="FALSE"/>
+			</struct>
+			<struct name="BZActuatorBase" version="1.0.0">
+				<vars>
+					<var name="Mode" type="BZActuatorMode"/>
+					<var name="Status" type="BZActuatorStatus"/>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+			</struct>
+			<struct name="BZECFan" version="1.0.0">
+				<descr>The EC type fan normally accepts a DC voltage as a command to regulate the speed and
+the feedback is converted to RPM from a plus feedback.</descr>
+				<vars>
+					<var name="Parent" type="BZAnalogActuator"/>
+					<var name="CommandVoltage" type="REAL">
+						<initValue>0.0</initValue>
+					</var>
+					<var name="FeedbackTacho" type="UINT">
+						<initValue>0</initValue>
+					</var>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+			</struct>
+			<struct name="BZElectricHeaterBar" version="1.0.0">
+				<descr>A heater bar is actually a resistor controlled by a relay to generate heat.</descr>
+				<vars>
+					<var name="Command" type="BOOL">
+						<initValue>FALSE</initValue>
+					</var>
+					<var name="Parent" type="BZBinaryOutput"/>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+			</struct>
+			<struct name="BZBinaryOutput" version="1.0.0">
+				<descr>A binary output has a configurable output according to the command.</descr>
+				<vars>
+					<var name="Parent" type="BZActuatorBase">
+						<initValue>(MODE:=STANDBY, STATUS:=OFF)</initValue>
+					</var>
+					<var name="Command" type="BOOL">
+						<initValue>FALSE</initValue>
+					</var>
+					<var name="Output" type="BOOL">
+						<initValue>FALSE</initValue>
+					</var>
+					<var name="IsReversed" type="BOOL">
+						<initValue>FALSE</initValue>
+					</var>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+			</struct>
+			<struct name="BZTemperatureSensor" version="1.0.0">
+				<title>Temperature sensor object</title>
+				<descr>The base class of a temperature sensor object definition.</descr>
+				<vars>
+					<var name="m_ptrHWValue" type="@INT">
+						<descr>HW interface (pointer) that can pass the raw value in (x10 scaled)</descr>
+						<initValue>0</initValue>
+					</var>
+					<var name="m_fValue" type="REAL">
+						<descr>The instant measurement by physical presentation</descr>
+						<initValue>0.0</initValue>
+					</var>
+					<var name="m_enUnit" type="BZTemperatureUnitE">
+						<descr>The unit of the physical reading and it's metric by default</descr>
+					</var>
+					<var name="bIsAvailable" type="BOOL">
+						<descr>If the reading is in the available range of the probe, it's true otherwise, false</descr>
+						<initValue>TRUE</initValue>
+					</var>
+					<var name="m_i16Range" type="BZInt16RangeT">
+						<descr>By default, it's from -50C to 150C.</descr>
+						<initValue>(Max:=1500, Min:=-500)</initValue>
+					</var>
+					<var name="update" type="BZTemperatureSensor_update">
+						<descr>Public method to update the reading.</descr>
+					</var>
+					<var name="read" type="BZTemperatureSensor_read">
+						<descr>Public method to read the measurement according to the given type of unit.</descr>
+					</var>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+			</struct>
+			<struct name="BZMBDevice" version="1.0.0">
+				<title>Modbus Device</title>
+				<descr>A type of device that acts as a slave node on RS485 MODBUS RTU bus.</descr>
+				<vars>
+					<var name="Id" type="USINT">
+						<descr>Slave ID</descr>
+						<initValue>1</initValue>
+					</var>
+					<var name="Name" type="STRING" length="32">
+						<descr>Name of the device</descr>
+						<initValue>'BZMBDeviceNoname'</initValue>
+					</var>
+					<var name="Status" type="BZMBDeviceStatus">
+						<descr>Current status of device</descr>
+					</var>
+					<var name="NbrOfCommFailure" type="INT">
+						<descr>Number of times of polling register failure</descr>
+					</var>
+					<var name="MaxNbrOfCommFailure" type="INT">
+						<descr>If number of times of polling failure exceeded the threshold, you should know what's going on there</descr>
+					</var>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+			</struct>
+			<struct name="BZVariableByMBRegisters" version="1.0.0">
+				<title>BZVariable by MB Registers</title>
+				<descr>The way to describe a variable by multiple Modbus registers.</descr>
+				<vars>
+					<var name="StartAddr" type="UINT"/>
+					<var name="NbrOfRegs" type="UINT"/>
+					<var name="TypeOfReg" type="BZModbusRegisterTypeE"/>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+			</struct>
+			<struct name="BZCarelUXPB000100111" version="1.0.0">
+				<title>CAREL UXPB000100111</title>
+				<descr>CAREL expansion module, 1_RS485&amp;1_DIP SWITCH,8_FAST DI,1_PWM.</descr>
+				<vars>
+					<var name="parent" type="BZMBDevice">
+						<descr>Base class</descr>
+					</var>
+					<var name="frequencies" type="UINT" dim0="8">
+						<descr>Instant frequencies of the total 16 channels by Hz</descr>
+					</var>
+					<var name="freqBlocks" type="BZVariableByMBRegisters">
+						<descr>Registers map to present the frequencies</descr>
+					</var>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+			</struct>
+			<struct name="BZCSCB1" version="1.0.0">
+				<title>CSCB1 board</title>
+				<descr>Hehe...</descr>
+				<vars>
+					<var name="parent" type="BZMBDevice">
+						<descr>Base class</descr>
+					</var>
+					<var name="placeholderBlk" type="BZVariableByMBRegisters"/>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+			</struct>
+			<struct name="BZEliwellEVD" version="1.0.0">
+				<title>Eliwell EVD Driver</title>
+				<descr>EVD controller from Eliwell.</descr>
+				<vars>
+					<var name="parent" type="BZMBDevice"/>
+					<var name="m_eev" type="@BZEEV"/>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+			</struct>
+			<struct name="BZSwitch" version="1.0.0">
+				<title>Switch</title>
+				<descr>A binary type of input.</descr>
+				<vars>
+					<var name="m_ptrHWValue" type="@BOOL">
+						<descr>HW interface (pointer) that can pass the raw value in</descr>
+					</var>
+					<var name="Status" type="BZSwitchStatusE">
+						<descr>The logic status of the binary input</descr>
+					</var>
+					<var name="m_bReversed" type="BOOL">
+						<descr>Reverses the logic open/close status according to the real hardward input</descr>
+					</var>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+			</struct>
+			<struct name="BZRelay" version="1.0.0">
+				<title>BZRelay</title>
+				<descr>TBC</descr>
+				<vars>
+					<var name="m_ptrHWValue" type="@BOOL">
+						<descr>HW interface (pointer) that can pass the raw value in</descr>
+					</var>
+					<var name="m_output" type="BZRelayOutputE"/>
+					<var name="m_cfg" type="BZRelayOutputE"/>
+					<var name="m_runhours" type="UINT"/>
+					<var name="m_status" type="BZActuatorStatus"/>
+					<var name="run" type="BZRelay_run"/>
+					<var name="updateRunhour" type="BZRelay_updateRunhour"/>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+			</struct>
+			<struct name="BZAnalogActuator" version="1.0.0">
+				<title>BZActuator</title>
+				<descr>An actuator is regarded as an analog type of output that has a configurable output range.</descr>
+				<vars>
+					<var name="m_Output" type="REAL"/>
+					<var name="m_Range" type="BZRealRange"/>
+					<var name="m_Runhours" type="UINT"/>
+					<var name="m_Status" type="BZActuatorStatus"/>
+					<var name="m_Command" type="REAL"/>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+			</struct>
+			<struct name="BZDAQChannel" version="1.0.0">
+				<title>BZAnalog Converter</title>
+				<descr>TBD</descr>
+				<vars>
+					<var name="m_ptrHWValue" type="@INT">
+						<descr>HW interface (pointer) that can pass the raw value in (x10 scaled)</descr>
+					</var>
+					<var name="m_Type" type="BZDAQChannelTypeE">
+						<descr>Type of the converter</descr>
+					</var>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+			</struct>
+			<struct name="BZECFanEBM" version="1.0.0">
+				<title>EBM EC fan</title>
+				<descr>EBM EC fan controlled by 10vdc with pulse feedback for tacho.</descr>
+				<vars>
+					<var name="m_parent" type="BZAnalogActuator"/>
+					<var name="Tacho" type="UINT">
+						<descr>RPM</descr>
+					</var>
+					<var name="run" type="BZECFanEBM_run">
+						<descr>'run' member function</descr>
+					</var>
+					<var name="m_daq_chnl" type="@BZDAQChannel"/>
+					<var name="m_plus_per_round" type="UINT">
+						<descr>Refer to the spec of the fan</descr>
+					</var>
+					<var name="PulseFrequence" type="UINT">
+						<descr>Instant frequence reading as the raw feedback from fan</descr>
+					</var>
+					<var name="IsTachoFeedbackPresent" type="BOOL">
+						<descr>If the tacho feedback is available. Refer to fan spec</descr>
+					</var>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+			</struct>
+			<struct name="BZFault" version="1.0.0">
+				<title>BZFault</title>
+				<descr>It's a type of alarm generation for machine control.</descr>
+				<vars>
+					<var name="Level" type="BZFaultLevelE">
+						<descr>Level of the fault</descr>
+					</var>
+					<var name="Code" type="INT">
+						<descr>Fault code</descr>
+					</var>
+					<var name="Reset" type="BOOL">
+						<descr>Clear the fault manually</descr>
+					</var>
+					<var name="Enabled" type="BOOL">
+						<descr>YES to enable the fault in machine control</descr>
+					</var>
+					<var name="IsPresent" type="BOOL">
+						<descr>If the fault occurred, it's TRUE</descr>
+					</var>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+			</struct>
+			<struct name="BZEEV" version="1.0.0">
+				<title>BZEEV</title>
+				<descr>The electronic expansion valve is normally driven by a step motor and 
+a small controller is commonly used to drive it for PLC application. So 
+this type supposed to be an abstract class to define the EEV object is
+the final version for application.</descr>
+				<vars>
+					<var name="m_parent" type="BZAnalogActuator"/>
+					<var name="Steps" type="UINT">
+						<descr>Actual steps read from driver</descr>
+					</var>
+					<var name="run" type="BZEEV_run">
+						<descr>Public method of run the main state machine of the object</descr>
+					</var>
+					<var name="MAXSteps" type="UINT">
+						<descr>Max steps is 65535, is there such exaggerated EEV in the world?</descr>
+					</var>
+					<var name="ReqSteps" type="UINT">
+						<descr>The steps calculated by max steps and the request in percentage</descr>
+					</var>
+					<var name="updateRunhour" type="BZEEV_updateRunhour">
+						<descr>Public method for working time update</descr>
+					</var>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+			</struct>
+			<struct name="BZVariableSpeedCompressor" version="1.0.0">
+				<title>Variable Speed Compressor</title>
+				<descr>A variable speed compressor is generally driven by a VFD 
+which is commonly regarded as a MBDevice also.</descr>
+				<vars>
+					<var name="m_parent" type="BZAnalogActuator"/>
+					<var name="ActFrequence" type="UINT"/>
+					<var name="run" type="BZVariableSpeedCompressor_run"/>
+					<var name="MAXSpeedHz" type="UINT"/>
+					<var name="ReqFrequence" type="UINT"/>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+			</struct>
+			<struct name="BZPressureTransmitterBy20mA" version="1.0.0">
+				<title>Pressure Transmitter by Current (20mA)</title>
+				<descr>The pressure transmitter converts the 4-20mA signal to the pressure reading.</descr>
+				<vars>
+					<var name="m_ptrHWValue" type="@INT">
+						<descr>Raw reading from HW interface</descr>
+					</var>
+					<var name="m_enUnit" type="BZPressureUnitE"/>
+					<var name="IsAvailable" type="BOOL"/>
+					<var name="Value" type="REAL">
+						<descr>bar or psi depending on m_enUnit</descr>
+					</var>
+					<var name="update" type="BZPressureTransmitterBy20mA_update"/>
+					<var name="m_range" type="BZRealRange"/>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+			</struct>
+			<struct name="BZRealRange" version="1.0.0">
+				<descr>The minimal and maximum types are 'real'.</descr>
+				<vars>
+					<var name="Low" type="REAL">
+						<initValue>0.0</initValue>
+					</var>
+					<var name="High" type="REAL">
+						<initValue>100.0</initValue>
+					</var>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+			</struct>
+			<struct name="BZInt16RangeT" version="1.0.0">
+				<descr>[-32768, 32767] by default</descr>
+				<vars>
+					<var name="Max" type="INT">
+						<initValue>32767</initValue>
+					</var>
+					<var name="Min" type="INT">
+						<initValue>-32768</initValue>
+					</var>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+			</struct>
+			<struct name="bzAisleACUnitFault" version="1.0.0">
+				<title>bzAisleACUnit Fault</title>
+				<descr>TBC</descr>
+				<vars>
+					<var name="NumberOfWarningsDetected" type="INT"/>
+					<var name="NumberOfAlarmDetected" type="INT"/>
+					<var name="UnitMaintenanceWarning_evaluator" type="BZFault_UnitMaintenanceWarning"/>
+					<var name="NoneOfRackinletTemperatureWarning_evaluator" type="BZFault_NoneOfRackinletTemperatureWarning"/>
+					<var name="HighRackinletTemperatureWarning_evaluator" type="BZFault_HighRackinletTemperatureWarning"/>
+					<var name="HighReturnTemperatureWarning_evaluator" type="BZFault_HighReturnTemperatureWarning"/>
+					<var name="HighSupplyTemperatureWarning_evaluator" type="BZFault_HighSupplyTemperatureWarning"/>
+					<var name="UnitRemoteShutdownAlarm_evaluator" type="BZFault_UnitRemoteShutdownAlarm"/>
+					<var name="AirfilterCloggedAlarm_evaluator" type="BZFault_AirfilterCloggedAlarm"/>
+					<var name="LeakageAlarm_evaluator" type="BZFault_LeakageAlarm"/>
+					<var name="PanFullAlarm_evaluator" type="BZFault_PanFullAlarm"/>
+					<var name="UpperReturnAirSensorFaultAlarm_evaluator" type="BZFault_UpperReturnAirSensorFaultAlarm"/>
+					<var name="LowerReturnAirSensorFaultAlarm_evaluator" type="BZFault_LowerReturnAirSensorFaultAlarm"/>
+					<var name="UpperSupplyAirSensorFaultAlarm_evaluator" type="BZFault_UpperSupplyAirSensorFaultAlarm"/>
+					<var name="LowerSupplyAirSensorFaultAlarm_evaluator" type="BZFault_LowerSupplyAirSensorFaultAlarm"/>
+					<var name="AirfilterRunhourAlarm_evaluator" type="BZFault_AirfilterRunhourAlarm"/>
+					<var name="CoilOutletSensorFaultAlarm_evaluator" type="BZFault_CoilOutletSensorFaultAlarm"/>
+					<var name="CondensatePumpRunhourWarning_evaluator" type="BZFault_CondensatePumpRunhourWarning"/>
+					<var name="SolenoidValveRunhourWarning_evaluator" type="BZFault_SolenoidValveRunhourWarning"/>
+					<var name="UnitRunhourWarning_evaluator" type="BZFault_UnitRunhourWarning"/>
+					<var name="EEVRunhourWarning_evaluator" type="BZFault_EEVRunhourWarning"/>
+					<var name="CompressorRunhourWarning_evaluator" type="BZFault_CompressorRunhourWarning"/>
+					<var name="EvaporatorFanRPMWarning_evaluators" type="BZFault_EvaporatorFanRPMWarning" dim0="8"/>
+					<var name="NbrOfEvapFanWarnings" type="INT"/>
+					<var name="evaulate" type="bzAisleACUnitFault_evaulate"/>
+					<var name="EvaporatorFanRunhourWarning_evaluators" type="BZFault_EvaporatorFanRunhourWarning" dim0="8"/>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+			</struct>
+			<struct name="bzAisleACUnit" version="1.0.0">
+				<title>AisleAC Unit</title>
+				<descr>A type of an air conditioner unit built from a project called AisleAC which is regarded as replacedment of ACRD100, but who knows how long it can survive.</descr>
+				<vars>
+					<var name="strModelNO" type="STRING" length="16">
+						<descr>Unit model NO.</descr>
+					</var>
+					<var name="strSerialNO" type="STRING" length="16">
+						<descr>Unit serial NO.</descr>
+					</var>
+					<var name="groupReturnAirSensors" type="bzAisleACUnit_groupTemperatures">
+						<descr>Two NTC sensors on return air side</descr>
+					</var>
+					<var name="groupSupplyAirSensors" type="bzAisleACUnit_groupTemperatures">
+						<descr>Two NTC sensors on supply air side</descr>
+					</var>
+					<var name="groupRackAirSensors" type="bzAisleACUnit_groupTemperatures">
+						<descr>Two NTC sensors in front of the server racks on customer side</descr>
+					</var>
+					<var name="EvapCoilTempSensor" type="@BZTemperatureSensor">
+						<descr>One NTC sensor for coil inlet temperature</descr>
+					</var>
+					<var name="EvapCoilPressureSensor" type="@BZPressureTransmitterBy20mA">
+						<descr>A pressure sensor to detect the evaporator coil outlet pressure</descr>
+					</var>
+					<var name="RemoteShutdownSwitch" type="@BZSwitch">
+						<descr>Remote shutdown switch input</descr>
+					</var>
+					<var name="AirfilterCloggedSwitch" type="@BZSwitch">
+						<descr>Airfilter clogged detector switch input</descr>
+					</var>
+					<var name="LeakageSwitch" type="@BZSwitch">
+						<descr>Leak detector binary type input</descr>
+					</var>
+					<var name="LowerPanSwitch" type="@BZSwitch">
+						<descr>The lower switch inside the pan to detect the condensate level</descr>
+					</var>
+					<var name="UpperPanSwitch" type="@BZSwitch">
+						<descr>The upper switch inside the pan to detect the condensate level</descr>
+					</var>
+					<var name="UnitStatusRelay" type="@BZRelay">
+						<descr>Indication of unit status</descr>
+					</var>
+					<var name="UnitAlarmHWIndicatorRelay" type="@BZRelay">
+						<descr>Energize the relay when any of alarms is raised</descr>
+					</var>
+					<var name="CondensatePumpRelay" type="@BZRelay">
+						<descr>Condensate pump actuator</descr>
+					</var>
+					<var name="SolenoidValveRelay" type="@BZRelay">
+						<descr>Solenoid valve actuator</descr>
+					</var>
+					<var name="EvapFans" type="@BZECFanEBM" dim0="8">
+						<descr>EC EBM fans installed on the unit to provide airflow through evaporator coil</descr>
+					</var>
+					<var name="NumberOfEvapFans" type="INT">
+						<descr>Number of indoor fans installed</descr>
+					</var>
+					<var name="EXV" type="@BZEEV">
+						<descr>EEV for evaporator coil</descr>
+					</var>
+					<var name="EvapFanManOutPtr" type="@INT">
+						<descr>Link to bzManualFanSpeed</descr>
+					</var>
+					<var name="CondPumpManOutPtr" type="@INT">
+						<descr>Link to bzManualCondensatePump</descr>
+					</var>
+					<var name="SolenoidValveManOutPtr" type="@INT">
+						<descr>Link to bzManualSolenoidValve</descr>
+					</var>
+					<var name="EEVManOutPtr" type="@INT">
+						<descr>Link bzManualEEV</descr>
+					</var>
+					<var name="CompressorManOutPtr" type="@INT">
+						<descr>Link bzManualCompressor</descr>
+					</var>
+					<var name="FanTachoModule" type="@BZCarelUXPB000100111">
+						<descr>Fan speed feedback measurement module by modbus RTU</descr>
+					</var>
+					<var name="OutdoorModbule" type="@BZCSCB1">
+						<descr>Outdoor control module by modbus RTU</descr>
+					</var>
+					<var name="EVDController" type="@BZEliwellEVD">
+						<descr>EVD controller to drive EEV</descr>
+					</var>
+					<var name="Compressor" type="@BZVariableSpeedCompressor">
+						<descr>The engine of a DX type cooler</descr>
+					</var>
+					<var name="m_configurations" type="bzAisleACUnitCfg">
+						<descr>Unit configurable variables</descr>
+					</var>
+					<var name="m_unit_status" type="BZIRACUnitStatusE">
+						<descr>Unit status</descr>
+					</var>
+					<var name="m_unit_startup_delay_counter_u16" type="UINT">
+						<descr>Unit startup delay timer</descr>
+					</var>
+					<var name="m_unit_maintenance_timeout_counter_u16" type="UINT">
+						<descr>Unit maintenance timeout timer</descr>
+					</var>
+					<var name="m_cond_pump_off_delay_counter_u16" type="UINT">
+						<descr>Condensate pump off delay timer</descr>
+					</var>
+					<var name="m_high_rackinlet_temp_timeout_counter_u16" type="UINT">
+						<descr>High rackinlet temperature timeout counter</descr>
+					</var>
+					<var name="m_high_return_temp_timeout_counter_u16" type="UINT">
+						<descr>High return temperature timeout counter</descr>
+					</var>
+					<var name="m_high_supply_temp_timeout_counter_u16" type="UINT">
+						<descr>High supply temperature timeout counter</descr>
+					</var>
+					<var name="BZFault_evaluators" type="bzAisleACUnitFault">
+						<descr>Warning and alarm detectors</descr>
+					</var>
+					<var name="AirfilterRunhour" type="UINT">
+						<descr>Count run hour for airfilter because it's a dummy actuator</descr>
+					</var>
+					<var name="run" type="bzAisleACUnit_run">
+						<descr>Public method to execute the control process</descr>
+					</var>
+					<var name="poll" type="bzAisleACUnit_poll">
+						<descr>Method to poll the slave devices on RTU bus</descr>
+					</var>
+					<var name="on1s" type="bzAisleACUnit_on1s">
+						<descr>Method for the one-second callback</descr>
+					</var>
+					<var name="on1min" type="bzAisleACUnit_on1min">
+						<descr>Method for the one-minute callback</descr>
+					</var>
+					<var name="on1h" type="bzAisleACUnit_on1h">
+						<descr>Method for the runhour callback</descr>
+					</var>
+					<var name="controlEXV" type="bzAisleACUnit_controlEXV">
+						<descr>Method for EXV control</descr>
+					</var>
+					<var name="controlCompressor" type="bzAisleACUnit_controlCompressor">
+						<descr>Method for compressor control</descr>
+					</var>
+					<var name="controlEvaporatorFan" type="bzAisleACUnit_controlEvaporatorFan">
+						<descr>Method for evaporator fan control</descr>
+					</var>
+					<var name="Runhours" type="UINT">
+						<descr>Unit accumulation working time</descr>
+					</var>
+				</vars>
+				<iecDeclaration active="FALSE"/>
+			</struct>
+			<struct name="bzAisleACUnitCfg" version="1.0.0">
+				<title>AisleAC Unit</title>
+				<descr>A type of an air conditioner unit built from a project called AisleAC which is regarded as replacedment of ACRD100, but who knows how long it can survive.</descr>
+				<vars>
+					<var name="m_bzUnitModeCfg" type="INT"/>
+					<var name="unit_mode_cmd_adr" type="UDINT"/>
+					<var name="m_bzUnitStartupDelayCfg" type="UINT"/>
+					<var name="m_bzUnitMaintenanceTimeoutCfg" type="UINT"/>
+					<var name="m_bzCondensatePumpDelay2OffCfg" type="INT"/>
+					<var name="m_bzHighRackinletTemperatureThresholdCfg" type="REAL"/>
+					<var name="m_bzHighRackinletTemperatureTimeoutCfg" type="INT"/>
+					<var name="m_bzHighReturnTemperatureThresholdCfg" type="REAL"/>
+					<var name="m_bzHighReturnTemperatureTimeoutCfg" type="INT"/>
+					<var name="m_bzHighSupplyTemperatureThresholdCfg" type="REAL"/>
+					<var name="m_bzHighSupplyTemperatureTimeoutCfg" type="INT"/>
+					<var name="m_bzCondensatePumpRunhourThresholdCfg" type="UINT"/>
+					<var name="m_bzSolenoidValveRunhourThresholdCfg" type="UINT"/>
+					<var name="m_bzAirfilterRunhourThresholdCfg" type="UINT"/>
+					<var name="m_bzEvaporatorFanStrategyCfg" type="INT"/>
+					<var name="m_bzCoolSetpointCfg" type="REAL"/>
+					<var name="m_bzDeltaTSetpointCfg" type="REAL"/>
+					<var name="m_bzSupplyAirSetpointCfg" type="REAL"/>
+					<var name="m_bzMinimumEvaporatorFanSpeedCfg" type="REAL"/>
+					<var name="m_bzMaximumEvaporatorFanSpeedCfg" type="REAL"/>
+					<var name="m_bzMinimumEEVOpeningCfg" type="REAL"/>
+					<var name="m_bzEEVPreOpeningCfg" type="REAL"/>
+					<var name="m_bzEvapSuperheatSetpointCfg" type="REAL"/>
+					<var name="m_bzMinimumCompressorCommandCfg" type="REAL"/>
+					<var name="m_bzCompressorPumpdownCommandCfg" type="REAL"/>
+					<var name="m_bzCompressorPumpdownTimeoutCfg" type="INT"/>
+					<var name="m_bzCompressorPumpdownThreshold" type="REAL"/>
+					<var name="m_bzMinimalSupplyAirTemperatureCfg" type="REAL"/>
+					<var name="m_bzEvaporatorFanPIDKpCfg" type="REAL"/>
+					<var name="m_bzEvaporatorFanPIDTiCfg" type="UINT"/>
+					<var name="m_bzEvaporatorFanPIDTdCfg" type="UINT"/>
+					<var name="m_bzCompressorPIDKpCfg" type="REAL"/>
+					<var name="m_bzCompressorPIDTiCfg" type="UINT"/>
+					<var name="m_bzCompressorPIDTdCfg" type="UINT"/>
+					<var name="m_bzEEVPIDKpCfg" type="REAL"/>
+					<var name="m_bzEEVPIDTiCfg" type="UINT"/>
+					<var name="m_bzEEVPIDTdCfg" type="UINT"/>
+					<var name="m_bzEvapSuperheatDeadbandCfg" type="REAL"/>
+					<var name="m_bzUnitRunhourThresholdCfg" type="UINT"/>
+					<var name="m_bzEEVRunHourThresholdCfg" type="UINT"/>
+					<var name="m_bzCompressorRunhourThresholdCfg" type="UINT"/>
+					<var name="m_bzEvaporatorFanRunhourThresholdCfg" type="UINT"/>
+				</vars>
+				<iecDeclaration active="FALSE"/>
 			</struct>
 		</structs>
 		<typedefs/>
 		<enums>
+			<enum name="BZActuatorStatus" version="1.0.0">
+				<elements>
+					<element name="ACT_OFF">
+						<descr>No output</descr>
+						<value>0</value>
+					</element>
+					<element name="ACT_RUNNING">
+						<descr>Output is as expected</descr>
+						<value>1</value>
+					</element>
+					<element name="ACT_IDLE">
+						<descr>Output is locked down due to fault</descr>
+						<value>2</value>
+					</element>
+					<element name="ACT_STARTING">
+						<descr>OFF to RUN</descr>
+						<value>3</value>
+					</element>
+					<element name="ACT_STOPPING">
+						<descr>RUNNING to OFF or IDLE</descr>
+						<value>4</value>
+					</element>
+					<element name="ACT_INITIALISING">
+						<descr>Preparation work</descr>
+						<value>5</value>
+					</element>
+				</elements>
+				<iecDeclaration active="FALSE"/>
+			</enum>
 			<enum name="BZActuatorMode" version="1.0.0">
 				<elements>
 					<element name="STANDBY">
@@ -533,30 +4484,216 @@ of the actual position.</descr>
 						<value>3</value>
 					</element>
 				</elements>
+				<iecDeclaration active="FALSE"/>
 			</enum>
-			<enum name="BZActuatorStatus" version="1.0.0">
+			<enum name="BZTemperatureUnitE" version="1.0.0">
+				<title>Temperature unit type enumerations</title>
+				<descr>Celcius degree of metrics or US customary (Fahrenheit).</descr>
 				<elements>
-					<element name="OFF">
-						<descr>No output</descr>
+					<element name="enCelcius">
+						<descr>Celcius degree (C)</descr>
 						<value>0</value>
 					</element>
-					<element name="RUNNING">
-						<descr>Output is as expected</descr>
+					<element name="enFahrenheit">
+						<descr>Fahrenheit degree (F)</descr>
 						<value>1</value>
 					</element>
-					<element name="IDLE">
-						<descr>Output is locked down due to fault</descr>
+				</elements>
+				<iecDeclaration active="FALSE"/>
+			</enum>
+			<enum name="BZModbusRegisterTypeE" version="1.0.0">
+				<title>Modbus Register Type</title>
+				<descr>Four types of modbus register enumeration.</descr>
+				<elements>
+					<element name="BZMBCoil">
+						<value>0</value>
+					</element>
+					<element name="BZMBDiscreteInput">
+						<value>1</value>
+					</element>
+					<element name="BZMBInputRegister">
 						<value>2</value>
 					</element>
-					<element name="STARTING">
-						<descr>OFF to RUN</descr>
+					<element name="BZMBHoldingRegister">
 						<value>3</value>
 					</element>
-					<element name="STOPPING">
-						<descr>RUNNING to OFF or IDLE</descr>
-						<value>4</value>
+				</elements>
+				<iecDeclaration active="FALSE"/>
+			</enum>
+			<enum name="BZIRACUnitStatusE" version="1.0.0">
+				<title>IRAC Unit Status</title>
+				<descr>Status of a IRAC unit</descr>
+				<elements>
+					<element name="BZ_OFF">
+						<value>0</value>
+					</element>
+					<element name="BZ_STARTUP_DELAY">
+						<value>1</value>
+					</element>
+					<element name="BZ_ON">
+						<value>2</value>
+					</element>
+					<element name="BZ_MAINTENANCE">
+						<value>3</value>
 					</element>
 				</elements>
+				<iecDeclaration active="FALSE"/>
+			</enum>
+			<enum name="BZSwitchStatusE" version="1.0.0">
+				<title>BZSwitch Status</title>
+				<descr>TBD</descr>
+				<elements>
+					<element name="BZSwitchOPEN">
+						<value>0</value>
+					</element>
+					<element name="BZSwitchCLOSE">
+						<value>1</value>
+					</element>
+				</elements>
+				<iecDeclaration active="FALSE"/>
+			</enum>
+			<enum name="BZRelayOutputE" version="1.0.0">
+				<title>BZRelay Output</title>
+				<descr>Relay output status</descr>
+				<elements>
+					<element name="BZRelay_OPEN">
+						<value>0</value>
+					</element>
+					<element name="BZRelay_CLOSE">
+						<value>1</value>
+					</element>
+				</elements>
+				<iecDeclaration active="FALSE"/>
+			</enum>
+			<enum name="BZDAQChannelTypeE" version="1.0.0">
+				<title>Analog Converter Type</title>
+				<descr>0-10vDC
+4-20mA
+PWM</descr>
+				<elements>
+					<element name="BZ_DAC_VOL">
+						<descr>0-10vDC</descr>
+						<value>0</value>
+					</element>
+					<element name="BZ_DAC_CUR">
+						<descr>4-20mA</descr>
+						<value>1</value>
+					</element>
+					<element name="BZ_DAC_PWM">
+						<descr>PWM</descr>
+						<value>2</value>
+					</element>
+				</elements>
+				<iecDeclaration active="FALSE"/>
+			</enum>
+			<enum name="BZFaultLevelE" version="1.0.0">
+				<title>BZFault Level</title>
+				<descr>Defines the level of a fault.</descr>
+				<elements>
+					<element name="BZ_WARNING">
+						<value>0</value>
+					</element>
+					<element name="BZ_ALARM">
+						<value>1</value>
+					</element>
+					<element name="BZ_EXCEPTION">
+						<value>2</value>
+					</element>
+					<element name="BZ_DEAD">
+						<value>3</value>
+					</element>
+				</elements>
+				<iecDeclaration active="FALSE"/>
+			</enum>
+			<enum name="BZPressureUnitE" version="1.0.0">
+				<title>Pressure Unit Enumeration</title>
+				<descr>Bar for metric and PSI for US customary.</descr>
+				<elements>
+					<element name="BZ_enBAR">
+						<value>0</value>
+					</element>
+					<element name="BZ_enPSI">
+						<value>1</value>
+					</element>
+				</elements>
+				<iecDeclaration active="FALSE"/>
+			</enum>
+			<enum name="BZMBDeviceStatus" version="1.0.0">
+				<title>BZMBDevice Status</title>
+				<descr>Generally there should be two statuses for a device on Modbus, online and offline.</descr>
+				<elements>
+					<element name="MBD_OFFLINE">
+						<value>0</value>
+					</element>
+					<element name="MBD_ONLINE">
+						<value>1</value>
+					</element>
+				</elements>
+				<iecDeclaration active="FALSE"/>
+			</enum>
+			<enum name="bzAisleACUnitEvapFanCtrlStrategy" version="1.0.0">
+				<title>bzAisleACUnit Evap-fan control strategy</title>
+				<descr>3 types of strategies inherited from inrow product</descr>
+				<elements>
+					<element name="bzInRow_CACS">
+						<value>0</value>
+					</element>
+					<element name="bzHACS_RACS">
+						<value>1</value>
+					</element>
+					<element name="bzCONSTANT_SPD">
+						<value>2</value>
+					</element>
+				</elements>
+				<iecDeclaration active="FALSE"/>
+			</enum>
+			<enum name="bzAisleACUnitCompressorSM" version="1.0.0">
+				<title>bzAilseACUnit Compressor State Machine</title>
+				<descr>Since the compressor management is the most complex control for AC unit, 
+a statemachine is necessary to simplify the design.</descr>
+				<elements>
+					<element name="bzCompOFF">
+						<descr>The compressor is off</descr>
+						<value>0</value>
+					</element>
+					<element name="bzCompPRESTART">
+						<descr>The compressor is about to run waitting for eev and liquid valve on</descr>
+						<value>1</value>
+					</element>
+					<element name="bzCompAUTO">
+						<descr>The compressor is under control by a PID</descr>
+						<value>2</value>
+					</element>
+					<element name="bzCompPUMPDOWN">
+						<descr>When the compressor is about to stop in normal situation</descr>
+						<value>3</value>
+					</element>
+				</elements>
+				<iecDeclaration active="FALSE"/>
+			</enum>
+			<enum name="bzAisleACUnitEEVSM" version="1.0.0">
+				<title>bzAilseACUnit Compressor State Machine</title>
+				<descr>Since the compressor management is the most complex control for AC unit, 
+a statemachine is necessary to simplify the design.</descr>
+				<elements>
+					<element name="bzEEV_IDLE">
+						<descr>EEV is in position of standby when compressor is off</descr>
+						<value>0</value>
+					</element>
+					<element name="bzEEV_PREOPEN">
+						<descr>Set to pre-open position when the compressor is about to start</descr>
+						<value>1</value>
+					</element>
+					<element name="bzEEV_AUTO">
+						<descr>Control by a PID to satisfy the evaporation superheat</descr>
+						<value>2</value>
+					</element>
+					<element name="bzEEV_PUMPDOWN">
+						<descr>Move to fully closed position gradually when the compressor is running for pump down</descr>
+						<value>3</value>
+					</element>
+				</elements>
+				<iecDeclaration active="FALSE"/>
 			</enum>
 		</enums>
 		<subranges/>

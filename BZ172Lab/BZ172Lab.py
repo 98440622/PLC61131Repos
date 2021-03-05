@@ -15,6 +15,7 @@ Version MY_VERSION
            Addresses the issues in the C files that cause failure of modbus polling
 2021.03.02 Add a script as an example for auto testing
 2021.03.04 Generate two DDF.csv files, one for user and the other is a complete version
+2021.03.05 Add 'reset' interface
 
 """
 
@@ -24,7 +25,7 @@ import os
 from datetime import datetime
 import time
 
-MY_VERSION = '21MAR02'
+MY_VERSION = '21MAR03'
 
 def createDDF(variable_filename, e2prom_filename) :
     '''
@@ -310,6 +311,10 @@ class IrACdx36LibCaller :
         self.clib.IRAC_BZ172Lab_PollString.argtypes = [c_int, c_int, POINTER(c_char), c_int]
         self.clib.IRAC_BZ172Lab_PollString.restype = c_int
         self.pollString = self.clib.IRAC_BZ172Lab_PollString
+        
+        self.clib.IRAC_BZ172Lab_Reset.argtypes = []
+        self.clib.IRAC_BZ172Lab_Reset.restype = c_int
+        self.reset = self.clib.IRAC_BZ172Lab_Reset
 
     def init(self):
         rtn = self.Init()
@@ -407,18 +412,20 @@ class BZ172Lab :
         
         self.BIOSVersionID,\
         self.AppVersionID = [
-            IDandVars.NO[IDandVars.DataPoint == 'BIOSVersion'], 
-            IDandVars.NO[IDandVars.DataPoint == 'AppVersion']]
+            self.IDandVars.NO[self.IDandVars.DataPoint == 'BIOSVersion'], 
+            self.IDandVars.NO[self.IDandVars.DataPoint == 'AppVersion']]
         self.BZIsRealModeID = \
-            IDandVars.NO[IDandVars.DataPoint == 'BZIsRealMode']
+            self.IDandVars.NO[self.IDandVars.DataPoint == 'BZIsRealMode']
         
         self.BZDILnID = [x for x in range(84, 96)]
         self.BZAILnID = [x for x in range(96, 108)]
         
         self.AmbientTemperaturesID = [x for x in range(2, 11)]
         
-        self.WarningIDs = [x for x in range(39, 65)] # 64 is the last one
-        self.AlarmIDs = [x for x in range(66, 75)]
+        self.WarningIDs = [x for x in range(38, 66)] # 65 is the last one
+        self.AlarmIDs = [x for x in range(66, 77)]
+        
+        self.ActuatorIDs = [x for x in range(12, 20)]
 
         if (self.caller.init() != 0):
             print("Activate IrACdx36 firstly.")
@@ -428,7 +435,8 @@ class BZ172Lab :
                 print("IrACdx36 cannot connect to target.")
             else:
                 print("GOOD to go with {0} mode".format(
-                    ['REAL', 'SOLO'][var[1] == 0]))
+                    ['REAL', 'SOLO'][int(var[1]) == 0])) 
+                # ['true', 'false'][True]  'false'
                     
         print("BIOS         : ", 
               (self.caller.getStr(self.BIOSVersionID)[1]).decode('utf-8'))
@@ -438,17 +446,37 @@ class BZ172Lab :
     def __del__(self):
         #self.caller.term()
         pass
+    
+    def checkVars(self, ids):
+        if (type(ids) == int):
+            res = self.caller.getVar(ids)
+            print("{0}({2})={1}".format(self.IDandVars.DataPoint[ids], 
+                                        res[1], 
+                                        ids))
+        else:
+            tmps = self.caller.getVars(ids)
+            for i, k in zip(ids, range(0, len(ids))):
+                print("{0}({1}) = {2}".format(self.IDandVars.DataPoint[i],
+                                              k,
+                                              tmps[k][1]))
+    
+    def updateVar(self, i, v):
+        if (i in self.IDandVars.NO):
+            self.caller.setVar(i, v)
+        else:
+            print(i, ' is out of boundary')
         
     def goSolo(self):
         var = self.caller.getVar(self.BZIsRealModeID)
-        if (var[0] != 0):
+        if (int(var[0]) != 0):
             print("Lost target!")
         else:
-            if (var[1] == 1):
+            if (int(var[1]) == 1):
                 #print("Set target in solo mode")
                 self.caller.setVar(self.BZIsRealModeID, 0)
                 input("Cycle the power of the target and "
                       "press any key after it reboot...")
+                self.caller.reset()
             else:
                 pass
             
@@ -475,25 +503,22 @@ class BZ172Lab :
                                           tmps[k][1],
                                           k))
             
-            
     def checkWarnings(self):
         tmps = self.caller.getVars(self.WarningIDs)
-        for i, k in zip(self.WarningIDs,
-                        range(0, len(self.WarningIDs))):
+        for i, k in zip(self.WarningIDs, range(0, len(self.WarningIDs))):
             print("{0} = {1}".format(self.IDandVars.DataPoint[i],
-                                          ['NO', 'YES'][int(tmps[k][1])],
-                                          k))
+                                     ['NO', 'YES'][int(tmps[k][1])],
+                                     k))
             
     def checkAlarms(self):
         tmps = self.caller.getVars(self.AlarmIDs)
-        for i, k in zip(self.AlarmIDs,
-                        range(0, len(self.AlarmIDs))):
+        for i, k in zip(self.AlarmIDs, range(0, len(self.AlarmIDs))):
             print("{0} = {1}".format(self.IDandVars.DataPoint[i],
-                                          ['NO', 'YES'][int(tmps[k][1])],
-                                          k))
-        
-        
+                                     ['NO', 'YES'][int(tmps[k][1])],
+                                     k))
             
+    def checkActuators(self):
+        self.checkVars(self.ActuatorIDs)
         
         
         

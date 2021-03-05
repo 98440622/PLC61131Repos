@@ -176,6 +176,7 @@ BZDIL_09 AT %MW110.113 : INT := 0;
 BZDIL_10 AT %MW110.114 : INT := 0;
 BZDIL_11 AT %MW110.115 : INT := 0;
 BZDIL_12 AT %MW110.116 : INT := 0;
+bzTachoModuleOfflineWarning AT %MW110.117 : INT;	{ DE:"Fan tacho meausrement module is offline" }
 	{G:"IO_Mapping"}
 HW_AI_01 AT %IW1.0 : INT;	{ DE:"AIL1 analogue input" }
 HW_AI_02 AT %IW1.1 : INT;	{ DE:"AIL2 analogue input" }
