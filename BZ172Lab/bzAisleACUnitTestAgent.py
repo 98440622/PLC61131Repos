@@ -61,12 +61,13 @@ class bzAisleACUnitTestAgent:
         mytest.stop()
 
     """
-    def __init__(self, unit):
+    def __init__(self, unit, vars_monitored={}):
         self.unit = unit
         self.is_started = False
         self.req_q = Queue()
         self.rpl_q = Queue()
         self.lines_of_buffer = 0
+        self.vars_monitored_dict = vars_monitored
         
     def __del__(self):
         if (self.is_started):
@@ -74,7 +75,7 @@ class bzAisleACUnitTestAgent:
         else:
             pass
 
-    def __run_at_1Hz(self):
+    def __run(self, period_by_s = 1, filename=""):
         dt = datetime.now()
         dt_fmt = "{0:02d}-{1:02d} {2:02d}:{3:02d}:{4:02d}"
         dt_str = "{0}{1:02d}{2:02d}_{3:02d}{4:02d}{5:02d}".format(dt.year,
@@ -83,9 +84,19 @@ class bzAisleACUnitTestAgent:
                                                                   dt.hour,
                                                                   dt.minute,
                                                                   dt.second)
-        with open("bzAisleACUnitTestLog_{0}.log".format(dt_str), "w") as file:
+        if (filename == ""):
+            filename = "bzAisleACUnitTestLog_{0}.log".format(dt_str)
+        else:
+            filename = filename + "_{0}.log".format(dt_str)
+        with open(filename, "w") as file:
             print("tester background task is started")
-            file.write('DateTime,\n')
+            if (self.vars_monitored_dict != {}):
+                file.write("DateTime")
+                for k in self.vars_monitored_dict:
+                    file.write(",{0}".format(k))
+                file.write("\n")
+            else:
+                pass
             while (self.is_started):
                 while (not self.req_q.empty()):
                     obj = self.req_q.get_nowait()
@@ -96,33 +107,41 @@ class bzAisleACUnitTestAgent:
                         self.rpl_q.put(obj[0](obj[1]))
                     else:
                         pass
-                dt = datetime.now()
-                strLn = dt_fmt.format(dt.month,
-                                      dt.day,
-                                      dt.hour,
-                                      dt.minute,
-                                      dt.second)
-                strLn += ',\n'
-                # todo : add periodical data log...
-                file.write(strLn)
-                
-                if (self.lines_of_buffer >= 5 * 60):
-                    self.lines_of_buffer = 0
+                if (self.vars_monitored_dict != {}):
+                    dt = datetime.now()
+                    strLn = dt_fmt.format(dt.month,
+                                          dt.day,
+                                          dt.hour,
+                                          dt.minute,
+                                          dt.second)
+                    for k, v in self.vars_monitored_dict.items():
+                        vl = v()
+                        if (type(vl) == float):
+                            strLn += ",{0:.02f}".format(vl)
+                        else:
+                            strLn += ",{0}".format(vl)
+                    strLn += '\n'
                     
-                    file.flush()
+                    file.write(strLn)
+                    if (self.lines_of_buffer >= 5 * 60):
+                        self.lines_of_buffer = 0    
+                        file.flush()
+                    else:
+                        self.lines_of_buffer += 1
                 else:
-                    self.lines_of_buffer += 1
+                    pass
                 
-                time.sleep(1) # 1 Hz
+                time.sleep(period_by_s)     # 1 Hz by default
 
             file.close()
             print('tester background task is done')
 
-    def start(self):
+    def start(self, period_by_s = 1, name=""):
         if (not self.is_started):
             self.is_started = True
-            self.task = threading.Thread(name='__run_at_1Hz',
-                                         target=self.__run_at_1Hz)
+            self.task = threading.Thread(name='__run',
+                                         target=self.__run,
+                                         args=[period_by_s, name])
             self.task.start()
         else:
             print('agent is started, stop first and start again')
@@ -138,9 +157,10 @@ class bzAisleACUnitTestAgent:
             else:
                 self.req_q.put([obj, args[0]])
 
-            print(self.rpl_q.get())
+            return self.rpl_q.get()
         else:
             print('call start() firstly')
+            return -1
             
     def initSoloMode(self):
         if (not self.execute(self.unit.BZIsRealMode)):
@@ -180,15 +200,80 @@ class bzAisleACUnitTestAgent:
         else:
             pass
 
-    # def getAmibentTemperatures(self):
-    #     return [self.unit.AverageReturnAirTemperature(),
-    #             self.unit.AverageSupplyAirTemperature(),
-    #             self.unit.RackInletAirTemperatureAlfa(),
-    #             self.unit.RackInletAirTemperatureBravo(),
-    #             self.unit.MaxRackInletAirTemperature()]
+class bzAisleACUnit_EvaporatorFan_Control_Test(bzAisleACUnitTestAgent):
+    def __init__(self, unit):
+        super().__init__(unit, {
+            'RATavg' : unit.AverageReturnAirTemperature,
+            'SATavg' : unit.AverageSupplyAirTemperature,
+            'RACalp' : unit.RackInletAirTemperatureAlfa,
+            'RACbet' : unit.RackInletAirTemperatureBravo,
+            'RACmax' : unit.MaxRackInletAirTemperature,
+            'UNITst' : unit.UnitStatus,
+            'SATsp ' : unit.SupplyAirSetpointCfg,
+            'CMPcmd' : unit.CompressorCommand,
+            'CMPspd' : unit.CompressorFeedback,
+            'EEVpos' : unit.EXVFeedback,
+            'SLVst ' : unit.LiquidValveCommand
+        })
+        
+    def do_test(self):
+        pass
 
-
-
+class bzAisleACUnit_Compressor_Control_Test(bzAisleACUnitTestAgent):
+    def __init__(self, unit):
+        super().__init__(unit, {
+            'UNITst' : unit.UnitStatus,
+            'SATsp ' : unit.SupplyAirSetpointCfg,
+            'SATavg' : unit.AverageSupplyAirTemperature,
+            'CMPcmd' : unit.CompressorCommand,
+            'CMPspd' : unit.CompressorFeedback,
+            'EEVpos' : unit.EXVFeedback,
+            'SLVst ' : unit.LiquidValveCommand
+        })
+        
+    def do_test(self):
+        self.start(name="bzAisleACUnit_Compressor_Control_Test")
+        
+        print("Set SAT temperatures to 18.0 and 19.0")
+        self.execute(self.unit.BZAIL_03, 180)
+        self.execute(self.unit.BZAIL_04, 190)
+        
+        print("Set SAT setpoint to 18.0")
+        self.execute(self.unit.SupplyAirSetpointCfg, 18.0)
+        
+        print("Wait for 10 seconds...")
+        time.sleep(10)
+        
+        print("Set unit on")
+        self.execute(self.unit.UnitModeCfg, 1)
+        
+        print("Wait for max compressor speed...")
+        while (True):
+            spd = self.execute(self.unit.CompressorFeedback)
+            print("\b{0:.02f}Hz".format(spd))
+            if (spd == 100.0):
+                break;
+            time.sleep(10)
+            
+        print("Keep compressor running at max for 10 minutes...")
+        time.sleep(60 * 10)
+        
+        print("Set SAT temperature to 18.0 and 16.0")
+        self.execute(self.unit.BZAIL_04, 160)
+        
+        input("Press 'Enter' to continue when compressor is at minimal speed")
+                
+        print("Set unit off")
+        self.execute(self.unit.UnitModeCfg, 0)
+        
+        print("Wait for compressor stopped...")
+        while (self.execute(self.unit.CompressorFeedback)):
+            time.sleep(5)
+        
+        self.stop()
+        
+    
+        
 # %% (OBSOLETE) Solo is what i want
 class BZ172Lab :
     def __init__(self):
